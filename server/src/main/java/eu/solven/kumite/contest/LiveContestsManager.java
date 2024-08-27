@@ -25,9 +25,9 @@ public class LiveContestsManager {
 	public void registerContestLive(UUID contestId) {
 		boolean added = liveContests.add(contestId);
 		if (added) {
-			log.info("Contest is live: {}", contestId);
+			log.info("contestId={} turned live", contestId);
 		} else {
-			throw new IllegalArgumentException("contestId=" + contestId + " was already live");
+			throw new IllegalArgumentException("contestId=" + contestId + " is already live");
 		}
 	}
 
@@ -35,9 +35,9 @@ public class LiveContestsManager {
 		boolean removed = liveContests.remove(contestId);
 
 		if (removed) {
-			log.info("Contest is over: {}", contestId);
+			log.info("contestId={} turned over", contestId);
 		} else {
-			throw new IllegalArgumentException("contestId=" + contestId + " was not live");
+			throw new IllegalArgumentException("contestId=" + contestId + " is not live");
 		}
 	}
 }

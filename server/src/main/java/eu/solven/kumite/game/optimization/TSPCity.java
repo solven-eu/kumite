@@ -5,7 +5,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class TSMCity {
+public class TSPCity {
 	String name;
 
 	double x;

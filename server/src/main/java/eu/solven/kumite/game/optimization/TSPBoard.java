@@ -17,16 +17,16 @@ import lombok.Value;
 
 @Value
 @Builder
-public class TSMBoard implements IKumiteBoard {
+public class TSPBoard implements IKumiteBoard {
 	// The unordered set of cities waiting to be visited
 	@Singular
-	Set<TSMCity> cities;
+	Set<TSPCity> cities;
 
-	Map<UUID, TSMSolution> playerToLatestSolution = new ConcurrentHashMap<>();
+	Map<UUID, TSPSolution> playerToLatestSolution = new ConcurrentHashMap<>();
 
 	@Override
 	public List<String> isValidMove(PlayerMove playerMove) {
-		TSMSolution s = (TSMSolution) playerMove.getMove();
+		TSPSolution s = (TSPSolution) playerMove.getMove();
 
 		List<String> invalidReasons = new ArrayList<>();
 
@@ -34,7 +34,7 @@ public class TSMBoard implements IKumiteBoard {
 			invalidReasons.add("Inconsistent number of cities");
 		}
 
-		Map<String, TSMCity> nameToCity = new HashMap<>();
+		Map<String, TSPCity> nameToCity = new HashMap<>();
 		getCities().forEach(c -> nameToCity.put(c.getName(), c));
 
 		Set<String> visitedCities = new HashSet<>();
@@ -49,7 +49,7 @@ public class TSMBoard implements IKumiteBoard {
 
 	@Override
 	public void registerMove(PlayerMove playerMove) {
-		TSMSolution tsmSolution = (TSMSolution) playerMove.getMove();
+		TSPSolution tsmSolution = (TSPSolution) playerMove.getMove();
 		playerToLatestSolution.put(playerMove.getPlayerId(), tsmSolution);
 	}
 }

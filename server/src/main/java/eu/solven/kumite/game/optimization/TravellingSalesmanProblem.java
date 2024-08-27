@@ -12,10 +12,13 @@ import java.util.function.ToDoubleBiFunction;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.solven.kumite.board.IKumiteBoard;
+import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
-import eu.solven.kumite.game.optimization.TSMBoard.TSMBoardBuilder;
+import eu.solven.kumite.game.optimization.TSPBoard.TSPBoardBuilder;
 import eu.solven.kumite.player.IKumiteMove;
+import eu.solven.kumite.player.KumitePlayer;
 import lombok.Value;
 
 @Value
@@ -29,23 +32,23 @@ public class TravellingSalesmanProblem implements IGame {
 			.reference(URI.create("https://en.wikipedia.org/wiki/Travelling_salesman_problem"))
 			.build();
 
-	Supplier<TSMBoard> examplesSupplier = () -> {
-		TSMBoardBuilder pBuilder = TSMBoard.builder();
+	Supplier<TSPBoard> examplesSupplier = () -> {
+		TSPBoardBuilder pBuilder = TSPBoard.builder();
 
 		Random r = new Random();
 
 		// TODO Introduce a difficulty parameters, typically associated to the time to find an optimal solution, based
 		// on previous contests
 		for (int i = 0; i < 128; i++) {
-			pBuilder.city(TSMCity.builder().name("city_" + i).x(r.nextDouble()).y(r.nextDouble()).build());
+			pBuilder.city(TSPCity.builder().name("city_" + i).x(r.nextDouble()).y(r.nextDouble()).build());
 
 		}
 
 		return pBuilder.build();
 	};
 
-	ToDoubleBiFunction<TSMBoard, TSMSolution> solutionToScore = (p, s) -> {
-		Map<String, TSMCity> nameToCity = new HashMap<>();
+	ToDoubleBiFunction<TSPBoard, TSPSolution> solutionToScore = (p, s) -> {
+		Map<String, TSPCity> nameToCity = new HashMap<>();
 		p.getCities().forEach(c -> nameToCity.put(c.getName(), c));
 
 		Set<String> visitedCities = new HashSet<>();
@@ -77,9 +80,9 @@ public class TravellingSalesmanProblem implements IGame {
 		return cost;
 	};
 
-	private double distance(Map<String, TSMCity> nameToCity, String previousCity, String city) {
-		TSMCity from = nameToCity.get(previousCity);
-		TSMCity to = nameToCity.get(city);
+	private double distance(Map<String, TSPCity> nameToCity, String previousCity, String city) {
+		TSPCity from = nameToCity.get(previousCity);
+		TSPCity to = nameToCity.get(city);
 
 		double xSquared = Math.pow(from.getX() - to.getX(), 2);
 		double ySquared = Math.pow(from.getY() - to.getY(), 2);
@@ -93,12 +96,23 @@ public class TravellingSalesmanProblem implements IGame {
 	}
 
 	@Override
-	public TSMSolution parseRawMove(Map<String, ?> rawMove) {
-		return new ObjectMapper().convertValue(rawMove, TSMSolution.class);
+	public TSPBoard generateInitialBoard() {
+		return examplesSupplier.get();
 	}
 
 	@Override
-	public TSMBoard generateInitialBoard() {
-		return examplesSupplier.get();
+	public boolean canAcceptPlayer(ContestMetadata contest, KumitePlayer player) {
+		return true;
+	}
+
+
+	@Override
+	public TSPSolution parseRawMove(Map<String, ?> rawMove) {
+		return new ObjectMapper().convertValue(rawMove, TSPSolution.class);
+	}
+
+	@Override
+	public IKumiteBoard parseRawBoard(Map<String, ?> rawBoard) {
+		return new ObjectMapper().convertValue(rawBoard, TSPBoard.class);
 	}
 }

@@ -11,19 +11,24 @@ import lombok.Value;
 @Builder
 public class ContestSearchParameters {
 	@Default
-	Optional<UUID> contestUuid = Optional.empty();
+	Optional<UUID> contestId = Optional.empty();
 
 	@Default
-	Optional<UUID> gameUuid = Optional.empty();
+	Optional<UUID> gameId = Optional.empty();
 
 	// @Default
 	// OptionalInt minPlayers = OptionalInt.empty();
 	// @Default
 	// OptionalInt maxPlayers = OptionalInt.empty();
 
+	// Some game may accept players while being started
 	@Default
 	boolean acceptPlayers = true;
 
+	// Typically if the minimum number of players is not yet reached
 	@Default
-	boolean beingPlayed = true;
+	boolean requirePlayers = false;
+
+	@Default
+	boolean gameOver = false;
 }

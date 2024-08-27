@@ -14,28 +14,37 @@ import lombok.Value;
 
 @Value
 public class GamesStore {
-	Map<UUID, IGame> uuidToGame = new ConcurrentHashMap<>();
+	Map<UUID, IGame> idToGame = new ConcurrentHashMap<>();
 
-	public void registerContest(IGame c) {
-		uuidToGame.put(c.getGameMetadata().getGameId(), c);
+	public void registerGame(IGame game) {
+		UUID gameId = game.getGameMetadata().getGameId();
+
+		if (gameId == null) {
+			throw new IllegalArgumentException("Missing gameId: " + game);
+		}
+
+		IGame alreadyIn = idToGame.putIfAbsent(gameId, game);
+		if (alreadyIn != null) {
+			throw new IllegalArgumentException("gameId already registered: " + game);
+		}
 	}
 
-	public IGame getGame(UUID gameUuid) {
-		IGame contest = uuidToGame.get(gameUuid);
-		if (contest == null) {
-			throw new IllegalArgumentException("No game registered for uuid=" + gameUuid);
+	public IGame getGame(UUID gameId) {
+		IGame game = idToGame.get(gameId);
+		if (game == null) {
+			throw new IllegalArgumentException("No game registered for id=" + gameId);
 		}
-		return contest;
+		return game;
 	}
 
 	public List<GameMetadata> searchGames(GameSearchParameters search) {
 		Stream<GameMetadata> metaStream;
 
-		if (search.getGameUuid().isPresent()) {
-			UUID uuid = search.getGameUuid().get();
-			metaStream = Optional.ofNullable(uuidToGame.get(uuid).getGameMetadata()).stream();
+		if (search.getGameId().isPresent()) {
+			UUID uuid = search.getGameId().get();
+			metaStream = Optional.ofNullable(idToGame.get(uuid).getGameMetadata()).stream();
 		} else {
-			metaStream = uuidToGame.values().stream().map(c -> c.getGameMetadata());
+			metaStream = idToGame.values().stream().map(c -> c.getGameMetadata());
 		}
 
 		if (search.getMinPlayers().isPresent()) {

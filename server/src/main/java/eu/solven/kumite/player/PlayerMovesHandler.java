@@ -46,8 +46,8 @@ public class PlayerMovesHandler {
 
 			parameters.move(move);
 
-			contestLifecycleManager.onPlayerMove(contest,
-					PlayerMove.builder().contestId(contestId).playerId(playerId).move(move).build());
+			PlayerMove playerMove = PlayerMove.builder().contestId(contestId).playerId(playerId).move(move).build();
+			contestLifecycleManager.onPlayerMove(contest, playerMove);
 
 			return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(Map.of()));
 		});

@@ -1,37 +1,23 @@
-package eu.solven.kumite.contest;
+package eu.solven.kumite.board;
 
 import java.util.UUID;
 
-import eu.solven.kumite.board.BoardAndPlayers;
+import eu.solven.kumite.contest.Contest;
+import eu.solven.kumite.contest.ContestsStore;
 import eu.solven.kumite.game.GamesStore;
 import eu.solven.kumite.player.ContestPlayersRegistry;
+import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerMove;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
 
-@Value
-@Builder
-public class ContestLifecycleManager {
-	@NonNull
+public class BoardLifecycleManager {
 	GamesStore gamesStore;
-	@NonNull
 	ContestsStore contestsStore;
 
-	@NonNull
 	ContestPlayersRegistry contestPlayersRegistry;
 
-	// ScheduledExecutorService ses;
-	//
-	// public void onContestRegistered(IContest contest) {
-	// // contest.
-	//
-	// // long msB
-	// //
-	// // ses.schedule(() -> {
-	// // checkGameOver();
-	// // }, 0, TimeUnit.MILLISECONDS);
-	// }
+	public void onPlayerRegistered(Contest contest, KumitePlayer newPlayer) {
+		
+	}
 
 	public void onPlayerMove(Contest contest, PlayerMove playerMove) {
 		UUID contestId = contest.getContestMetadata().getContestId();

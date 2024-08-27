@@ -2,6 +2,8 @@ package eu.solven.kumite.account;
 
 import java.util.UUID;
 
+import lombok.Builder;
+import lombok.NonNull;
 import lombok.Value;
 
 /**
@@ -11,8 +13,18 @@ import lombok.Value;
  *
  */
 @Value
+@Builder
 public class KumiteAccount {
-	UUID accountUuid;
+	@NonNull
+	UUID accountId;
 
+	@NonNull
 	String email;
+
+	// Each account has a default playerId.
+	@NonNull
+	UUID playerId;
+
+	// @Singular
+	// Set<UUID> playerIds = Set.of();
 }

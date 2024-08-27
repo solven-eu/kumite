@@ -1,7 +1,24 @@
 package eu.solven.kumite.leaderboard;
 
-import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Value;
+
+@Value
+@Builder
 public class LeaderBoard {
-	List<IPlayerScore> playerScores;
+	@Default
+	Map<UUID, IPlayerScore> playerIdToPlayerScore = new ConcurrentHashMap<>();
+
+	public void registerScore(IPlayerScore playerScore) {
+		playerIdToPlayerScore.put(playerScore.getPlayerId(), playerScore);
+	}
+
+	public static LeaderBoard empty() {
+		return new LeaderBoard(Map.of());
+	}
 }

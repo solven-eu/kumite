@@ -3,6 +3,7 @@ package eu.solven.kumite.player;
 import java.util.UUID;
 
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
@@ -10,10 +11,11 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 public class KumitePlayer {
+	@NonNull
 	UUID playerId;
 
 	// UUID accountId;
 
 	// Nice-name, editable by the account
-	String name;
+	// String name;
 }

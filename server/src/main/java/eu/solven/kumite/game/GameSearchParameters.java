@@ -12,7 +12,7 @@ import lombok.Value;
 @Builder
 public class GameSearchParameters {
 	@Default
-	Optional<UUID> gameUuid = Optional.empty();
+	Optional<UUID> gameId = Optional.empty();
 
 	@Default
 	OptionalInt minPlayers = OptionalInt.empty();

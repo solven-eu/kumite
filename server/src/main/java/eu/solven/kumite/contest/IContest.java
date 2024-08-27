@@ -10,6 +10,10 @@ public interface IContest extends IHasGame, IHasPlayers {
 
 	boolean isGameOver();
 
+	default boolean isRequirePlayers() {
+		return getPlayers().size() < getGameMetadata().getMinPlayers();
+	}
+
 	default boolean isAcceptPlayers() {
 		return getPlayers().size() < getGameMetadata().getMaxPlayers();
 	}

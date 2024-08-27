@@ -18,7 +18,7 @@ public class ContestsStore {
 
 	Map<UUID, Contest> uuidToContests = new ConcurrentHashMap<>();
 
-	public void registerContest(Contest contest) {
+	public Contest registerContest(Contest contest) {
 		UUID contestId = contest.getContestMetadata().getContestId();
 
 		if (contestId == null) {
@@ -35,6 +35,8 @@ public class ContestsStore {
 		} else {
 			liveContestsManager.registerContestLive(contestId);
 		}
+		
+		return contest;
 	}
 
 	public void registerGameOver(UUID contestId) {
@@ -52,8 +54,8 @@ public class ContestsStore {
 	public List<ContestMetadata> searchContests(ContestSearchParameters search) {
 		Stream<Contest> contestStream;
 
-		if (search.getContestUuid().isPresent()) {
-			UUID uuid = search.getContestUuid().get();
+		if (search.getContestId().isPresent()) {
+			UUID uuid = search.getContestId().get();
 			contestStream = Optional.ofNullable(uuidToContests.get(uuid)).stream();
 		} else {
 			contestStream = uuidToContests.values().stream();
@@ -61,16 +63,20 @@ public class ContestsStore {
 
 		Stream<ContestMetadata> metaStream = contestStream.map(c -> c.getContestMetadata());
 
-		if (search.getGameUuid().isPresent()) {
-			metaStream = metaStream.filter(c -> c.getGameMetadata().getGameId().equals(search.getGameUuid().get()));
+		if (search.getGameId().isPresent()) {
+			metaStream = metaStream.filter(c -> c.getGameMetadata().getGameId().equals(search.getGameId().get()));
 		}
 
-		if (search.isBeingPlayed()) {
+		if (search.isGameOver()) {
 			metaStream = metaStream.filter(c -> c.isGameOver());
 		}
 
 		if (search.isAcceptPlayers()) {
 			metaStream = metaStream.filter(c -> c.isAcceptPlayers());
+		}
+
+		if (search.isRequirePlayers()) {
+			metaStream = metaStream.filter(c -> c.isRequirePlayers());
 		}
 
 		return metaStream.collect(Collectors.toList());

@@ -20,8 +20,8 @@ public class GameSearchHandler {
 	public Mono<ServerResponse> listGames(ServerRequest request) {
 		GameSearchParametersBuilder parameters = GameSearchParameters.builder();
 
-		Optional<String> optUuid = request.queryParam("game_uuid");
-		optUuid.ifPresent(rawUuid -> parameters.gameUuid(Optional.of(UUID.fromString(rawUuid))));
+		Optional<String> optUuid = request.queryParam("game_id");
+		optUuid.ifPresent(rawUuid -> parameters.gameId(Optional.of(UUID.fromString(rawUuid))));
 
 		Optional<String> optMinPlayers = request.queryParam("min_players");
 		optMinPlayers.ifPresent(rawMin -> parameters.minPlayers(OptionalInt.of(Integer.parseInt(rawMin))));
