@@ -16,8 +16,7 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 public class GameMetadata {
 	@NonNull
-	@Default
-	UUID gameId = UUID.randomUUID();
+	UUID gameId;
 
 	@NonNull
 	String title;

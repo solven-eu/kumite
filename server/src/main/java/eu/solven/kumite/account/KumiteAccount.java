@@ -18,9 +18,6 @@ public class KumiteAccount {
 	@NonNull
 	UUID accountId;
 
-	@NonNull
-	String email;
-
 	// Each account has a default playerId.
 	@NonNull
 	UUID playerId;

@@ -17,8 +17,7 @@ import lombok.Value;
 @Builder
 public class ContestMetadata implements IContest {
 	@NonNull
-	@Default
-	UUID contestId = UUID.randomUUID();
+	UUID contestId;
 
 	@NonNull
 	GameMetadata gameMetadata;

@@ -5,9 +5,11 @@ import java.util.UUID;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 
 import eu.solven.kumite.account.AccountsStore;
+import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.board.BoardAndPlayers;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest;
@@ -21,8 +23,14 @@ import eu.solven.kumite.game.optimization.TravellingSalesmanProblem;
 import eu.solven.kumite.leaderboard.LeaderboardRegistry;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
+import eu.solven.kumite.webhook.WebhooksRegistry;
 
 @Configuration
+@Import({
+
+		KumiteUsersRegistry.class,
+
+})
 public class KumiteServerComponentsConfiguration {
 
 	@Bean
@@ -106,4 +114,10 @@ public class KumiteServerComponentsConfiguration {
 	public LeaderboardRegistry leaderboardRegistry() {
 		return new LeaderboardRegistry();
 	}
+
+	@Bean
+	public WebhooksRegistry webhooksRegistry() {
+		return new WebhooksRegistry();
+	}
+
 }

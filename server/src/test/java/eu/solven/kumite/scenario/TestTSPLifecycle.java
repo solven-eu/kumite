@@ -60,8 +60,8 @@ public class TestTSPLifecycle {
 	@Test
 	public void testSinglePlayer() {
 		UUID accountId = UUID.randomUUID();
-		KumiteAccount account = accountsStore.registerAccount(
-				KumiteAccount.builder().accountId(accountId).email("unit@test").playerId(UUID.randomUUID()).build());
+		KumiteAccount account = accountsStore
+				.registerAccount(KumiteAccount.builder().accountId(accountId).playerId(UUID.randomUUID()).build());
 
 		List<GameMetadata> games = gamesStore
 				.searchGames(GameSearchParameters.builder().titlePattern(Optional.of(".*Salesman.*")).build());

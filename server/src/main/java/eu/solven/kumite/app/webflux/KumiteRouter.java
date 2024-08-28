@@ -27,26 +27,27 @@ public class KumiteRouter {
 				.route(RequestPredicates.GET("/hello").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
 						greetingHandler::hello)
 				.and(RouterFunctions.route(
-						RequestPredicates.GET("/game").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+						RequestPredicates.GET("/games").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
 						gamesSearchHandler::listGames))
 				.and(RouterFunctions.route(
-						RequestPredicates.GET("/contest").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+						RequestPredicates.GET("/contests").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
 						contestSearchHandler::listContests))
 				.and(RouterFunctions.route(
-						RequestPredicates.PUT("/contest").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+						RequestPredicates.PUT("/contests").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
 						contestSearchHandler::generateContest))
 				.and(RouterFunctions.route(
-						RequestPredicates.GET("/leaderboard").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+						RequestPredicates.GET("/leaderboards")
+								.and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
 						leaderboardHandler::listScores))
 
 				.and(RouterFunctions.route(
-						RequestPredicates.GET("/webhook").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+						RequestPredicates.GET("/webhooks").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
 						webhooksHandler::listWebhooks))
 				.and(RouterFunctions.route(
-						RequestPredicates.PUT("/webhook").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+						RequestPredicates.PUT("/webhooks").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
 						webhooksHandler::registerWebhook))
 				.and(RouterFunctions.route(
-						RequestPredicates.DELETE("/webhook").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+						RequestPredicates.DELETE("/webhooks").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
 						webhooksHandler::dropWebhooks));
 	}
 }

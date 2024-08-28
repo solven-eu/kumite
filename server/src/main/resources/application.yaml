@@ -1,0 +1,20 @@
+spring:
+  application.name: kumite-server
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            clientId: Ov23liakPa9YkyfEZGZE
+            clientSecret: 35faf73b496bb30fa17c1dd2f9fc8111874965ca
+          google:
+            client-id: google-client-id
+            client-secret: google-client-secret
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+rsa:
+  private-key: classpath:certs/private-key.pem
+  public-key: classpath:certs/public-key.pem
