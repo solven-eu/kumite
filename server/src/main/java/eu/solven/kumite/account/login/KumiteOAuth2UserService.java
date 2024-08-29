@@ -48,17 +48,17 @@ public class KumiteOAuth2UserService extends DefaultReactiveOAuth2UserService {
 				throw new IllegalArgumentException("Unexpected value: " + registrationId);
 			};
 
+			KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder()
+					.providerId(registrationId)
+					.sub(userFromProvider.getAttributes().get(keyForSub).toString())
+					.build();
+
 			String keyForPicture = switch (registrationId) {
 			case "github":
 				yield "avatar_url";
 			default:
 				throw new IllegalArgumentException("Unexpected value: " + registrationId);
 			};
-
-			KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder()
-					.providerId(registrationId)
-					.sub(userFromProvider.getAttributes().get(keyForSub).toString())
-					.build();
 			KumiteUserRawBuilder kumiteUserBuilder = KumiteUserRaw.builder()
 					.rawRaw(rawRaw)
 					.username(userFromProvider.getAttributes().get("name").toString())

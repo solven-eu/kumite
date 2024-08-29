@@ -3,6 +3,7 @@ package eu.solven.kumite.app.webflux;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
@@ -23,31 +24,23 @@ public class KumiteRouter {
 			ContestSearchHandler contestSearchHandler,
 			LeaderboardHandler leaderboardHandler,
 			WebhooksHandler webhooksHandler) {
-		return RouterFunctions
-				.route(RequestPredicates.GET("/hello").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
-						greetingHandler::hello)
-				.and(RouterFunctions.route(
-						RequestPredicates.GET("/games").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
-						gamesSearchHandler::listGames))
-				.and(RouterFunctions.route(
-						RequestPredicates.GET("/contests").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+		RequestPredicate json = RequestPredicates.accept(MediaType.APPLICATION_JSON);
+
+		return RouterFunctions.route(RequestPredicates.GET("/hello").and(json), greetingHandler::hello)
+				.and(RouterFunctions.route(RequestPredicates.GET("/games").and(json), gamesSearchHandler::listGames))
+
+				.and(RouterFunctions.route(RequestPredicates.GET("/contests").and(json),
 						contestSearchHandler::listContests))
-				.and(RouterFunctions.route(
-						RequestPredicates.PUT("/contests").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+				.and(RouterFunctions.route(RequestPredicates.PUT("/contests").and(json),
 						contestSearchHandler::generateContest))
-				.and(RouterFunctions.route(
-						RequestPredicates.GET("/leaderboards")
-								.and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+
+				.and(RouterFunctions.route(RequestPredicates.GET("/leaderboards").and(json),
 						leaderboardHandler::listScores))
 
-				.and(RouterFunctions.route(
-						RequestPredicates.GET("/webhooks").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
-						webhooksHandler::listWebhooks))
-				.and(RouterFunctions.route(
-						RequestPredicates.PUT("/webhooks").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+				.and(RouterFunctions.route(RequestPredicates.GET("/webhooks").and(json), webhooksHandler::listWebhooks))
+				.and(RouterFunctions.route(RequestPredicates.PUT("/webhooks").and(json),
 						webhooksHandler::registerWebhook))
-				.and(RouterFunctions.route(
-						RequestPredicates.DELETE("/webhooks").and(RequestPredicates.accept(MediaType.APPLICATION_JSON)),
+				.and(RouterFunctions.route(RequestPredicates.DELETE("/webhooks").and(json),
 						webhooksHandler::dropWebhooks));
 	}
 }

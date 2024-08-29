@@ -12,6 +12,8 @@ import eu.solven.kumite.app.webflux.KumiteWebFluxConfiguration;
 public class KumiteServerApplication {
 
 	public static void main(String[] args) {
+		System.setProperty("spring.profiles.active", "inject_default_games,fake_user");
+
 		SpringApplication.run(KumiteServerApplication.class, args);
 	}
 

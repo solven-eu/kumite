@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -14,7 +16,9 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
+import eu.solven.kumite.app.IKumiteSpringProfiles;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @EnableWebFluxSecurity
 @Import({
@@ -23,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 
 })
 @RequiredArgsConstructor
+@Slf4j
 public class SocialWebFluxSecurity {
 
 	// https://github.com/ch4mpy/spring-addons/tree/master/samples/tutorials/resource-server_with_ui
@@ -75,7 +80,14 @@ public class SocialWebFluxSecurity {
 
 	@Order(Ordered.LOWEST_PRECEDENCE)
 	@Bean
-	public SecurityWebFilterChain configureApi(ServerHttpSecurity http) {
+	public SecurityWebFilterChain configureApi(ServerHttpSecurity http, Environment env) {
+		boolean defaultFakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_DEFAULT_FAKE_USER));
+		if (defaultFakeUser) {
+			log.info("defaultFakeUser=true");
+		} else {
+			log.info("defaultFakeUser=false");
+		}
+
 		return http.authorizeExchange(auth -> auth
 
 				// Actuator is partly public
@@ -85,7 +97,10 @@ public class SocialWebFluxSecurity {
 				.pathMatchers("/v3/api-docs/**")
 				.permitAll()
 				// public API is public
-				.pathMatchers("/api/public")
+				.pathMatchers("/api/public/**")
+				.permitAll()
+
+				.pathMatchers(defaultFakeUser ? "/**" : "/none")
 				.permitAll()
 
 				// The rest needs to be authenticated
@@ -107,6 +122,7 @@ public class SocialWebFluxSecurity {
 					e.authenticationEntryPoint(authenticationEntryPoint);
 				})
 
+				.anonymous(a -> a.principal("Ano"))
 				.build();
 	}
 
