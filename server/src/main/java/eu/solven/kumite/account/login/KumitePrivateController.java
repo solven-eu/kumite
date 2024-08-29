@@ -7,12 +7,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.solven.kumite.account.KumiteUser;
+import eu.solven.kumite.account.KumiteUserRawRaw;
+import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api")
 @PreAuthorize("isAuthenticated()")
+@AllArgsConstructor
 public class KumitePrivateController {
+	final KumiteUsersRegistry usersRegistry;
 
 	@GetMapping("/private")
 	public String privateEndpoint() {
@@ -20,8 +25,14 @@ public class KumitePrivateController {
 	}
 
 	@GetMapping("/private/user")
-	public Mono<String> index(@AuthenticationPrincipal Mono<OAuth2User> oauth2User) {
-		return oauth2User.map(OAuth2User::getName).map(name -> String.format("Hi, %s", name));
+	public Mono<KumiteUser> index(@AuthenticationPrincipal Mono<OAuth2User> oauth2User) {
+		return oauth2User.map(o -> {
+			// System.out.println(o);
+			KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId("github").sub(o.getAttribute("id").toString()).build();
+			KumiteUser user = usersRegistry.getUser(rawRaw);
+
+			return user;
+		});
 	}
 
 }

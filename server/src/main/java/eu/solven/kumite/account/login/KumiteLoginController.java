@@ -37,10 +37,11 @@ public class KumiteLoginController {
 					// Typically 'github' or 'google'
 					String registrationId = r.getRegistrationId();
 					String loginUrl = "/oauth2/authorization/%s".formatted(registrationId);
-					registrationIdToDetails.put(registrationId, Map.of("login_url", loginUrl));
+					registrationIdToDetails.put(registrationId,
+							Map.of("registration_id", registrationId, "login_url", loginUrl));
 				});
 
-		return registrationIdToDetails;
+		return Map.of("map", registrationIdToDetails, "list", registrationIdToDetails.values());
 	}
 
 }
