@@ -13,8 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Slf4j
-public class ContestsStore {
-	final LiveContestsManager liveContestsManager;
+public class ContestsRegistry {
+	final LiveContestsRegistry liveContestsManager;
 
 	Map<UUID, Contest> uuidToContests = new ConcurrentHashMap<>();
 

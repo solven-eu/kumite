@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Value
 @Slf4j
-public class LiveContestsManager {
+public class LiveContestsRegistry {
 	Set<UUID> liveContests = new ConcurrentSkipListSet<UUID>();
 
 	public boolean isContestLive(UUID contestId) {

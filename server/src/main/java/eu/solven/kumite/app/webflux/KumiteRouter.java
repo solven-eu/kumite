@@ -19,9 +19,9 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
+import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameSearchHandler;
-import eu.solven.kumite.greeting.GreetingHandler;
 import eu.solven.kumite.leaderboard.LeaderboardHandler;
 import eu.solven.kumite.player.PlayersSearchHandler;
 import eu.solven.kumite.webhook.WebhooksHandler;

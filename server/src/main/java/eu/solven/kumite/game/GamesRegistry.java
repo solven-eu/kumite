@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import lombok.Value;
 
 @Value
-public class GamesStore {
+public class GamesRegistry {
 	Map<UUID, IGame> idToGame = new ConcurrentHashMap<>();
 
 	public void registerGame(IGame game) {

@@ -1,5 +1,5 @@
 type Query {
-	games(): [Game]
+	games: [Game]
     gamesById(gameId: ID): Game
     contestsById(contestId: ID): Contest
     contestsByGameId(gameId: ID): [Contest]

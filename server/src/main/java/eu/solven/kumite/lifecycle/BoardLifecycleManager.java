@@ -1,27 +1,27 @@
-package eu.solven.kumite.board;
+package eu.solven.kumite.lifecycle;
 
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
+import eu.solven.kumite.board.BoardsRegistry;
+import eu.solven.kumite.board.IKumiteBoard;
+import eu.solven.kumite.contest.Contest;
+import eu.solven.kumite.player.ContestPlayersRegistry;
+import eu.solven.kumite.player.PlayerMove;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@RequiredArgsConstructor
 @Slf4j
-public class BoardRegistry {
-	Map<UUID, Board> contestIdToBoard = new ConcurrentHashMap<>();
+public class BoardLifecycleManager {
+	final BoardsRegistry boardRegistry;
+
+	final ContestPlayersRegistry contestPlayersRegistry;
 
 	// This guarantees each change to a board in single-threaded
-	Executor boardEvolutionExecutor;
-
-	public void registerBoard(UUID contestId, Board initialBoard) {
-		Board alreadyIn = contestIdToBoard.putIfAbsent(contestId, initialBoard);
-		if (alreadyIn != null) {
-			throw new IllegalArgumentException("contestId already registered: " + alreadyIn);
-		}
-	}
+	final Executor boardEvolutionExecutor;
 
 	/**
 	 * When this returns, the caller is guaranteed its change has been executed
@@ -71,5 +71,29 @@ public class BoardRegistry {
 
 	protected static boolean isDirect(Executor executor) {
 		return false;
+	}
+
+	public void onPlayerMove(Contest contest, PlayerMove playerMove) {
+		UUID contestId = contest.getContestMetadata().getContestId();
+		executeBoardChange(contestId, () -> {
+			UUID playerId = playerMove.getPlayerId();
+
+			if (!contestPlayersRegistry.isRegisteredPlayer(contestId, playerId)) {
+				throw new IllegalArgumentException(
+						"playerId=" + playerId + " is not registered in contestId=" + contestId);
+			}
+
+			IKumiteBoard currentBoard = boardRegistry.makeDynamicBoardHolder(contestId).get();
+
+			try {
+				contest.checkValidMove(playerMove);
+			} catch (IllegalArgumentException e) {
+				throw new IllegalArgumentException("Issue on contest=" + contest, e);
+			}
+
+			currentBoard.registerMove(playerMove);
+
+			boardRegistry.updateBoard(contestId, currentBoard);
+		});
 	}
 }

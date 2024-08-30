@@ -1,14 +1,14 @@
 package eu.solven.kumite.game.optimization;
 
 import java.net.URI;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
+import java.util.random.RandomGenerator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -17,6 +17,9 @@ import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.optimization.TSPBoard.TSPBoardBuilder;
+import eu.solven.kumite.leaderboard.IPlayerScore;
+import eu.solven.kumite.leaderboard.LeaderBoard;
+import eu.solven.kumite.leaderboard.PlayerDoubleScore;
 import eu.solven.kumite.player.IKumiteMove;
 import eu.solven.kumite.player.KumitePlayer;
 import lombok.Value;
@@ -32,15 +35,13 @@ public class TravellingSalesmanProblem implements IGame {
 			.reference(URI.create("https://en.wikipedia.org/wiki/Travelling_salesman_problem"))
 			.build();
 
-	Supplier<TSPBoard> examplesSupplier = () -> {
+	Function<RandomGenerator, TSPBoard> examplesSupplier = random -> {
 		TSPBoardBuilder pBuilder = TSPBoard.builder();
-
-		Random r = new Random();
 
 		// TODO Introduce a difficulty parameters, typically associated to the time to find an optimal solution, based
 		// on previous contests
 		for (int i = 0; i < 128; i++) {
-			pBuilder.city(TSPCity.builder().name("city_" + i).x(r.nextDouble()).y(r.nextDouble()).build());
+			pBuilder.city(TSPCity.builder().name("city_" + i).x(random.nextDouble()).y(random.nextDouble()).build());
 
 		}
 
@@ -48,7 +49,7 @@ public class TravellingSalesmanProblem implements IGame {
 	};
 
 	ToDoubleBiFunction<TSPBoard, TSPSolution> solutionToScore = (p, s) -> {
-		Map<String, TSPCity> nameToCity = new HashMap<>();
+		Map<String, TSPCity> nameToCity = new TreeMap<>();
 		p.getCities().forEach(c -> nameToCity.put(c.getName(), c));
 
 		Set<String> visitedCities = new HashSet<>();
@@ -96,15 +97,14 @@ public class TravellingSalesmanProblem implements IGame {
 	}
 
 	@Override
-	public TSPBoard generateInitialBoard() {
-		return examplesSupplier.get();
+	public TSPBoard generateInitialBoard(RandomGenerator random) {
+		return examplesSupplier.apply(random);
 	}
 
 	@Override
 	public boolean canAcceptPlayer(ContestMetadata contest, KumitePlayer player) {
 		return true;
 	}
-
 
 	@Override
 	public TSPSolution parseRawMove(Map<String, ?> rawMove) {
@@ -114,5 +114,18 @@ public class TravellingSalesmanProblem implements IGame {
 	@Override
 	public IKumiteBoard parseRawBoard(Map<String, ?> rawBoard) {
 		return new ObjectMapper().convertValue(rawBoard, TSPBoard.class);
+	}
+
+	@Override
+	public LeaderBoard makeLeaderboard(IKumiteBoard board) {
+		Map<UUID, IPlayerScore> playerToScore = new TreeMap<>();
+
+		TSPBoard tspBoard = (TSPBoard) board;
+		tspBoard.getPlayerToLatestSolution().forEach((playerId, solution) -> {
+			double score = solutionToScore.applyAsDouble(tspBoard, solution);
+			playerToScore.put(playerId, PlayerDoubleScore.builder().playerId(playerId).score(score).build());
+		});
+
+		return LeaderBoard.builder().playerIdToPlayerScore(playerToScore).build();
 	}
 }

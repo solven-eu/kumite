@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import eu.solven.kumite.account.AccountsStore;
@@ -18,19 +19,20 @@ import eu.solven.kumite.account.KumiteAccount;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerComponentsConfiguration;
 import eu.solven.kumite.contest.Contest;
-import eu.solven.kumite.contest.ContestLifecycleManager;
 import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.contest.ContestSearchParameters;
-import eu.solven.kumite.contest.ContestsStore;
+import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchParameters;
-import eu.solven.kumite.game.GamesStore;
+import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.optimization.TSPBoard;
 import eu.solven.kumite.game.optimization.TSPSolution;
 import eu.solven.kumite.leaderboard.LeaderBoardRaw;
 import eu.solven.kumite.leaderboard.LeaderboardRegistry;
 import eu.solven.kumite.leaderboard.LeaderboardSearchParameters;
 import eu.solven.kumite.leaderboard.PlayerDoubleScore;
+import eu.solven.kumite.lifecycle.BoardLifecycleManager;
+import eu.solven.kumite.lifecycle.ContestLifecycleManager;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerMove;
@@ -38,9 +40,8 @@ import eu.solven.kumite.player.PlayerMove;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { KumiteServerComponentsConfiguration.class })
 @ActiveProfiles(IKumiteSpringProfiles.P_INJECT_DEFAULT_GAMES)
+@TestPropertySource(properties = "kumite.random.seed=123")
 public class TestTSPLifecycle {
-	@Autowired
-	ContestLifecycleManager lifecycleManager;
 
 	@Autowired
 	ContestPlayersRegistry contestPlayersRegistry;
@@ -49,13 +50,19 @@ public class TestTSPLifecycle {
 	AccountsStore accountsStore;
 
 	@Autowired
-	GamesStore gamesStore;
+	GamesRegistry gamesStore;
 
 	@Autowired
-	ContestsStore contestsStore;
+	ContestsRegistry contestsStore;
 
 	@Autowired
 	LeaderboardRegistry leaderboardRegistry;
+
+	@Autowired
+	ContestLifecycleManager contestLifecycleManager;
+
+	@Autowired
+	BoardLifecycleManager boardLifecycleManager;
 
 	@Test
 	public void testSinglePlayer() {
@@ -86,7 +93,7 @@ public class TestTSPLifecycle {
 
 		List<String> orderedCities;
 		{
-			TSPBoard tspBoard = (TSPBoard) contest.getRefBoard().getBoard();
+			TSPBoard tspBoard = (TSPBoard) contest.getBoard().get();
 
 			orderedCities = tspBoard.getCities().stream().map(c -> c.getName()).collect(Collectors.toList());
 		}
@@ -97,7 +104,7 @@ public class TestTSPLifecycle {
 				.playerId(player.getPlayerId())
 				.move(rawMove)
 				.build();
-		lifecycleManager.onPlayerMove(contest, playerMove);
+		boardLifecycleManager.onPlayerMove(contest, playerMove);
 
 		LeaderBoardRaw leaderboard = leaderboardRegistry.searchLeaderboard(
 				LeaderboardSearchParameters.builder().contestId(contest.getContestMetadata().getContestId()).build());
@@ -107,7 +114,7 @@ public class TestTSPLifecycle {
 			Assertions.assertThat(ps.getPlayerId()).isEqualTo(player.getPlayerId());
 
 			PlayerDoubleScore pds = (PlayerDoubleScore) ps;
-			Assertions.assertThat(pds.getScore()).isBetween(1.0, 2.0);
+			Assertions.assertThat(pds.getScore()).isBetween(65.79, 65.80);
 
 			return true;
 		});

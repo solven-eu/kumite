@@ -1,4 +1,4 @@
-package eu.solven.kumite.greeting;
+package eu.solven.kumite.app.greeting;
 
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;

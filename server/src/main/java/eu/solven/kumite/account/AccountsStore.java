@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class AccountsStore {
-	AccountPlayersRegistry accountPlayersRegistry;
+	final AccountPlayersRegistry accountPlayersRegistry;
 
 	Map<UUID, KumiteAccount> accountIdToAccount = new ConcurrentHashMap<>();
 

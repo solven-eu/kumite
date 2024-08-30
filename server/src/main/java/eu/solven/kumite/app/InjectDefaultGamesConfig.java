@@ -2,19 +2,25 @@ package eu.solven.kumite.app;
 
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.Random;
 import java.util.UUID;
+import java.util.random.RandomGenerator;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 
-import eu.solven.kumite.board.BoardAndPlayers;
+import eu.solven.kumite.board.BoardsRegistry;
+import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestMetadata;
-import eu.solven.kumite.contest.ContestsStore;
-import eu.solven.kumite.game.GamesStore;
+import eu.solven.kumite.contest.ContestsRegistry;
+import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
+import eu.solven.kumite.game.optimization.TravellingSalesmanProblem;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
 
@@ -22,17 +28,34 @@ import eu.solven.kumite.player.IHasPlayers;
 @Profile(IKumiteSpringProfiles.P_INJECT_DEFAULT_GAMES)
 public class InjectDefaultGamesConfig {
 
+	@Autowired
+	BoardsRegistry boardRegistry;
+
 	@Bean
-	public Void injectStaticGames(GamesStore gamesStore, Collection<IGame> games) {
+	TravellingSalesmanProblem tsm() {
+		return new TravellingSalesmanProblem();
+	}
+
+	@Bean
+	public Void injectStaticGames(GamesRegistry gamesStore, Collection<IGame> games) {
 		games.forEach(c -> gamesStore.registerGame(c));
 
 		return null;
 	}
 
 	@Bean
-	public Void injectStaticContests(ContestsStore contestsStore,
+	public Void injectStaticContests(ContestsRegistry contestsStore,
 			ContestPlayersRegistry playersRegistry,
-			Collection<IGame> games) {
+			Collection<IGame> games,
+			Environment env) {
+		String rawSeed = env.getProperty("kumite.random.seed", "random");
+		RandomGenerator r;
+		if (rawSeed.equals("random")) {
+			r = new Random();
+		} else {
+			r = new Random(Integer.parseInt(rawSeed));
+		}
+
 		games.forEach(game -> {
 			UUID contestId = UUID.randomUUID();
 			IHasPlayers players = playersRegistry.makeDynamicHasPlayers(contestId);
@@ -46,10 +69,18 @@ public class InjectDefaultGamesConfig {
 					.gameOver(false)
 					.build();
 
-			IKumiteBoard initialBoard = game.generateInitialBoard();
-			BoardAndPlayers boardAndPlayers =
-					BoardAndPlayers.builder().game(game).board(initialBoard).hasPlayers(players).build();
-			Contest contest = Contest.builder().contestMetadata(contestMeta).refBoard(boardAndPlayers).build();
+			IKumiteBoard initialBoard = game.generateInitialBoard(r);
+
+			boardRegistry.registerBoard(contestId, initialBoard);
+
+			IHasBoard hasBoard = boardRegistry.makeDynamicBoardHolder(contestId);
+
+			Contest contest = Contest.builder()
+					.contestMetadata(contestMeta)
+					.game(game)
+					.board(hasBoard)
+					.hasPlayers(players)
+					.build();
 
 			contestsStore.registerContest(contest);
 		});

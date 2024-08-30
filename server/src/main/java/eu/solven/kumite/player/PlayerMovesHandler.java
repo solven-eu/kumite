@@ -10,20 +10,20 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import eu.solven.kumite.contest.Contest;
-import eu.solven.kumite.contest.ContestLifecycleManager;
-import eu.solven.kumite.contest.ContestsStore;
-import eu.solven.kumite.game.GamesStore;
+import eu.solven.kumite.contest.ContestsRegistry;
+import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
+import eu.solven.kumite.lifecycle.BoardLifecycleManager;
 import eu.solven.kumite.player.PlayerMoveRaw.PlayerMoveRawBuilder;
 import lombok.Value;
 import reactor.core.publisher.Mono;
 
 @Value
 public class PlayerMovesHandler {
-	GamesStore gamesStore;
-	ContestsStore contestsStore;
+	GamesRegistry gamesStore;
+	ContestsRegistry contestsStore;
 
-	ContestLifecycleManager contestLifecycleManager;
+	BoardLifecycleManager boardLifecycleManager;
 
 	public Mono<ServerResponse> registerPlayerMove(ServerRequest request) {
 		PlayerMoveRawBuilder parameters = PlayerMoveRaw.builder();
@@ -47,7 +47,7 @@ public class PlayerMovesHandler {
 			parameters.move(move);
 
 			PlayerMove playerMove = PlayerMove.builder().contestId(contestId).playerId(playerId).move(move).build();
-			contestLifecycleManager.onPlayerMove(contest, playerMove);
+			boardLifecycleManager.onPlayerMove(contest, playerMove);
 
 			return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(Map.of()));
 		});

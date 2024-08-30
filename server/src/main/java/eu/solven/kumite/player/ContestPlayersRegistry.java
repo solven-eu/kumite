@@ -8,13 +8,13 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
 import eu.solven.kumite.contest.ContestMetadata;
-import eu.solven.kumite.game.GamesStore;
+import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import lombok.Value;
 
 @Value
 public class ContestPlayersRegistry {
-	GamesStore gamesStore;
+	GamesRegistry gamesStore;
 
 	Map<UUID, Set<UUID>> contestToPlayers = new ConcurrentHashMap<>();
 

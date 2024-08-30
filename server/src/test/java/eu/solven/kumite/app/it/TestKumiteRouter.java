@@ -14,18 +14,18 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerApplication;
+import eu.solven.kumite.app.greeting.Greeting;
+import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.contest.ContestMetadataRaw;
 import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchHandler;
-import eu.solven.kumite.greeting.Greeting;
-import eu.solven.kumite.greeting.GreetingHandler;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
 // We create a `@SpringBootTest`, starting an actual server on a `RANDOM_PORT`
 @SpringBootTest(classes = KumiteServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles(IKumiteSpringProfiles.P_INJECT_DEFAULT_GAMES)
+@ActiveProfiles({ IKumiteSpringProfiles.P_INJECT_DEFAULT_GAMES, IKumiteSpringProfiles.P_DEFAULT_FAKE_USER, })
 @Slf4j
 public class TestKumiteRouter {
 
@@ -41,7 +41,7 @@ public class TestKumiteRouter {
 		webTestClient
 				// Create a GET request to test an endpoint
 				.get()
-				.uri("/hello")
+				.uri("/api/hello")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				// and use the dedicated DSL to test assertions against the response
@@ -60,7 +60,7 @@ public class TestKumiteRouter {
 		webTestClient
 				// Create a GET request to test an endpoint
 				.get()
-				.uri("/games")
+				.uri("/api/games")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				// and use the dedicated DSL to test assertions against the response
@@ -88,7 +88,7 @@ public class TestKumiteRouter {
 		webTestClient
 				// Create a GET request to test an endpoint
 				.get()
-				.uri("/contests")
+				.uri("/api/contests")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				// and use the dedicated DSL to test assertions against the response

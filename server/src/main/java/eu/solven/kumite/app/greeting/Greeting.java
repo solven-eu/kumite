@@ -1,4 +1,4 @@
-package eu.solven.kumite.greeting;
+package eu.solven.kumite.app.greeting;
 
 import lombok.Builder;
 import lombok.Value;

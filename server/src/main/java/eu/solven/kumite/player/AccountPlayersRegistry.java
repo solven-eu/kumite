@@ -7,12 +7,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
-import eu.solven.kumite.game.GamesStore;
+import eu.solven.kumite.game.GamesRegistry;
 import lombok.Value;
 
 @Value
 public class AccountPlayersRegistry {
-	GamesStore gamesStore;
+	GamesRegistry gamesStore;
 
 	Map<UUID, Set<UUID>> accountToPlayers = new ConcurrentHashMap<>();
 	Map<UUID, UUID> playerIdToAccountId = new ConcurrentHashMap<>();
@@ -21,7 +21,7 @@ public class AccountPlayersRegistry {
 		// Synchronized to make atomic changes to both `accountToPlayers` and `playerIdToAccountId`
 		synchronized (this) {
 			UUID accountIdAlreadyIn = playerIdToAccountId.putIfAbsent(player.getPlayerId(), accountId);
-			if (!accountIdAlreadyIn.equals(accountId)) {
+			if (accountIdAlreadyIn != null && !accountIdAlreadyIn.equals(accountId)) {
 				throw new IllegalArgumentException(
 						"player=" + player + " is already owned by account=" + accountIdAlreadyIn);
 			}

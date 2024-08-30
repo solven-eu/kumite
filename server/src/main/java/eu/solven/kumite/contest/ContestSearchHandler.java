@@ -10,25 +10,34 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import eu.solven.kumite.board.BoardAndPlayers;
+import eu.solven.kumite.board.BoardsRegistry;
+import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.ContestMetadata.ContestMetadataBuilder;
 import eu.solven.kumite.contest.ContestSearchParameters.ContestSearchParametersBuilder;
-import eu.solven.kumite.game.GamesStore;
+import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
+import eu.solven.kumite.player.ContestPlayersRegistry;
+import eu.solven.kumite.player.IHasPlayers;
 import lombok.Builder;
 import lombok.NonNull;
-import lombok.Value;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@Value
+@RequiredArgsConstructor
 @Builder
 public class ContestSearchHandler {
 	@NonNull
-	ContestsStore contestsStore;
+	final ContestsRegistry contestsStore;
 
 	@NonNull
-	GamesStore gamesStore;
+	final GamesRegistry gamesStore;
+
+	@NonNull
+	final ContestPlayersRegistry contestPlayerRegistry;
+
+	@NonNull
+	final BoardsRegistry boardRegistry;
 
 	public Mono<ServerResponse> listContests(ServerRequest request) {
 		ContestSearchParametersBuilder parameters = ContestSearchParameters.builder();
@@ -61,16 +70,26 @@ public class ContestSearchHandler {
 
 		IGame game = gamesStore.getGame(gameId);
 
-		ContestMetadataBuilder parameters = ContestMetadata.builder();
+		UUID contestId = UUID.randomUUID();
+
+		ContestMetadataBuilder parameters = ContestMetadata.builder().contestId(contestId);
 
 		parameters.gameMetadata(game.getGameMetadata());
 
 		return request.bodyToMono(Map.class).<ServerResponse>flatMap(rawBoard -> {
 			IKumiteBoard board = game.parseRawBoard(rawBoard);
 
+			boardRegistry.registerBoard(contestId, board);
+
+			IHasBoard hasBoard = boardRegistry.makeDynamicBoardHolder(contestId);
+			IHasPlayers hasPlayers = contestPlayerRegistry.makeDynamicHasPlayers(contestId);
+
 			Contest contest = Contest.builder()
 					.contestMetadata(parameters.build())
-					.refBoard(BoardAndPlayers.builder().game(game).board(board).hasPlayers(null).build())
+					.game(game)
+					.board(hasBoard)
+					.hasPlayers(hasPlayers)
+					// .refBoard(BoardAndPlayers.builder().game(game).board(hasBoard).hasPlayers(hasPlayers).build())
 					.build();
 
 			return ServerResponse.ok()

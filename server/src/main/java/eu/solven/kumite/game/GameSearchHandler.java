@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 
 @Value
 public class GameSearchHandler {
-	GamesStore gamesStore;
+	GamesRegistry gamesStore;
 
 	public Mono<ServerResponse> listGames(ServerRequest request) {
 		GameSearchParametersBuilder parameters = GameSearchParameters.builder();
