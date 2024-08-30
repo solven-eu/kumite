@@ -1,17 +1,11 @@
 // my-component.js
 import { ref } from 'vue'
-import KumiteLeaderboard from './kumite-leaderboard.js'
-
 export default {
-// https://vuejs.org/guide/components/registration#local-registration
-components: {
-  KumiteLeaderboard
-},
   setup(props) {
 	const error = ref({});
 	const isLoading = ref(true);
-	const contests = ref({
-	  contests: []
+	const leaderboard = ref({
+	  leaderboard: []
 	});
 
 	async function theData(url) {
@@ -19,7 +13,7 @@ components: {
 	    isLoading.value = true;
 	    const response = await fetch(url);
 	    const responseJson = await response.json();
-	    contests.value = responseJson
+	    leaderboard.value = responseJson
 	  } catch(e) {
 	    console.error('Issue on Network: ', e)
 		error.value = e;
@@ -28,25 +22,25 @@ components: {
 	  }
 	};
 
-	theData('/api/contests?game_id=' + props.gameId)
+	theData('/api/leaderboards?contest_id=' + props.contestId)
 	
-    return {isLoading, contests }
+    return {isLoading, leaderboard }
   },
   // https://vuejs.org/guide/components/props.html
   props: {
-    gameId: 	{
+    contestId: 	{
 	    type: String,
 	    required: true
 	  },
   },
   template: `
   <div v-if="isLoading">
-  	Loading contests
+  	Loading leaderboard
 	</div>
 	<div v-else>
-	  <li v-for="contest in contests">
-	    contest={{contest}}
-		<KumiteLeaderboard :contestId="contest.contestId"/>
+		leaderboard={{leaderboard}}
+	  <li v-for="item in leaderboard.playerScores">
+	    {{item}}
 	  </li>
   </div>
   `

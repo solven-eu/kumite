@@ -1,11 +1,11 @@
 // my-component.js
 import { ref } from 'vue'
-import KumiteContests from './kumite-contests.js'
+import KumiteGame from './kumite-game.js'
 
 export default {
 	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
-	  KumiteContests
+	  KumiteGame
 	},
   setup() {
 	const error = ref({});
@@ -28,7 +28,7 @@ export default {
 	  }
 	};
 
-	theData('/games')
+	theData('/api/games')
 	
     return {isLoading, games }
   },
@@ -37,9 +37,10 @@ export default {
   	Loading games
 	</div>
 	<div v-else>
-	  <li v-for="item in games">
-	    {{item}}
-		<KumiteContests :game_id="item.gameId"/>
+	  <li v-for="game in games">
+	  {{game.gameId}}
+	  	<RouterLink :to="{path:'/games/' + game.gameId}">{{game.title}}</RouterLink>
+	  	<KumiteGame :gameId="game.gameId" :game="game"/>
 	  </li>
   </div>
   `

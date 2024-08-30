@@ -1,13 +1,11 @@
 // my-component.js
 import { ref } from 'vue'
 import LoginOptions from './login-providers.js'
-import KumiteGames from './kumite-games.js'
 
 export default {
 // https://vuejs.org/guide/components/registration#local-registration
 components: {
   LoginOptions,
-  KumiteGames
 },
   setup() {
 	const error = ref({});
@@ -55,6 +53,5 @@ if (	isAuthenticated.value) {
 			<LoginOptions/>
 		</div>
   	</div>
-	<KumiteGames />
   `
 }
