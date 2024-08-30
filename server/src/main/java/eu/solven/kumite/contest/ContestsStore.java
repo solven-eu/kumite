@@ -8,13 +8,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import lombok.Value;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Value
+@RequiredArgsConstructor
 @Slf4j
 public class ContestsStore {
-	LiveContestsManager liveContestsManager;
+	final LiveContestsManager liveContestsManager;
 
 	Map<UUID, Contest> uuidToContests = new ConcurrentHashMap<>();
 
@@ -35,7 +35,7 @@ public class ContestsStore {
 		} else {
 			liveContestsManager.registerContestLive(contestId);
 		}
-		
+
 		return contest;
 	}
 
@@ -43,10 +43,10 @@ public class ContestsStore {
 		liveContestsManager.registerContestOver(contestId);
 	}
 
-	public Contest getContest(UUID contestUuid) {
-		Contest contest = uuidToContests.get(contestUuid);
+	public Contest getContest(UUID contestId) {
+		Contest contest = uuidToContests.get(contestId);
 		if (contest == null) {
-			throw new IllegalArgumentException("No contest registered for uuid=" + contestUuid);
+			throw new IllegalArgumentException("No contest registered for id=" + contestId);
 		}
 		return contest;
 	}

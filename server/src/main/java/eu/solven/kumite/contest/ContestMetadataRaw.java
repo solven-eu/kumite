@@ -19,6 +19,10 @@ public class ContestMetadataRaw {
 	@NonNull
 	UUID gameId;
 
+	@NonNull
+	// Boxed integer to ensure this is properly initialized
+	Integer nbActivePlayers;
+
 	boolean beingPlayed;
 	boolean acceptPlayers;
 
@@ -28,6 +32,7 @@ public class ContestMetadataRaw {
 				.gameId(contest.getGameMetadata().getGameId())
 				.acceptPlayers(contest.isAcceptPlayers())
 				.beingPlayed(contest.isGameOver())
+				.nbActivePlayers(contest.getPlayers().size())
 				.build();
 	}
 

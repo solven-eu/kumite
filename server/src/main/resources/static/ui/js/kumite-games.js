@@ -38,7 +38,6 @@ export default {
 	</div>
 	<div v-else>
 	  <li v-for="game in games">
-	  {{game.gameId}}
 	  	<RouterLink :to="{path:'/games/' + game.gameId}">{{game.title}}</RouterLink>
 	  	<KumiteGame :gameId="game.gameId" :game="game"/>
 	  </li>

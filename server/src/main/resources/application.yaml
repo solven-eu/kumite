@@ -10,11 +10,14 @@ spring:
           google:
             client-id: google-client-id
             client-secret: google-client-secret
+  graphql:
+    graphiql:
+      enabled: true
 
 logging:
   level:
     org.springframework.security: DEBUG
 
-rsa:
-  private-key: classpath:certs/private-key.pem
-  public-key: classpath:certs/public-key.pem
+#rsa:
+#  private-key: classpath:certs/private-key.pem
+#  public-key: classpath:certs/public-key.pem

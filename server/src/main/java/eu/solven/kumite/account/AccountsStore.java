@@ -4,12 +4,13 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import eu.solven.kumite.player.AccountPlayersRegistry;
 import eu.solven.kumite.player.KumitePlayer;
-import lombok.Value;
+import lombok.RequiredArgsConstructor;
 
-@Value
+@RequiredArgsConstructor
 public class AccountsStore {
-	// ContestPlayersRegistry contestPlayersRegistry;
+	AccountPlayersRegistry accountPlayersRegistry;
 
 	Map<UUID, KumiteAccount> accountIdToAccount = new ConcurrentHashMap<>();
 
@@ -24,13 +25,14 @@ public class AccountsStore {
 	}
 
 	public KumiteAccount registerAccount(KumiteAccount kumiteAccount) {
-		KumiteAccount alreadyIn = accountIdToAccount.putIfAbsent(kumiteAccount.getAccountId(), kumiteAccount);
+		UUID accountId = kumiteAccount.getAccountId();
+		KumiteAccount alreadyIn = accountIdToAccount.putIfAbsent(accountId, kumiteAccount);
 
 		if (alreadyIn != null) {
 			throw new IllegalArgumentException("Already account=" + kumiteAccount);
 		}
 
-		// contestPlayersRegistry.registerPlayer(null, null);
+		accountPlayersRegistry.registerPlayer(accountId, getAccountMainPlayer(accountId));
 
 		return kumiteAccount;
 	}

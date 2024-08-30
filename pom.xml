@@ -9,7 +9,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.3.2</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
 	<groupId>eu.solven.kumite</groupId>
@@ -25,6 +25,19 @@
 
 	<properties>
 		<java.version>17</java.version>
+		
+		<spotless.version>2.44.0.BETA2</spotless.version>
+		<cleanthat.version>2.21</cleanthat.version>
+		
+		<!-- By default (i.e. in local environments), check for code formatting AFTER trying automatic fixes. -->
+		<!-- We suppose the developper would see the fixed and include them in his commit. -->
+		<!-- In the CI, we check BEFORE automatic fixes as the CI should report early invalid code -->
+		<staticChecks>process-sources</staticChecks>
+		<!-- SpotBugs works on bytecode, hence require compilation to be done -->
+		<!-- http://maven.apache.org/ref/3.8.1/maven-core/lifecycles.html -->
+		<!-- https://github.com/spotbugs/spotbugs-maven-plugin/issues/75 -->
+		<staticChecksOverBytecode>process-classes</staticChecksOverBytecode>
+
 	</properties>
 
 	<dependencies>
@@ -34,4 +47,143 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<!-- mvn com.diffplug.spotless:spotless-maven-plugin:apply -->
+				<!-- mvn com.diffplug.spotless:spotless-maven-plugin:check -->
+				<plugin>
+					<groupId>com.diffplug.spotless</groupId>
+					<artifactId>spotless-maven-plugin</artifactId>
+					<version>${spotless.version}</version>
+					<configuration>
+						<!-- optional: limit format enforcement to just the files changed by this feature branch -->
+						<ratchetFrom>origin/main</ratchetFrom>
+						
+						<formats>
+							<!-- you can define as many formats as you want, each is independent -->
+							<format>
+								<!-- define the files to apply to -->
+								<includes>
+									<include>.gitattributes</include>
+									<include>.gitignore</include>
+								</includes>
+								<!-- define the steps to apply to those files -->
+								<trimTrailingWhitespace/>
+								<endWithNewline/>
+								<indent>
+									<tabs>true</tabs>
+									<spacesPerTab>4</spacesPerTab>
+								</indent>
+							</format>
+						</formats>
+
+						<pom>
+							<includes>
+								<include>pom.xml</include>
+							</includes>
+
+							<!-- https://github.com/diffplug/spotless/tree/main/plugin-maven#sortpom -->
+							<sortPom>
+								<!-- We like empty elements, while plugin default configuration would expand them -->
+								<expandEmptyElements>false</expandEmptyElements>
+
+								<!-- https://github.com/Ekryd/sortpom/issues/75 -->
+								<spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
+
+								<!-- https://github.com/Ekryd/sortpom/wiki/Parameters#for-both-the-sort-and-verify-goal -->
+								<!-- -1 means '\t' -->
+								<nrOfIndentSpace>-1</nrOfIndentSpace>
+							</sortPom>
+						</pom>
+						
+
+						<markdown>
+							<includes>
+								<include>*.md</include>
+								<include>src/**/*.md</include>
+							</includes>
+
+							<flexmark />
+						</markdown>
+						
+
+						<java>
+							<cleanthat>
+								<version>${cleanthat.version}</version>
+								<sourceJdk>${maven.compiler.source}</sourceJdk>
+								<mutators>
+									<mutator>SafeAndConsensual</mutator>
+									<mutator>SafeButNotConsensual</mutator>
+									<mutator>SafeButControversial</mutator>
+									<mutator>Guava</mutator>
+								</mutators>
+								<excludedMutators>
+									<!-- PMD recommends not using `var` -->
+									<excludedMutator>LocalVariableTypeInference</excludedMutator>
+									<!-- Small texts are often easier to read with `\r\n` than in a text block -->
+									<excludedMutator>UseTextBlocks</excludedMutator>
+								</excludedMutators>
+								<includeDraft>true</includeDraft>
+							</cleanthat>
+
+							<removeUnusedImports>
+								<engine>cleanthat-javaparser-unnecessaryimport</engine>
+							</removeUnusedImports>
+
+							<importOrder>
+								<file>${maven.multiModuleProjectDirectory}/build-tools/src/main/resources/style/eclipse.importorder</file>
+								<!--order>java,javax,org,com</order-->
+							</importOrder>
+
+							<eclipse>
+								<!-- From Pepper -->
+								<file>${maven.multiModuleProjectDirectory}/build-tools/src/main/resources/style/eclipse_java_code_formatter.xml</file>
+							</eclipse>
+						</java>
+
+						<json>
+							<includes>
+								<include>*.json</include>
+								<include>src/**/*.json</include>
+							</includes>
+							<excludes>
+								<exclude>package-lock.json</exclude>
+							</excludes>
+
+							<indent>
+								<tabs>true</tabs>
+								<spacesPerTab>4</spacesPerTab>
+							</indent>
+
+							<gson>
+								<sortByKeys>true</sortByKeys>
+							</gson>
+						</json>
+					</configuration>
+					
+					<executions>
+						<!-- https://github.com/diffplug/spotless/tree/main/plugin-maven#binding-to-maven-phase -->
+						<execution>
+							<id>apply</id>
+							<goals>
+								<goal>apply</goal>
+							</goals>
+							<!-- runs at process-sources phase by default -->
+							<phase>process-sources</phase>
+						</execution>
+						<execution>
+							<id>check</id>
+							<goals>
+								<goal>check</goal>
+								<!-- runs at verify phase by default -->
+							</goals>
+							<phase>${staticChecks}</phase>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>

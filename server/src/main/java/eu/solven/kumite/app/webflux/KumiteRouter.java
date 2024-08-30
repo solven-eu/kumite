@@ -23,6 +23,7 @@ import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameSearchHandler;
 import eu.solven.kumite.greeting.GreetingHandler;
 import eu.solven.kumite.leaderboard.LeaderboardHandler;
+import eu.solven.kumite.player.PlayersSearchHandler;
 import eu.solven.kumite.webhook.WebhooksHandler;
 import reactor.core.publisher.Mono;
 
@@ -35,6 +36,7 @@ public class KumiteRouter {
 	@Bean
 	public RouterFunction<ServerResponse> route(GreetingHandler greetingHandler,
 			GameSearchHandler gamesSearchHandler,
+			PlayersSearchHandler playersSearchHandler,
 			ContestSearchHandler contestSearchHandler,
 			LeaderboardHandler leaderboardHandler,
 			WebhooksHandler webhooksHandler) {
@@ -43,6 +45,9 @@ public class KumiteRouter {
 		return RouterFunctions.route(RequestPredicates.GET("/api/hello").and(json), greetingHandler::hello)
 				.and(RouterFunctions.route(RequestPredicates.GET("/api/games").and(json),
 						gamesSearchHandler::listGames))
+
+				.and(RouterFunctions.route(RequestPredicates.GET("/api/players").and(json),
+						playersSearchHandler::listPlayers))
 
 				.and(RouterFunctions.route(RequestPredicates.GET("/api/contests").and(json),
 						contestSearchHandler::listContests))

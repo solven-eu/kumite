@@ -1,11 +1,11 @@
 // my-component.js
 import { ref } from 'vue'
-import KumiteLeaderboard from './kumite-leaderboard.js'
+import KumiteContest from './kumite-contest.js'
 
 export default {
 // https://vuejs.org/guide/components/registration#local-registration
 components: {
-  KumiteLeaderboard
+  KumiteContest
 },
   setup(props) {
 	const error = ref({});
@@ -45,8 +45,7 @@ components: {
 	</div>
 	<div v-else>
 	  <li v-for="contest in contests">
-	    contest={{contest}}
-		<KumiteLeaderboard :contestId="contest.contestId"/>
+		<KumiteContest :gameId="gameId" :contestId="contest.contestId"/>
 	  </li>
   </div>
   `

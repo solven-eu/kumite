@@ -20,6 +20,9 @@ public class ContestMetadata implements IContest {
 	UUID contestId;
 
 	@NonNull
+	String name;
+
+	@NonNull
 	GameMetadata gameMetadata;
 
 	@Getter(value = AccessLevel.NONE)

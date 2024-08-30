@@ -33,6 +33,7 @@
 			import HelloView from './ui/js/hello.js'
 			import KumiteGames from './ui/js/kumite-games.js'
 			import KumiteGame from './ui/js/kumite-game.js'
+			import KumiteContest from './ui/js/kumite-contest.js'
 			import LoginChecker from './ui/js/login-checker.js'
 			import AboutView from './ui/js/about.js'
 			
@@ -43,6 +44,7 @@
 				{ path: '/games', component: KumiteGames },
 				// https://router.vuejs.org/guide/essentials/passing-props
 				{ path: '/games/:gameId', component: KumiteGame , props: true },
+				{ path: '/games/:gameId/:contestId', component: KumiteContest , props: true },
 				{ path: '/login', component: LoginChecker },
 				{ path: '/about', component: AboutView },
 			]
