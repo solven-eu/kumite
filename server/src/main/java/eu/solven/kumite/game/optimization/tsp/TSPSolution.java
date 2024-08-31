@@ -1,4 +1,4 @@
-package eu.solven.kumite.game.optimization;
+package eu.solven.kumite.game.optimization.tsp;
 
 import java.util.List;
 

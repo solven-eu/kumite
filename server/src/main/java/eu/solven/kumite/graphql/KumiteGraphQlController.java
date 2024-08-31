@@ -11,6 +11,7 @@ import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GamesRegistry;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -19,9 +20,10 @@ import reactor.core.publisher.Mono;
 // https://www.baeldung.com/spring-graphql
 // https://medium.com/dandelion-tutorials/using-spring-webflux-with-graphql-dd2aa381603b
 @Controller
+@RequiredArgsConstructor
 public class KumiteGraphQlController {
-	GamesRegistry gamesStore;
-	ContestsRegistry contestsStore;
+	final GamesRegistry gamesStore;
+	final ContestsRegistry contestsStore;
 
 	@QueryMapping
 	public Flux<GameMetadata> games() {

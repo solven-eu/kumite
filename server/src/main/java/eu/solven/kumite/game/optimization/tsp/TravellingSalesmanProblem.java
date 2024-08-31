@@ -1,4 +1,4 @@
-package eu.solven.kumite.game.optimization;
+package eu.solven.kumite.game.optimization.tsp;
 
 import java.net.URI;
 import java.util.HashSet;
@@ -16,7 +16,7 @@ import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
-import eu.solven.kumite.game.optimization.TSPBoard.TSPBoardBuilder;
+import eu.solven.kumite.game.optimization.tsp.TSPBoard.TSPBoardBuilder;
 import eu.solven.kumite.leaderboard.IPlayerScore;
 import eu.solven.kumite.leaderboard.LeaderBoard;
 import eu.solven.kumite.leaderboard.PlayerDoubleScore;

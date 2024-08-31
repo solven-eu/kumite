@@ -20,7 +20,7 @@ import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
-import eu.solven.kumite.game.optimization.TravellingSalesmanProblem;
+import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
 

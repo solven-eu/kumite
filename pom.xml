@@ -16,7 +16,7 @@
 
 	<packaging>pom</packaging>
 
-	<name>aggregator kumite</name>
+	<name>aggregator</name>
 
 	<modules>
 		<module>server</module>
