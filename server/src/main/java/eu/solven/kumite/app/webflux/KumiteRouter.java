@@ -1,32 +1,30 @@
 package eu.solven.kumite.app.webflux;
 
-import java.net.URI;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilter;
-import org.springframework.web.server.WebFilterChain;
 
 import eu.solven.kumite.app.greeting.GreetingHandler;
+import eu.solven.kumite.board.BoardHandler;
 import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameSearchHandler;
 import eu.solven.kumite.leaderboard.LeaderboardHandler;
 import eu.solven.kumite.player.PlayersSearchHandler;
 import eu.solven.kumite.webhook.WebhooksHandler;
-import reactor.core.publisher.Mono;
 
+/**
+ * Redirect each route (e.g. `/games/someGameId`) to the appropriate handler.
+ * 
+ * @author Benoit Lacelle
+ *
+ */
 @Configuration(proxyBeanMethods = false)
 public class KumiteRouter {
 
@@ -38,6 +36,7 @@ public class KumiteRouter {
 			GameSearchHandler gamesSearchHandler,
 			PlayersSearchHandler playersSearchHandler,
 			ContestSearchHandler contestSearchHandler,
+			BoardHandler boardHandler,
 			LeaderboardHandler leaderboardHandler,
 			WebhooksHandler webhooksHandler) {
 		RequestPredicate json = RequestPredicates.accept(MediaType.APPLICATION_JSON);
@@ -53,6 +52,8 @@ public class KumiteRouter {
 						contestSearchHandler::listContests))
 				.and(RouterFunctions.route(RequestPredicates.PUT("/api/contests").and(json),
 						contestSearchHandler::generateContest))
+
+				.and(RouterFunctions.route(RequestPredicates.GET("/api/board").and(json), boardHandler::getBoard))
 
 				.and(RouterFunctions.route(RequestPredicates.GET("/api/leaderboards").and(json),
 						leaderboardHandler::listScores))
@@ -71,21 +72,6 @@ public class KumiteRouter {
 				.and(RouterFunctions.route(
 						RequestPredicates.GET("/contests/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
 						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml)));
-	}
-
-	// https://stackoverflow.com/questions/61822027/how-to-forward-to-on-404-error-in-webflux
-	@Order(-2)
-	@Component
-	public class ResourceNotFoundRedirectWebFilter implements WebFilter {
-		@Override
-		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-			if (exchange.getResponse().getStatusCode() == HttpStatus.NOT_FOUND) {
-				exchange.getResponse().setStatusCode(HttpStatus.PERMANENT_REDIRECT);
-				exchange.getResponse().getHeaders().setLocation(URI.create("/"));
-				return exchange.getResponse().setComplete();
-			}
-			return chain.filter(exchange);
-		}
 	}
 
 	@Bean

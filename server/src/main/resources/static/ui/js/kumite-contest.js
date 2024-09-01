@@ -48,6 +48,9 @@ export default {
 	  <span class="visually-hidden">Loading contestId={{contestId}}</span>
 	</div>
 </div>
+<div v-else-if="game.error || contest.error">
+	{{game.error || contest.error}}
+</div>
 <div v-else>
 	<span v-if="showGame">
 		<h1>Game: {{game.title}}</h1>
@@ -56,7 +59,7 @@ export default {
 	<h2>{{contest.name}}</h2>
 	
 	<div v-if="contest.acceptPlayers">
-		<RouterLink :to="{path:'/games/' + gameId + '/contest/' + contestId}">
+		<RouterLink :to="{path:'/games/' + gameId + '/contest/' + contestId + '/board'}">
 			<button type="button" class="btn btn-outline-primary">Join this contest ({{contest.nbActivePlayers}} players)</button>
 		</RouterLink>
 	</div>

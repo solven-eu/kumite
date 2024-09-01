@@ -41,6 +41,7 @@
 			import KumiteGame from './ui/js/kumite-game.js'
 			import KumiteContests from './ui/js/kumite-contests.js'
 			import KumiteContest from './ui/js/kumite-contest.js'
+			import KumiteBoard from './ui/js/kumite-board.js'
 			import LoginChecker from './ui/js/login-checker.js'
 			import AboutView from './ui/js/about.js'
 			
@@ -53,6 +54,7 @@
 				{ path: '/games/:gameId', component: KumiteGame , props: true },
 				{ path: '/contests', component: KumiteContests },
 				{ path: '/games/:gameId/contest/:contestId', component: KumiteContest , props: true },
+				{ path: '/games/:gameId/contest/:contestId/board', component: KumiteBoard , props: true },
 				{ path: '/login', component: LoginChecker },
 				{ path: '/about', component: AboutView },
 			]

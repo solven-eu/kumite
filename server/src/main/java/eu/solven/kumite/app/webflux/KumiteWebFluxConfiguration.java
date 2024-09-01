@@ -11,6 +11,7 @@ import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameSearchHandler;
 import eu.solven.kumite.leaderboard.LeaderboardHandler;
 import eu.solven.kumite.webhook.WebhooksHandler;
+import lombok.extern.slf4j.Slf4j;
 
 @Import({ KumiteRouter.class,
 
@@ -21,14 +22,20 @@ import eu.solven.kumite.webhook.WebhooksHandler;
 		WebhooksHandler.class,
 
 })
+@Slf4j
 public class KumiteWebFluxConfiguration {
 
 	// https://stackoverflow.com/questions/51931178/error-handling-in-webflux-with-routerfunction
 	@Bean
 	WebFilter dataNotFoundToBadRequest() {
 		return (exchange, next) -> next.filter(exchange).onErrorResume(IllegalArgumentException.class, e -> {
+			HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+			log.warn("Returning a {} given Throwable", httpStatus, e);
+			// TODO Add body with details
 			ServerHttpResponse response = exchange.getResponse();
-			response.setStatusCode(HttpStatus.BAD_REQUEST);
+			response.setStatusCode(httpStatus);
+			// Map<String, ?> body = new LinkedHashMap<>();
+			// response.beforeCommit(() -> Mono.just(body));
 			return response.setComplete();
 		});
 	}

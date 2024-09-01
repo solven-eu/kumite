@@ -42,6 +42,9 @@ export default {
 <div v-if="!game && nbGameFetching > 0">
   	Loading <RouterLink :to="{path:'/games/' + gameId}">game={{gameId}}</RouterLink>
 </div>
+<div v-else-if="game.error">
+	{{game.error}}
+</div>
 <div v-else>
 	<h1><RouterLink :to="{path:'/games/' + game.gameId}">{{game.title}}</RouterLink></h1>
 	

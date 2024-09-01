@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Import;
 
 import eu.solven.kumite.account.AccountsStore;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
+import eu.solven.kumite.board.BoardHandler;
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.contest.LiveContestsRegistry;
@@ -37,6 +38,7 @@ import eu.solven.kumite.webhook.WebhooksRegistry;
 		LiveContestsRegistry.class,
 		ContestPlayersRegistry.class,
 		BoardsRegistry.class,
+		BoardHandler.class,
 
 		ContestLifecycleManager.class,
 

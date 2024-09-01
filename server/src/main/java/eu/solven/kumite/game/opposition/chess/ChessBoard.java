@@ -7,9 +7,11 @@ import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.player.PlayerMove;
 import lombok.Builder;
 import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 
 @Value
 @Builder
+@Jacksonized
 public class ChessBoard implements IKumiteBoard {
 	// https://en.wikipedia.org/wiki/Portable_Game_Notation
 	String pgn;

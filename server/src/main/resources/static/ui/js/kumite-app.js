@@ -1,5 +1,19 @@
+import { watch } from "vue";
+import { useKumiteStore } from "./store.js";
+
 export default {
 	setup() {
+		const store = useKumiteStore();
+
+		watch(
+			store.$state,
+			(state) => {
+				// persist the whole state to the local storage whenever it changes
+				localStorage.setItem("kumiteState", JSON.stringify(state));
+			},
+			{ deep: true },
+		);
+
 		return {};
 	},
 	template: `

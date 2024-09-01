@@ -30,7 +30,7 @@ export default {
 	</div>
 	<div v-else class="container">
 		<div class="row border" v-for="game in games">
-		  	<KumiteGame :gameId="game.gameId"/>
+		  	<KumiteGame :gameId="game.gameId" v-if="!game.error"/>
 	  </div>
   </div>
   `,

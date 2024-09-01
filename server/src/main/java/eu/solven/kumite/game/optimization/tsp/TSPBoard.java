@@ -6,20 +6,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import eu.solven.kumite.board.IKumiteBoard;
-import eu.solven.kumite.leaderboard.IPlayerScore;
-import eu.solven.kumite.leaderboard.LeaderBoard;
 import eu.solven.kumite.player.PlayerMove;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 
 @Value
 @Builder
+@Jacksonized
 public class TSPBoard implements IKumiteBoard {
 	// The unordered set of cities waiting to be visited
 	@Singular
