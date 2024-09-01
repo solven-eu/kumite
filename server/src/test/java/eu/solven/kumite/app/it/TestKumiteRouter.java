@@ -82,6 +82,18 @@ public class TestKumiteRouter {
 	}
 
 	@Test
+	public void testSearchGames_gameId() {
+		log.debug("About {}", GameSearchHandler.class);
+
+		webTestClient.get()
+				.uri("/api/games?game_id=undefined")
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+				.expectStatus()
+				.isBadRequest();
+	}
+
+	@Test
 	public void testSearchContests() {
 		log.debug("About {}", ContestSearchHandler.class);
 

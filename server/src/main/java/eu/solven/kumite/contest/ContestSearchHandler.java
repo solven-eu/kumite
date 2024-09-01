@@ -43,7 +43,7 @@ public class ContestSearchHandler {
 		ContestSearchParametersBuilder parameters = ContestSearchParameters.builder();
 
 		Optional<String> optUuid = request.queryParam("contest_id");
-		optUuid.ifPresent(rawUuid -> parameters.contestId(Optional.of(UUID.fromString(rawUuid))));
+		optUuid.ifPresent(rawUuid -> parameters.contestId(Optional.of(KumiteHandlerHelper.uuid(rawUuid))));
 
 		Optional<String> optGame = request.queryParam("game_id");
 		optGame.ifPresent(rawGameUuid -> parameters.gameId(Optional.of(UUID.fromString(rawGameUuid))));

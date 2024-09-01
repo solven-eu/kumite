@@ -3,35 +3,43 @@
 <head>
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<title>Kumite</title>
-<meta name="description" content="" />
-<meta name="viewport" content="width=device-width" />
+<meta name="description" content="Kumite Homepage" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <base href="/" />
 <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.css" />
-<script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.js"></script>
+<script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.bundle.js"></script>
+<title>Kumite</title>
 </head>
 <body>
 		<!-- https://vuejs.org/guide/quick-start -->
+		<!-- https://github.com/vuejs/router/issues/694 -->
+		<!-- // https://github.com/vuejs/pinia/issues/2205 -->
 		<script type="importmap">
 		  {
 		    "imports": {
-			"vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
-			"vue-router": "https://unpkg.com/vue-router@4.4.3/dist/vue-router.esm-browser.js",
-			"@vue/devtools-api": "https://unpkg.com/@vue/devtools-api@6.2.1/lib/esm/index.js"
+				"vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+				"vue-router": "https://unpkg.com/vue-router@4.4.3/dist/vue-router.esm-browser.js",
+				"@vue/devtools-api": "https://unpkg.com/@vue/devtools-api@6.2.1/lib/esm/index.js",
+				"pinia": "https://unpkg.com/pinia@2.2.2/dist/pinia.esm-browser.js",
+				"vue-demi": "https://cdn.jsdelivr.net/npm/vue-demi/lib/v3/index.mjs"
 		    }
 		  }
 		</script>
-		<div id="app"><KumiteApp/></div>
+		<div id="app"><KumiteApp/>
+		
 		<script type="module">
 		  	import { createApp, ref } from 'vue'
 			// https://router.vuejs.org/guide/essentials/history-mode
 			import { createRouter, createWebHistory } from 'vue-router'
+			// https://pinia.vuejs.org/getting-started.html
+			import { createPinia } from 'pinia'
 			
 
 			import KumiteApp from './ui/js/kumite-app.js'
 			import HelloView from './ui/js/hello.js'
 			import KumiteGames from './ui/js/kumite-games.js'
 			import KumiteGame from './ui/js/kumite-game.js'
+			import KumiteContests from './ui/js/kumite-contests.js'
 			import KumiteContest from './ui/js/kumite-contest.js'
 			import LoginChecker from './ui/js/login-checker.js'
 			import AboutView from './ui/js/about.js'
@@ -40,9 +48,10 @@
 			// It includes `/ui`, `/api`
 			const routes = [
 			  	{ path: '/', component: HelloView },
-				{ path: '/games', component: KumiteGames },
+			{ path: '/games', component: KumiteGames },
 				// https://router.vuejs.org/guide/essentials/passing-props
 				{ path: '/games/:gameId', component: KumiteGame , props: true },
+				{ path: '/contests', component: KumiteContests },
 				{ path: '/games/:gameId/:contestId', component: KumiteContest , props: true },
 				{ path: '/login', component: LoginChecker },
 				{ path: '/about', component: AboutView },
@@ -53,9 +62,13 @@
 			  routes,
 			})
 			
+			const pinia = createPinia()
+			
 			// https://router.vuejs.org/guide/
 			createApp(KumiteApp)
 			.use(router)
+			// https://pinia.vuejs.org/getting-started.html
+			.use(pinia)
 			.mount('#app')
 		</script>
 </body>

@@ -28,7 +28,13 @@ export default {
 			}
 		}
 
-		theData("/api/contests?game_id=" + props.gameId);
+		if (props.gameId) {
+			// The contests of a specific game
+			theData("/api/contests?game_id=" + props.gameId);
+		} else {
+			// Cross-through contests
+			theData("/api/contests");
+		}
 
 		return { isLoading, contests };
 	},
@@ -36,17 +42,18 @@ export default {
 	props: {
 		gameId: {
 			type: String,
-			required: true,
+			// required: true,
 		},
+		game: {},
 	},
 	template: `
   <div v-if="isLoading">
   	Loading contests
 	</div>
-	<div v-else>
-	  <li v-for="contest in contests">
-		<KumiteContest :gameId="gameId" :contestId="contest.contestId"/>
-	  </li>
+	<div v-else class="container">
+	  <div class="row border" v-for="contest in contests">
+		<KumiteContest :gameId="contest.gameId" :contestId="contest.contestId"  :showGame="false"/>
+	  </div>
   </div>
   `,
 };

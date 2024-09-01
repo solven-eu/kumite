@@ -1,11 +1,20 @@
 // my-component.js
 import { ref } from "vue";
 import KumiteGame from "./kumite-game.js";
+import { mapState } from "pinia";
+import { useKumiteStore } from "./store.js";
 
 export default {
 	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
 		KumiteGame,
+	},
+	computed: {
+		...mapState(useKumiteStore, {
+			games(store) {
+				return Object.values(store.games);
+			},
+		}),
 	},
 	setup() {
 		const error = ref({});
@@ -14,33 +23,20 @@ export default {
 			games: [],
 		});
 
-		async function theData(url) {
-			try {
-				isLoading.value = true;
-				const response = await fetch(url);
-				const responseJson = await response.json();
-				games.value = responseJson;
-			} catch (e) {
-				console.error("Issue on Network: ", e);
-				error.value = e;
-			} finally {
-				isLoading.value = false;
-			}
-		}
+		const store = useKumiteStore();
 
-		theData("/api/games");
+		store.loadGames();
 
-		return { isLoading, games };
+		return {};
 	},
 	template: `
-  <div v-if="isLoading">
+  <div v-if="Object.keys(games) == 0">
   	Loading games
 	</div>
-	<div v-else>
-	  <li v-for="game in games">
-	  	<RouterLink :to="{path:'/games/' + game.gameId}">{{game.title}}</RouterLink>
-	  	<KumiteGame :gameId="game.gameId" :game="game"/>
-	  </li>
+	<div v-else class="container">
+		<div class="row border" v-for="game in games">
+		  	<KumiteGame :gameId="game.gameId" :game="game"/>
+	  </div>
   </div>
   `,
 };

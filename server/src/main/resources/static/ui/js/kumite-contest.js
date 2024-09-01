@@ -1,6 +1,7 @@
 // my-component.js
 import { ref } from "vue";
 import KumiteLeaderboard from "./kumite-leaderboard.js";
+import { useKumiteStore } from "./store.js";
 
 export default {
 	// https://vuejs.org/guide/components/registration#local-registration
@@ -31,6 +32,11 @@ export default {
 					isLoading.value++;
 					const response = await fetch(url);
 					const responseJson = await response.json();
+
+					if (responseJson.length !== 1) {
+						console.error("We expected a single entry", responseJson);
+					}
+
 					contest.value = responseJson[0];
 				} catch (e) {
 					console.error("Issue on Network: ", e);
@@ -84,15 +90,28 @@ export default {
 			required: true,
 		},
 		game: Object,
+		showGame: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	template: `
 <div v-if="isLoaded < 2">
-  	Loading contestId={{contestId}}
+	<div class="spinner-border" role="status">
+	  <span class="visually-hidden">Loading contestId={{contestId}}</span>
+	</div>
 </div>
 <div v-else>
-	Game-Title: {{game.title}}<br/>
-	Game-Description: {{game.shortDescription}}<br/>
-	Contest-Name: {{contest.name}}<br/>
+	<span v-if="showGame">
+		<h1>Game: {{game.title}}</h1>
+		Game-Description: {{game.shortDescription}}<br/>
+	</span>
+	<h2>{{contest.name}}</h2>
+	
+	<div v-if="contest.acceptPlayers">
+		<button type="button" class="btn btn-outline-primary">Join this contest ({{contest.nbActivePlayers}} players)</button>
+	</div>
+	
 	<KumiteLeaderboard :contestId="contestId"/>
 </div>
   `,

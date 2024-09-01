@@ -1,47 +1,63 @@
 // my-component.js
-import { ref } from 'vue'
+import { ref } from "vue";
 export default {
-  setup(props) {
-	const error = ref({});
-	const isLoading = ref(true);
-	const leaderboard = ref({
-	  leaderboard: []
-	});
+	setup(props) {
+		const errorRef = ref({});
+		const isLoading = ref(true);
+		const leaderboard = ref({
+			playerScores: [],
+		});
 
-	async function theData(url) {
-	  try {
-	    isLoading.value = true;
-	    const response = await fetch(url);
-	    const responseJson = await response.json();
-	    leaderboard.value = responseJson
-	  } catch(e) {
-	    console.error('Issue on Network: ', e)
-		error.value = e;
-	  } finally {
-	    isLoading.value = false;
-	  }
-	};
+		async function theData(url) {
+			isLoading.value = true;
+			const responseJson = await fetch(url)
+				.then((response) => {
+					if (response.ok) {
+						return response.json();
+					}
+					console.error("Issue on Fetch", url, response.status);
+					throw new Error("Something went wrong");
+				})
+				.then((leaderboardNetworkd) => {
+					leaderboard.value = leaderboardNetworkd;
+				})
+				.catch((error) => {
+					console.log(error);
+					errorRef.value = error;
+				})
+				.finally(() => {
+					isLoading.value = false;
+				});
+		}
 
-	theData('/api/leaderboards?contest_id=' + props.contestId)
-	
-    return {isLoading, leaderboard }
-  },
-  // https://vuejs.org/guide/components/props.html
-  props: {
-    contestId: 	{
-	    type: String,
-	    required: true
-	  },
-  },
-  template: `
-  <div v-if="isLoading">
+		theData("/api/leaderboards?contest_id=" + props.contestId);
+
+		return { isLoading, errorRef, leaderboard };
+	},
+	// https://vuejs.org/guide/components/props.html
+	props: {
+		contestId: {
+			type: String,
+			required: true,
+		},
+	},
+	template: `
+<div v-if="isLoading">
   	Loading leaderboard
-	</div>
-	<div v-else>
+</div>
+<div v-else-if="errorRef.message">
+	error={{errorRef}}
+</div>
+<div v-else>
+		<div v-if="leaderboard.playerScores.length">
 		leaderboard={{leaderboard}}
 	  <li v-for="item in leaderboard.playerScores">
 	    {{item}}
 	  </li>
-  </div>
-  `
-}
+	  </div>
+	  <div v-else>
+	  	Leaderboard is empty
+	  </div>
+</div>
+  `,
+};

@@ -1,6 +1,7 @@
 package eu.solven.kumite.app;
 
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Random;
 import java.util.UUID;
@@ -20,6 +21,7 @@ import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
+import eu.solven.kumite.game.opposition.chess.Chess;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
@@ -37,6 +39,11 @@ public class InjectDefaultGamesConfig {
 	}
 
 	@Bean
+	Chess chess() {
+		return new Chess();
+	}
+
+	@Bean
 	public Void injectStaticGames(GamesRegistry gamesStore, Collection<IGame> games) {
 		games.forEach(c -> gamesStore.registerGame(c));
 
@@ -50,7 +57,7 @@ public class InjectDefaultGamesConfig {
 			Environment env) {
 		String rawSeed = env.getProperty("kumite.random.seed", "random");
 		RandomGenerator r;
-		if (rawSeed.equals("random")) {
+		if ("random".equals(rawSeed)) {
 			r = new Random();
 		} else {
 			r = new Random(Integer.parseInt(rawSeed));
@@ -63,7 +70,7 @@ public class InjectDefaultGamesConfig {
 			ContestMetadata contestMeta = ContestMetadata.builder()
 					.contestId(contestId)
 					.gameMetadata(game.getGameMetadata())
-					.name("Auto-generated " + OffsetDateTime.now())
+					.name("Auto-generated " + OffsetDateTime.now().format(DateTimeFormatter.ISO_INSTANT))
 					// .acceptPlayers(true)
 					.hasPlayers(players)
 					.gameOver(false)

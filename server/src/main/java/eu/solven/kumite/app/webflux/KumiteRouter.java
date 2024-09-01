@@ -67,6 +67,9 @@ public class KumiteRouter {
 				// ServerResponse.temporaryRedirect(URI.create("/")).build(indexHtml)
 				.and(RouterFunctions.route(
 						RequestPredicates.GET("/games/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
+						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml)))
+				.and(RouterFunctions.route(
+						RequestPredicates.GET("/contests/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
 						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml)));
 	}
 
