@@ -10,6 +10,7 @@ export default {
 		KumiteGame,
 	},
 	computed: {
+		...mapState(useKumiteStore, ["nbGameFetching"]),
 		...mapState(useKumiteStore, {
 			games(store) {
 				return Object.values(store.games);
@@ -17,12 +18,6 @@ export default {
 		}),
 	},
 	setup() {
-		const error = ref({});
-		const isLoading = ref(true);
-		const games = ref({
-			games: [],
-		});
-
 		const store = useKumiteStore();
 
 		store.loadGames();
@@ -30,12 +25,12 @@ export default {
 		return {};
 	},
 	template: `
-  <div v-if="Object.keys(games) == 0">
+  <div v-if="Object.keys(games) == 0 && nbGameFetching > 0">
   	Loading games
 	</div>
 	<div v-else class="container">
 		<div class="row border" v-for="game in games">
-		  	<KumiteGame :gameId="game.gameId" :game="game"/>
+		  	<KumiteGame :gameId="game.gameId"/>
 	  </div>
   </div>
   `,

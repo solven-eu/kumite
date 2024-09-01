@@ -17,6 +17,7 @@ export default {
 		},
 	},
 	computed: {
+		...mapState(useKumiteStore, ["nbGameFetching"]),
 		...mapState(useKumiteStore, {
 			game(store) {
 				return store.games[this.gameId];
@@ -28,7 +29,7 @@ export default {
 		// const isLoading = ref(true);
 
 		const store = useKumiteStore();
-		const gameRef = ref(store.game);
+		// const gameRef = ref(store.game);
 
 		// console.log("gameId", props.gameId);
 		// console.log("game", props.game);
@@ -38,7 +39,7 @@ export default {
 		return {};
 	},
 	template: `
-<div v-if="!game">
+<div v-if="!game && nbGameFetching > 0">
   	Loading <RouterLink :to="{path:'/games/' + gameId}">game={{gameId}}</RouterLink>
 </div>
 <div v-else>
@@ -48,7 +49,7 @@ export default {
 	<ul v-for="ref in game.references">
 		<li><a :href="ref" target="_blank">{{ref}}</a></li>
 	</ul>
-	<KumiteContests :gameId="gameId" :game="game"/>
+	<KumiteContests :gameId="gameId"/>
 </div>
   `,
 };
