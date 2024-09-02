@@ -7,7 +7,7 @@ import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.player.IHasPlayers;
 import eu.solven.kumite.player.IKumiteMove;
-import eu.solven.kumite.player.PlayerMove;
+import eu.solven.kumite.player.PlayerMoveRaw;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,14 +31,13 @@ public class Contest {
 	IHasPlayers hasPlayers;
 
 	// The board would change through time and/or userInteractions
-//	BoardAndPlayers refBoard;
+	// BoardAndPlayers refBoard;
 
-//	public void registerPlayer(KumitePlayer player) {
-//		refBoard.registerPlayer(player);
-//	}
+	// public void registerPlayer(KumitePlayer player) {
+	// refBoard.registerPlayer(player);
+	// }
 
-
-	public void checkValidMove(PlayerMove playerMove) {
+	public void checkValidMove(PlayerMoveRaw playerMove) {
 		UUID playerId = playerMove.getPlayerId();
 		IKumiteMove move = playerMove.getMove();
 
@@ -55,7 +54,7 @@ public class Contest {
 		}
 	}
 
-//	public void registerMove(PlayerMove playerMove) {
-//		board.registerMove(playerMove);
-//	}
+	// public void registerMove(PlayerMove playerMove) {
+	// board.registerMove(playerMove);
+	// }
 }

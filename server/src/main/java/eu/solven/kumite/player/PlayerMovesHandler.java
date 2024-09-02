@@ -1,7 +1,6 @@
 package eu.solven.kumite.player;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.MediaType;
@@ -11,8 +10,10 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestsRegistry;
+import eu.solven.kumite.contest.KumiteHandlerHelper;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
+import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
 import eu.solven.kumite.lifecycle.BoardLifecycleManager;
 import eu.solven.kumite.player.PlayerMoveRaw.PlayerMoveRawBuilder;
 import lombok.Value;
@@ -28,15 +29,11 @@ public class PlayerMovesHandler {
 	public Mono<ServerResponse> registerPlayerMove(ServerRequest request) {
 		PlayerMoveRawBuilder parameters = PlayerMoveRaw.builder();
 
-		Optional<String> optPlayerId = request.queryParam("player_id");
-		UUID playerId =
-				UUID.fromString(optPlayerId.orElseThrow(() -> new IllegalArgumentException("Lack `player_id`")));
+		UUID playerId = KumiteHandlerHelper.uuid(request, "player_id");
 		parameters.playerId(playerId);
 
-		Optional<String> optContestId = request.queryParam("contest_id");
-		UUID contestId =
-				UUID.fromString(optContestId.orElseThrow(() -> new IllegalArgumentException("Lack `contest_id`")));
-		parameters.contestId(contestId);
+		UUID contestId = KumiteHandlerHelper.uuid(request, "contest_id");
+		// parameters.contestId(contestId);
 
 		Contest contest = contestsStore.getContest(contestId);
 		IGame game = gamesStore.getGame(contest.getContestMetadata().getGameMetadata().getGameId());
@@ -46,11 +43,31 @@ public class PlayerMovesHandler {
 
 			parameters.move(move);
 
-			PlayerMove playerMove = PlayerMove.builder().contestId(contestId).playerId(playerId).move(move).build();
+			PlayerMoveRaw playerMove = PlayerMoveRaw.builder().playerId(playerId).move(move).build();
 			boardLifecycleManager.onPlayerMove(contest, playerMove);
 
 			return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(Map.of()));
 		});
+	}
 
+	// This would return a list of possible moves. The list may not be exhaustive, but indicative.
+	public Mono<ServerResponse> listPlayerMoves(ServerRequest request) {
+		PlayerMoveRawBuilder parameters = PlayerMoveRaw.builder();
+
+		UUID playerId = KumiteHandlerHelper.uuid(request, "player_id");
+		parameters.playerId(playerId);
+
+		UUID contestId = KumiteHandlerHelper.uuid(request, "contest_id");
+		// parameters.contestId(contestId);
+
+		Contest contest = contestsStore.getContest(contestId);
+		IGame game = gamesStore.getGame(contest.getContestMetadata().getGameMetadata().getGameId());
+
+		IKumiteBoardView boardView = contest.getBoard().get().asView(playerId);
+		Map<String, IKumiteMove> moves = game.exampleMoves(boardView, playerId);
+
+		return ServerResponse.ok()
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(BodyInserters.fromValue(Map.of("moves", moves)));
 	}
 }

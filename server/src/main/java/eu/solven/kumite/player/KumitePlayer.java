@@ -19,6 +19,9 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 public class KumitePlayer {
+	// This is the ID of the public player, i.e. some fake player viewing the game but not playing it
+	public static final UUID PUBLIC_PLAYER_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
 	@NonNull
 	UUID playerId;
 

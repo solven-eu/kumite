@@ -14,7 +14,8 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
-public class GameMetadata {
+public class GameMetadata implements IGameMetadataConstants {
+
 	@NonNull
 	UUID gameId;
 
@@ -26,6 +27,9 @@ public class GameMetadata {
 
 	@Singular
 	List<URI> references;
+
+	@Singular
+	List<String> tags;
 
 	@Default
 	int minPlayers = 1;

@@ -1,10 +1,21 @@
 import { watch } from "vue";
+import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
 export default {
+	computed: {
+		...mapState(useKumiteStore, [
+			"account",
+			"nbAccountFetching",
+			"defaultPlayerId",
+		]),
+	},
 	setup() {
 		const store = useKumiteStore();
 
+		// https://pinia.vuejs.org/core-concepts/state.html
+		// Bottom of the page: there is a snippet for automatic persistence in localStorage
+		// We still need to reload from localStorage on boot
 		watch(
 			store.$state,
 			(state) => {
@@ -13,6 +24,8 @@ export default {
 			},
 			{ deep: true },
 		);
+
+		store.loadUser();
 
 		return {};
 	},
@@ -38,6 +51,10 @@ export default {
 			  <li class="nav-item">
 			    <RouterLink class="nav-link" to="/about">About</RouterLink>
 			  </li>
+
+			  <li class="nav-item" v-if="account.raw">
+			    Current user: {{account.raw.name}}<img :src="account.raw.picture" class="img-thumbnail" alt="..." v-if="account.raw.picture">
+			  </li>
         </ul>
         <!--form class="d-flex">
           <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
@@ -54,6 +71,9 @@ export default {
   <p>
     <strong>Current route path:</strong> {{ $route.fullPath }}
   </p>
+	<p>
+	  <strong>Current player:</strong> {{ defaultPlayerId }}
+	</p>
   </div>
   `,
 };

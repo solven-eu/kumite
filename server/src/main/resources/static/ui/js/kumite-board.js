@@ -19,7 +19,7 @@ export default {
 			type: String,
 			required: true,
 		},
-		showGame: {
+		showCurl: {
 			type: Boolean,
 			default: true,
 		},
@@ -41,13 +41,74 @@ export default {
 				return store.boards[this.contestId];
 			},
 		}),
+		curlGetBoard() {
+			return (
+				"curl " +
+				window.location.protocol +
+				"//" +
+				window.location.host +
+				"/api/board?contest_id=" +
+				this.contestId
+			);
+		},
+	},
+	methods: {
+		async loadExampleMoves() {
+			const exampleMoves = this.exampleMoves;
+
+			console.log("Loading example moves");
+			async function fetchFromUrl(url) {
+				try {
+					const response = await fetch(url);
+					if (!response.ok) {
+						throw new Error("Rejected request for games url" + url);
+					}
+
+					const responseJson = await response.json();
+					const newExampleMoves = responseJson.moves;
+
+					// This convoluted `modify` is needed until we clarify how wo can edit the Ref from this method
+					// https://stackoverflow.com/questions/26957719/replace-object-value-without-replacing-reference
+					function modify(obj, newObj) {
+						Object.keys(obj).forEach(function (key) {
+							delete obj[key];
+						});
+
+						Object.keys(newObj).forEach(function (key) {
+							obj[key] = newObj[key];
+						});
+					}
+					// https://stackoverflow.com/questions/61452458/ref-vs-reactive-in-vue-3
+					modify(exampleMoves, newExampleMoves);
+				} catch (e) {
+					console.error("Issue on Network: ", e);
+				}
+			}
+
+			const viewingPlayerId = "00000000-0000-0000-0000-000000000000";
+			const playerId = viewingPlayerId;
+			fetchFromUrl(
+				"/api/board/moves?contest_id=" +
+					this.contestId +
+					"&player_id=" +
+					playerId,
+			);
+		},
+		fillMove(json) {
+			document.getElementById("solution").innerHTML = JSON.stringify(json);
+		},
 	},
 	setup(props) {
 		const store = useKumiteStore();
 
+		// We load current accountPlayers to enable player registration
+		store.loadCurrentAccountPlayers();
+
 		store.loadBoard(props.gameId, props.contestId);
 
-		return {};
+		const exampleMoves = ref({});
+
+		return { exampleMoves };
 	},
 	// https://stackoverflow.com/questions/7717929/how-do-i-get-pre-style-overflow-scroll-height-150px-to-display-at-parti
 	template: `
@@ -57,19 +118,23 @@ export default {
 	</div>
 </div>
 <div v-else-if="game.error || contest.error || board.error">
-	{{game.error || contest.error}}
+	{{game.error || contest.error || board.error}}
 </div>
 <div v-else>
-	<span v-if="showGame">
+	<span>
 		<h1>Game: {{game.title}}</h1>
 		Game-Description: {{game.shortDescription}}<br/>
 	</span>
 	<h2>{{contest.name}}</h2>
-	
-	Board:
-	<pre  style="height: 10pc; overflow-y: scroll;" class="border">
-{{board}}
-	</pre>
+
+	<div class="border">
+		Board:
+		<pre  style="height: 10pc; overflow-y: scroll;" class="border">{{board}}</pre>
+		
+		<div v-if="showCurl">
+			<pre  style="overflow-y: scroll;" class="border">{{curlGetBoard}}</pre>
+		</div>
+	</div>
 	
 	<div class="border">
 		Submit a solution:
@@ -82,11 +147,22 @@ export default {
 			</select>
 			  <div id="playerHelp" class="form-text">We'll never share your email with anyone else.</div>
 		  </div>
+		  <div>
+		  	<button  type="button" @click="loadExampleMoves" class="btn btn-outline-secondary">Load some available moves</button>
+			<div class="btn-group" v-if="Object.keys(exampleMoves).length > 0">
+			  <button type="button" class="btn btn-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+			    Fill with an example move
+			  </button>
+			  <ul class="dropdown-menu">
+			    <li><a class="dropdown-item" @click="fillMove(moveJson)" v-for="(moveJson, moveKey) in exampleMoves">{{moveKey}}</a></li>
+			  </ul>
+			</div>
+		  </div>
 			<div class="mb-3">
 			  <label for="solution" class="form-label">Solution as JSON</label>
 			  <textarea class="form-control" id="solution" rows="3"></textarea>
 			</div>
-		  <button type="submit" class="btn btn-primary">Submit</button>
+		  <button type="submit" class="btn btn-outline-primary">Submit</button>
 		</form>
 	</div>
 	

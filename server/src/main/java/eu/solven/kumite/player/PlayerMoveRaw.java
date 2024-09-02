@@ -11,6 +11,6 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 public class PlayerMoveRaw {
 	UUID playerId;
-	UUID contestId;
+	// UUID contestId;
 	IKumiteMove move;
 }

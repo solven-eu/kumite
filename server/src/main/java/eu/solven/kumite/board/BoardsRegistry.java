@@ -19,6 +19,10 @@ public class BoardsRegistry {
 	}
 
 	public IHasBoard makeDynamicBoardHolder(UUID contestId) {
+		if (!contestIdToBoard.containsKey(contestId)) {
+			throw new IllegalArgumentException("Unknown contestId=" + contestId);
+		}
+
 		return () -> contestIdToBoard.get(contestId);
 	}
 

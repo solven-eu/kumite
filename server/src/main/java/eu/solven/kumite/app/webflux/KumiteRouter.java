@@ -16,6 +16,7 @@ import eu.solven.kumite.board.BoardHandler;
 import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameSearchHandler;
 import eu.solven.kumite.leaderboard.LeaderboardHandler;
+import eu.solven.kumite.player.PlayerMovesHandler;
 import eu.solven.kumite.player.PlayersSearchHandler;
 import eu.solven.kumite.webhook.WebhooksHandler;
 
@@ -37,6 +38,7 @@ public class KumiteRouter {
 			PlayersSearchHandler playersSearchHandler,
 			ContestSearchHandler contestSearchHandler,
 			BoardHandler boardHandler,
+			PlayerMovesHandler playerMovesHandler,
 			LeaderboardHandler leaderboardHandler,
 			WebhooksHandler webhooksHandler) {
 		RequestPredicate json = RequestPredicates.accept(MediaType.APPLICATION_JSON);
@@ -54,6 +56,10 @@ public class KumiteRouter {
 						contestSearchHandler::generateContest))
 
 				.and(RouterFunctions.route(RequestPredicates.GET("/api/board").and(json), boardHandler::getBoard))
+				.and(RouterFunctions.route(RequestPredicates.GET("/api/board/moves").and(json),
+						playerMovesHandler::listPlayerMoves))
+				.and(RouterFunctions.route(RequestPredicates.POST("/api/board/move").and(json),
+						playerMovesHandler::registerPlayerMove))
 
 				.and(RouterFunctions.route(RequestPredicates.GET("/api/leaderboards").and(json),
 						leaderboardHandler::listScores))
@@ -65,12 +71,15 @@ public class KumiteRouter {
 				.and(RouterFunctions.route(RequestPredicates.DELETE("/api/webhooks").and(json),
 						webhooksHandler::dropWebhooks))
 
-				// ServerResponse.temporaryRedirect(URI.create("/")).build(indexHtml)
+				// The following routes are useful for the SinglePageApplication
 				.and(RouterFunctions.route(
 						RequestPredicates.GET("/games/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
 						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml)))
 				.and(RouterFunctions.route(
 						RequestPredicates.GET("/contests/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
+						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml)))
+				.and(RouterFunctions.route(
+						RequestPredicates.GET("/about/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
 						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml)));
 	}
 

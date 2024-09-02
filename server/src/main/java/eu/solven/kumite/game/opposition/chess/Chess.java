@@ -9,6 +9,7 @@ import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
+import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.leaderboard.LeaderBoard;
 import eu.solven.kumite.player.IKumiteMove;
 import eu.solven.kumite.player.KumitePlayer;
@@ -20,6 +21,8 @@ public class Chess implements IGame {
 	GameMetadata gameMetadata = GameMetadata.builder()
 			.gameId(UUID.fromString("151c322d-27c7-4b94-9e83-70cbfba1ce7f"))
 			.title("Chess")
+			.tag(IGameMetadataConstants.TAG_1V1)
+			.tag(IGameMetadataConstants.TAG_PERFECT_INFORMATION)
 			.minPlayers(2)
 			.maxPlayers(2)
 			.shortDescription(

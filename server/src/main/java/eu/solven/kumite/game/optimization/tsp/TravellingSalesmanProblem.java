@@ -2,6 +2,7 @@ package eu.solven.kumite.game.optimization.tsp;
 
 import java.net.URI;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -9,6 +10,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
 import java.util.random.RandomGenerator;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -16,7 +18,7 @@ import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
-import eu.solven.kumite.game.optimization.tsp.TSPBoard.TSPBoardBuilder;
+import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.leaderboard.IPlayerScore;
 import eu.solven.kumite.leaderboard.LeaderBoard;
 import eu.solven.kumite.leaderboard.PlayerDoubleScore;
@@ -29,14 +31,16 @@ public class TravellingSalesmanProblem implements IGame {
 	GameMetadata gameMetadata = GameMetadata.builder()
 			.gameId(UUID.fromString("02df90d8-e7aa-4b07-8a70-6f8cb358e9bb"))
 			.title("Travelling Salesman Problem")
+			.tag(IGameMetadataConstants.TAG_OPTIMIZATION)
+			.tag(IGameMetadataConstants.TAG_PERFECT_INFORMATION)
 			.maxPlayers(Integer.MAX_VALUE)
 			.shortDescription(
 					"Given a list of cities and the distances between each pair of cities, what is the shortest possible route that visits each city exactly once and returns to the origin city?")
 			.reference(URI.create("https://en.wikipedia.org/wiki/Travelling_salesman_problem"))
 			.build();
 
-	Function<RandomGenerator, TSPBoard> examplesSupplier = random -> {
-		TSPBoardBuilder pBuilder = TSPBoard.builder();
+	Function<RandomGenerator, TSPBoard> boardGenerator = random -> {
+		TSPProblem.TSPProblemBuilder pBuilder = TSPProblem.builder();
 
 		// TODO Introduce a difficulty parameters, typically associated to the time to find an optimal solution, based
 		// on previous contests
@@ -45,12 +49,12 @@ public class TravellingSalesmanProblem implements IGame {
 
 		}
 
-		return pBuilder.build();
+		return TSPBoard.builder().problem(pBuilder.build()).build();
 	};
 
 	ToDoubleBiFunction<TSPBoard, TSPSolution> solutionToScore = (p, s) -> {
 		Map<String, TSPCity> nameToCity = new TreeMap<>();
-		p.getCities().forEach(c -> nameToCity.put(c.getName(), c));
+		p.getProblem().getCities().forEach(c -> nameToCity.put(c.getName(), c));
 
 		Set<String> visitedCities = new HashSet<>();
 		s.getCities().forEach(c -> visitedCities.add(c));
@@ -98,7 +102,7 @@ public class TravellingSalesmanProblem implements IGame {
 
 	@Override
 	public TSPBoard generateInitialBoard(RandomGenerator random) {
-		return examplesSupplier.apply(random);
+		return boardGenerator.apply(random);
 	}
 
 	@Override
@@ -127,5 +131,18 @@ public class TravellingSalesmanProblem implements IGame {
 		});
 
 		return LeaderBoard.builder().playerIdToPlayerScore(playerToScore).build();
+	}
+
+	@Override
+	public Map<String, IKumiteMove> exampleMoves(IKumiteBoardView boardView, UUID playerId) {
+		TSPProblem problem = (TSPProblem) boardView;
+
+		List<String> orderedCities;
+		{
+			orderedCities = problem.getCities().stream().map(c -> c.getName()).collect(Collectors.toList());
+		}
+		TSPSolution rawMove = TSPSolution.builder().cities(orderedCities).build();
+
+		return Map.of("lexicographical", rawMove);
 	}
 }

@@ -12,9 +12,10 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 public class PlayerMove {
 	@NonNull
-	UUID playerId;
+	PlayerMoveRaw playerMove;
+	// UUID playerId;
 	@NonNull
 	UUID contestId;
-	@NonNull
-	IKumiteMove move;
+	// @NonNull
+	// IKumiteMove move;
 }

@@ -1,9 +1,9 @@
 package eu.solven.kumite.scenario;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -27,6 +27,7 @@ import eu.solven.kumite.game.GameSearchParameters;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.optimization.tsp.TSPBoard;
 import eu.solven.kumite.game.optimization.tsp.TSPSolution;
+import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.leaderboard.LeaderBoardRaw;
 import eu.solven.kumite.leaderboard.LeaderboardRegistry;
 import eu.solven.kumite.leaderboard.LeaderboardSearchParameters;
@@ -34,8 +35,9 @@ import eu.solven.kumite.leaderboard.PlayerDoubleScore;
 import eu.solven.kumite.lifecycle.BoardLifecycleManager;
 import eu.solven.kumite.lifecycle.ContestLifecycleManager;
 import eu.solven.kumite.player.ContestPlayersRegistry;
+import eu.solven.kumite.player.IKumiteMove;
 import eu.solven.kumite.player.KumitePlayer;
-import eu.solven.kumite.player.PlayerMove;
+import eu.solven.kumite.player.PlayerMoveRaw;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { KumiteServerComponentsConfiguration.class })
@@ -91,19 +93,12 @@ public class TestTSPLifecycle {
 
 		contestPlayersRegistry.registerPlayer(contest.getContestMetadata(), player);
 
-		List<String> orderedCities;
-		{
-			TSPBoard tspBoard = (TSPBoard) contest.getBoard().get();
+		TSPBoard tspBoard = (TSPBoard) contest.getBoard().get();
+		Collection<IKumiteMove> someMove =
+				new TravellingSalesmanProblem().exampleMoves(tspBoard.asView(player.getPlayerId()), accountId).values();
+		TSPSolution rawMove = (TSPSolution) someMove.iterator().next();
 
-			orderedCities = tspBoard.getCities().stream().map(c -> c.getName()).collect(Collectors.toList());
-		}
-		TSPSolution rawMove = TSPSolution.builder().cities(orderedCities).build();
-
-		PlayerMove playerMove = PlayerMove.builder()
-				.contestId(contest.getContestMetadata().getContestId())
-				.playerId(player.getPlayerId())
-				.move(rawMove)
-				.build();
+		PlayerMoveRaw playerMove = PlayerMoveRaw.builder().playerId(player.getPlayerId()).move(rawMove).build();
 		boardLifecycleManager.onPlayerMove(contest, playerMove);
 
 		LeaderBoardRaw leaderboard = leaderboardRegistry.searchLeaderboard(

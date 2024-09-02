@@ -9,7 +9,7 @@ import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.player.ContestPlayersRegistry;
-import eu.solven.kumite.player.PlayerMove;
+import eu.solven.kumite.player.PlayerMoveRaw;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,7 +73,7 @@ public class BoardLifecycleManager {
 		return false;
 	}
 
-	public void onPlayerMove(Contest contest, PlayerMove playerMove) {
+	public void onPlayerMove(Contest contest, PlayerMoveRaw playerMove) {
 		UUID contestId = contest.getContestMetadata().getContestId();
 		executeBoardChange(contestId, () -> {
 			UUID playerId = playerMove.getPlayerId();
@@ -85,14 +85,17 @@ public class BoardLifecycleManager {
 
 			IKumiteBoard currentBoard = boardRegistry.makeDynamicBoardHolder(contestId).get();
 
+			// First `.checkMove`: these are generic checks (e.g. is the gamerOver?)
 			try {
 				contest.checkValidMove(playerMove);
 			} catch (IllegalArgumentException e) {
 				throw new IllegalArgumentException("Issue on contest=" + contest, e);
 			}
 
+			// This may still fail (e.g. the move is illegal given game rules)
 			currentBoard.registerMove(playerMove);
 
+			// Persist the board (e.g. for concurrent changes)
 			boardRegistry.updateBoard(contestId, currentBoard);
 		});
 	}

@@ -15,6 +15,10 @@ export default {
 			type: String,
 			// required: true,
 		},
+		showGame: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	computed: {
 		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching"]),
@@ -50,7 +54,7 @@ export default {
 	</div>
 	<div v-else class="container">
 	  <div class="row border" v-for="contest in contests">
-		<KumiteContest :gameId="contest.gameId" :contestId="contest.contestId" :showGame="false"/>
+		<KumiteContest :gameId="contest.gameId" :contestId="contest.contestId" :showGame="showGame"/>
 	  </div>
   </div>
   `,

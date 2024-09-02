@@ -19,6 +19,7 @@ import eu.solven.kumite.lifecycle.BoardLifecycleManager;
 import eu.solven.kumite.lifecycle.ContestLifecycleManager;
 import eu.solven.kumite.player.AccountPlayersRegistry;
 import eu.solven.kumite.player.ContestPlayersRegistry;
+import eu.solven.kumite.player.PlayerMovesHandler;
 import eu.solven.kumite.player.PlayersSearchHandler;
 import eu.solven.kumite.webhook.WebhooksRegistry;
 
@@ -39,6 +40,7 @@ import eu.solven.kumite.webhook.WebhooksRegistry;
 		ContestPlayersRegistry.class,
 		BoardsRegistry.class,
 		BoardHandler.class,
+		PlayerMovesHandler.class,
 
 		ContestLifecycleManager.class,
 
