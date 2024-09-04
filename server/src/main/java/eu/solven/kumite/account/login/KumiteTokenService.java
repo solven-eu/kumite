@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import org.springframework.core.env.Environment;
 
@@ -13,24 +14,32 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.crypto.ECDSASigner;
-import com.nimbusds.jose.jwk.Curve;
-import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.jwk.KeyUse;
-import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.OctetSequenceKey;
+import com.nimbusds.jose.jwk.gen.OctetSequenceKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import eu.solven.kumite.account.KumiteUser;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.val;
 
-@RequiredArgsConstructor
 public class KumiteTokenService {
 	public static final String KEY_JWT_SIGNINGKEY = "kumite.login.signing-key";
 
 	final Environment env;
+	final Supplier<OctetSequenceKey> supplierSymetricKey;
+
+	public KumiteTokenService(Environment env) {
+		this.env = env;
+		this.supplierSymetricKey = () -> loadSigningJwk();
+	}
+
+	@SneakyThrows({ IllegalStateException.class, ParseException.class })
+	private OctetSequenceKey loadSigningJwk() {
+		return OctetSequenceKey.parse(env.getRequiredProperty(KEY_JWT_SIGNINGKEY));
+	}
 
 	public Map<String, ?> wrapInJwtToken(KumiteUser user) {
 		String accessToken = generateAccessToken(user);
@@ -38,16 +47,36 @@ public class KumiteTokenService {
 	}
 
 	public static void main(String[] args) {
-		ECKey secretKey = generateSecret();
+		JWK secretKey = generateSignatureSecret();
 		System.out.println("Secret key for JWT signing: " + secretKey.toJSONString());
 	}
 
 	@SneakyThrows(JOSEException.class)
-	static ECKey generateSecret() {
-		ECKey ecKey =
-				new ECKeyGenerator(Curve.P_256).keyUse(KeyUse.SIGNATURE).keyID(UUID.randomUUID().toString()).generate();
+	static JWK generateSignatureSecret() {
+		// ECKey ecKey =
+		// new ECKeyGenerator(Curve.P_256).keyUse(KeyUse.SIGNATURE).keyID(UUID.randomUUID().toString()).generate();
+		//
+		// return ecKey;
 
-		return ecKey;
+		// https://connect2id.com/products/nimbus-jose-jwt/examples/jws-with-hmac
+		// Generate random 256-bit (32-byte) shared secret
+		// SecureRandom random = new SecureRandom();
+		//
+		String rawNbBits = KumiteJwtSigningConfiguration.MAC_ALGORITHM.getName().substring("HS".length());
+		int nbBits = Integer.parseInt(rawNbBits);
+		//
+		// byte[] sharedSecret = new byte[nbBits / 8];
+		// random.nextBytes(sharedSecret);
+		//
+		// // Create HMAC signer
+		// JWSSigner signer = new MACSigner(sharedSecret);
+
+		OctetSequenceKey jwk = new OctetSequenceKeyGenerator(nbBits).keyID(UUID.randomUUID().toString())
+				.algorithm(JWSAlgorithm.parse(KumiteJwtSigningConfiguration.MAC_ALGORITHM.getName()))
+				.issueTime(new Date())
+				.generate();
+
+		return jwk;
 	}
 
 	/**
@@ -62,17 +91,18 @@ public class KumiteTokenService {
 	 * @return The generated JWT access token.
 	 * @throws IllegalStateException
 	 */
-	@SneakyThrows({ JOSEException.class, IllegalStateException.class, ParseException.class })
+	@SneakyThrows({ JOSEException.class })
 	public String generateAccessToken(KumiteUser user) {
 		Duration accessTokenValidity = Duration.ofHours(1);
 		long expirationMs = accessTokenValidity.toMillis();
 
-		// Generating a Secret
-		val ecKey = ECKey.parse(env.getRequiredProperty(KEY_JWT_SIGNINGKEY));
-
 		// Generating a Signed JWT
-		val headerBuilder =
-				new JWSHeader.Builder(JWSAlgorithm.ES256).type(new JOSEObjectType("JWT")).jwk(ecKey.toPublicJWK());
+		// https://auth0.com/blog/rs256-vs-hs256-whats-the-difference/
+		// https://security.stackexchange.com/questions/194830/recommended-asymmetric-algorithms-for-jwt
+		// https://curity.io/resources/learn/jwt-best-practices/
+		JWSHeader.Builder headerBuilder =
+				new JWSHeader.Builder(JWSAlgorithm.parse(KumiteJwtSigningConfiguration.MAC_ALGORITHM.getName()))
+						.type(JOSEObjectType.JWT);
 
 		Date curDate = new Date();
 		JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder().subject(user.getAccountId().toString())
@@ -85,7 +115,9 @@ public class KumiteTokenService {
 				.claim("mainPlayerId", user.getPlayerId().toString());
 
 		SignedJWT signedJWT = new SignedJWT(headerBuilder.build(), claimsSetBuilder.build());
-		signedJWT.sign(new ECDSASigner(ecKey));
+
+		JWSSigner signer = new MACSigner(supplierSymetricKey.get());
+		signedJWT.sign(signer);
 
 		return signedJWT.serialize();
 	}

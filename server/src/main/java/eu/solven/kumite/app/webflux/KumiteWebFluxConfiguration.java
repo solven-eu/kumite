@@ -30,7 +30,11 @@ public class KumiteWebFluxConfiguration {
 	WebFilter dataNotFoundToBadRequest() {
 		return (exchange, next) -> next.filter(exchange).onErrorResume(IllegalArgumentException.class, e -> {
 			HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-			log.warn("Returning a {} given Throwable", httpStatus, e);
+			if (log.isDebugEnabled()) {
+				log.warn("Returning a {} given {} ({})", httpStatus, e.getClass(), e.getMessage(), e);
+			} else {
+				log.warn("Returning a {} given {} ({})", httpStatus, e.getClass(), e.getMessage());
+			}
 			// TODO Add body with details
 			ServerHttpResponse response = exchange.getResponse();
 			response.setStatusCode(httpStatus);

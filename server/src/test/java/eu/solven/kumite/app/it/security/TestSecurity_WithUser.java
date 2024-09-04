@@ -20,6 +20,7 @@ import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import eu.solven.kumite.account.login.SocialWebFluxSecurity;
+import eu.solven.kumite.app.controllers.KumiteLoginController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -88,7 +89,7 @@ public class TestSecurity_WithUser {
 
 	@Test
 	public void testLoginUser() {
-		log.debug("About {}", GreetingHandler.class);
+		log.debug("About {}", KumiteLoginController.class);
 
 		webTestClient
 				// Create a GET request to test an endpoint
@@ -107,7 +108,7 @@ public class TestSecurity_WithUser {
 
 	@Test
 	public void testLoginToken() {
-		log.debug("About {}", GreetingHandler.class);
+		log.debug("About {}", KumiteLoginController.class);
 
 		webTestClient
 				// Create a GET request to test an endpoint

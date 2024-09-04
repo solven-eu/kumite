@@ -1,19 +1,16 @@
 package eu.solven.kumite.account.login;
 
-import java.text.ParseException;
-
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -21,12 +18,10 @@ import org.springframework.security.web.server.authentication.RedirectServerAuth
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
 import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTClaimsSet;
 
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
 
 @EnableWebFluxSecurity
 @Import({
@@ -119,9 +114,20 @@ public class SocialWebFluxSecurity {
 				.build();
 	}
 
+	/**
+	 * 
+	 * @param http
+	 * @param env
+	 * @param jwtDecoder
+	 *            Knows how to check a {@link JWT}, and convert it into a {@link Jwt}. Typically provided from
+	 *            {@link KumiteJwtSigningConfiguration}
+	 * @return
+	 */
 	@Order(Ordered.LOWEST_PRECEDENCE)
 	@Bean
-	public SecurityWebFilterChain configureApi(ServerHttpSecurity http, Environment env) {
+	public SecurityWebFilterChain configureApi(ServerHttpSecurity http,
+			Environment env,
+			ReactiveJwtDecoder jwtDecoder) {
 		boolean defaultFakePlayer = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_DEFAULT_FAKE_PLAYER));
 		if (defaultFakePlayer) {
 			log.warn("defaultFakePlayer=true");
@@ -133,26 +139,6 @@ public class SocialWebFluxSecurity {
 			// i.e. authentication based on a JWT as header, not automated auth through cookie and session
 			log.warn("We disabled CORS and CSRF in API, as the API has stateless auth");
 		}
-
-		// The browser will get an JWT given `/api/login/v1/token`. This route is protected by oauth2Login, and will
-		// generate a JWT.
-		// Given JWT is the only way to authenticate to the rest of the API. `oauth2ResourceServer` shall turns given
-		// JWT into a proper Authentication. This is a 2-step process: JWT -> JWTClaimsSet (which will be used to make a
-		// Jwt). And later a Jwt to a AbstractAuthenticationToken.
-		Converter<JWT, Mono<JWTClaimsSet>> nimbusJwtToClaims = makeSimpleJwtToClaimsConverter();
-		// https://docs.spring.io/spring-security/reference/reactive/oauth2/resource-server/jwt.html
-		ReactiveJwtDecoder jwtDecoder = new NimbusReactiveJwtDecoder(nimbusJwtToClaims);
-
-		// Default to ReactiveJwtAuthenticationConverter
-		// Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> aa = jwt -> {
-		// return null;
-		// };
-
-		// DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
-		// // jwtProcessor.setJWSKeySelector(jwsKeySelector);
-		// // Spring Security validates the claim set independent from Nimbus
-		// jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {
-		// });
 
 		// We can disable CSRF as these routes are stateless, does not rely on any cookie/session, but on some JWT
 		return http
@@ -212,18 +198,18 @@ public class SocialWebFluxSecurity {
 					e.authenticationEntryPoint(authenticationEntryPoint);
 				})
 
-				.anonymous(a -> a.principal("Ano"))
+				// .anonymous(a -> a.principal("AnonymousKarateka"))
 				.build();
 	}
 
-	public static Converter<JWT, Mono<JWTClaimsSet>> makeSimpleJwtToClaimsConverter() {
-		return jwt -> {
-			try {
-				return Mono.just(jwt.getJWTClaimsSet());
-			} catch (ParseException e) {
-				throw new IllegalArgumentException(e);
-			}
-		};
-	}
+	// public static Converter<JWT, Mono<JWTClaimsSet>> makeSimpleJwtToClaimsConverter() {
+	// return jwt -> {
+	// try {
+	// return Mono.just(jwt.getJWTClaimsSet());
+	// } catch (ParseException e) {
+	// throw new IllegalArgumentException(e);
+	// }
+	// };
+	// }
 
 }

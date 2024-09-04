@@ -19,4 +19,4 @@ logging:
     org.springframework.security: INFO
 
 kumite.login:
-  signing-key: 'NEED_TO_BE_DEFINED'
+  signing-key: 'NEEDS_TO_BE_DEFINED'

@@ -84,7 +84,7 @@ public class KumiteLoginController {
 				KumiteUser user = usersRegistry.getUser(rawRaw);
 
 				return user;
-			});
+			}).switchIfEmpty(Mono.error(() -> new IllegalArgumentException("No user")));
 		}
 	}
 

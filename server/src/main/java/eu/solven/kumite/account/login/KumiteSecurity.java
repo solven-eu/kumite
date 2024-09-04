@@ -15,7 +15,7 @@ import eu.solven.kumite.app.controllers.MetadataController;
 		KumiteLoginController.class,
 		MetadataController.class,
 
-		KumiteTokenService.class,
+		KumiteJwtSigningConfiguration.class,
 
 })
 public class KumiteSecurity {

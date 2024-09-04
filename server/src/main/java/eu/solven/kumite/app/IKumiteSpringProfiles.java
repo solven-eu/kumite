@@ -1,6 +1,9 @@
 package eu.solven.kumite.app;
 
 public interface IKumiteSpringProfiles {
+	// The default profile, activated when no other profile is defined. Typically useful for local runs.
+	String P_DEFAULT = "default";
+	// If true, we install at startup a small bunch of games
 	String P_INJECT_DEFAULT_GAMES = "inject_default_games";
 	// If true, we bypass the User login in the UI (i.e. the external-OAuth2 step required to produce account+player
 	// tokens)

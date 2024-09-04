@@ -25,7 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 @ExtendWith(SpringExtension.class)
 // We create a `@SpringBootTest`, starting an actual server on a `RANDOM_PORT`
 @SpringBootTest(classes = KumiteServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({ IKumiteSpringProfiles.P_INJECT_DEFAULT_GAMES, IKumiteSpringProfiles.P_DEFAULT_FAKE_USER, })
+@ActiveProfiles({ IKumiteSpringProfiles.P_DEFAULT,
+		IKumiteSpringProfiles.P_INJECT_DEFAULT_GAMES,
+		IKumiteSpringProfiles.P_DEFAULT_FAKE_PLAYER, })
 @Slf4j
 public class TestKumiteRouter {
 
@@ -67,9 +69,9 @@ public class TestKumiteRouter {
 				.expectStatus()
 				.isOk()
 				.expectBodyList(GameMetadata.class)
-				.value(greeting -> {
+				.value(games -> {
 					// assertThat(greeting.getMessage()).isEqualTo("Hello, Spring!");
-					assertThat(greeting).hasSize(1).element(0).matches(game -> {
+					assertThat(games).hasSize(2).element(1).matches(game -> {
 						Assertions.assertThat(game.getTitle()).isEqualTo("Travelling Salesman Problem");
 
 						Assertions.assertThat(game.getMinPlayers()).isEqualTo(1);
@@ -108,8 +110,7 @@ public class TestKumiteRouter {
 				.isOk()
 				.expectBodyList(ContestMetadataRaw.class)
 				.value(contests -> {
-					// assertThat(greeting.getMessage()).isEqualTo("Hello, Spring!");
-					assertThat(contests).hasSize(1).element(0).matches(contest -> {
+					assertThat(contests).hasSize(2).element(0).matches(contest -> {
 						Assertions.assertThat(contest.isBeingPlayed()).isFalse();
 
 						return true;
