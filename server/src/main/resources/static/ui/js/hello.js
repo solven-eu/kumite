@@ -1,9 +1,9 @@
 export default {
-  setup() {
-    return {}
-  },
-  template: `
+	setup() {
+		return {};
+	},
+	template: `
   <h1>Welcome to Kumite</h1>
-  <RouterLink to="/games">List games</RouterLink>
-  `
-}
+  <RouterLink to="/html/games">List games</RouterLink>
+  `,
+};

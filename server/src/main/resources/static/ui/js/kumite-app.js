@@ -6,8 +6,9 @@ export default {
 	computed: {
 		...mapState(useKumiteStore, [
 			"account",
+			"tokens",
 			"nbAccountFetching",
-			"defaultPlayerId",
+			"playingPlayerId",
 		]),
 	},
 	setup() {
@@ -26,6 +27,7 @@ export default {
 		);
 
 		store.loadUser();
+		store.loadUserTokens();
 
 		return {};
 	},
@@ -43,23 +45,19 @@ export default {
             <RouterLink class="nav-link active" aria-current="page" to="/">Home</RouterLink>
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link" to="/games">Games</RouterLink>
+            <RouterLink class="nav-link" to="/html/games">Games</RouterLink>
           </li>
 			<li class="nav-item">
-			  <RouterLink class="nav-link" to="/contests">Contests</RouterLink>
+			  <RouterLink class="nav-link" to="/html/contests">Contests</RouterLink>
 			</li>
 			  <li class="nav-item">
-			    <RouterLink class="nav-link" to="/about">About</RouterLink>
+			    <RouterLink class="nav-link" to="/html/about">About</RouterLink>
 			  </li>
 
 			  <li class="nav-item" v-if="account.raw">
 			    Current user: {{account.raw.name}}<img :src="account.raw.picture" class="img-thumbnail" alt="..." v-if="account.raw.picture">
 			  </li>
         </ul>
-        <!--form class="d-flex">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form-->
       </div>
     </div>
   </nav>
@@ -71,9 +69,15 @@ export default {
   <p>
     <strong>Current route path:</strong> {{ $route.fullPath }}
   </p>
-	<p>
-	  <strong>Current player:</strong> {{ defaultPlayerId }}
-	</p>
+	<!--p>
+	  <strong>Current account:</strong> {{ account }}
+	</p-->
+	  <p>
+	    <strong>playerId:</strong> {{ playingPlayerId }}
+	  </p>
+		<p>
+		  <strong>tokens:</strong> {{ tokens }}
+		</p>
   </div>
   `,
 };

@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import eu.solven.kumite.account.AccountsStore;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.board.BoardHandler;
 import eu.solven.kumite.board.BoardsRegistry;
@@ -26,7 +25,7 @@ import eu.solven.kumite.webhook.WebhooksRegistry;
 @Configuration
 @Import({
 
-		AccountsStore.class,
+		// AccountsStore.class,
 		KumiteUsersRegistry.class,
 		PlayersSearchHandler.class,
 		AccountPlayersRegistry.class,

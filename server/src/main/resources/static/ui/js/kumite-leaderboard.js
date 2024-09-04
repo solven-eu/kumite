@@ -1,5 +1,6 @@
-// my-component.js
 import { ref } from "vue";
+import { useKumiteStore } from "./store.js";
+
 export default {
 	setup(props) {
 		const errorRef = ref({});
@@ -8,9 +9,12 @@ export default {
 			playerScores: [],
 		});
 
+		const store = useKumiteStore();
+
 		async function theData(url) {
 			isLoading.value = true;
-			const responseJson = await fetch(url)
+			const responseJson = await store
+				.authenticatedFetch(url)
 				.then((response) => {
 					if (response.ok) {
 						return response.json();

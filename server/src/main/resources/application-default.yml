@@ -1,0 +1,10 @@
+# Default profile: these properties are used for local development, but not in production
+
+logging:
+  level:
+    org.springframework.security: INFO
+
+kumite.login:
+  oauth2.github.clientId: Ov23liakPa9YkyfEZGZE
+  oauth2.github.clientSecret: 35faf73b496bb30fa17c1dd2f9fc8111874965ca
+  signing-key: '{"kty":"EC","d":"ap0s0tg4QttKRykA5P_pBZJMcnXSlxd-IOIw99cT7m8","use":"sig","crv":"P-256","kid":"0bc74e06-0a0d-4f12-8e7d-d8d3da863531","x":"NH3i4o8cTsmJC3Hyi-PGVpK6oBRODUTHt5SfTGKsV3M","y":"O3vtQIm4Hc8DktDHHvvSub3u4Kb1A5UC2v7CpcQ4MbU"}'

@@ -92,6 +92,8 @@ public class BoardLifecycleManager {
 				throw new IllegalArgumentException("Issue on contest=" + contest, e);
 			}
 
+			log.info("Registering move for contestId={} by playerId={}", contestId, playerId);
+
 			// This may still fail (e.g. the move is illegal given game rules)
 			currentBoard.registerMove(playerMove);
 

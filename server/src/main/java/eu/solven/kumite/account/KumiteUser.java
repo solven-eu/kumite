@@ -27,4 +27,8 @@ public class KumiteUser {
 
 	@Default
 	boolean enabled = true;
+
+	// Each account has a default playerId.
+	@NonNull
+	UUID playerId;
 }

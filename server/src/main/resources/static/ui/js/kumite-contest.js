@@ -59,7 +59,7 @@ export default {
 	<h2>{{contest.name}}</h2>
 	
 	<div v-if="contest.acceptPlayers">
-		<RouterLink :to="{path:'/games/' + gameId + '/contest/' + contestId + '/board'}">
+		<RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + contestId + '/board'}">
 			<button type="button" class="btn btn-outline-primary">Join this contest ({{contest.nbActivePlayers}} players)</button>
 		</RouterLink>
 	</div>

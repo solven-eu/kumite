@@ -25,13 +25,19 @@ export const useKumiteStore = defineStore("kumite", {
 
 		// Currently connected account
 		account: {},
+		tokens: {},
 
 		// We loads information about various players (e.g. through leaderboards)
 		players: {},
 		nbAccountLoading: 0,
 	}),
 	getters: {
-		defaultPlayerId: (state) => state.account.playerId,
+		// There will be a way to choose a different playerId amongst the account playerIds
+		playingPlayerId: (state) => state.account.playerId,
+		// Default headers: we authenticate ourselves
+		apiHeaders: (state) => {
+			return { Authorization: "Bearer " + state.tokens.access_token };
+		},
 	},
 	actions: {
 		async loadMetadata() {
@@ -57,7 +63,7 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			fetchFromUrl("/api/public/metadata");
+			fetchFromUrl("/api/public/v1/metadata");
 		},
 
 		async loadUser() {
@@ -88,8 +94,75 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			fetchFromUrl("/api/private/user");
+			fetchFromUrl("/api/login/v1/user");
 		},
+
+		async loadUserTokens() {
+			const store = this;
+
+			async function fetchFromUrl(url) {
+				store.nbAccountLoading++;
+				try {
+					const response = await fetch(url);
+					if (!response.ok) {
+						throw new NetworkError(
+							"Rejected request for games url" + url,
+							url,
+							response,
+						);
+					}
+
+					const responseJson = await response.json();
+					const tokens = responseJson;
+
+					console.log("Tokens are stored");
+					store.$patch({ tokens: tokens });
+
+					return tokens;
+				} catch (e) {
+					console.error("Issue on Network: ", e);
+				} finally {
+					store.nbAccountLoading--;
+				}
+			}
+
+			return fetchFromUrl("/api/login/v1/token");
+		},
+
+		async loadIfMissingUserTokens() {
+			const store = this;
+
+			if (store.tokens.access_token) {
+				console.debug("Tokens are already stored");
+			} else {
+				await this.loadUserTokens();
+			}
+
+			return store.tokens;
+		},
+		async authenticatedFetch(url, fetchOptions) {
+			await this.loadIfMissingUserTokens();
+
+			const apiHeaders = this.apiHeaders;
+
+			// fetchOptions are optional
+			fetchOptions = fetchOptions || {};
+
+			// https://stackoverflow.com/questions/171251/how-can-i-merge-properties-of-two-javascript-objects
+			const mergeHeaders = Object.assign(
+				{},
+				apiHeaders,
+				fetchOptions.headers || {},
+			);
+
+			const mergedFetchOptions = Object.assign({}, fetchOptions);
+			mergedFetchOptions.headers = mergeHeaders;
+
+			console.log("Fetch", url, mergedFetchOptions);
+
+			return fetch(url, mergedFetchOptions);
+		},
+
 		async loadCurrentAccountPlayers() {
 			const store = this;
 
@@ -102,7 +175,7 @@ export const useKumiteStore = defineStore("kumite", {
 			async function fetchFromUrl(url) {
 				store.nbAccountLoading++;
 				try {
-					const response = await fetch(url);
+					const response = await store.authenticatedFetch(url);
 					if (!response.ok) {
 						throw new Error(
 							"Rejected request for current account players" + url,
@@ -133,7 +206,7 @@ export const useKumiteStore = defineStore("kumite", {
 			async function fetchFromUrl(url) {
 				store.nbAccountLoading++;
 				try {
-					const response = await fetch(url);
+					const response = await store.authenticatedFetch(url);
 					if (!response.ok) {
 						throw new Error(
 							"Rejected request for players of contest=" + contestId,
@@ -164,8 +237,10 @@ export const useKumiteStore = defineStore("kumite", {
 
 			async function fetchFromUrl(url) {
 				store.nbGameFetching++;
+
 				try {
-					const response = await fetch(url);
+					// console.log("Fetch headers:", store.apiHeaders);
+					const response = await store.authenticatedFetch(url);
 					if (!response.ok) {
 						throw new Error("Rejected request for games url" + url);
 					}
@@ -195,7 +270,7 @@ export const useKumiteStore = defineStore("kumite", {
 				async function fetchFromUrl(url) {
 					store.nbGameFetching++;
 					try {
-						const response = await fetch(url);
+						const response = await store.authenticatedFetch(url);
 						if (!response.ok) {
 							throw new Error("Rejected request for gameId=" + gameId);
 						}
@@ -229,7 +304,7 @@ export const useKumiteStore = defineStore("kumite", {
 			async function fetchFromUrl(url) {
 				store.nbContestFetching++;
 				try {
-					const response = await fetch(url);
+					const response = await store.authenticatedFetch(url);
 					const responseJson = await response.json();
 
 					responseJson.forEach((item) => {
@@ -267,7 +342,7 @@ export const useKumiteStore = defineStore("kumite", {
 				async function fetchFromUrl(url) {
 					store.nbContestFetching++;
 					try {
-						const response = await fetch(url);
+						const response = await store.authenticatedFetch(url);
 						if (!response.ok) {
 							throw new NetworkError(
 								"Rejected request for contest: " + contestId,
@@ -321,7 +396,7 @@ export const useKumiteStore = defineStore("kumite", {
 			async function fetchFromUrl(url) {
 				store.nbBoardFetching++;
 				try {
-					const response = await fetch(url);
+					const response = await store.authenticatedFetch(url);
 					if (!response.ok) {
 						throw new NetworkError(
 							"Rejected request for contest: " + contestId,
@@ -335,7 +410,7 @@ export const useKumiteStore = defineStore("kumite", {
 					const board = responseJson;
 
 					// https://github.com/vuejs/pinia/discussions/440
-					console.log("Registering board for contestId", contestId);
+					console.log("Storing board for contestId", contestId);
 					store.$patch({ boards: { ...store.boards, [contestId]: board } });
 				} catch (e) {
 					console.error("Issue on Fetch: ", e, e.response.status);

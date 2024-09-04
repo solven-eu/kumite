@@ -51,14 +51,14 @@
 			// It includes `/ui`, `/api`
 			const routes = [
 			  	{ path: '/', component: HelloView },
-			{ path: '/games', component: KumiteGames },
+			{ path: '/html/games', component: KumiteGames },
 				// https://router.vuejs.org/guide/essentials/passing-props
-				{ path: '/games/:gameId', component: KumiteGame , props: true },
-				{ path: '/contests', component: KumiteContests },
-				{ path: '/games/:gameId/contest/:contestId', component: KumiteContest , props: true },
-				{ path: '/games/:gameId/contest/:contestId/board', component: KumiteBoard , props: true },
-				{ path: '/login', component: LoginChecker },
-				{ path: '/about', component: AboutView },
+				{ path: '/html/games/:gameId', component: KumiteGame , props: true },
+				{ path: '/html/contests', component: KumiteContests },
+				{ path: '/html/games/:gameId/contest/:contestId', component: KumiteContest , props: true },
+				{ path: '/html/games/:gameId/contest/:contestId/board', component: KumiteBoard , props: true },
+				{ path: '/html/login', component: LoginChecker },
+				{ path: '/html/about', component: AboutView },
 			]
 
 			const router = createRouter({

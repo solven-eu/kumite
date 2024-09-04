@@ -5,8 +5,8 @@ spring:
       client:
         registration:
           github:
-            clientId: Ov23liakPa9YkyfEZGZE
-            clientSecret: 35faf73b496bb30fa17c1dd2f9fc8111874965ca
+            clientId: ${kumite.login.oauth2.github.clientId}
+            clientSecret: ${kumite.login.oauth2.github.clientSecret}
           google:
             client-id: google-client-id
             client-secret: google-client-secret
@@ -18,6 +18,5 @@ logging:
   level:
     org.springframework.security: INFO
 
-#rsa:
-#  private-key: classpath:certs/private-key.pem
-#  public-key: classpath:certs/public-key.pem
+kumite.login:
+  signing-key: 'NEED_TO_BE_DEFINED'

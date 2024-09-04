@@ -8,6 +8,7 @@ import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUser.KumiteUserBuilder;
 import eu.solven.kumite.account.KumiteUserRaw;
 import eu.solven.kumite.account.KumiteUserRawRaw;
+import eu.solven.kumite.player.KumitePlayer;
 import lombok.Value;
 
 @Value
@@ -56,9 +57,13 @@ public class KumiteUsersRegistry {
 				if (alreadyIn == null) {
 					UUID accountId = UUID.randomUUID();
 					kumiteUserBuilder.accountId(accountId);
+
+					UUID playerId = UUID.randomUUID();
+					kumiteUserBuilder.playerId(playerId);
 				} else {
-					kumiteUserBuilder.accountId(alreadyIn.getAccountId());
+					kumiteUserBuilder.accountId(alreadyIn.getAccountId()).playerId(alreadyIn.getPlayerId());
 				}
+
 				return kumiteUserBuilder.build();
 			});
 
@@ -66,6 +71,10 @@ public class KumiteUsersRegistry {
 		}
 
 		return kumiteUser;
+	}
+
+	public KumitePlayer getAccountMainPlayer(UUID accountId) {
+		return KumitePlayer.builder().playerId(getUser(accountId).getPlayerId()).build();
 	}
 
 }

@@ -73,14 +73,18 @@ public class KumiteRouter {
 
 				// The following routes are useful for the SinglePageApplication
 				.and(RouterFunctions.route(
-						RequestPredicates.GET("/games/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
+						RequestPredicates.GET("/html/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
 						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml)))
-				.and(RouterFunctions.route(
-						RequestPredicates.GET("/contests/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
-						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml)))
-				.and(RouterFunctions.route(
-						RequestPredicates.GET("/about/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
-						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml)));
+		// .and(RouterFunctions.route(
+		// RequestPredicates.GET("/games/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
+		// request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml)))
+		// .and(RouterFunctions.route(
+		// RequestPredicates.GET("/contests/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
+		// request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml)))
+		// .and(RouterFunctions.route(
+		// RequestPredicates.GET("/about/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
+		// request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml)))
+		;
 	}
 
 	@Bean

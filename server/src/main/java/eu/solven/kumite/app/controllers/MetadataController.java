@@ -1,4 +1,4 @@
-package eu.solven.kumite.game;
+package eu.solven.kumite.app.controllers;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -7,13 +7,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.solven.kumite.game.IGameMetadataConstants;
+
 /**
  * Holds various details/metadata/enrichment about the application.
  */
 @RestController
 public class MetadataController {
 
-	@GetMapping("/api/public/metadata")
+	@GetMapping("/api/public/v1/metadata")
 	@Bean
 	public Map<String, ?> getMetadata() {
 		Map<String, Object> metadata = new LinkedHashMap<>();

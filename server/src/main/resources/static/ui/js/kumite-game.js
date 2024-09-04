@@ -56,13 +56,13 @@ export default {
 	},
 	template: `
 <div v-if="!game && nbGameFetching > 0">
-  	Loading <RouterLink :to="{path:'/games/' + gameId}">game={{gameId}}</RouterLink>
+  	Loading <RouterLink :to="{path:'/html/games/' + gameId}">game={{gameId}}</RouterLink>
 </div>
 <div v-else-if="game.error">
 	{{game.error}}
 </div>
 <div v-else>
-	<h1><RouterLink :to="{path:'/games/' + game.gameId}">{{game.title}}</RouterLink></h1>
+	<h1><RouterLink :to="{path:'/html/games/' + game.gameId}">{{game.title}}</RouterLink></h1>
 	
 	<span v-if="metadata.tags">
 		Tags: <span class="badge text-bg-secondary" v-for="tag in game.tags" data-bs-toggle="tooltip" :data-bs-title="metadata.tags[tag]">{{tag}}</span><br/>

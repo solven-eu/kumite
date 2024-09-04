@@ -3,7 +3,9 @@ package eu.solven.kumite.account.login;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.solven.kumite.game.MetadataController;
+import eu.solven.kumite.app.controllers.KumiteLoginController;
+import eu.solven.kumite.app.controllers.KumitePublicController;
+import eu.solven.kumite.app.controllers.MetadataController;
 
 // https://docs.spring.io/spring-security/reference/reactive/oauth2/login/advanced.html#webflux-oauth2-login-advanced-userinfo-endpoint
 @RestController
@@ -13,12 +15,8 @@ import eu.solven.kumite.game.MetadataController;
 		KumiteLoginController.class,
 		MetadataController.class,
 
-		KumitePrivateController.class,
+		KumiteTokenService.class,
 
 })
 public class KumiteSecurity {
-	// @Bean
-	// public ClientRegistrationRepository clientRegistrationRepository(List<ClientRegistration> clientRegistrations) {
-	// return new InMemoryClientRegistrationRepository(clientRegistrations.toArray(ClientRegistration[]::new));
-	// }
 }

@@ -14,8 +14,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import eu.solven.kumite.account.AccountsStore;
-import eu.solven.kumite.account.KumiteAccount;
+import eu.solven.kumite.account.KumiteUser;
+import eu.solven.kumite.account.KumiteUserRaw;
+import eu.solven.kumite.account.KumiteUserRawRaw;
+import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerComponentsConfiguration;
 import eu.solven.kumite.contest.Contest;
@@ -48,8 +50,11 @@ public class TestTSPLifecycle {
 	@Autowired
 	ContestPlayersRegistry contestPlayersRegistry;
 
+	// @Autowired
+	// AccountsStore accountsStore;
+
 	@Autowired
-	AccountsStore accountsStore;
+	KumiteUsersRegistry usersRegistry;
 
 	@Autowired
 	GamesRegistry gamesStore;
@@ -66,11 +71,16 @@ public class TestTSPLifecycle {
 	@Autowired
 	BoardLifecycleManager boardLifecycleManager;
 
+	public static final KumiteUserRaw userRaw() {
+		KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId("test").sub("test").build();
+		return KumiteUserRaw.builder().rawRaw(rawRaw).email("test@test").username("fakeUsername").build();
+	}
+
 	@Test
 	public void testSinglePlayer() {
-		UUID accountId = UUID.randomUUID();
-		KumiteAccount account = accountsStore
-				.registerAccount(KumiteAccount.builder().accountId(accountId).playerId(UUID.randomUUID()).build());
+		KumiteUser account = usersRegistry.registerOrUpdate(userRaw());
+		UUID accountId = account.getAccountId();
+		// .registerAccount(KumiteAccount.builder().accountId(accountId).playerId(UUID.randomUUID()).build());
 
 		List<GameMetadata> games = gamesStore
 				.searchGames(GameSearchParameters.builder().titlePattern(Optional.of(".*Salesman.*")).build());
@@ -88,7 +98,7 @@ public class TestTSPLifecycle {
 
 		Contest contest = contestsStore.getContest(contests.get(0).getContestId());
 
-		KumitePlayer player = accountsStore.getAccountMainPlayer(accountId);
+		KumitePlayer player = usersRegistry.getAccountMainPlayer(accountId);
 		Assertions.assertThat(player.getPlayerId()).isEqualTo(account.getPlayerId());
 
 		contestPlayersRegistry.registerPlayer(contest.getContestMetadata(), player);

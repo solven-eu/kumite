@@ -1,9 +1,11 @@
 package eu.solven.kumite.player;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -17,8 +19,10 @@ import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
 import eu.solven.kumite.lifecycle.BoardLifecycleManager;
 import eu.solven.kumite.player.PlayerMoveRaw.PlayerMoveRawBuilder;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Value
 public class PlayerMovesHandler {
 	GamesRegistry gamesStore;
@@ -46,12 +50,24 @@ public class PlayerMovesHandler {
 			PlayerMoveRaw playerMove = PlayerMoveRaw.builder().playerId(playerId).move(move).build();
 			boardLifecycleManager.onPlayerMove(contest, playerMove);
 
-			return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(Map.of()));
+			Map<String, UUID> output = Map.of("playerId", playerId, "contestId", contestId);
+			return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(output));
 		});
 	}
 
 	// This would return a list of possible moves. The list may not be exhaustive, but indicative.
 	public Mono<ServerResponse> listPlayerMoves(ServerRequest request) {
+		// CookieServerCsrfTokenRepository
+		Optional<Object> optMonoCsrfToken = request.attribute(CsrfToken.class.getName());
+
+		optMonoCsrfToken.ifPresent(rawMonoCsrfToken -> {
+			Mono<CsrfToken> monoCsrfToken = (Mono<CsrfToken>) rawMonoCsrfToken;
+			monoCsrfToken.doAfterTerminate(() -> {
+				CsrfToken csrfToken = monoCsrfToken.block();
+				log.info("CSRF: {}", csrfToken);
+			});
+		});
+
 		PlayerMoveRawBuilder parameters = PlayerMoveRaw.builder();
 
 		UUID playerId = KumiteHandlerHelper.uuid(request, "player_id");
