@@ -75,9 +75,9 @@ export default {
 	  <p>
 	    <strong>playerId:</strong> {{ playingPlayerId }}
 	  </p>
-		<p>
+		<!--p>
 		  <strong>tokens:</strong> {{ tokens }}
-		</p>
+		</p-->
   </div>
   `,
 };

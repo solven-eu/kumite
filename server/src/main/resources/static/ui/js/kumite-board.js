@@ -5,11 +5,16 @@ import KumiteBoardMoveForm from "./kumite-board-move-form.js";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
+import KumiteBoardJson from "./kumite-board-state-json.js";
+import KumiteBoardTSP from "./kumite-board-state-tsp.js";
+
 export default {
 	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
 		KumiteLeaderboard,
 		KumiteBoardMoveForm,
+		KumiteBoardJson,
+		KumiteBoardTSP,
 	},
 	// https://vuejs.org/guide/components/props.html
 	props: {
@@ -67,40 +72,39 @@ export default {
 	},
 	// https://stackoverflow.com/questions/7717929/how-do-i-get-pre-style-overflow-scroll-height-150px-to-display-at-parti
 	template: `
-<div v-if="(!game || !contest || !board) && (nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
-	<div class="spinner-border" role="status">
-	  <span class="visually-hidden">Loading contestId={{contestId}}</span>
+	<div v-if="(!game || !contest || !board) && (nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
+	   <div class="spinner-border" role="status">
+	      <span class="visually-hidden">Loading contestId={{contestId}}</span>
+	   </div>
 	</div>
-</div>
-<div v-else-if="game.error || contest.error || board.error">
-	{{game.error || contest.error || board.error}}
-</div>
-<div v-else>
-	<span>
-		<h1>Game: {{game.title}}</h1>
-		Game-Description: {{game.shortDescription}}<br/>
-	</span>
-	<h2>{{contest.name}}</h2>
-
-	<div class="border">
-		Board:
-		<pre  style="height: 10pc; overflow-y: scroll;" class="border">{{board}}</pre>
-		
-		<div v-if="showCurl">
-			<pre  style="overflow-y: scroll;" class="border">{{curlGetBoard}}</pre>
-		</div>
-	</div>
-	
-	<KumiteBoardMoveForm class="border" :gameId="gameId" :contestId="contestId" />
-	
-	<div v-if="contest.acceptPlayers">
-		This contest accepts players.
+	<div v-else-if="game.error || contest.error || board.error">
+	   {{game.error || contest.error || board.error}}
 	</div>
 	<div v-else>
-		This contest is full.
-	</div
-	
-	<KumiteLeaderboard :contestId="contestId"/>
-</div>
+	<span>
+	   <h1>Game: {{game.title}}</h1>
+	   Game-Description: {{game.shortDescription}}<br/>
+	</span>
+	<h2>{{contest.name}}</h2>
+	<div class="border">
+	Board:
+	<div class="row">
+	   <KumiteBoardJson :board="board" class="col" />
+	   <KumiteBoardTSP :board="board" class="col" />
+	   <div/>
+	      <div v-if="showCurl">
+	         <pre  style="overflow-y: scroll;" class="border">{{curlGetBoard}}</pre>
+	      </div>
+	   </div>
+	   <KumiteBoardMoveForm class="border" :gameId="gameId" :contestId="contestId" />
+	   <div v-if="contest.acceptPlayers">
+	      This contest accepts players.
+	   </div>
+	   <div v-else>
+	      This contest is full.
+	      </div
+	      <KumiteLeaderboard :contestId="contestId"/>
+	   </div>
+	</div>
   `,
 };

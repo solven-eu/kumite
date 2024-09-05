@@ -2,6 +2,9 @@ import { ref } from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
+import KumiteBoardMoveJson from "./kumite-board-move-json.js";
+import KumiteBoardMoveTSP from "./kumite-board-move-tsp.js";
+
 // Duplicated from store.js
 // TODO How can we share such a class?
 class NetworkError extends Error {
@@ -15,6 +18,11 @@ class NetworkError extends Error {
 }
 
 export default {
+	// https://vuejs.org/guide/components/registration#local-registration
+	components: {
+		KumiteBoardMoveJson,
+		KumiteBoardMoveTSP,
+	},
 	// https://vuejs.org/guide/components/props.html
 	props: {
 		contestId: {
@@ -109,12 +117,12 @@ export default {
 			);
 		},
 		fillMove(json) {
-			this.solution = JSON.stringify(json);
+			this.move = JSON.stringify(json);
 		},
 		sendMove() {
 			const exampleMovesMetadata = this.exampleMovesMetadata;
 
-			const rawMove = this.solution;
+			const rawMove = this.move;
 
 			let move;
 			try {
@@ -171,11 +179,10 @@ export default {
 		const exampleMovesMetadata = ref({ loaded: false });
 
 		// We need to suggest a move is defined through JSON format
-		const solution = ref("{}");
+		const move = ref("{}");
 
-		return { exampleMoves, exampleMovesMetadata, solution };
+		return { exampleMoves, exampleMovesMetadata, move };
 	},
-	// https://stackoverflow.com/questions/7717929/how-do-i-get-pre-style-overflow-scroll-height-150px-to-display-at-parti
 	template: `
 <div v-if="(!game || !contest || !board) && (nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
 	<div class="spinner-border" role="status">
@@ -187,7 +194,7 @@ export default {
 </div>
 <div v-else>
 	<div class="border">
-		Submit a solution:
+		Submit a move/solution:
 		<form>
 		  <div>
 		  	<button type="button" @click="loadExampleMoves" class="btn btn-outline-secondary" v-if="!exampleMovesMetadata.loaded">Load some available moves</button>
@@ -203,13 +210,17 @@ export default {
 			</div>
 		  </div>
 			<div class="mb-3">
-			  <label for="solution" class="form-label">Solution as JSON</label>
-			  <textarea class="form-control" id="solution" rows="3" v-model="solution"></textarea>
+			  <label for="move" class="form-label">Solution as JSON</label>
+			  <textarea class="form-control" rows="3" v-model="move"></textarea>
 			</div>
 			<div>
-		  	<button type="button" @click="sendMove()"  class="btn btn-outline-primary">Submit</button>
+				<KumiteBoardMoveJson :board="board" :move="move" />
+				<KumiteBoardMoveTSP :board="board" :move="move" />
+			</div>
+			<div>
+		  		<button type="button" @click="sendMove()"  class="btn btn-outline-primary">Submit</button>
 
-		  	<span v-if="exampleMovesMetadata.error" class="alert alert-warning" role="alert">{{exampleMovesMetadata.error}}</span>
+		  		<span v-if="exampleMovesMetadata.error" class="alert alert-warning" role="alert">{{exampleMovesMetadata.error}}</span>
 		  </div>
 		</form>
 	</div>
