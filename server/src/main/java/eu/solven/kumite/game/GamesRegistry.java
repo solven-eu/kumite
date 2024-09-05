@@ -42,7 +42,7 @@ public class GamesRegistry {
 
 		if (search.getGameId().isPresent()) {
 			UUID uuid = search.getGameId().get();
-			metaStream = Optional.ofNullable(idToGame.get(uuid).getGameMetadata()).stream();
+			metaStream = Optional.ofNullable(idToGame.get(uuid)).map(g -> g.getGameMetadata()).stream();
 		} else {
 			metaStream = idToGame.values().stream().map(c -> c.getGameMetadata());
 		}

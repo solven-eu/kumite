@@ -17,6 +17,7 @@ spring:
 logging:
   level:
     org.springframework.security: INFO
+    eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter: DEBUG
 
 kumite.login:
   signing-key: 'NEEDS_TO_BE_DEFINED'

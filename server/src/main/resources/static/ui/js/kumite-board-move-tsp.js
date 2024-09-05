@@ -24,73 +24,36 @@ export default {
 			type: Object,
 			required: true,
 		},
-		move: {
+		rawMove: {
 			type: String,
 			required: true,
 		},
 	},
-	methods: {
-		renderMove() {
-			console.log("Rendering move", move);
-
-			move.cities.forEach((city, index) => {
-				if (index >= 1) {
-					const previousCity = cityToPosition[move.cities[index - 1]];
-					const currentCity = cityToPosition[city];
-
-					const line = new Line(
-						width * previousCity.x,
-						height * previousCity.y,
-						width * currentCity.x,
-						height * currentCity.y,
-					);
-					renderer.scene.add(line);
-				}
-			});
-
-			renderer.render();
-		},
-	},
-	setup(props, context) {
+	setup(props) {
 		const boardCanvas = ref(null);
 		const board = props.board;
-		const move = JSON.parse(props.move);
 
 		const width = 256; //window.innerWidth;
 		const height = 256; // window.innerHeight;
 
 		const renderer = new Renderer({});
 
-		onMounted(() => {
-			boardCanvas.value.appendChild(renderer.domElement);
-			renderer.setSize(width, height);
-
-			board.cities.forEach((city) => {
-				// `city.x` and `city.y` ranges in [0;1]
-				const circle = new Circle(width * city.x, height * city.y, 1);
-				renderer.scene.add(circle);
-			});
-
-			if (move && move.cities) {
-				renderMove();
-			} else {
-				console.log("Invalid move", move);
+		function renderRawMove() {
+			let move;
+			try {
+				move = JSON.parse(props.rawMove);
+			} catch (e) {
+				console.error("Invalid move", e);
+				return;
 			}
-			renderer.render();
 
-			const propsProps = props;
-			// const thisThis = renderMove;
-
-			watch(
-				() => propsProps.move,
-				(newValue) => {
-					renderMove(newValue);
-				},
-			);
-		});
-
-		const renderMove = function (rawMove) {
-			const move = JSON.parse(rawMove);
+			renderMove(move);
+		}
+		function renderMove(move) {
+			if (!move || !move.cities) {
+				console.log("Can not render invalid move", move);
+				return;
+			}
 
 			console.log("Rendering move", move);
 
@@ -123,12 +86,35 @@ export default {
 				}
 			});
 
+			console.log("Rendering move", move);
 			renderer.render();
-		};
+		}
+
+		onMounted(() => {
+			console.log("onMounted", boardCanvas);
+			boardCanvas.value.appendChild(renderer.domElement);
+			renderer.setSize(width, height);
+
+			board.cities.forEach((city) => {
+				// `city.x` and `city.y` ranges in [0;1]
+				const circle = new Circle(width * city.x, height * city.y, 1);
+				renderer.scene.add(circle);
+			});
+
+			console.log("Rendering board", board);
+			renderer.render();
+
+			watch(
+				() => props.rawMove,
+				(newValue) => {
+					renderRawMove();
+				},
+			);
+		});
 
 		return {
 			boardCanvas,
-			renderMove,
+			renderer,
 		};
 	},
 	template: `

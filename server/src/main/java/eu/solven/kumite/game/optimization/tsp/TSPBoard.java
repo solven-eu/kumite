@@ -38,4 +38,9 @@ public class TSPBoard implements IKumiteBoard {
 		// We must not return all players solutions to each player
 		return problem;
 	}
+
+	@Override
+	public void registerPlayer(UUID playerId) {
+		// Optimization problems can accept any player
+	}
 }

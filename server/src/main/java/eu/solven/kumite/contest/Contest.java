@@ -30,13 +30,6 @@ public class Contest {
 	@Getter(AccessLevel.NONE)
 	IHasPlayers hasPlayers;
 
-	// The board would change through time and/or userInteractions
-	// BoardAndPlayers refBoard;
-
-	// public void registerPlayer(KumitePlayer player) {
-	// refBoard.registerPlayer(player);
-	// }
-
 	public void checkValidMove(PlayerMoveRaw playerMove) {
 		UUID playerId = playerMove.getPlayerId();
 		IKumiteMove move = playerMove.getMove();
@@ -53,8 +46,4 @@ public class Contest {
 					"move=" + move + " by playerId=" + playerId + " is invalid: " + invalidMoveReasons);
 		}
 	}
-
-	// public void registerMove(PlayerMove playerMove) {
-	// board.registerMove(playerMove);
-	// }
 }

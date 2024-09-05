@@ -91,7 +91,7 @@ export default {
 		</div>
 	</div>
 	
-	<KumiteBoardMoveForm class="border" :gameId="gameId" :contestId="contestId" />
+	<KumiteBoardMoveForm :gameId="gameId" :contestId="contestId" />
 	
 	<div v-if="contest.acceptPlayers">
 		This contest accepts players.

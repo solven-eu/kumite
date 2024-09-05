@@ -16,17 +16,39 @@ import eu.solven.kumite.player.KumitePlayer;
 public interface IGame {
 	GameMetadata getGameMetadata();
 
-	boolean isValidMove(IKumiteMove move);
+	/**
+	 * Default implementation returns true as many games may have only board-dependant rules
+	 * 
+	 * @param move
+	 * @return true if this move is valid independently of the board state.
+	 */
+	default boolean isValidMove(IKumiteMove move) {
+		return true;
+	}
 
 	IKumiteBoard generateInitialBoard(RandomGenerator random);
 
-	boolean canAcceptPlayer(ContestMetadata contest, KumitePlayer player);
+	/**
+	 * 
+	 * @param contest
+	 * @param player
+	 * @return true if given player can join this game.
+	 */
+	default boolean canAcceptPlayer(ContestMetadata contest, KumitePlayer player) {
+		if (contest.getPlayers().stream().map(p -> p.getPlayerId()).anyMatch(p -> p.equals(player.getPlayerId()))) {
+			// This player is already registered in given contest: most game accept each player at most once
+			return false;
+		}
+		return contest.isAcceptPlayers();
+	}
 
 	IKumiteMove parseRawMove(Map<String, ?> rawMove);
 
 	IKumiteBoard parseRawBoard(Map<String, ?> rawBoard);
 
-	LeaderBoard makeLeaderboard(IKumiteBoard board);
+	default LeaderBoard makeLeaderboard(IKumiteBoard board) {
+		return LeaderBoard.empty();
+	}
 
 	/**
 	 * 

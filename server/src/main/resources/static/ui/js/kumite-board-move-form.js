@@ -47,13 +47,13 @@ export default {
 		]),
 		...mapState(useKumiteStore, {
 			game(store) {
-				return store.games[this.gameId];
+				return store.games[this.gameId] || { error: "not_loaded" };
 			},
 			contest(store) {
-				return store.contests[this.contestId];
+				return store.contests[this.contestId] || { error: "not_loaded" };
 			},
 			board(store) {
-				return store.boards[this.contestId];
+				return store.boards[this.contestId] || { error: "not_loaded" };
 			},
 		}),
 		curlPostBoard() {
@@ -67,13 +67,10 @@ export default {
 			);
 		},
 	},
-	methods: {
-		async loadExampleMoves() {
-			const exampleMoves = this.exampleMoves;
-			const exampleMovesMetadata = this.exampleMovesMetadata;
+	setup(props) {
+		const store = useKumiteStore();
 
-			const store = useKumiteStore();
-
+		function loadExampleMoves() {
 			console.log("Loading example moves");
 			async function fetchFromUrl(url) {
 				try {
@@ -97,45 +94,41 @@ export default {
 						});
 					}
 
-					exampleMovesMetadata.loaded = true;
+					exampleMovesMetadata.value.loaded = true;
 
 					// https://stackoverflow.com/questions/61452458/ref-vs-reactive-in-vue-3
 					modify(exampleMoves, newExampleMoves);
 				} catch (e) {
 					console.error("Issue on Network: ", e);
-					exampleMovesMetadata.error = e;
+					exampleMovesMetadata.value.error = e;
 				}
 			}
 
-			const viewingPlayerId = "00000000-0000-0000-0000-000000000000";
-			const playerId = viewingPlayerId;
+			// const viewingPlayerId = "00000000-0000-0000-0000-000000000000";
+			// const playerId = viewingPlayerId;
+			const playerId = store.playingPlayerId;
 			fetchFromUrl(
 				"/api/board/moves?contest_id=" +
-					this.contestId +
+					props.contestId +
 					"&player_id=" +
 					playerId,
 			);
-		},
-		fillMove(json) {
-			this.move = JSON.stringify(json);
-		},
-		sendMove() {
-			const exampleMovesMetadata = this.exampleMovesMetadata;
-
-			const rawMove = this.move;
-
+		}
+		function fillMove(json) {
+			this.rawMove = JSON.stringify(json);
+		}
+		function sendMove() {
 			let move;
 			try {
-				move = JSON.parse(rawMove);
+				move = JSON.parse(this.rawMove);
 			} catch (e) {
 				console.error("Issue parsing json: ", e);
-				exampleMovesMetadata.error = e;
 				return;
 			}
 
 			console.log("Submitting move", move);
 
-			const store = useKumiteStore();
+			const contestId = this.contestId;
 
 			async function postFromUrl(url) {
 				try {
@@ -152,23 +145,21 @@ export default {
 							response,
 						);
 					}
+					// The submitted move may have impacted the leaderboard
+					if (!store.leaderboards[contestId]) {
+						store.leaderboards[contestId] = {};
+					}
+					store.leaderboards[contestId].stale = true;
 				} catch (e) {
 					console.error("Issue on Network:", e);
-					exampleMovesMetadata.error = e;
 				}
 			}
 
-			const playerId = this.playingPlayerId;
+			const playerId = store.playingPlayerId;
 			postFromUrl(
-				"/api/board/move?contest_id=" +
-					this.contestId +
-					"&player_id=" +
-					playerId,
+				"/api/board/move?contest_id=" + contestId + "&player_id=" + playerId,
 			);
-		},
-	},
-	setup(props) {
-		const store = useKumiteStore();
+		}
 
 		// We load current accountPlayers to enable player registration
 		store.loadCurrentAccountPlayers();
@@ -179,51 +170,68 @@ export default {
 		const exampleMovesMetadata = ref({ loaded: false });
 
 		// We need to suggest a move is defined through JSON format
-		const move = ref("{}");
+		const rawMove = ref("{}");
 
-		return { exampleMoves, exampleMovesMetadata, move };
+		const showBoardWithMoveAsSvg = ref(true);
+
+		return {
+			exampleMoves,
+			exampleMovesMetadata,
+			loadExampleMoves,
+			rawMove,
+			fillMove,
+			sendMove,
+			showBoardWithMoveAsSvg,
+		};
 	},
 	template: `
-<div v-if="(!game || !contest || !board) && (nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
-	<div class="spinner-border" role="status">
-	  <span class="visually-hidden">Loading contestId={{contestId}}</span>
+	<div v-if="(!game || !contest || !board) && (nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
+	   <div class="spinner-border" role="status">
+	      <span class="visually-hidden">Loading contestId={{contestId}}</span>
+	   </div>
 	</div>
-</div>
-<div v-else-if="game.error || contest.error || board.error">
-	{{game.error || contest.error || board.error}}
-</div>
-<div v-else>
-	<div class="border">
-		Submit a move/solution:
-		<form>
-		  <div>
-		  	<button type="button" @click="loadExampleMoves" class="btn btn-outline-secondary" v-if="!exampleMovesMetadata.loaded">Load some available moves</button>
-			<div v-else>
-				<div class="btn-group" v-if="Object.keys(exampleMoves).length > 0">
-				  <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-				    Fill with an example move
-				  </button>
-				  <ul class="dropdown-menu">
-				    <li><a class="dropdown-item" @click="fillMove(moveJson)" v-for="(moveJson, moveKey) in exampleMoves">{{moveKey}}</a></li>
-				  </ul>
-				</div>
-			</div>
-		  </div>
-			<div class="mb-3">
-			  <label for="move" class="form-label">Solution as JSON</label>
-			  <textarea class="form-control" rows="3" v-model="move"></textarea>
-			</div>
-			<div>
-				<KumiteBoardMoveJson :board="board" :move="move" />
-				<KumiteBoardMoveTSP :board="board" :move="move" />
-			</div>
-			<div>
-		  		<button type="button" @click="sendMove()"  class="btn btn-outline-primary">Submit</button>
-
-		  		<span v-if="exampleMovesMetadata.error" class="alert alert-warning" role="alert">{{exampleMovesMetadata.error}}</span>
-		  </div>
-		</form>
+	<div v-else-if="game.error || contest.error || board.error">
+	   {{game.error || contest.error || board.error}}
 	</div>
-</div>
+	<div v-else class="container border">
+      <form>
+	  	<!-- Move Editor -->
+         <div class="row">
+			<div class="col">
+			   <label for="move" class="form-label">Submit a move/solution:</label>
+			   <textarea class="form-control" rows="3" v-model="rawMove"></textarea>
+			</div>
+		 	<div class="col my-auto">
+			 	<span v-if="!exampleMovesMetadata.loaded">
+	            	<button type="button" @click="loadExampleMoves" class="btn btn-outline-secondary">Load some available moves</button>
+				</span>
+               <span v-else class="btn-group " v-if="Object.keys(exampleMoves).length > 0">
+                  <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  	Prefill with an example move
+                  </button>
+                  <ul class="dropdown-menu">
+                     <li><a class="dropdown-item" @click="fillMove(moveJson)" v-for="(moveJson, moveKey) in exampleMoves">{{moveKey}}</a></li>
+                  </ul>
+               </span>
+		   </div>
+         </div>
+		 <!-- Move Visualizer-->
+         <div class="row">
+			<div class="form-check form-switch">
+			   <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" v-model="showBoardWithMoveAsSvg">
+			   <label class="form-check-label" for="flexSwitchCheckDefault">Show as SVG</label>
+			</div>
+			<span>
+				<KumiteBoardMoveTSP :board="board" :rawMove="rawMove" v-if="showBoardWithMoveAsSvg" class="text-center" />
+				<KumiteBoardMoveJson :board="board" :rawMove="rawMove" v-else class="text-center" />
+			</span>
+         </div>
+			<!-- Move Submitter-->
+         <div>
+            <button type="button" @click="sendMove()"  class="btn btn-outline-primary">Submit</button>
+            <span v-if="exampleMovesMetadata.error" class="alert alert-warning" role="alert">{{exampleMovesMetadata.error}}</span>
+         </div>
+      </form>
+	</div>
   `,
 };

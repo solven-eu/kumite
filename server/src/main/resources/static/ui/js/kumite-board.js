@@ -68,7 +68,9 @@ export default {
 
 		store.loadBoard(props.gameId, props.contestId);
 
-		return {};
+		const showBoardAsSvg = ref(true);
+
+		return { showBoardAsSvg };
 	},
 	// https://stackoverflow.com/questions/7717929/how-do-i-get-pre-style-overflow-scroll-height-150px-to-display-at-parti
 	template: `
@@ -80,30 +82,42 @@ export default {
 	<div v-else-if="game.error || contest.error || board.error">
 	   {{game.error || contest.error || board.error}}
 	</div>
-	<div v-else>
-	<span>
-	   <h1>Game: {{game.title}}</h1>
-	   Game-Description: {{game.shortDescription}}<br/>
-	</span>
-	<h2>{{contest.name}}</h2>
-	<div class="border">
-	Board:
-	<div class="row">
-	   <KumiteBoardJson :board="board" class="col" />
-	   <KumiteBoardTSP :board="board" class="col" />
-	   <div/>
-	      <div v-if="showCurl">
-	         <pre  style="overflow-y: scroll;" class="border">{{curlGetBoard}}</pre>
+	<div v-else class="container">
+	   <span class="row">
+	      <h1>Game: {{game.title}}</h1>
+	      Game-Description: {{game.shortDescription}}<br/>
+	   </span>
+	   <span class="row">
+	      <h2>Contest: {{contest.name}}</h2>
+	   </span>
+	   <div class="row border">
+	      <div class="">
+	         Board: This is the view of the contest given players previous moves.
+	         <div class="form-check form-switch">
+	            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" v-model="showBoardAsSvg">
+	            <label class="form-check-label" for="flexSwitchCheckDefault">Show as SVG</label>
+	         </div>
+	         <KumiteBoardTSP :board="board" v-if="showBoardAsSvg" class="col text-center" />
+	         <span v-else>
+	            <KumiteBoardJson :board="board" class="col" />
+	            <div v-if="showCurl">
+	               cURL command: 
+	               <pre  style="overflow-y: scroll;" class="border">{{curlGetBoard}}</pre>
+	            </div>
+	         </span>
 	      </div>
 	   </div>
-	   <KumiteBoardMoveForm class="border" :gameId="gameId" :contestId="contestId" />
-	   <div v-if="contest.acceptPlayers">
-	      This contest accepts players.
+	   <div class="row border" v-if="contest">
+	      <div v-if="contest.acceptPlayers">
+	         This contest accepts players.
+	         <KumiteBoardMoveForm :gameId="gameId" :contestId="contestId" />
+	      </div>
+	      <div v-else>
+	         This contest is full.
+	      </div>
 	   </div>
-	   <div v-else>
-	      This contest is full.
-	      </div
-	      <KumiteLeaderboard :contestId="contestId"/>
+	   <div class="row border">
+	      <KumiteLeaderboard :gameId="gameId" :contestId="contestId"/>
 	   </div>
 	</div>
   `,

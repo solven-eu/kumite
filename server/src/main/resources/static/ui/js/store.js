@@ -30,6 +30,10 @@ export const useKumiteStore = defineStore("kumite", {
 		// We loads information about various players (e.g. through leaderboards)
 		players: {},
 		nbAccountLoading: 0,
+
+		// Typically edited when a player submit a move
+		leaderboards: {},
+		nbLeaderboardFetching: 0,
 	}),
 	getters: {
 		// There will be a way to choose a different playerId amongst the account playerIds
@@ -155,10 +159,10 @@ export const useKumiteStore = defineStore("kumite", {
 				fetchOptions.headers || {},
 			);
 
-			const mergedFetchOptions = Object.assign({}, fetchOptions);
+			const mergedFetchOptions = Object.assign({ method: "GET" }, fetchOptions);
 			mergedFetchOptions.headers = mergeHeaders;
 
-			console.log("Fetch", url, mergedFetchOptions);
+			console.log(mergedFetchOptions.method, url, mergedFetchOptions);
 
 			return fetch(url, mergedFetchOptions);
 		},
@@ -431,6 +435,52 @@ export const useKumiteStore = defineStore("kumite", {
 					"&player_id=" +
 					playerId,
 			);
+		},
+
+		async loadLeaderboard(gameId, contestId) {
+			this.loadGameIfMissing(gameId);
+			this.loadContestIfMissing(gameId, contestId);
+
+			const store = this;
+
+			async function fetchFromUrl(url) {
+				store.nbLeaderboardFetching++;
+				try {
+					const response = await store.authenticatedFetch(url);
+					if (!response.ok) {
+						throw new NetworkError(
+							"Rejected request for leaderboard: " + contestId,
+							url,
+							response,
+						);
+					}
+
+					const responseJson = await response.json();
+
+					const leaderboard = responseJson;
+
+					// https://github.com/vuejs/pinia/discussions/440
+					console.log("Storing leaderboard for contestId", contestId);
+
+					store.$patch({
+						leaderboards: { ...store.leaderboards, [contestId]: leaderboard },
+					});
+				} catch (e) {
+					console.error("Issue on Fetch: ", e, e.response.status);
+
+					const leaderboard = {
+						contestId: contestId,
+						status: "error",
+						error: e,
+					};
+					store.$patch({
+						leaderboards: { ...store.leaderboards, [contestId]: leaderboard },
+					});
+				} finally {
+					store.nbLeaderboardFetching--;
+				}
+			}
+			fetchFromUrl("/api/leaderboards?contest_id=" + contestId);
 		},
 	},
 });

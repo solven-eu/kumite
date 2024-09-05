@@ -1,13 +1,11 @@
 package eu.solven.kumite.leaderboard;
 
-import java.util.Optional;
-import java.util.UUID;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import eu.solven.kumite.contest.KumiteHandlerHelper;
 import eu.solven.kumite.leaderboard.LeaderboardSearchParameters.LeaderboardSearchParametersBuilder;
 import lombok.Value;
 import reactor.core.publisher.Mono;
@@ -19,8 +17,7 @@ public class LeaderboardHandler {
 	public Mono<ServerResponse> listScores(ServerRequest request) {
 		LeaderboardSearchParametersBuilder parameters = LeaderboardSearchParameters.builder();
 
-		Optional<String> optId = request.queryParam("contest_id");
-		optId.ifPresent(rawId -> parameters.contestId(UUID.fromString(rawId)));
+		parameters.contestId(KumiteHandlerHelper.uuid(request, "contest_id"));
 
 		// Optional<String> optRank = request.queryParam("rank");
 		// optRank.ifPresent(rawRank -> parameters.rank(OptionalInt.of(Integer.parseInt(rawRank))));

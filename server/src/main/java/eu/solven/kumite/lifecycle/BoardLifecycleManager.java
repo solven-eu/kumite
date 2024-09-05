@@ -4,6 +4,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IKumiteBoard;
@@ -34,6 +35,7 @@ public class BoardLifecycleManager {
 			boardEvolutionExecutor.execute(runnable);
 		} else {
 			CountDownLatch cdl = new CountDownLatch(1);
+			AtomicReference<Throwable> refT = new AtomicReference<>();
 
 			log.trace("Submitting task for contestId={}", contestId);
 			getExecutor(contestId).execute(() -> {
@@ -42,7 +44,7 @@ public class BoardLifecycleManager {
 					runnable.run();
 					log.trace("Runnned task for contestId={}", contestId);
 				} catch (Throwable t) {
-
+					refT.compareAndSet(null, t);
 				} finally {
 					cdl.countDown();
 					log.trace("Counted-down task for contestId={}", contestId);
@@ -56,6 +58,11 @@ public class BoardLifecycleManager {
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				throw new IllegalStateException(e);
+			}
+
+			Throwable t = refT.get();
+			if (t != null) {
+				throw new IllegalArgumentException("Issue processing move", t);
 			}
 		}
 	}

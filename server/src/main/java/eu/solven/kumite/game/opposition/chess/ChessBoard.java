@@ -33,4 +33,9 @@ public class ChessBoard implements IKumiteBoard, IKumiteBoardView {
 		// Every players can see the whole board
 		return this;
 	}
+
+	@Override
+	public void registerPlayer(UUID playerId) {
+		throw new IllegalArgumentException("TODO");
+	}
 }

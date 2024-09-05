@@ -66,9 +66,9 @@ export default {
     <RouterView />
   </main>
 
-  <p>
+  <!--p>
     <strong>Current route path:</strong> {{ $route.fullPath }}
-  </p>
+  </p-->
 	<!--p>
 	  <strong>Current account:</strong> {{ account }}
 	</p-->

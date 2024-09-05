@@ -64,7 +64,7 @@ export default {
 		</RouterLink>
 	</div>
 	
-	<KumiteLeaderboard :contestId="contestId"/>
+	<KumiteLeaderboard :gameId="gameId" :contestId="contestId"/>
 </div>
   `,
 };
