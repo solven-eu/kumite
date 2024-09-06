@@ -172,7 +172,11 @@ export default {
 		// We need to suggest a move is defined through JSON format
 		const rawMove = ref("{}");
 
-		const showBoardWithMoveAsSvg = ref(true);
+		const showBoardWithMoveAsSvg = ref(false);
+		store.loadBoard(props.gameId, props.contestId).then((board) => {
+			// If this board enables SVG, activates it by default
+			showBoardWithMoveAsSvg.value = store.boards[props.contestId].svg;
+		});
 
 		return {
 			exampleMoves,

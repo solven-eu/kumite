@@ -63,7 +63,6 @@ export default {
 	{{game.error || contest.error || leaderboard.error}}
 </div>
 <div v-else>
-	{{leaderboard}}
 	<div v-if="leaderboard.playerScores && leaderboard.playerScores.length">
 	leaderboard={{leaderboard}}
 	<li v-for="item in leaderboard.playerScores">

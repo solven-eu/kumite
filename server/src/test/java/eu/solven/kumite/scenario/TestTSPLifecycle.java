@@ -40,6 +40,7 @@ import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.IKumiteMove;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerMoveRaw;
+import eu.solven.kumite.player.PlayerRegistrationRaw;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { KumiteServerComponentsConfiguration.class })
@@ -101,7 +102,11 @@ public class TestTSPLifecycle {
 		KumitePlayer player = usersRegistry.getAccountMainPlayer(accountId);
 		Assertions.assertThat(player.getPlayerId()).isEqualTo(account.getPlayerId());
 
-		contestPlayersRegistry.registerPlayer(contest.getContestMetadata(), player);
+		contestPlayersRegistry.registerPlayer(contest.getContestMetadata(),
+				PlayerRegistrationRaw.builder()
+						.contestId(contest.getContestMetadata().getContestId())
+						.playerId(player.getPlayerId())
+						.build());
 
 		TSPBoard tspBoard = (TSPBoard) contest.getBoard().get();
 		Collection<IKumiteMove> someMove =

@@ -41,4 +41,16 @@ public class KumiteHandlerHelper {
 		return optUuid.map(rawUuid -> UUID.fromString(rawUuid));
 	}
 
+	public static Optional<Boolean> optBoolean(ServerRequest request, String idKey) {
+		Optional<String> optBoolean = request.queryParam(idKey);
+
+		return optBoolean.map(rawBoolean -> {
+			if ("undefined".equals(rawBoolean)) {
+				throw new IllegalArgumentException("`undefined` is an invalid rawBoolean");
+			}
+
+			return Boolean.parseBoolean(rawBoolean);
+		});
+	}
+
 }

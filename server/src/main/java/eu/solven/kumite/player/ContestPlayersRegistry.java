@@ -10,18 +10,47 @@ import java.util.stream.Collectors;
 import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
-import lombok.Value;
+import lombok.RequiredArgsConstructor;
 
-@Value
+@RequiredArgsConstructor
 public class ContestPlayersRegistry {
-	GamesRegistry gamesStore;
+	final GamesRegistry gamesRegistry;
+	final AccountPlayersRegistry playersRegistry;
 
-	Map<UUID, Set<UUID>> contestToPlayers = new ConcurrentHashMap<>();
+	// We track active player per contest. It enables not storing this information in the board.
+	final Map<UUID, Set<UUID>> contestToPlayingPlayers = new ConcurrentHashMap<>();
+	// Once a player is viewing, it can not play as it got some private information about the game.
+	// The public information of a board is available by querying the board with playerId=KumitePlayer.PUBLIC
+	// A cheater could use 2 accounts: one to look at public information, the other to actually play the game
+	final Map<UUID, Set<UUID>> contestToViewingAccounts = new ConcurrentHashMap<>();
 
-	public void registerPlayer(ContestMetadata contest, KumitePlayer player) {
-		IGame game = gamesStore.getGame(contest.getGameMetadata().getGameId());
+	private void registerViewingPlayer(ContestMetadata contest, UUID playerId) {
+		if (KumitePlayer.PUBLIC_PLAYER_ID.equals(playerId)) {
+			// There is no need to register the public player
+			return;
+		}
 
-		UUID playerId = player.getPlayerId();
+		UUID accountId = playersRegistry.getAccountId(playerId);
+		contestToViewingAccounts.computeIfAbsent(contest.getContestId(), k -> new ConcurrentSkipListSet<>())
+				.add(accountId);
+	}
+
+	public void registerPlayer(ContestMetadata contest, PlayerRegistrationRaw playerRegistrationRaw) {
+		UUID playerId = playerRegistrationRaw.getPlayerId();
+
+		if (playerRegistrationRaw.isViewer()) {
+			registerViewingPlayer(contest, playerId);
+		} else {
+			registerPlayingPlayer(contest, playerId);
+		}
+	}
+
+	private void registerPlayingPlayer(ContestMetadata contest, UUID playerId) {
+		if (KumitePlayer.PUBLIC_PLAYER_ID.equals(playerId)) {
+			// This should have been handled before, while verifying authenticated account can play given playerId
+			throw new IllegalArgumentException("Public player is not allowed to play");
+		}
+
 		UUID contestId = contest.getContestId();
 
 		if (!contest.isAcceptPlayers()) {
@@ -29,22 +58,24 @@ public class ContestPlayersRegistry {
 			throw new IllegalStateException("contestId=" + contestId + " does not accept player");
 		} else if (contest.getPlayers().stream().anyMatch(p -> p.getPlayerId().equals(playerId))) {
 			// This search-API may consider contest with a player from current account as ineligible
-			throw new IllegalStateException("contestId=" + contestId + " already includes player=" + player);
+			throw new IllegalStateException("contestId=" + contestId + " already includes playerId=" + playerId);
 		}
+
+		IGame game = gamesRegistry.getGame(contest.getGameMetadata().getGameId());
 
 		// No need to synchronize as BoardLifecycleManager ensure single-threaded per contest
 		{
-			if (game.canAcceptPlayer(contest, player)) {
-				contestToPlayers.computeIfAbsent(contestId, k -> new ConcurrentSkipListSet<>()).add(playerId);
+			if (game.canAcceptPlayer(contest, KumitePlayer.builder().playerId(playerId).build())) {
+				contestToPlayingPlayers.computeIfAbsent(contestId, k -> new ConcurrentSkipListSet<>()).add(playerId);
 			} else {
 				throw new IllegalArgumentException(
-						"player=" + player + " can not be registered on contestId=" + contestId);
+						"player=" + playerId + " can not be registered on contestId=" + contestId);
 			}
 		}
 	}
 
 	public IHasPlayers makeDynamicHasPlayers(UUID contestId) {
-		return () -> contestToPlayers.getOrDefault(contestId, Set.of())
+		return () -> contestToPlayingPlayers.getOrDefault(contestId, Set.of())
 				.stream()
 				.sorted()
 				// playerName?
@@ -53,6 +84,6 @@ public class ContestPlayersRegistry {
 	}
 
 	public boolean isRegisteredPlayer(UUID contestId, UUID playerId) {
-		return contestToPlayers.getOrDefault(contestId, Set.of()).contains(playerId);
+		return contestToPlayingPlayers.getOrDefault(contestId, Set.of()).contains(playerId);
 	}
 }

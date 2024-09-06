@@ -8,14 +8,14 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
 import eu.solven.kumite.game.GamesRegistry;
-import lombok.Value;
+import lombok.AllArgsConstructor;
 
-@Value
+@AllArgsConstructor
 public class AccountPlayersRegistry {
-	GamesRegistry gamesStore;
+	final GamesRegistry gamesStore;
 
-	Map<UUID, Set<UUID>> accountToPlayers = new ConcurrentHashMap<>();
-	Map<UUID, UUID> playerIdToAccountId = new ConcurrentHashMap<>();
+	final Map<UUID, Set<UUID>> accountToPlayers = new ConcurrentHashMap<>();
+	final Map<UUID, UUID> playerIdToAccountId = new ConcurrentHashMap<>();
 
 	public void registerPlayer(UUID accountId, KumitePlayer player) {
 		// Synchronized to make atomic changes to both `accountToPlayers` and `playerIdToAccountId`
@@ -30,6 +30,14 @@ public class AccountPlayersRegistry {
 		}
 	}
 
+	public UUID getAccountId(UUID playerId) {
+		UUID accountId = playerIdToAccountId.get(playerId);
+		if (accountId == null) {
+			throw new IllegalArgumentException("Unknown playerId: " + playerId);
+		}
+		return accountId;
+	}
+
 	public IHasPlayers makeDynamicHasPlayers(UUID accountId) {
 		return () -> accountToPlayers.getOrDefault(accountId, Set.of())
 				.stream()
@@ -38,8 +46,4 @@ public class AccountPlayersRegistry {
 				.map(playerId -> KumitePlayer.builder().playerId(playerId).build())
 				.collect(Collectors.toList());
 	}
-
-	// public boolean isRegisteredPlayer(UUID accountId, UUID playerId) {
-	// return accountToPlayers.getOrDefault(accountId, Set.of()).contains(playerId);
-	// }
 }

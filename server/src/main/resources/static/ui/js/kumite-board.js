@@ -1,18 +1,19 @@
 // my-component.js
 import { ref } from "vue";
-import KumiteLeaderboard from "./kumite-leaderboard.js";
-import KumiteBoardMoveForm from "./kumite-board-move-form.js";
+
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
+import KumiteBoardJoin from "./kumite-board-join.js";
 import KumiteBoardJson from "./kumite-board-state-json.js";
 import KumiteBoardTSP from "./kumite-board-state-tsp.js";
+import KumiteLeaderboard from "./kumite-leaderboard.js";
 
 export default {
 	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
 		KumiteLeaderboard,
-		KumiteBoardMoveForm,
+		KumiteBoardJoin,
 		KumiteBoardJson,
 		KumiteBoardTSP,
 	},
@@ -66,9 +67,12 @@ export default {
 		// We load current accountPlayers to enable player registration
 		store.loadCurrentAccountPlayers();
 
-		store.loadBoard(props.gameId, props.contestId);
-
-		const showBoardAsSvg = ref(true);
+		const showBoardAsSvg = ref(false);
+		store.loadBoard(props.gameId, props.contestId).then((board) => {
+			console.log("Checking SVG");
+			// If this board enables SVG, activates it by default
+			showBoardAsSvg.value = store.boards[props.contestId].svg;
+		});
 
 		return { showBoardAsSvg };
 	},
@@ -91,7 +95,6 @@ export default {
 	      <h2>Contest: {{contest.name}}</h2>
 	   </span>
 	   <div class="row border">
-	      <div class="">
 	         Board: This is the view of the contest given players previous moves.
 	         <div class="form-check form-switch">
 	            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" v-model="showBoardAsSvg">
@@ -105,16 +108,9 @@ export default {
 	               <pre  style="overflow-y: scroll;" class="border">{{curlGetBoard}}</pre>
 	            </div>
 	         </span>
-	      </div>
 	   </div>
 	   <div class="row border" v-if="contest">
-	      <div v-if="contest.acceptPlayers">
-	         This contest accepts players.
-	         <KumiteBoardMoveForm :gameId="gameId" :contestId="contestId" />
-	      </div>
-	      <div v-else>
-	         This contest is full.
-	      </div>
+         <KumiteBoardJoin :gameId="gameId" :contestId="contestId" />
 	   </div>
 	   <div class="row border">
 	      <KumiteLeaderboard :gameId="gameId" :contestId="contestId"/>

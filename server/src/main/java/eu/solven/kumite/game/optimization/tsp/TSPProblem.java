@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import eu.solven.kumite.player.PlayerMoveRaw;
 import lombok.Builder;
 import lombok.Singular;
@@ -16,6 +18,7 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
+@JsonIgnoreProperties(value = "svg", allowGetters = true)
 public class TSPProblem implements IKumiteBoardView {
 	// The unordered set of cities waiting to be visited
 	@Singular
@@ -42,5 +45,12 @@ public class TSPProblem implements IKumiteBoardView {
 		}
 
 		return invalidReasons;
+	}
+
+	// This property has to be sent to the UI, but there is no point in reading-it back
+	// @JsonProperty(access = Access.READ_ONLY)
+	@Override
+	public boolean isSvg() {
+		return true;
 	}
 }

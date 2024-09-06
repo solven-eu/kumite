@@ -1,18 +1,20 @@
 package eu.solven.kumite.lifecycle;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.player.ContestPlayersRegistry;
-import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerMoveRaw;
+import eu.solven.kumite.player.PlayerRegistrationRaw;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,17 +56,24 @@ public class BoardLifecycleManager {
 			});
 			log.trace("Submitted task for contestId={}", contestId);
 
+			boolean awaitSuccess;
 			try {
-				cdl.await(1, TimeUnit.SECONDS);
+				awaitSuccess = cdl.await(15, TimeUnit.MINUTES);
 				log.trace("Awaited task for contestId={}", contestId);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				throw new IllegalStateException(e);
 			}
 
+			// We prefer to return some functional exception before reporting some slowness
 			Throwable t = refT.get();
 			if (t != null) {
 				throw new IllegalArgumentException("Issue processing move", t);
+			}
+
+			if (!awaitSuccess) {
+				// BEWARE WHAT DOES IT MEAN? THE BOARD IS CORRUPTED?
+				throw new IllegalStateException("One move has been too slow to be processed");
 			}
 		}
 	}
@@ -82,11 +91,15 @@ public class BoardLifecycleManager {
 		return false;
 	}
 
-
-	public void registerPlayer(ContestMetadata contest, KumitePlayer player) {
+	public void registerPlayer(ContestMetadata contest, PlayerRegistrationRaw playerRegistrationRaw) {
 		UUID contestId = contest.getContestId();
 		executeBoardChange(contestId, () -> {
-			contestPlayersRegistry.registerPlayer(contest, player);
+			contestPlayersRegistry.registerPlayer(contest, playerRegistrationRaw);
+			if (!playerRegistrationRaw.isViewer()) {
+				boardRegistry.makeDynamicBoardHolder(contestId)
+						.get()
+						.registerPlayer(playerRegistrationRaw.getPlayerId());
+			}
 		});
 	}
 
@@ -96,8 +109,16 @@ public class BoardLifecycleManager {
 			UUID playerId = playerMove.getPlayerId();
 
 			if (!contestPlayersRegistry.isRegisteredPlayer(contestId, playerId)) {
-				throw new IllegalArgumentException(
-						"playerId=" + playerId + " is not registered in contestId=" + contestId);
+				List<UUID> contestPlayers = contestPlayersRegistry.makeDynamicHasPlayers(contestId)
+						.getPlayers()
+						.stream()
+						.map(p -> p.getPlayerId())
+						.collect(Collectors.toList());
+				throw new IllegalArgumentException("playerId=" + playerId
+						+ " is not registered in contestId="
+						+ contestId
+						+ " Registered players: "
+						+ contestPlayers);
 			}
 
 			IKumiteBoard currentBoard = boardRegistry.makeDynamicBoardHolder(contestId).get();

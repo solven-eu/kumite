@@ -15,7 +15,7 @@ import lombok.Value;
 @Value
 public class KumiteUsersRegistry {
 	IUuidGenerator uuidGenerator;
-	
+
 	// This is a cache of the external information about a user
 	// This is useful to enrich some data about other players (e.g. a Leaderboard)
 	Map<KumiteUserRawRaw, KumiteUser> userIdToUser = new ConcurrentHashMap<>();

@@ -20,6 +20,8 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 public class KumitePlayer {
 	// This is the ID of the public player, i.e. some fake player viewing the game but not playing it
+	// It is useful to preview a given game, without sharing information which would biased the game. It is especially
+	// useful for game with ImperfectInformation
 	public static final UUID PUBLIC_PLAYER_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
 	// IKumiteSpringProfiles.P_DEFAULT_FAKE_USER

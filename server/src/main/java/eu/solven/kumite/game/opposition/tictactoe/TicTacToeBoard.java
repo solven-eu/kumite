@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
 import eu.solven.kumite.player.PlayerMoveRaw;
@@ -17,6 +19,7 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
+@JsonIgnoreProperties(value = "svg", allowGetters = true)
 public class TicTacToeBoard implements IKumiteBoard, IKumiteBoardView {
 	// The first player is designated as X. The second player is designated as O.
 	// @JsonSerialize(using = StdArraySerializers.CharArraySerializer.class)

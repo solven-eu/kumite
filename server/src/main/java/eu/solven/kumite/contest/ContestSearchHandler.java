@@ -39,7 +39,7 @@ public class ContestSearchHandler {
 
 	@NonNull
 	final BoardsRegistry boardRegistry;
-	
+
 	@NonNull
 	final IUuidGenerator uuidGenerator;
 

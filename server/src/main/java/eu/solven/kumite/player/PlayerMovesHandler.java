@@ -18,17 +18,39 @@ import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
 import eu.solven.kumite.lifecycle.BoardLifecycleManager;
 import eu.solven.kumite.player.PlayerMoveRaw.PlayerMoveRawBuilder;
-import lombok.Value;
+import eu.solven.kumite.player.PlayerRegistrationRaw.PlayerRegistrationRawBuilder;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 @Slf4j
-@Value
 public class PlayerMovesHandler {
-	GamesRegistry gamesStore;
-	ContestsRegistry contestsStore;
+	final GamesRegistry gamesStore;
+	final ContestsRegistry contestsStore;
 
-	BoardLifecycleManager boardLifecycleManager;
+	final BoardLifecycleManager boardLifecycleManager;
+
+	public Mono<ServerResponse> registerPlayer(ServerRequest request) {
+		PlayerRegistrationRawBuilder parameters = PlayerRegistrationRaw.builder();
+
+		UUID playerId = KumiteHandlerHelper.uuid(request, "player_id");
+		parameters.playerId(playerId);
+
+		UUID contestId = KumiteHandlerHelper.uuid(request, "contest_id");
+
+		Optional<Boolean> optViewer = KumiteHandlerHelper.optBoolean(request, "viewer");
+		optViewer.ifPresent(viewer -> parameters.isViewer(viewer));
+
+		Contest contest = contestsStore.getContest(contestId);
+
+		PlayerRegistrationRaw playerRegistrationRaw = parameters.build();
+		boardLifecycleManager.registerPlayer(contest.getContestMetadata(), playerRegistrationRaw);
+
+		Map<String, ?> output =
+				Map.of("playerId", playerId, "contestId", contestId, "viewer", playerRegistrationRaw.isViewer());
+		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(output));
+	}
 
 	public Mono<ServerResponse> registerPlayerMove(ServerRequest request) {
 		PlayerMoveRawBuilder parameters = PlayerMoveRaw.builder();

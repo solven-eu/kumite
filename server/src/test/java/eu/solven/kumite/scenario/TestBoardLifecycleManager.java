@@ -18,11 +18,13 @@ import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.lifecycle.BoardLifecycleManager;
+import eu.solven.kumite.player.AccountPlayersRegistry;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
 import eu.solven.kumite.player.IKumiteMove;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerMoveRaw;
+import eu.solven.kumite.player.PlayerRegistrationRaw;
 
 public class TestBoardLifecycleManager {
 	// We check with as async Executor to ensure proper errorManagement
@@ -30,8 +32,9 @@ public class TestBoardLifecycleManager {
 
 	BoardsRegistry boardRegistry = new BoardsRegistry();
 	GamesRegistry gamesRegistry = new GamesRegistry();
+	AccountPlayersRegistry playersRegistry = new AccountPlayersRegistry(gamesRegistry);
 
-	ContestPlayersRegistry contestPlayersRegistry = new ContestPlayersRegistry(gamesRegistry);
+	ContestPlayersRegistry contestPlayersRegistry = new ContestPlayersRegistry(gamesRegistry, playersRegistry);
 
 	BoardLifecycleManager manager = new BoardLifecycleManager(boardRegistry, contestPlayersRegistry, executor);
 	UUID contestId = UUID.randomUUID();
@@ -70,13 +73,16 @@ public class TestBoardLifecycleManager {
 		gamesRegistry.registerGame(game);
 		boardRegistry.registerBoard(contestId, board);
 
-		Map<String, IKumiteMove> exampleMoves = game.exampleMoves(board.asView(playerId), playerId);
-		PlayerMoveRaw playerMove =
-				PlayerMoveRaw.builder().playerId(playerId).move(exampleMoves.values().iterator().next()).build();
+		PlayerMoveRaw playerMove = makeValidMove();
 
 		Assertions.assertThatThrownBy(() -> {
 			manager.onPlayerMove(contest, playerMove);
 		}).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	private PlayerMoveRaw makeValidMove() {
+		Map<String, IKumiteMove> exampleMoves = game.exampleMoves(board.asView(playerId), playerId);
+		return PlayerMoveRaw.builder().playerId(playerId).move(exampleMoves.values().iterator().next()).build();
 	}
 
 	@Test
@@ -84,12 +90,29 @@ public class TestBoardLifecycleManager {
 		gamesRegistry.registerGame(game);
 		boardRegistry.registerBoard(contestId, board);
 
-		UUID playerId = UUID.randomUUID();
-		manager.registerPlayer(contestMetadata, KumitePlayer.builder().playerId(playerId).build());
+		playersRegistry.registerPlayer(UUID.randomUUID(), KumitePlayer.builder().playerId(playerId).build());
 
-		Map<String, IKumiteMove> exampleMoves = game.exampleMoves(board.asView(playerId), playerId);
-		PlayerMoveRaw playerMove =
-				PlayerMoveRaw.builder().playerId(playerId).move(exampleMoves.values().iterator().next()).build();
+		manager.registerPlayer(contestMetadata,
+				PlayerRegistrationRaw.builder().contestId(contestId).playerId(playerId).isViewer(false).build());
+
+		PlayerMoveRaw playerMove = makeValidMove();
 		manager.onPlayerMove(contest, playerMove);
+	}
+
+	@Test
+	public void testViewerMove() {
+		gamesRegistry.registerGame(game);
+		boardRegistry.registerBoard(contestId, board);
+
+		playersRegistry.registerPlayer(UUID.randomUUID(), KumitePlayer.builder().playerId(playerId).build());
+
+		manager.registerPlayer(contestMetadata,
+				PlayerRegistrationRaw.builder().contestId(contestId).playerId(playerId).isViewer(true).build());
+
+		PlayerMoveRaw playerMove = makeValidMove();
+
+		Assertions.assertThatThrownBy(() -> {
+			manager.onPlayerMove(contest, playerMove);
+		}).isInstanceOf(IllegalArgumentException.class);
 	}
 }

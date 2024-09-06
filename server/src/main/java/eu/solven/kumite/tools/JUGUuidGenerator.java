@@ -7,9 +7,8 @@ import java.util.random.RandomGenerator;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
 
-
 public class JUGUuidGenerator implements IUuidGenerator {
-	
+
 	private RandomBasedGenerator generator;
 
 	public JUGUuidGenerator(RandomGenerator randomGenerator) {

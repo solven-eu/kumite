@@ -28,12 +28,16 @@ export const useKumiteStore = defineStore("kumite", {
 		tokens: {},
 
 		// We loads information about various players (e.g. through leaderboards)
+		// Playing players are stores in contests
 		players: {},
 		nbAccountLoading: 0,
 
 		// Typically edited when a player submit a move
 		leaderboards: {},
 		nbLeaderboardFetching: 0,
+
+		// Relates to POST
+		nbBoardOperating: 0,
 	}),
 	getters: {
 		// There will be a way to choose a different playerId amongst the account playerIds
@@ -162,9 +166,19 @@ export const useKumiteStore = defineStore("kumite", {
 			const mergedFetchOptions = Object.assign({ method: "GET" }, fetchOptions);
 			mergedFetchOptions.headers = mergeHeaders;
 
-			console.log(mergedFetchOptions.method, url, mergedFetchOptions);
+			console.debug("->", mergedFetchOptions.method, url, mergedFetchOptions);
 
-			return fetch(url, mergedFetchOptions);
+			return fetch(url, mergedFetchOptions).then((response) => {
+				console.debug(
+					"<-",
+					mergedFetchOptions.method,
+					url,
+					mergedFetchOptions,
+					response,
+				);
+
+				return response;
+			});
 		},
 
 		async loadCurrentAccountPlayers() {
@@ -218,13 +232,22 @@ export const useKumiteStore = defineStore("kumite", {
 					}
 
 					const responseJson = await response.json();
-					const user = responseJson;
+					const players = responseJson;
 
-					responseJson.forEach((player) => {
-						console.log("Registering playerId", item.playerId);
-						store.$patch({
-							players: { ...store.players, [item.playerId]: item },
-						});
+					//					responseJson.forEach((player) => {
+					//						console.log("Registering playerId", player.playerId);
+					//						store.$patch({
+					//							players: { ...store.players, [player.playerId]: player },
+					//						});
+					//					});
+
+					console.log("Storing players for contestId", contestId, players);
+					const mutatedContest = {
+						...store.contests[contestId],
+						players: players,
+					};
+					store.$patch({
+						contests: { ...store.contests, [contestId]: mutatedContest},
 					});
 				} catch (e) {
 					console.error("Issue on Network: ", e);
@@ -233,7 +256,7 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			fetchFromUrl("/api/players?contest_id=" + contestId);
+			return fetchFromUrl("/api/players?contest_id=" + contestId);
 		},
 
 		async loadGames(gameId) {
@@ -427,7 +450,8 @@ export const useKumiteStore = defineStore("kumite", {
 			}
 			const viewingPlayerId = "00000000-0000-0000-0000-000000000000";
 			const playerId = viewingPlayerId;
-			fetchFromUrl(
+
+			return fetchFromUrl(
 				"/api/board?game_id=" +
 					gameId +
 					"&contest_id=" +

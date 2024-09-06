@@ -20,13 +20,16 @@ public class MetadataController {
 	public Map<String, ?> getMetadata() {
 		Map<String, Object> metadata = new LinkedHashMap<>();
 
-		Map<String, Object> tagsMetadata = new LinkedHashMap<>();
-		tagsMetadata.put(IGameMetadataConstants.TAG_OPTIMIZATION,
-				"The goal is to find the best solution for given problem. Any player can join.");
-		tagsMetadata.put(IGameMetadataConstants.TAG_1V1, "We need exactly 2 players, to play one against the other");
-		tagsMetadata.put(IGameMetadataConstants.TAG_PERFECT_INFORMATION, "All players can see the whole board");
+		{
+			Map<String, Object> tagsMetadata = new LinkedHashMap<>();
+			tagsMetadata.put(IGameMetadataConstants.TAG_OPTIMIZATION,
+					"The goal is to find the best solution for given problem. Any player can join.");
+			tagsMetadata.put(IGameMetadataConstants.TAG_1V1,
+					"We need exactly 2 players, to play one against the other");
+			tagsMetadata.put(IGameMetadataConstants.TAG_PERFECT_INFORMATION, "All players can see the whole board");
 
-		metadata.put("tags", tagsMetadata);
+			metadata.put("tags", tagsMetadata);
+		}
 
 		return metadata;
 	}

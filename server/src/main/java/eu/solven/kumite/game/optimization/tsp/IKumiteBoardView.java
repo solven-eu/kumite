@@ -14,6 +14,11 @@ import eu.solven.kumite.player.PlayerMoveRaw;
  */
 public interface IKumiteBoardView {
 
+	// This is poor design, as it couple server with some front-end feature
+	default boolean isSvg() {
+		return false;
+	}
+
 	List<String> isValidMove(PlayerMoveRaw playerMove);
 
 }
