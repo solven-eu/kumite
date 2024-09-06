@@ -1,7 +1,5 @@
 package eu.solven.kumite.app.it;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +18,7 @@ import eu.solven.kumite.contest.ContestMetadataRaw;
 import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchHandler;
+import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
@@ -41,17 +40,17 @@ public class TestKumiteRouter {
 		log.debug("About {}", GreetingHandler.class);
 
 		webTestClient
-				// Create a GET request to test an endpoint
+
 				.get()
 				.uri("/api/hello")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
-				// and use the dedicated DSL to test assertions against the response
+
 				.expectStatus()
 				.isOk()
 				.expectBody(Greeting.class)
 				.value(greeting -> {
-					assertThat(greeting.getMessage()).isEqualTo("Hello, Spring!");
+					Assertions.assertThat(greeting.getMessage()).isEqualTo("Hello, Spring!");
 				});
 	}
 
@@ -60,62 +59,81 @@ public class TestKumiteRouter {
 		log.debug("About {}", GameSearchHandler.class);
 
 		webTestClient
-				// Create a GET request to test an endpoint
+
 				.get()
 				.uri("/api/games")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
-				// and use the dedicated DSL to test assertions against the response
+
 				.expectStatus()
 				.isOk()
 				.expectBodyList(GameMetadata.class)
 				.value(games -> {
-					// assertThat(greeting.getMessage()).isEqualTo("Hello, Spring!");
-					assertThat(games).hasSize(2).element(1).matches(game -> {
-						Assertions.assertThat(game.getTitle()).isEqualTo("Travelling Salesman Problem");
+					Assertions.assertThat(games)
+							.hasSizeGreaterThanOrEqualTo(2)
 
-						Assertions.assertThat(game.getMinPlayers()).isEqualTo(1);
-						Assertions.assertThat(game.getMaxPlayers()).isEqualTo(Integer.MAX_VALUE);
+							.anySatisfy(game -> {
+								Assertions.assertThat(game.getTitle()).isEqualTo("Travelling Salesman Problem");
 
-						return true;
-					});
-				})
-				.hasSize(1);
+								Assertions.assertThat(game.getMinPlayers()).isEqualTo(1);
+								Assertions.assertThat(game.getMaxPlayers()).isEqualTo(Integer.MAX_VALUE);
+							})
+							.anySatisfy(game -> {
+								Assertions.assertThat(game.getTitle()).isEqualTo("Tic-Tac-Toe");
+
+								Assertions.assertThat(game.getMinPlayers()).isEqualTo(2);
+								Assertions.assertThat(game.getMaxPlayers()).isEqualTo(2);
+							});
+				});
 	}
 
 	@Test
-	public void testSearchGames_gameId() {
+	public void testSearchGames_gameId_undefined() {
 		log.debug("About {}", GameSearchHandler.class);
 
 		webTestClient.get()
+
 				.uri("/api/games?game_id=undefined")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
+
 				.expectStatus()
 				.isBadRequest();
+	}
+
+	@Test
+	public void testSearchGames_gameId_tsp() {
+		log.debug("About {}", GameSearchHandler.class);
+
+		webTestClient.get()
+
+				.uri("/api/games?game_id=" + new TravellingSalesmanProblem().getGameMetadata().getGameId())
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+
+				.expectStatus()
+				.isOk();
 	}
 
 	@Test
 	public void testSearchContests() {
 		log.debug("About {}", ContestSearchHandler.class);
 
-		webTestClient
-				// Create a GET request to test an endpoint
-				.get()
+		webTestClient.get()
 				.uri("/api/contests")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
-				// and use the dedicated DSL to test assertions against the response
+
 				.expectStatus()
 				.isOk()
 				.expectBodyList(ContestMetadataRaw.class)
 				.value(contests -> {
-					assertThat(contests).hasSize(2).element(0).matches(contest -> {
-						Assertions.assertThat(contest.isBeingPlayed()).isFalse();
+					Assertions.assertThat(contests)
+							.hasSize(2)
 
-						return true;
-					});
-				})
-				.hasSize(1);
+							.anySatisfy(contest -> {
+								Assertions.assertThat(contest.isBeingPlayed()).isFalse();
+							});
+				});
 	}
 }

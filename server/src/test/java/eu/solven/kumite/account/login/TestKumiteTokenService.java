@@ -20,14 +20,15 @@ import com.nimbusds.jwt.SignedJWT;
 
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.scenario.TestTSPLifecycle;
+import eu.solven.kumite.tools.JdkUuidGenerator;
 
 public class TestKumiteTokenService {
 	MockEnvironment env = new MockEnvironment();
-	KumiteTokenService tokenService = new KumiteTokenService(env);
+	KumiteTokenService tokenService = new KumiteTokenService(env, JdkUuidGenerator.INSTANCE);
 
 	@Test
 	public void testJwt_randomSecret() throws JOSEException, ParseException {
-		JWK signatureSecret = KumiteTokenService.generateSignatureSecret();
+		JWK signatureSecret = KumiteTokenService.generateSignatureSecret(JdkUuidGenerator.INSTANCE);
 		env.setProperty(KumiteTokenService.KEY_JWT_SIGNINGKEY, signatureSecret.toJSONString());
 
 		UUID accountId = UUID.randomUUID();

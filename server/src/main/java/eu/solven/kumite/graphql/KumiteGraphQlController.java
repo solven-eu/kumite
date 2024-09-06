@@ -27,7 +27,7 @@ public class KumiteGraphQlController {
 
 	@QueryMapping
 	public Flux<GameMetadata> games() {
-		return Flux.fromStream(gamesStore.getIdToGame().values().stream().map(g -> g.getGameMetadata()));
+		return Flux.fromStream(gamesStore.getGames()).map(g -> g.getGameMetadata());
 	}
 
 	@QueryMapping

@@ -5,7 +5,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.springframework.core.env.Environment;
@@ -23,16 +22,20 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import eu.solven.kumite.account.KumiteUser;
+import eu.solven.kumite.tools.IUuidGenerator;
+import eu.solven.kumite.tools.JdkUuidGenerator;
 import lombok.SneakyThrows;
 
 public class KumiteTokenService {
 	public static final String KEY_JWT_SIGNINGKEY = "kumite.login.signing-key";
 
 	final Environment env;
+	final IUuidGenerator uuidgenerator;
 	final Supplier<OctetSequenceKey> supplierSymetricKey;
 
-	public KumiteTokenService(Environment env) {
+	public KumiteTokenService(Environment env, IUuidGenerator uuidgenerator) {
 		this.env = env;
+		this.uuidgenerator = uuidgenerator;
 		this.supplierSymetricKey = () -> loadSigningJwk();
 	}
 
@@ -47,31 +50,20 @@ public class KumiteTokenService {
 	}
 
 	public static void main(String[] args) {
-		JWK secretKey = generateSignatureSecret();
+		JWK secretKey = generateSignatureSecret(new JdkUuidGenerator());
 		System.out.println("Secret key for JWT signing: " + secretKey.toJSONString());
 	}
 
 	@SneakyThrows(JOSEException.class)
-	static JWK generateSignatureSecret() {
-		// ECKey ecKey =
-		// new ECKeyGenerator(Curve.P_256).keyUse(KeyUse.SIGNATURE).keyID(UUID.randomUUID().toString()).generate();
-		//
-		// return ecKey;
-
+	static JWK generateSignatureSecret(IUuidGenerator uuidgenerator) {
 		// https://connect2id.com/products/nimbus-jose-jwt/examples/jws-with-hmac
 		// Generate random 256-bit (32-byte) shared secret
 		// SecureRandom random = new SecureRandom();
 		//
 		String rawNbBits = KumiteJwtSigningConfiguration.MAC_ALGORITHM.getName().substring("HS".length());
 		int nbBits = Integer.parseInt(rawNbBits);
-		//
-		// byte[] sharedSecret = new byte[nbBits / 8];
-		// random.nextBytes(sharedSecret);
-		//
-		// // Create HMAC signer
-		// JWSSigner signer = new MACSigner(sharedSecret);
 
-		OctetSequenceKey jwk = new OctetSequenceKeyGenerator(nbBits).keyID(UUID.randomUUID().toString())
+		OctetSequenceKey jwk = new OctetSequenceKeyGenerator(nbBits).keyID(uuidgenerator.randomUUID().toString())
 				.algorithm(JWSAlgorithm.parse(KumiteJwtSigningConfiguration.MAC_ALGORITHM.getName()))
 				.issueTime(new Date())
 				.generate();
@@ -108,7 +100,7 @@ public class KumiteTokenService {
 		JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder().subject(user.getAccountId().toString())
 				.audience("Kumite-Server")
 				.issuer("https://kumite.com")
-				.jwtID(UUID.randomUUID().toString())
+				.jwtID(uuidgenerator.randomUUID().toString())
 				.issueTime(curDate)
 				.notBeforeTime(Date.from(Instant.now()))
 				.expirationTime(Date.from(Instant.now().plusMillis(expirationMs)))

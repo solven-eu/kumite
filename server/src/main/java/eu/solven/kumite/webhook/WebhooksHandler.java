@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import eu.solven.kumite.tools.IUuidGenerator;
 import eu.solven.kumite.webhook.KumiteWebhook.KumiteWebhookBuilder;
 import eu.solven.kumite.webhook.WebhooksDropParameters.WebhooksDropParametersBuilder;
 import eu.solven.kumite.webhook.WebhooksSearchParameters.WebhooksSearchParametersBuilder;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Mono;
 
 @Value
 public class WebhooksHandler {
+	IUuidGenerator uuidGenerator;
 	WebhooksRegistry webhookRegistry;
 
 	public Mono<ServerResponse> listWebhooks(ServerRequest request) {
@@ -37,7 +39,7 @@ public class WebhooksHandler {
 		webhookBuilder.accountId(UUID.fromString(request.queryParam("account_id").get()));
 		webhookBuilder.gameId(UUID.fromString(request.queryParam("game_id").get()));
 
-		webhookBuilder.webhookId(UUID.randomUUID());
+		webhookBuilder.webhookId(uuidGenerator.randomUUID());
 
 		webhookBuilder.webhookUri(URI.create(request.queryParam("webhook_uri").get()));
 

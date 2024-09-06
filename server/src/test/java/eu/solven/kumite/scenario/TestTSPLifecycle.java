@@ -72,7 +72,7 @@ public class TestTSPLifecycle {
 	BoardLifecycleManager boardLifecycleManager;
 
 	public static final KumiteUserRaw userRaw() {
-		KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId("test").sub("test").build();
+		KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId("testProviderId").sub("test").build();
 		return KumiteUserRaw.builder().rawRaw(rawRaw).email("test@test").username("fakeUsername").build();
 	}
 
@@ -119,7 +119,7 @@ public class TestTSPLifecycle {
 			Assertions.assertThat(ps.getPlayerId()).isEqualTo(player.getPlayerId());
 
 			PlayerDoubleScore pds = (PlayerDoubleScore) ps;
-			Assertions.assertThat(pds.getScore()).isBetween(65.79, 65.80);
+			Assertions.assertThat(pds.getScore()).isBetween(65.09, 65.10);
 
 			return true;
 		});

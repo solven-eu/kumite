@@ -46,7 +46,6 @@ public class TravellingSalesmanProblem implements IGame {
 		// on previous contests
 		for (int i = 0; i < 128; i++) {
 			pBuilder.city(TSPCity.builder().name("city_" + i).x(random.nextDouble()).y(random.nextDouble()).build());
-
 		}
 
 		return TSPBoard.builder().problem(pBuilder.build()).build();

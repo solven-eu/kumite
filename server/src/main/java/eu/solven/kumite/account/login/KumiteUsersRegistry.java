@@ -9,10 +9,13 @@ import eu.solven.kumite.account.KumiteUser.KumiteUserBuilder;
 import eu.solven.kumite.account.KumiteUserRaw;
 import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.player.KumitePlayer;
+import eu.solven.kumite.tools.IUuidGenerator;
 import lombok.Value;
 
 @Value
 public class KumiteUsersRegistry {
+	IUuidGenerator uuidGenerator;
+	
 	// This is a cache of the external information about a user
 	// This is useful to enrich some data about other players (e.g. a Leaderboard)
 	Map<KumiteUserRawRaw, KumiteUser> userIdToUser = new ConcurrentHashMap<>();
@@ -55,10 +58,10 @@ public class KumiteUsersRegistry {
 			kumiteUser = userIdToUser.compute(rawRaw, (k, alreadyIn) -> {
 				KumiteUserBuilder kumiteUserBuilder = KumiteUser.builder().raw(kumiteUserRaw);
 				if (alreadyIn == null) {
-					UUID accountId = UUID.randomUUID();
+					UUID accountId = uuidGenerator.randomUUID();
 					kumiteUserBuilder.accountId(accountId);
 
-					UUID playerId = UUID.randomUUID();
+					UUID playerId = uuidGenerator.randomUUID();
 					kumiteUserBuilder.playerId(playerId);
 				} else {
 					kumiteUserBuilder.accountId(alreadyIn.getAccountId()).playerId(alreadyIn.getPlayerId());

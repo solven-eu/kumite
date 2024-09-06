@@ -9,7 +9,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest;
+import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.player.ContestPlayersRegistry;
+import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerMoveRaw;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,6 +80,14 @@ public class BoardLifecycleManager {
 
 	protected static boolean isDirect(Executor executor) {
 		return false;
+	}
+
+
+	public void registerPlayer(ContestMetadata contest, KumitePlayer player) {
+		UUID contestId = contest.getContestId();
+		executeBoardChange(contestId, () -> {
+			contestPlayersRegistry.registerPlayer(contest, player);
+		});
 	}
 
 	public void onPlayerMove(Contest contest, PlayerMoveRaw playerMove) {

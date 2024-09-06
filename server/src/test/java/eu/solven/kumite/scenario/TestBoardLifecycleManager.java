@@ -1,7 +1,5 @@
 package eu.solven.kumite.scenario;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -13,10 +11,11 @@ import org.junit.jupiter.api.Test;
 
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IHasBoard;
+import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.game.GamesRegistry;
-import eu.solven.kumite.game.optimization.tsp.TSPBoard;
+import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.lifecycle.BoardLifecycleManager;
 import eu.solven.kumite.player.ContestPlayersRegistry;
@@ -46,28 +45,48 @@ public class TestBoardLifecycleManager {
 		}).isInstanceOf(IllegalArgumentException.class);
 	}
 
-	@Test
-	public void testPlayerNotRegistered() {
-		TravellingSalesmanProblem game = new TravellingSalesmanProblem();
+	IGame game = new TravellingSalesmanProblem();
 
-		TSPBoard board = game.generateInitialBoard(new Random(0));
-		IHasBoard hasBoard = () -> board;
-		List<KumitePlayer> players = new ArrayList<>();
-		IHasPlayers hasPlayers = () -> players;
-		ContestMetadata contestMetadata = ContestMetadata.builder()
-				.contestId(contestId)
-				.gameMetadata(game.getGameMetadata())
-				.hasPlayers(hasPlayers)
-				.name("someContestName")
-				.build();
-		Contest contest = Contest.builder()
-				.board(hasBoard)
-				.game(game)
-				.hasPlayers(hasPlayers)
-				.contestMetadata(contestMetadata)
-				.build();
+	IKumiteBoard board = game.generateInitialBoard(new Random(0));
+	IHasBoard hasBoard = () -> board;
+	IHasPlayers hasPlayers = contestPlayersRegistry.makeDynamicHasPlayers(contestId);
+	ContestMetadata contestMetadata = ContestMetadata.builder()
+			.contestId(contestId)
+			.gameMetadata(game.getGameMetadata())
+			.hasPlayers(hasPlayers)
+			.name("someContestName")
+			.build();
+	Contest contest = Contest.builder()
+			.board(hasBoard)
+			.game(game)
+			.hasPlayers(hasPlayers)
+			.contestMetadata(contestMetadata)
+			.build();
+
+	UUID playerId = UUID.randomUUID();
+
+	@Test
+	public void testPlayerMove_PlayerNotRegistered() {
+		gamesRegistry.registerGame(game);
+		boardRegistry.registerBoard(contestId, board);
+
+		Map<String, IKumiteMove> exampleMoves = game.exampleMoves(board.asView(playerId), playerId);
+		PlayerMoveRaw playerMove =
+				PlayerMoveRaw.builder().playerId(playerId).move(exampleMoves.values().iterator().next()).build();
+
+		Assertions.assertThatThrownBy(() -> {
+			manager.onPlayerMove(contest, playerMove);
+		}).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void testPlayerMove() {
+		gamesRegistry.registerGame(game);
+		boardRegistry.registerBoard(contestId, board);
 
 		UUID playerId = UUID.randomUUID();
+		manager.registerPlayer(contestMetadata, KumitePlayer.builder().playerId(playerId).build());
+
 		Map<String, IKumiteMove> exampleMoves = game.exampleMoves(board.asView(playerId), playerId);
 		PlayerMoveRaw playerMove =
 				PlayerMoveRaw.builder().playerId(playerId).move(exampleMoves.values().iterator().next()).build();

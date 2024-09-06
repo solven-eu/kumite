@@ -33,6 +33,20 @@ public class KumiteExceptionRoutingWebFilter implements WebFilter {
 			ServerHttpResponse response = exchange.getResponse();
 			response.setStatusCode(httpStatus);
 			return response.setComplete();
+		}).onErrorResume(LoginRouteButNotAuthenticatedException.class, e -> {
+			// By default, OAuth2 would return a 302-FOUND to redirect to the `/login` URL
+			// However, we prefer returning a 401
+			HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
+
+			if (log.isDebugEnabled()) {
+				log.warn("Returning a {} given {} ({})", httpStatus, e.getClass(), e.getMessage(), e);
+			} else {
+				log.warn("Returning a {} given {} ({})", httpStatus, e.getClass(), e.getMessage());
+			}
+
+			ServerHttpResponse response = exchange.getResponse();
+			response.setStatusCode(httpStatus);
+			return response.setComplete();
 		});
 	}
 }

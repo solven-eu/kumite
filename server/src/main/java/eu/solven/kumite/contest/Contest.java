@@ -35,7 +35,7 @@ public class Contest {
 		IKumiteMove move = playerMove.getMove();
 
 		if (hasPlayers.getPlayers().stream().noneMatch(p -> p.getPlayerId().equals(playerId))) {
-			throw new IllegalArgumentException("playerId=" + playerId + " is not registered in contest=");
+			throw new IllegalArgumentException("playerId=" + playerId + " is not registered");
 		} else if (!game.isValidMove(move)) {
 			throw new IllegalArgumentException("move=" + move + " is invalid");
 		}

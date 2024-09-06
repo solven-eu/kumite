@@ -22,22 +22,23 @@ public class ContestPlayersRegistry {
 		IGame game = gamesStore.getGame(contest.getGameMetadata().getGameId());
 
 		UUID playerId = player.getPlayerId();
+		UUID contestId = contest.getContestId();
+
 		if (!contest.isAcceptPlayers()) {
 			// If `isAcceptPlayer` is false, currentAccount should not even consider this game.
-			throw new IllegalStateException("contestId=" + contest.getContestId() + " does not accept player");
+			throw new IllegalStateException("contestId=" + contestId + " does not accept player");
 		} else if (contest.getPlayers().stream().anyMatch(p -> p.getPlayerId().equals(playerId))) {
 			// This search-API may consider contest with a player from current account as ineligible
-			throw new IllegalStateException(
-					"contestId=" + contest.getContestId() + " already includes player=" + player);
+			throw new IllegalStateException("contestId=" + contestId + " already includes player=" + player);
 		}
 
-		// We have to synchronous `game.canAcceptPlayer` and playerRegistration
-		synchronized (this) {
+		// No need to synchronize as BoardLifecycleManager ensure single-threaded per contest
+		{
 			if (game.canAcceptPlayer(contest, player)) {
-				contestToPlayers.computeIfAbsent(contest.getContestId(), k -> new ConcurrentSkipListSet<>())
-						.add(playerId);
+				contestToPlayers.computeIfAbsent(contestId, k -> new ConcurrentSkipListSet<>()).add(playerId);
 			} else {
-				throw new IllegalArgumentException("player=" + player + " can not be registered");
+				throw new IllegalArgumentException(
+						"player=" + player + " can not be registered on contestId=" + contestId);
 			}
 		}
 	}

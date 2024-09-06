@@ -1,8 +1,6 @@
 package eu.solven.kumite.app.webflux;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.web.server.WebFilter;
 
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.contest.ContestSearchHandler;
@@ -23,8 +21,4 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class KumiteWebFluxConfiguration {
 
-	@Bean
-	WebFilter kumiteExceptionRoutingWebFilter() {
-		return new KumiteExceptionRoutingWebFilter();
-	}
 }

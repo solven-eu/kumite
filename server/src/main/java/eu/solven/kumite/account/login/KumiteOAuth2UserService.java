@@ -12,11 +12,22 @@ import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRaw;
 import eu.solven.kumite.account.KumiteUserRaw.KumiteUserRawBuilder;
 import eu.solven.kumite.account.KumiteUserRawRaw;
+import graphql.VisibleForTesting;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+/**
+ * This is responsible for loading {@link OAuth2User} from an {@link OAuth2UserRequest}, typically through the
+ * `/userinfo` endpoint.
+ * 
+ * We takre advantage of this step to register in our cache the details of going through users, hence automatically
+ * registering logging-in Users..
+ * 
+ * @author Benoit Lacelle
+ *
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -31,6 +42,12 @@ public class KumiteOAuth2UserService extends DefaultReactiveOAuth2UserService {
 		log.trace("Load user {}", oAuth2UserRequest);
 		Mono<OAuth2User> userFromProvider = super.loadUser(oAuth2UserRequest);
 		return processOAuth2User(oAuth2UserRequest, userFromProvider);
+	}
+
+	@VisibleForTesting
+	public KumiteUser onKumiteUserRaw(KumiteUserRaw rawUser) {
+		KumiteUser user = usersRegistry.registerOrUpdate(rawUser);
+		return user;
 	}
 
 	private Mono<OAuth2User> processOAuth2User(OAuth2UserRequest oAuth2UserRequest,
@@ -71,7 +88,7 @@ public class KumiteOAuth2UserService extends DefaultReactiveOAuth2UserService {
 			}
 			KumiteUserRaw rawUser = kumiteUserBuilder.build();
 
-			KumiteUser user = usersRegistry.registerOrUpdate(rawUser);
+			KumiteUser user = onKumiteUserRaw(rawUser);
 
 			log.trace("User info is {}", user);
 			return userFromProvider;

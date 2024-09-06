@@ -93,10 +93,12 @@ public class SocialWebFluxSecurity {
 						.pathMatchers("/ui/js/**", "/webjars/**")
 						.permitAll()
 
+						// If there is no logged-in user, we return a 401
+						.pathMatchers("/api/login/v1/user")
+						.permitAll()
+
 						// If `fakeUser`, we give free-access to all resources. Else this rule is a no-op, and these
 						// routes needs authentication
-						.pathMatchers(defaultFakeUser ? "/api/login/v1/user" : "/none")
-						.permitAll()
 						.pathMatchers(defaultFakeUser ? "/api/login/v1/token" : "/none")
 						.permitAll()
 

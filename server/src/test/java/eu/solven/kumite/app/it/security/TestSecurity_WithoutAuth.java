@@ -41,12 +41,12 @@ public class TestSecurity_WithoutAuth {
 		log.debug("About {}", GreetingHandler.class);
 
 		webTestClient
-				// Create a GET request to test an endpoint
+
 				.get()
 				.uri("/api/public")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
-				// and use the dedicated DSL to test assertions against the response
+
 				.expectStatus()
 				.isOk()
 				.expectBody(String.class)
@@ -60,12 +60,12 @@ public class TestSecurity_WithoutAuth {
 		log.debug("About {}", GreetingHandler.class);
 
 		webTestClient
-				// Create a GET request to test an endpoint
+
 				.get()
 				.uri("/api/login/v1/providers")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
-				// and use the dedicated DSL to test assertions against the response
+
 				.expectStatus()
 				.isOk()
 				.expectBody(Map.class)
@@ -89,13 +89,14 @@ public class TestSecurity_WithoutAuth {
 		log.debug("About {}", GreetingHandler.class);
 
 		webTestClient
-				// .mutateWith(SecurityMockServerConfigurers.mockOAuth2Client())
-				// Create a GET request to test an endpoint
+
 				.get()
 				.uri("/api/login/v1/user")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
-				// and use the dedicated DSL to test assertions against the response
+
+				// By default, oauth2 returns a 302 if not logged-in
+				// Though we prefer to return a nice API answer
 				.expectStatus()
 				.isUnauthorized();
 	}
@@ -105,25 +106,30 @@ public class TestSecurity_WithoutAuth {
 		log.debug("About {}", GreetingHandler.class);
 
 		webTestClient
-				// .mutateWith(SecurityMockServerConfigurers.mockOAuth2Client())
-				// Create a GET request to test an endpoint
+
 				.get()
 				.uri("/api/login/v1/token")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
-				// and use the dedicated DSL to test assertions against the response
+
+				// By default, oauth2 returns a 302 if not logged-in
 				.expectStatus()
-				.isUnauthorized();
+				.isFound()
+				.expectHeader()
+				.location("/login");
 	}
 
 	@Test
 	public void testApiPrivate() {
 		log.debug("About {}", GreetingHandler.class);
 
-		webTestClient.get()
+		webTestClient
+
+				.get()
 				.uri("/api/private")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
+
 				.expectStatus()
 				.isUnauthorized();
 	}
@@ -132,10 +138,13 @@ public class TestSecurity_WithoutAuth {
 	public void testApiPrivate_unknownRoute() {
 		log.debug("About {}", GreetingHandler.class);
 
-		webTestClient.get()
+		webTestClient
+
+				.get()
 				.uri("/api/private/unknown")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
+
 				.expectStatus()
 				.isUnauthorized();
 	}

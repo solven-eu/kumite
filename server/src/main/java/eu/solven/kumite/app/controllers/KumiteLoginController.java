@@ -2,7 +2,6 @@ package eu.solven.kumite.app.controllers;
 
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.UUID;
 import java.util.stream.StreamSupport;
 
 import org.springframework.core.env.Environment;
@@ -21,6 +20,7 @@ import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
+import eu.solven.kumite.app.webflux.LoginRouteButNotAuthenticatedException;
 import eu.solven.kumite.player.KumitePlayer;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -69,23 +69,34 @@ public class KumiteLoginController {
 					.rawRaw(rawRaw)
 					.username("fakeUsername")
 					.email("fake@fake")
-					.name("Fake Me")
+					.name("Fake User")
 					.build();
 			KumiteUser fakeUser = KumiteUser.builder()
-					.accountId(UUID.randomUUID())
+					.accountId(KumiteUser.FAKE_ACCOUNT_ID)
 					.playerId(KumitePlayer.FAKE_PLAYER_ID)
 					.raw(raw)
 					.build();
 			return Mono.just(fakeUser);
+		} else if (oauth2User == null) {
+			// Happens if this route is called without authentication
+			return Mono.error(() -> new LoginRouteButNotAuthenticatedException());
 		} else {
 			return oauth2User.map(o -> {
+				String providerId = guessProviderId(o);
 				String sub = o.getAttribute("id").toString();
-				KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId("github").sub(sub).build();
+				KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId(providerId).sub(sub).build();
 				KumiteUser user = usersRegistry.getUser(rawRaw);
 
 				return user;
 			}).switchIfEmpty(Mono.error(() -> new IllegalArgumentException("No user")));
 		}
+	}
+
+	private String guessProviderId(OAuth2User o) {
+		if ("testProviderId".equals(o.getAttribute("providerId"))) {
+			return "testProviderId";
+		}
+		return "github";
 	}
 
 	@GetMapping("/token")

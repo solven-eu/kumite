@@ -10,9 +10,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import lombok.Value;
+import lombok.RequiredArgsConstructor;
 
-@Value
+@RequiredArgsConstructor
 public class GamesRegistry {
 	Map<UUID, IGame> idToGame = new ConcurrentHashMap<>();
 
@@ -63,5 +63,9 @@ public class GamesRegistry {
 		}
 
 		return metaStream.collect(Collectors.toList());
+	}
+
+	public Stream<IGame> getGames() {
+		return idToGame.values().stream();
 	}
 }

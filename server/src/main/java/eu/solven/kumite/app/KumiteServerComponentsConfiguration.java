@@ -23,7 +23,7 @@ import eu.solven.kumite.player.PlayersSearchHandler;
 import eu.solven.kumite.webhook.WebhooksRegistry;
 
 @Configuration
-@Import({
+@Import({ KumiteRandomConfiguration.class,
 
 		// AccountsStore.class,
 		KumiteUsersRegistry.class,

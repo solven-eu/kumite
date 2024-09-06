@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,15 +14,25 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.OAuth2LoginMutator;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import eu.solven.kumite.account.KumiteUserRaw;
+import eu.solven.kumite.account.login.KumiteOAuth2UserService;
 import eu.solven.kumite.account.login.SocialWebFluxSecurity;
 import eu.solven.kumite.app.controllers.KumiteLoginController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
+import eu.solven.kumite.scenario.TestTSPLifecycle;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * OAuth2 enables logging-in a subset of APIs, especially the login APIs.
+ * 
+ * @author Benoit Lacelle
+ *
+ */
 @ExtendWith(SpringExtension.class)
 // We create a `@SpringBootTest`, starting an actual server on a `RANDOM_PORT`
 @SpringBootTest(classes = KumiteServerSecurityApplication.class,
@@ -32,24 +41,27 @@ import lombok.extern.slf4j.Slf4j;
 // https://stackoverflow.com/questions/73881370/mocking-oauth2-client-with-webtestclient-for-servlet-applications-results-in-nul
 @AutoConfigureWebTestClient
 @WithMockUser
-public class TestSecurity_WithUser {
+public class TestSecurity_WithOAuth2User {
 
 	// Spring Boot will create a `WebTestClient` for you,
 	// already configure and ready to issue requests against "localhost:RANDOM_PORT"
 	@Autowired
 	private WebTestClient webTestClient;
 
+	@Autowired
+	KumiteOAuth2UserService oauth2UserService;
+
 	@Test
 	public void testApiPublic() {
 		log.debug("About {}", GreetingHandler.class);
 
 		webTestClient
-				// Create a GET request to test an endpoint
+
 				.get()
 				.uri("/api/public")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
-				// and use the dedicated DSL to test assertions against the response
+
 				.expectStatus()
 				.isOk()
 				.expectBody(String.class)
@@ -63,12 +75,12 @@ public class TestSecurity_WithUser {
 		log.debug("About {}", GreetingHandler.class);
 
 		webTestClient
-				// Create a GET request to test an endpoint
+
 				.get()
 				.uri("/api/login/v1/providers")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
-				// and use the dedicated DSL to test assertions against the response
+
 				.expectStatus()
 				.isOk()
 				.expectBody(Map.class)
@@ -80,10 +92,13 @@ public class TestSecurity_WithUser {
 							.containsEntry("login_url", "/oauth2/authorization/github");
 
 					List<Map<String, ?>> asList = (List<Map<String, ?>>) greeting.get("list");
-					assertThat(asList).hasSize(2)
-							.element(0)
-							.asInstanceOf(InstanceOfAssertFactories.MAP)
-							.containsEntry("login_url", "/oauth2/authorization/github");
+					assertThat(asList).hasSize(2).anySatisfy(m -> {
+						Assertions.assertThat((Map) m)
+								.containsEntry("login_url", "/oauth2/authorization/github")
+								.hasSize(2);
+					}).anySatisfy(m -> {
+						Assertions.assertThat((Map) m).containsEntry("login_url", "/oauth2/authorization/google");
+					});
 				});
 	}
 
@@ -91,18 +106,32 @@ public class TestSecurity_WithUser {
 	public void testLoginUser() {
 		log.debug("About {}", KumiteLoginController.class);
 
+		// Beware `.mutateWith(oauth2Login)` skips KumiteOAuth2UserService, hence automated registration on first OAuth2
+		// login
+		OAuth2LoginMutator oauth2Login;
+		{
+			KumiteUserRaw userRaw = TestTSPLifecycle.userRaw();
+			oauth2Login = SecurityMockServerConfigurers.mockOAuth2Login().attributes(attributes -> {
+				attributes.put("id", userRaw.getRawRaw().getSub());
+				attributes.put("providerId", userRaw.getRawRaw().getProviderId());
+			});
+			oauth2UserService.onKumiteUserRaw(userRaw);
+		}
+
 		webTestClient
-				// Create a GET request to test an endpoint
+
+				.mutateWith(oauth2Login)
+
 				.get()
 				.uri("/api/login/v1/user")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
-				// and use the dedicated DSL to test assertions against the response
+
 				.expectStatus()
 				.isOk()
-				.expectBody(String.class)
+				.expectBody(Map.class)
 				.value(greeting -> {
-					Assertions.assertThat(greeting).isEqualTo("ss");
+					Assertions.assertThat(greeting).containsKeys("accountId", "raw").hasSize(4);
 				});
 	}
 
@@ -110,18 +139,32 @@ public class TestSecurity_WithUser {
 	public void testLoginToken() {
 		log.debug("About {}", KumiteLoginController.class);
 
+		// Beware `.mutateWith(oauth2Login)` skips KumiteOAuth2UserService, hence automated registration on first OAuth2
+		// login
+		OAuth2LoginMutator oauth2Login;
+		{
+			KumiteUserRaw userRaw = TestTSPLifecycle.userRaw();
+			oauth2Login = SecurityMockServerConfigurers.mockOAuth2Login().attributes(attributes -> {
+				attributes.put("id", userRaw.getRawRaw().getSub());
+				attributes.put("providerId", userRaw.getRawRaw().getProviderId());
+			});
+			oauth2UserService.onKumiteUserRaw(userRaw);
+		}
+
 		webTestClient
-				// Create a GET request to test an endpoint
+
+				.mutateWith(oauth2Login)
+
 				.get()
 				.uri("/api/login/v1/token")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
-				// and use the dedicated DSL to test assertions against the response
+
 				.expectStatus()
 				.isOk()
-				.expectBody(String.class)
-				.value(greeting -> {
-					Assertions.assertThat(greeting).isEqualTo("ss");
+				.expectBody(Map.class)
+				.value(tokens -> {
+					Assertions.assertThat(tokens).containsKey("access_token").hasSize(1);
 				});
 	}
 

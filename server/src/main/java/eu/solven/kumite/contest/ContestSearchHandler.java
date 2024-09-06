@@ -19,6 +19,7 @@ import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
+import eu.solven.kumite.tools.IUuidGenerator;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,9 @@ public class ContestSearchHandler {
 
 	@NonNull
 	final BoardsRegistry boardRegistry;
+	
+	@NonNull
+	final IUuidGenerator uuidGenerator;
 
 	public Mono<ServerResponse> listContests(ServerRequest request) {
 		ContestSearchParametersBuilder parameters = ContestSearchParameters.builder();
@@ -70,7 +74,7 @@ public class ContestSearchHandler {
 
 		IGame game = gamesStore.getGame(gameId);
 
-		UUID contestId = UUID.randomUUID();
+		UUID contestId = uuidGenerator.randomUUID();
 
 		ContestMetadataBuilder parameters = ContestMetadata.builder().contestId(contestId);
 
