@@ -20,21 +20,23 @@ public class ContestMetadataRaw {
 	@NonNull
 	String name;
 
-	@NonNull
+//	@NonNull
 	// Boxed integer to ensure this is properly initialized
-	Integer nbActivePlayers;
+//	Integer nbActivePlayers;
 
-	boolean beingPlayed;
-	boolean acceptPlayers;
+	boolean gameOver;
+	boolean acceptingPlayers;
+	boolean requiringPlayers;
 
 	public static ContestMetadataRaw snapshot(ContestMetadata contest) {
 		return ContestMetadataRaw.builder()
 				.contestId(contest.getContestId())
 				.name(contest.getName())
 				.gameId(contest.getGameMetadata().getGameId())
-				.acceptPlayers(contest.isAcceptPlayers())
-				.beingPlayed(contest.isGameOver())
-				.nbActivePlayers(contest.getPlayers().size())
+				.acceptingPlayers(contest.isAcceptingPlayers())
+				.requiringPlayers(contest.isRequiringPlayers())
+				.gameOver(contest.isGameOver())
+				// .nbActivePlayers(contest.getPlayers().size())
 				.build();
 	}
 

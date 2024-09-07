@@ -209,14 +209,17 @@ export default {
 			 	<span v-if="!exampleMovesMetadata.loaded">
 	            	<button type="button" @click="loadExampleMoves" class="btn btn-outline-secondary">Load some available moves</button>
 				</span>
-               <span v-else class="btn-group " v-if="Object.keys(exampleMoves).length > 0">
-                  <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                  	Prefill with an example move
-                  </button>
-                  <ul class="dropdown-menu">
-                     <li><a class="dropdown-item" @click="fillMove(moveJson)" v-for="(moveJson, moveKey) in exampleMoves">{{moveKey}}</a></li>
-                  </ul>
-               </span>
+					<span v-else-if="Object.keys(exampleMoves).length > 0" class="btn-group ">
+					   <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+					   	Prefill with an example move
+					   </button>
+					   <ul class="dropdown-menu">
+					      <li><a class="dropdown-item" @click="fillMove(moveJson)" v-for="(moveJson, moveKey) in exampleMoves">{{moveKey}}</a></li>
+					   </ul>
+					</span>
+					   <span v-else>
+					      Not a single example move. It may not be your turn.
+					   </span>
 		   </div>
          </div>
 		 <!-- Move Visualizer-->

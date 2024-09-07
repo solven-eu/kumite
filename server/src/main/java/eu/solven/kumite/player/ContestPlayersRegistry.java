@@ -53,7 +53,7 @@ public class ContestPlayersRegistry {
 
 		UUID contestId = contest.getContestId();
 
-		if (!contest.isAcceptPlayers()) {
+		if (!contest.isAcceptingPlayers()) {
 			// If `isAcceptPlayer` is false, currentAccount should not even consider this game.
 			throw new IllegalStateException("contestId=" + contestId + " does not accept player");
 		} else if (contest.getPlayers().stream().anyMatch(p -> p.getPlayerId().equals(playerId))) {

@@ -72,11 +72,11 @@ public class ContestsRegistry {
 		}
 
 		if (search.isAcceptPlayers()) {
-			metaStream = metaStream.filter(c -> c.isAcceptPlayers());
+			metaStream = metaStream.filter(c -> c.isAcceptingPlayers());
 		}
 
 		if (search.isRequirePlayers()) {
-			metaStream = metaStream.filter(c -> c.isRequirePlayers());
+			metaStream = metaStream.filter(c -> c.isRequiringPlayers());
 		}
 
 		return metaStream.collect(Collectors.toList());

@@ -4,12 +4,12 @@ import { ref } from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
-import KumiteBoardMoveForm from "./kumite-board-move-form.js";
+import KumiteBoardJoined from "./kumite-board-joined.js";
 
 export default {
 	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
-		KumiteBoardMoveForm,
+		KumiteBoardJoined,
 	},
 	// https://vuejs.org/guide/components/props.html
 	props: {
@@ -145,8 +145,8 @@ export default {
 	      Joining {{isJoiningAsPlayer || isJoiningAsViewer}}
 	   </div>
 	   <!-- Joined as player -->
-	   <div v-else-if="hasJoinedAsPlayer">
-	      <KumiteBoardMoveForm :gameId="gameId" :contestId="contestId" />
+	   <div v-else-if="hasJoinedAsPlayer">KumiteBoardJoined
+	   	<KumiteBoardJoined :gameId="gameId" :contestId="contestId" />
 	   </div>
 	   <!-- Joined as viewer -->
 	   <div v-else-if="hasJoinedAsViewer">

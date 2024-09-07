@@ -3,7 +3,9 @@ package eu.solven.kumite.game.opposition.tictactoe;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
 
@@ -13,6 +15,8 @@ import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
 import eu.solven.kumite.player.IKumiteMove;
+import eu.solven.kumite.player.WaitForPlayersMove;
+import eu.solven.kumite.player.WaitForSignupsMove;
 
 public class TicTacToe implements IGame {
 	GameMetadata gameMetadata = GameMetadata.builder()
@@ -60,8 +64,12 @@ public class TicTacToe implements IGame {
 
 	@Override
 	public Map<String, IKumiteMove> exampleMoves(IKumiteBoardView boardView, UUID playerId) {
-
 		TicTacToeBoard board = (TicTacToeBoard) boardView;
+
+		if (board.getPlayerIdToSymbol().size() != 2) {
+			// There is no possible move until there is 2 players
+			return Collections.singletonMap("Wait for sign-ups", WaitForSignupsMove.builder().build());
+		}
 
 		char nextPlayerSymbol = board.getNextPlayerSymbol();
 
@@ -69,17 +77,37 @@ public class TicTacToe implements IGame {
 
 		if (nextPlayerSymbol != playerMoveSymbol) {
 			// Next turn is not for this player: no move is available
-			return Collections.emptyMap();
+			Set<UUID> signedUpPlayers = new TreeSet<>(board.getPlayerIdToSymbol().keySet());
+			signedUpPlayers.remove(playerId);
+			if (signedUpPlayers.size() != 1) {
+				throw new IllegalStateException(
+						"Issue given playerId=" + playerId + " and " + board.getPlayerIdToSymbol());
+			}
+			UUID otherPlayerId = signedUpPlayers.iterator().next();
+			WaitForPlayersMove waitForPlayerMove = WaitForPlayersMove.builder().waitedPlayer(otherPlayerId).build();
+			return Collections.singletonMap("Wait for sign-ups", waitForPlayerMove);
 		}
 
 		char[] positions = board.getPositions();
 
 		Map<String, IKumiteMove> moves = new TreeMap<>();
 		for (int i = 0; i < positions.length; i++) {
-			moves.put(Character.toString(positions[i]), TicTacToeMove.builder().position(i + 1).build());
+			if ('_' == positions[i]) {
+				// This is a playable position
+				int oneBasePosition = i + 1;
+				moves.put(Integer.toString(oneBasePosition), TicTacToeMove.builder().position(oneBasePosition).build());
+			} else {
+				// This position is occupied
+			}
 		}
 
 		return moves;
+	}
+
+	public boolean isGameOver(IKumiteBoard rawBoard) {
+		TicTacToeBoard board = (TicTacToeBoard) rawBoard;
+
+		return board.isGameOver();
 	}
 
 }

@@ -94,7 +94,7 @@ public class TestTSPLifecycle {
 		Assertions.assertThat(contests)
 				.hasSize(1)
 				.element(0)
-				.matches(c -> c.isAcceptPlayers())
+				.matches(c -> c.isAcceptingPlayers())
 				.matches(c -> !c.isGameOver());
 
 		Contest contest = contestsStore.getContest(contests.get(0).getContestId());

@@ -47,7 +47,7 @@ public class Chess implements IGame {
 
 	@Override
 	public boolean canAcceptPlayer(ContestMetadata contest, KumitePlayer player) {
-		return !contest.isRequirePlayers();
+		return !contest.isRequiringPlayers();
 	}
 
 	@Override

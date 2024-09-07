@@ -39,7 +39,7 @@ public interface IGame {
 			// This player is already registered in given contest: most game accept each player at most once
 			return false;
 		}
-		return contest.isAcceptPlayers();
+		return contest.isAcceptingPlayers();
 	}
 
 	IKumiteMove parseRawMove(Map<String, ?> rawMove);
