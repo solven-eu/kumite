@@ -31,6 +31,10 @@ public class GameMetadata implements IGameMetadataConstants {
 	@Singular
 	List<String> tags;
 
+	// These are not definitive values, as some game may be lax in term of number of players, while a contest may have
+	// stricter constrains.
+	// Typically, an Optimization contest may require exactly 4 players, while the game itself can accept any number of
+	// players.
 	@Default
 	int minPlayers = 1;
 	@Default

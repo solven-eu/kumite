@@ -52,7 +52,7 @@ export default {
 				return store.contests[this.contestId];
 			},
 			board(store) {
-				return store.boards[this.contestId];
+				return store.boards[this.contestId]?.board;
 			},
 		}),
 		curlGetBoard() {
@@ -69,23 +69,29 @@ export default {
 	setup(props) {
 		const store = useKumiteStore();
 
-		// We load current accountPlayers to enable player registration
-		store.loadCurrentAccountPlayers();
-
 		const showBoardAsSvg = ref(false);
-		store.loadBoard(props.gameId, props.contestId).then((board) => {
-			console.log("Checking SVG");
-			// If this board enables SVG, activates it by default
-			showBoardAsSvg.value = store.boards[props.contestId].svg;
+
+		// We load current accountPlayers to enable player registration
+		store.loadCurrentAccountPlayers().then((account) => {
+			store
+				.loadBoard(props.gameId, props.contestId, store.playingPlayerId)
+				.then((board) => {
+					console.log("Checking SVG");
+					// If this board enables SVG, activates it by default
+					showBoardAsSvg.value = store.boards[props.contestId].svg;
+				});
 		});
 
 		return { showBoardAsSvg };
 	},
 	// https://stackoverflow.com/questions/7717929/how-do-i-get-pre-style-overflow-scroll-height-150px-to-display-at-parti
 	template: `
-	<div v-if="(!game || !contest || !board) && (nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
-	   <div class="spinner-border" role="status">
-	      <span class="visually-hidden">Loading contestId={{contestId}}</span>
+	<div v-if="(!game || !contest || !board)">
+		<div class="spinner-border" role="status" v-if="(nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
+		   <span class="visually-hidden">Loading board for contestId={{contestId}}</span>
+		</div>
+	   <div class="spinner-border" role="status" v-else>
+	      <span class="visually-hidden">Issue loading board for contestId={{contestId}}</span>
 	   </div>
 	</div>
 	<div v-else-if="game.error || contest.error || board.error">

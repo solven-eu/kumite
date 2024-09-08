@@ -1,5 +1,4 @@
-// my-component.js
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
@@ -61,7 +60,45 @@ export default {
 		const game = ref(store.games[props.gameId]);
 		const contest = ref(store.contests[props.contestId]);
 
-		const requiringPlayers = ref(contest.value.requiringPlayers);
+		const requiringPlayers = ref(
+			contest.value.dynamicMetadata.requiringPlayers,
+		);
+
+		const shortPollBoardInterval = ref(null);
+
+		function clearShortPollBoard() {
+			if (shortPollBoardInterval.value) {
+				console.log("Cancelling setInterval", "clearShortPollBoard");
+				clearInterval(shortPollBoardInterval.value);
+				shortPollBoardInterval.value = null;
+			}
+		}
+
+		/*
+		 * Polling the contest status every 5seconds.
+		 * The output can be used to cancel the polling.
+		 */
+		function shortPollBoard(playerId) {
+			// Cancel any existing related setInterval
+			clearShortPollBoard();
+
+			const nextInterval = setInterval(() => {
+				console.log("Intervalled shortPollBoard");
+				store.loadBoard(props.gameId, props.contestId, playerId);
+			}, 5000);
+			shortPollBoardInterval.value = nextInterval;
+
+			return nextInterval;
+		}
+
+		onMounted(() => {
+			// We short poll the contestView to update its status like `requiringPlayers` or `gameOver`
+			shortPollBoard(store.playingPlayerId);
+		});
+
+		onUnmounted(() => {
+			clearShortPollBoard();
+		});
 
 		return {
 			requiringPlayers,
@@ -71,7 +108,7 @@ export default {
 	<div class="border" v-if="contest">
 	   <!-- Waiting for players -->
 	   <div v-if="requiringPlayers">
-	      Waiting for more players ({{contest.players.length}} / {{ game.minPlayers }})
+	      Waiting for more players ({{contest.dynamicMetadata.players.length}} / {{ contest.constantMetadata.minPlayers }})
 	   </div>
 	   <!-- Can be played -->
 	   <div v-else>

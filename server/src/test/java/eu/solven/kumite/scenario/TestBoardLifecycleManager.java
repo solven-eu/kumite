@@ -13,6 +13,7 @@ import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest;
+import eu.solven.kumite.contest.ContestCreationMetadata;
 import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
@@ -57,7 +58,7 @@ public class TestBoardLifecycleManager {
 			.contestId(contestId)
 			.gameMetadata(game.getGameMetadata())
 			.hasPlayers(hasPlayers)
-			.name("someContestName")
+			.constantMetadata(ContestCreationMetadata.fromGame(game.getGameMetadata()).name("someContestName").build())
 			.build();
 	Contest contest = Contest.builder()
 			.board(hasBoard)

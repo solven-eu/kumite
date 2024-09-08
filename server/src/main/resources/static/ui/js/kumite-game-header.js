@@ -40,7 +40,7 @@ export default {
 	<span>
 		<h1>
 			<RouterLink :to="{path:'/html/games/' + game.gameId}"><i class="bi bi-puzzle"></i> {{game.title}}</RouterLink>
-			<RouterLink :to="{path:'/html/games'}"><i class="bi bi-arrow-return-left"></i></RouterLink>
+			<RouterLink :to="{path:'/html/games'}"><i class="bi bi-arrow-90deg-left"></i></RouterLink>
 		</h1>
 	   Game-Description: {{game.shortDescription}}<br/>
 	</span>

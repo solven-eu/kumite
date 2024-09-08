@@ -20,7 +20,7 @@ public class ContestMetadata implements IContest {
 	UUID contestId;
 
 	@NonNull
-	String name;
+	ContestCreationMetadata constantMetadata;
 
 	@NonNull
 	GameMetadata gameMetadata;
@@ -35,5 +35,4 @@ public class ContestMetadata implements IContest {
 	public List<KumitePlayer> getPlayers() {
 		return hasPlayers.getPlayers();
 	}
-
 }

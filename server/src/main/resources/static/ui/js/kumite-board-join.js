@@ -1,5 +1,4 @@
-// my-component.js
-import { ref } from "vue";
+import { ref, onUnmounted } from "vue";
 
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
@@ -114,60 +113,10 @@ export default {
 			throw Error("Not implemented yet");
 		}
 
-		function loadContestView(playerId) {
-			const contestId = props.contestId;
-
-			async function fetchFromUrl(url) {
-				store.nbBoardOperating++;
-
-				try {
-					// console.log("Fetch headers:", store.apiHeaders);
-					const response = await store.authenticatedFetch(url);
-					if (!response.ok) {
-						throw new Error("Rejected GET on url " + url);
-					}
-					const responseJson = await response.json();
-
-					return responseJson;
-				} catch (e) {
-					console.error("Issue on Network: ", e);
-					throw e;
-				} finally {
-					store.nbBoardOperating--;
-				}
-			}
-
-			return fetchFromUrl(
-				`/api/board/player?player_id=${playerId}&contest_id=${contestId}`,
-			);
-		}
-
-		function registerContestView(contestView) {
-			if (!store.contests[props.contestId].views) {
-				store.contests[props.contestId].views = {};
-			}
-			store.contests[props.contestId].views[contestView.playerId] = contestView;
-		}
-
-		/*
-		 * Polling the contest status every 5seconds.
-		 * The output can be used to cancel the polling.
-		 */
-		function shortPollContestView(playerId) {
-			return setInterval(() => {
-				console.log("Intervalled shortPollContestView");
-				loadContestView(playerId);
-			}, 5000);
-		}
-
 		isLoading.value = false;
 		store
-			.loadContestPlayers(props.contestId)
-			.then((done) => {
-				return loadContestView(store.playingPlayerId);
-			})
+			.loadBoard(props.gameId, props.contestId)
 			.then((contestView) => {
-				registerContestView(contestView);
 				console.debug("contestView", contestView);
 
 				if (contestView.playerCanJoin) {
@@ -181,9 +130,6 @@ export default {
 				if (contestView.accountIsViewing) {
 					hasJoinedAsViewer.value = true;
 				}
-
-				// We short poll the contestView to update its status like `requiringPlayers` or `gameOver`
-				shortPollContestView(contestView.playerId);
 			})
 			.finally(() => {
 				isLoading.value = false;

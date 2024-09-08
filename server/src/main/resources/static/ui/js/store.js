@@ -112,7 +112,7 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			fetchFromUrl("/api/login/v1/user");
+			return fetchFromUrl("/api/login/v1/user");
 		},
 
 		async loadUserTokens() {
@@ -216,8 +216,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 			if (!store.account.accountId) {
 				// TODO What if `loadUser` was ongoing?
-				console.log("Skip loading players are not account available");
-				return;
+				return this.loadUser();
 			}
 
 			async function fetchFromUrl(url) {
@@ -246,7 +245,7 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			fetchFromUrl("/api/players?account_id=" + store.account.accountId);
+			return fetchFromUrl("/api/players?account_id=" + store.account.accountId);
 		},
 		async loadContestPlayers(contestId) {
 			const store = this;
@@ -314,11 +313,13 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			fetchFromUrl("/api/games");
+			return fetchFromUrl("/api/games");
 		},
 		async loadGameIfMissing(gameId) {
 			if (this.games[gameId]) {
 				console.log("Skip loading gameId=", gameId);
+
+				return this.games[gameId];
 			} else {
 				console.log("About to load gameId", gameId);
 
@@ -343,11 +344,15 @@ export const useKumiteStore = defineStore("kumite", {
 						// https://github.com/vuejs/pinia/discussions/440
 						console.log("Registering gameId", gameId);
 						store.$patch({ games: { ...store.games, [gameId]: game } });
+
+						return game;
 					} catch (e) {
 						console.error("Issue on Fetch: ", e);
 
 						const game = { gameId: gameId, status: "error", error: e };
 						store.$patch({ games: { ...store.games, [gameId]: game } });
+
+						return game;
 					} finally {
 						store.nbGameFetching--;
 					}
@@ -364,35 +369,32 @@ export const useKumiteStore = defineStore("kumite", {
 					const response = await store.authenticatedFetch(url);
 					const responseJson = await response.json();
 
-					responseJson.forEach((item) => {
-						console.log("Registering contestId", item.contestId);
+					console.log("responseJson", responseJson);
+
+					responseJson.forEach((contest) => {
+						console.log("Registering contestId", contest.contestId);
 						store.$patch({
-							contests: { ...store.contests, [item.contestId]: item },
+							contests: { ...store.contests, [contest.contestId]: contest },
 						});
 					});
 				} catch (e) {
 					console.error("Issue on Network: ", e);
 				} finally {
-					store.nbGameFetching--;
+					store.nbContestFetching--;
 				}
 			}
 
+			let url = "/api/contests";
 			if (gameId) {
 				// The contests of a specific game
-				fetchFromUrl("/api/contests?game_id=" + gameId);
-			} else {
-				// Cross-through contests
-				fetchFromUrl("/api/contests");
+				url += "?game_id=" + gameId;
 			}
+			return fetchFromUrl(url);
 		},
 
-		async loadContestIfMissing(gameId, contestId) {
-			this.loadGameIfMissing(gameId);
-
-			if (this.contests[contestId]) {
-				console.log("Skip loading contestId=", contestId);
-			} else {
-				console.log("About to load contestId", contestId);
+		async loadContest(gameId, contestId) {
+			return this.loadGameIfMissing(gameId).then((game) => {
+				console.log("About to load/refresh contestId", contestId);
 
 				const store = this;
 
@@ -423,6 +425,8 @@ export const useKumiteStore = defineStore("kumite", {
 						store.$patch({
 							contests: { ...store.contests, [contestId]: contest },
 						});
+
+						return contest;
 					} catch (e) {
 						if (e instanceof NetworkError) {
 							console.error("Issue on Fetch: ", e, e.response.status);
@@ -434,61 +438,84 @@ export const useKumiteStore = defineStore("kumite", {
 						store.$patch({
 							contests: { ...store.contests, [contestId]: contest },
 						});
+
+						return contest;
 					} finally {
 						store.nbContestFetching--;
 					}
 				}
-				fetchFromUrl(
+				return fetchFromUrl(
 					"/api/contests?game_id=" + gameId + "&contest_id=" + contestId,
 				);
+			});
+		},
+
+		async loadContestIfMissing(gameId, contestId) {
+			this.loadGameIfMissing(gameId);
+
+			if (this.contests[contestId]) {
+				console.log("Skip loading contestId=", contestId);
+				return Promise.resolve(this.contests[contestId]);
+			} else {
+				return this.loadContest(gameId, contestId);
 			}
 		},
 
-		async loadBoard(gameId, contestId) {
-			this.loadGameIfMissing(gameId);
-			this.loadContestIfMissing(gameId, contestId);
+		async loadBoard(gameId, contestId, playerId) {
+			console.log("gameId", gameId);
+			if (!playerId) {
+				playerId = this.playingPlayerId;
+			}
 
 			const store = this;
 
-			async function fetchFromUrl(url) {
-				store.nbBoardFetching++;
-				try {
-					const response = await store.authenticatedFetch(url);
-					if (!response.ok) {
-						throw new NetworkError(
-							"Rejected request for contest: " + contestId,
-							url,
-							response,
-						);
+			return this.loadGameIfMissing(gameId)
+				.then((game) => {
+					return this.loadContestIfMissing(gameId, contestId);
+				})
+				.then((contest) => {
+					async function fetchFromUrl(url) {
+						store.nbBoardFetching++;
+						try {
+							const response = await store.authenticatedFetch(url);
+							if (!response.ok) {
+								throw new NetworkError(
+									"Rejected request for contest: " + contestId,
+									url,
+									response,
+								);
+							}
+
+							const responseJson = await response.json();
+
+							const board = responseJson;
+
+							// BEWARE This is broken if we consider a user can manage multiple playerIds
+							console.log("Storing board for contestId", contestId);
+							store.$patch({ boards: { ...store.boards, [contestId]: board } });
+
+							return board;
+						} catch (e) {
+							console.error("Issue on Fetch: ", e, e.response.status);
+
+							const board = { contestId: contestId, status: "error", error: e };
+							store.$patch({ boards: { ...store.boards, [contestId]: board } });
+
+							return board;
+						} finally {
+							store.nbBoardFetching--;
+						}
 					}
 
-					const responseJson = await response.json();
-
-					const board = responseJson;
-
-					// https://github.com/vuejs/pinia/discussions/440
-					console.log("Storing board for contestId", contestId);
-					store.$patch({ boards: { ...store.boards, [contestId]: board } });
-				} catch (e) {
-					console.error("Issue on Fetch: ", e, e.response.status);
-
-					const board = { contestId: contestId, status: "error", error: e };
-					store.$patch({ boards: { ...store.boards, [contestId]: board } });
-				} finally {
-					store.nbBoardFetching--;
-				}
-			}
-			const viewingPlayerId = "00000000-0000-0000-0000-000000000000";
-			const playerId = viewingPlayerId;
-
-			return fetchFromUrl(
-				"/api/board?game_id=" +
-					gameId +
-					"&contest_id=" +
-					contestId +
-					"&player_id=" +
-					playerId,
-			);
+					return fetchFromUrl(
+						"/api/board?game_id=" +
+							gameId +
+							"&contest_id=" +
+							contestId +
+							"&player_id=" +
+							playerId,
+					);
+				});
 		},
 
 		async loadLeaderboard(gameId, contestId) {
@@ -530,11 +557,12 @@ export const useKumiteStore = defineStore("kumite", {
 					store.$patch({
 						leaderboards: { ...store.leaderboards, [contestId]: leaderboard },
 					});
+					return leaderboard;
 				} finally {
 					store.nbLeaderboardFetching--;
 				}
 			}
-			fetchFromUrl("/api/leaderboards?contest_id=" + contestId);
+			return fetchFromUrl("/api/leaderboards?contest_id=" + contestId);
 		},
 	},
 });

@@ -132,7 +132,7 @@ public class TestKumiteRouter {
 							.hasSize(2)
 
 							.anySatisfy(contest -> {
-								Assertions.assertThat(contest.isGameOver()).isFalse();
+								Assertions.assertThat(contest.getDynamicMetadata().isGameOver()).isFalse();
 							});
 				});
 	}

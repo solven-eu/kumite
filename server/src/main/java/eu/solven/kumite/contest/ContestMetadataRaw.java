@@ -1,12 +1,19 @@
 package eu.solven.kumite.contest;
 
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
+/**
+ * A serializable view of {@link ContestMetadata}.
+ * 
+ * @author Benoit Lacelle
+ *
+ */
 @Value
 @Builder
 @Jacksonized
@@ -15,28 +22,21 @@ public class ContestMetadataRaw {
 	UUID contestId;
 
 	@NonNull
-	UUID gameId;
+	ContestCreationMetadata constantMetadata;
 
 	@NonNull
-	String name;
-
-//	@NonNull
-	// Boxed integer to ensure this is properly initialized
-//	Integer nbActivePlayers;
-
-	boolean gameOver;
-	boolean acceptingPlayers;
-	boolean requiringPlayers;
+	ContestDynamicMetadata dynamicMetadata;
 
 	public static ContestMetadataRaw snapshot(ContestMetadata contest) {
 		return ContestMetadataRaw.builder()
 				.contestId(contest.getContestId())
-				.name(contest.getName())
-				.gameId(contest.getGameMetadata().getGameId())
-				.acceptingPlayers(contest.isAcceptingPlayers())
-				.requiringPlayers(contest.isRequiringPlayers())
-				.gameOver(contest.isGameOver())
-				// .nbActivePlayers(contest.getPlayers().size())
+				.constantMetadata(contest.getConstantMetadata())
+				.dynamicMetadata(ContestDynamicMetadata.builder()
+						.acceptingPlayers(contest.isAcceptingPlayers())
+						.requiringPlayers(contest.isRequiringPlayers())
+						.gameOver(contest.isGameOver())
+						.players(contest.getPlayers().stream().map(p -> p.getPlayerId()).collect(Collectors.toSet()))
+						.build())
 				.build();
 	}
 

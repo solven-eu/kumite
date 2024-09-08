@@ -26,9 +26,13 @@ export default {
 			contests(store) {
 				const allContests = Object.values(store.contests);
 
+				console.log("allContests", allContests);
+
 				if (this.gameId) {
 					// https://stackoverflow.com/questions/69091869/how-to-filter-an-array-in-array-of-objects-in-javascript
-					return allContests.filter((contest) => contest.gameId == this.gameId);
+					return allContests.filter(
+						(contest) => contest.constantMetadata.gameId == this.gameId,
+					);
 				} else {
 					return allContests;
 				}
@@ -54,7 +58,7 @@ export default {
 	</div>
 	<div v-else class="container">
 	  <div class="row border" v-for="contest in contests">
-		<KumiteContest :gameId="contest.gameId" :contestId="contest.contestId" :showGame="showGame"/>
+		<KumiteContest :gameId="contest.constantMetadata.gameId" :contestId="contest.contestId" :showGame="showGame"/>
 	  </div>
   </div>
   `,

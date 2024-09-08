@@ -4,9 +4,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@RequiredArgsConstructor
 public class BoardsRegistry {
 	final Map<UUID, IKumiteBoard> contestIdToBoard = new ConcurrentHashMap<>();
 

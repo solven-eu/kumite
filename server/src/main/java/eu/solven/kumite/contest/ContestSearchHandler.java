@@ -10,6 +10,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
@@ -82,7 +84,11 @@ public class ContestSearchHandler {
 		parameters.gameMetadata(game.getGameMetadata());
 
 		return request.bodyToMono(Map.class).<ServerResponse>flatMap(contestBody -> {
-			parameters.name(contestBody.get("name").toString());
+			ObjectMapper objectMapper = new ObjectMapper();
+			Map<String, ?> rawConstantMetdata = (Map<String, ?>) contestBody.get("constant_metadata");
+
+			// TODO Check input values, especially minPlayers and maxPlayers given IGame own constrains
+			parameters.constantMetadata(objectMapper.convertValue(rawConstantMetdata, ContestCreationMetadata.class));
 
 			Map<String, ?> rawBoard = (Map<String, ?>) contestBody.get("board");
 			IKumiteBoard board = game.parseRawBoard(rawBoard);
@@ -97,7 +103,6 @@ public class ContestSearchHandler {
 					.game(game)
 					.board(hasBoard)
 					.hasPlayers(hasPlayers)
-					// .refBoard(BoardAndPlayers.builder().game(game).board(hasBoard).hasPlayers(hasPlayers).build())
 					.build();
 
 			return ServerResponse.ok()

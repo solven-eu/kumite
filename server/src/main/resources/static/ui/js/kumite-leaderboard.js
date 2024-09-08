@@ -63,15 +63,15 @@ export default {
 	{{game.error || contest.error || leaderboard.error}}
 </div>
 <div v-else>
-	<div v-if="leaderboard.playerScores && leaderboard.playerScores.length">
 	<i class="bi bi-speedometer"></i>
-	<li v-for="item in leaderboard.playerScores">
-	  {{item.playerId}} has score {{item.score}}
-	</li>
+	<div v-if="leaderboard.playerScores && leaderboard.playerScores.length">
+		<li v-for="item in leaderboard.playerScores">
+		  {{item.playerId}} has score {{item.score}}
+		</li>
 	</div>
-	<div v-else>
+	<span v-else>
 		Leaderboard is empty
-	</div>
+	</span>
 </div>
   `,
 };

@@ -43,45 +43,57 @@ public class BoardHandler {
 		UUID playerId = KumiteHandlerHelper.uuid(request, "player_id");
 
 		IKumiteBoard board = boardsRegistry.makeDynamicBoardHolder(contestId).get();
+		// TODO Check if the playerId is the public one, or a viewer, or a player
 		IKumiteBoardView boardView = board.asView(playerId);
-
-		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(boardView));
-	}
-
-	public Mono<ServerResponse> contestStatusForPlayer(ServerRequest request) {
-		ContestSearchParametersBuilder parameters = ContestSearchParameters.builder();
-
-		UUID contestId = KumiteHandlerHelper.uuid(request, "contest_id");
-		UUID playerId = KumiteHandlerHelper.uuid(request, "player_id");
-
-		List<ContestMetadata> contest =
-				contestsRegistry.searchContests(parameters.contestId(Optional.of(contestId)).build());
-		if (contest.isEmpty()) {
-			throw new IllegalArgumentException("No contest for contestId=" + contestId);
-		} else if (contest.size() >= 2) {
-			throw new IllegalStateException("Multiple contests for contestId=" + contestId + " contests=" + contest);
-		}
-
-		ContestMetadata contestMetadata = contest.get(0);
-
-		IGame game = gamesRegistry.getGame(contestMetadata.getGameMetadata().getGameId());
-		boolean playerCanJoin =
-				game.canAcceptPlayer(contestMetadata, KumitePlayer.builder().playerId(playerId).build());
 
 		boolean playerHasJoined = contestPlayersRegistry.isRegisteredPlayer(contestId, playerId);
 
-		boolean accountIsViewing = contestPlayersRegistry.isViewing(contestId, playerId);
+		boolean accountIsViewing;
+		boolean playerCanJoin;
+		if (playerHasJoined) {
+			// A player can not join twice a contest
+			playerCanJoin = false;
+			// A player can not both play and view
+			accountIsViewing = false;
+		} else {
+			accountIsViewing = contestPlayersRegistry.isViewing(contestId, playerId);
+
+			if (accountIsViewing) {
+				// A player can not join if it is viewing
+				playerCanJoin = false;
+			} else {
+				ContestSearchParametersBuilder parameters = ContestSearchParameters.builder();
+				List<ContestMetadata> contest =
+						contestsRegistry.searchContests(parameters.contestId(Optional.of(contestId)).build());
+				if (contest.isEmpty()) {
+					throw new IllegalArgumentException("No contest for contestId=" + contestId);
+				} else if (contest.size() >= 2) {
+					throw new IllegalStateException(
+							"Multiple contests for contestId=" + contestId + " contests=" + contest);
+				}
+
+				ContestMetadata contestMetadata = contest.get(0);
+
+				IGame game = gamesRegistry.getGame(contestMetadata.getGameMetadata().getGameId());
+
+				playerCanJoin =
+						game.canAcceptPlayer(contestMetadata, KumitePlayer.builder().playerId(playerId).build());
+			}
+		}
 
 		Map<String, Object> output = Map.of("contestId",
 				contestId,
 				"playerId",
 				playerId,
-				"playerCanJoin",
-				playerCanJoin,
 				"playerHasJoined",
 				playerHasJoined,
+				"playerCanJoin",
+				playerCanJoin,
 				"accountIsViewing",
-				accountIsViewing);
+				accountIsViewing,
+				"board",
+				boardView);
+
 		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(output));
 	}
 }

@@ -26,7 +26,7 @@ public class ContestPlayersRegistry {
 	final Map<UUID, Set<UUID>> contestToViewingAccounts = new ConcurrentHashMap<>();
 
 	private void registerViewingPlayer(ContestMetadata contest, UUID playerId) {
-		if (KumitePlayer.PUBLIC_PLAYER_ID.equals(playerId)) {
+		if (KumitePlayer.AUDIENCE_PLAYER_ID.equals(playerId) || KumitePlayer.PREVIEW_PLAYER_ID.equals(playerId)) {
 			// There is no need to register the public player
 			return;
 		}
@@ -47,7 +47,7 @@ public class ContestPlayersRegistry {
 	}
 
 	private void registerPlayingPlayer(ContestMetadata contest, UUID playerId) {
-		if (KumitePlayer.PUBLIC_PLAYER_ID.equals(playerId)) {
+		if (KumitePlayer.AUDIENCE_PLAYER_ID.equals(playerId) || KumitePlayer.PREVIEW_PLAYER_ID.equals(playerId)) {
 			// This should have been handled before, while verifying authenticated account can play given playerId
 			throw new IllegalArgumentException("Public player is not allowed to play");
 		}

@@ -15,6 +15,7 @@ import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest;
+import eu.solven.kumite.contest.ContestCreationMetadata;
 import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GamesRegistry;
@@ -71,8 +72,9 @@ public class InjectDefaultGamesConfig {
 			ContestMetadata contestMeta = ContestMetadata.builder()
 					.contestId(contestId)
 					.gameMetadata(game.getGameMetadata())
-					.name("Auto-generated " + OffsetDateTime.now().format(DateTimeFormatter.ISO_INSTANT))
-					// .acceptPlayers(true)
+					.constantMetadata(ContestCreationMetadata.fromGame(game.getGameMetadata())
+							.name("Auto-generated " + OffsetDateTime.now().format(DateTimeFormatter.ISO_INSTANT))
+							.build())
 					.hasPlayers(players)
 					.gameOver(false)
 					.build();

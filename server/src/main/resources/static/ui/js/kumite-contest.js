@@ -63,9 +63,9 @@ export default {
 	<KumiteGameHeader :gameId="gameId" v-if="showGame" />
 	<KumiteContestHeader :gameId="gameId" :contestId="contestId" />
 
-	<div v-if="contest.acceptingPlayers">
+	<div v-if="contest.dynamicMetadata.acceptingPlayers">
 		<RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + contestId + '/board'}">
-			<button type="button" class="btn btn-outline-primary">Focus on this contest</button>
+			<button type="button" class="btn btn-outline-primary">Preview the board</button>
 		</RouterLink>
 	</div>
 	

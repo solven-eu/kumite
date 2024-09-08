@@ -31,14 +31,13 @@ public class KumiteHandlerHelper {
 
 	public static UUID uuid(ServerRequest request, String idKey) {
 		Optional<String> optPlayerId = request.queryParam(idKey);
-		return UUID
-				.fromString(optPlayerId.orElseThrow(() -> new IllegalArgumentException("Lack `%s`".formatted(idKey))));
+		return uuid(optPlayerId.orElseThrow(() -> new IllegalArgumentException("Lack `%s`".formatted(idKey))));
 	}
 
 	public static Optional<UUID> optUuid(ServerRequest request, String idKey) {
 		Optional<String> optUuid = request.queryParam(idKey);
 
-		return optUuid.map(rawUuid -> UUID.fromString(rawUuid));
+		return optUuid.map(rawUuid -> uuid(rawUuid));
 	}
 
 	public static Optional<Boolean> optBoolean(ServerRequest request, String idKey) {
