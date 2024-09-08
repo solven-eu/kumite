@@ -26,6 +26,7 @@ export default {
 			{ deep: true },
 		);
 
+		store.loadMetadata();
 		store.loadUser();
 		store.loadUserTokens();
 
@@ -73,7 +74,7 @@ export default {
 	  <strong>Current account:</strong> {{ account }}
 	</p-->
 	  <p>
-	    <strong>playerId:</strong> {{ playingPlayerId }}
+	    <strong><i class="bi bi-person"></i>playerId:</strong> {{ playingPlayerId }}
 	  </p>
 		<!--p>
 		  <strong>tokens:</strong> {{ tokens }}

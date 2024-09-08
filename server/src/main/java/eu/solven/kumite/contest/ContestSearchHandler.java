@@ -28,17 +28,18 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Builder
 public class ContestSearchHandler {
-	@NonNull
-	final ContestsRegistry contestsStore;
 
 	@NonNull
-	final GamesRegistry gamesStore;
+	final GamesRegistry gamesRegistry;
 
 	@NonNull
-	final ContestPlayersRegistry contestPlayerRegistry;
+	final ContestsRegistry contestsRegistry;
 
 	@NonNull
-	final BoardsRegistry boardRegistry;
+	final ContestPlayersRegistry contestPlayersRegistry;
+
+	@NonNull
+	final BoardsRegistry boardsRegistry;
 
 	@NonNull
 	final IUuidGenerator uuidGenerator;
@@ -46,11 +47,11 @@ public class ContestSearchHandler {
 	public Mono<ServerResponse> listContests(ServerRequest request) {
 		ContestSearchParametersBuilder parameters = ContestSearchParameters.builder();
 
-		Optional<String> optUuid = request.queryParam("contest_id");
-		optUuid.ifPresent(rawUuid -> parameters.contestId(Optional.of(KumiteHandlerHelper.uuid(rawUuid))));
+		Optional<UUID> optUuid = KumiteHandlerHelper.optUuid(request, "contest_id");
+		optUuid.ifPresent(uuid -> parameters.contestId(Optional.of(uuid)));
 
-		Optional<String> optGame = request.queryParam("game_id");
-		optGame.ifPresent(rawGameUuid -> parameters.gameId(Optional.of(UUID.fromString(rawGameUuid))));
+		Optional<UUID> optGame = KumiteHandlerHelper.optUuid(request, "game_id");
+		optGame.ifPresent(rawGameUuid -> parameters.gameId(Optional.of(rawGameUuid)));
 
 		Optional<String> optMorePlayers = request.queryParam("accept_players");
 		optMorePlayers.ifPresent(rawMorePlayers -> parameters.acceptPlayers(Boolean.parseBoolean(rawMorePlayers)));
@@ -63,16 +64,16 @@ public class ContestSearchHandler {
 
 		return ServerResponse.ok()
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue(contestsStore.searchContests(parameters.build())
+				.body(BodyInserters.fromValue(contestsRegistry.searchContests(parameters.build())
 						.stream()
 						.map(ContestMetadataRaw::snapshot)
 						.collect(Collectors.toList())));
 	}
 
 	public Mono<ServerResponse> generateContest(ServerRequest request) {
-		UUID gameId = UUID.fromString(request.queryParam("game_id").get());
+		UUID gameId = KumiteHandlerHelper.uuid(request, "game_id");
 
-		IGame game = gamesStore.getGame(gameId);
+		IGame game = gamesRegistry.getGame(gameId);
 
 		UUID contestId = uuidGenerator.randomUUID();
 
@@ -80,13 +81,16 @@ public class ContestSearchHandler {
 
 		parameters.gameMetadata(game.getGameMetadata());
 
-		return request.bodyToMono(Map.class).<ServerResponse>flatMap(rawBoard -> {
+		return request.bodyToMono(Map.class).<ServerResponse>flatMap(contestBody -> {
+			parameters.name(contestBody.get("name").toString());
+
+			Map<String, ?> rawBoard = (Map<String, ?>) contestBody.get("board");
 			IKumiteBoard board = game.parseRawBoard(rawBoard);
 
-			boardRegistry.registerBoard(contestId, board);
+			boardsRegistry.registerBoard(contestId, board);
 
-			IHasBoard hasBoard = boardRegistry.makeDynamicBoardHolder(contestId);
-			IHasPlayers hasPlayers = contestPlayerRegistry.makeDynamicHasPlayers(contestId);
+			IHasBoard hasBoard = boardsRegistry.makeDynamicBoardHolder(contestId);
+			IHasPlayers hasPlayers = contestPlayersRegistry.makeDynamicHasPlayers(contestId);
 
 			Contest contest = Contest.builder()
 					.contestMetadata(parameters.build())
@@ -98,7 +102,7 @@ public class ContestSearchHandler {
 
 			return ServerResponse.ok()
 					.contentType(MediaType.APPLICATION_JSON)
-					.body(BodyInserters.fromValue(contestsStore.registerContest(contest)));
+					.body(BodyInserters.fromValue(contestsRegistry.registerContest(contest)));
 		});
 	}
 

@@ -7,12 +7,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
+import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.game.GamesRegistry;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class AccountPlayersRegistry {
-	final GamesRegistry gamesStore;
+	final GamesRegistry gamesRegistry;
 
 	final Map<UUID, Set<UUID>> accountToPlayers = new ConcurrentHashMap<>();
 	final Map<UUID, UUID> playerIdToAccountId = new ConcurrentHashMap<>();
@@ -31,6 +32,10 @@ public class AccountPlayersRegistry {
 	}
 
 	public UUID getAccountId(UUID playerId) {
+		if (KumitePlayer.FAKE_PLAYER_ID.equals(playerId)) {
+			return KumiteUser.FAKE_ACCOUNT_ID;
+		}
+
 		UUID accountId = playerIdToAccountId.get(playerId);
 		if (accountId == null) {
 			throw new IllegalArgumentException("Unknown playerId: " + playerId);

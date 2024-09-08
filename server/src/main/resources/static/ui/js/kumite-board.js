@@ -4,6 +4,9 @@ import { ref } from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
+import KumiteGameHeader from "./kumite-game-header.js";
+import KumiteContestHeader from "./kumite-contest-header.js";
+
 import KumiteBoardJoin from "./kumite-board-join.js";
 import KumiteBoardJson from "./kumite-board-state-json.js";
 import KumiteBoardTSP from "./kumite-board-state-tsp.js";
@@ -12,6 +15,8 @@ import KumiteLeaderboard from "./kumite-leaderboard.js";
 export default {
 	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
+		KumiteGameHeader,
+		KumiteContestHeader,
 		KumiteLeaderboard,
 		KumiteBoardJoin,
 		KumiteBoardJson,
@@ -87,13 +92,8 @@ export default {
 	   {{game.error || contest.error || board.error}}
 	</div>
 	<div v-else class="container">
-	   <span class="row">
-	      <h1>Game: {{game.title}}</h1>
-	      Game-Description: {{game.shortDescription}}<br/>
-	   </span>
-	   <span class="row">
-	      <h2>Contest: {{contest.name}}</h2>
-	   </span>
+		  <KumiteGameHeader class="row" :gameId="gameId" />
+		  <KumiteContestHeader class="row" :gameId="gameId" :contestId="contestId" />
 	   <div class="row border">
 	         Board: This is the view of the contest given players previous moves.
 	         <div class="form-check form-switch">

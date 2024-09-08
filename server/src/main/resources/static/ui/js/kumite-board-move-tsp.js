@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from "vue";
 import { Renderer } from "https://cdn.jsdelivr.net/npm/two.js/src/renderers/svg.js";
 import { Circle } from "https://cdn.jsdelivr.net/npm/two.js/src/shapes/circle.js";
 import { Line } from "https://cdn.jsdelivr.net/npm/two.js/src/shapes/line.js";
+import { Group } from "https://cdn.jsdelivr.net/npm/two.js/src/group.js";
 
 // Importing Two means importing all modules, without tree-shacking
 // It is easier but (slightly) less efficient
@@ -17,6 +18,7 @@ export default {
 		Renderer,
 		Circle,
 		Line,
+		Group,
 	},
 	// https://vuejs.org/guide/components/props.html
 	props: {
@@ -49,6 +51,9 @@ export default {
 
 			renderMove(move);
 		}
+
+		const renderedGroup = ref(null);
+
 		function renderMove(move) {
 			if (!move || !move.cities) {
 				console.log("Can not render invalid move", move);
@@ -63,28 +68,47 @@ export default {
 				cityToPosition[city.name] = city;
 			});
 
-			move.cities.forEach((city, index) => {
-				if (index >= 1) {
-					const previousCity = cityToPosition[move.cities[index - 1]];
-					if (!previousCity) {
-						console.warn("Unknown city", move.cities[index - 1]);
-						return;
-					}
-					const currentCity = cityToPosition[city];
-					if (!currentCity) {
-						console.warn("Unknown city", city);
-						return;
-					}
+			const group = new Group();
 
-					const line = new Line(
-						width * previousCity.x,
-						height * previousCity.y,
-						width * currentCity.x,
-						height * currentCity.y,
-					);
-					renderer.scene.add(line);
+			function checkAndAddLine(from, to, renderer) {
+				if (!from) {
+					console.warn("Unknown city", from);
+					return;
+				}
+				if (!to) {
+					console.warn("Unknown city", to);
+					return;
+				}
+
+				const line = new Line(
+					width * from.x,
+					height * from.y,
+					width * to.x,
+					height * to.y,
+				);
+				group.add(line);
+			}
+
+			move.cities.forEach((city, index) => {
+				if (index == 0) {
+					const previousCity =
+						cityToPosition[move.cities[move.cities.length - 1]];
+					const currentCity = cityToPosition[city];
+					checkAndAddLine(previousCity, currentCity, renderer);
+				} else {
+					const previousCity = cityToPosition[move.cities[index - 1]];
+					const currentCity = cityToPosition[city];
+
+					checkAndAddLine(previousCity, currentCity, renderer);
 				}
 			});
+
+			if (renderedGroup.value) {
+				// Undraw the previously rendered solution
+				renderedGroup.value.remove();
+			}
+			renderedGroup.value = group;
+			renderer.scene.add(group);
 
 			console.log("Rendering move", move);
 			renderer.render();
@@ -118,7 +142,6 @@ export default {
 		};
 	},
 	template: `
-	<div ref="boardCanvas" class="border">
-	</div>
+	<div ref="boardCanvas" class="border" />
 	  `,
 };

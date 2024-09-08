@@ -23,8 +23,8 @@ import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
 import eu.solven.kumite.player.IKumiteMove;
 import eu.solven.kumite.player.KumitePlayer;
+import eu.solven.kumite.player.PlayerJoinRaw;
 import eu.solven.kumite.player.PlayerMoveRaw;
-import eu.solven.kumite.player.PlayerRegistrationRaw;
 
 public class TestBoardLifecycleManager {
 	// We check with as async Executor to ensure proper errorManagement
@@ -93,7 +93,7 @@ public class TestBoardLifecycleManager {
 		playersRegistry.registerPlayer(UUID.randomUUID(), KumitePlayer.builder().playerId(playerId).build());
 
 		manager.registerPlayer(contestMetadata,
-				PlayerRegistrationRaw.builder().contestId(contestId).playerId(playerId).isViewer(false).build());
+				PlayerJoinRaw.builder().contestId(contestId).playerId(playerId).isViewer(false).build());
 
 		PlayerMoveRaw playerMove = makeValidMove();
 		manager.onPlayerMove(contest, playerMove);
@@ -107,7 +107,7 @@ public class TestBoardLifecycleManager {
 		playersRegistry.registerPlayer(UUID.randomUUID(), KumitePlayer.builder().playerId(playerId).build());
 
 		manager.registerPlayer(contestMetadata,
-				PlayerRegistrationRaw.builder().contestId(contestId).playerId(playerId).isViewer(true).build());
+				PlayerJoinRaw.builder().contestId(contestId).playerId(playerId).isViewer(true).build());
 
 		PlayerMoveRaw playerMove = makeValidMove();
 

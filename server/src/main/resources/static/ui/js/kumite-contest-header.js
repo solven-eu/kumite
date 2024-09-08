@@ -4,18 +4,7 @@ import { ref } from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
-import KumiteGameHeader from "./kumite-game-header.js";
-import KumiteContestHeader from "./kumite-contest-header.js";
-
-import KumiteLeaderboard from "./kumite-leaderboard.js";
-
 export default {
-	// https://vuejs.org/guide/components/registration#local-registration
-	components: {
-		KumiteGameHeader,
-		KumiteContestHeader,
-		KumiteLeaderboard,
-	},
 	// https://vuejs.org/guide/components/props.html
 	props: {
 		contestId: {
@@ -25,10 +14,6 @@ export default {
 		gameId: {
 			type: String,
 			required: true,
-		},
-		showGame: {
-			type: Boolean,
-			default: true,
 		},
 	},
 	computed: {
@@ -58,18 +43,11 @@ export default {
 <div v-else-if="game.error || contest.error">
 	{{game.error || contest.error}}
 </div>
-<div v-else>
-
-	<KumiteGameHeader :gameId="gameId" v-if="showGame" />
-	<KumiteContestHeader :gameId="gameId" :contestId="contestId" />
-
-	<div v-if="contest.acceptingPlayers">
-		<RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + contestId + '/board'}">
-			<button type="button" class="btn btn-outline-primary">Focus on this contest</button>
-		</RouterLink>
-	</div>
-	
-	<KumiteLeaderboard :gameId="gameId" :contestId="contestId"/>
-</div>
+<span v-else>
+	<h2>
+		<RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + contestId}"><i class="bi bi-trophy"></i> {{contest.name}}</RouterLink>
+		<RouterLink :to="{path:'/html/games/' + gameId}"><i class="bi bi-arrow-return-left"></i></RouterLink>
+	</h2>
+</span>
   `,
 };

@@ -13,8 +13,8 @@ import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.player.ContestPlayersRegistry;
+import eu.solven.kumite.player.PlayerJoinRaw;
 import eu.solven.kumite.player.PlayerMoveRaw;
-import eu.solven.kumite.player.PlayerRegistrationRaw;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -91,7 +91,7 @@ public class BoardLifecycleManager {
 		return false;
 	}
 
-	public void registerPlayer(ContestMetadata contest, PlayerRegistrationRaw playerRegistrationRaw) {
+	public void registerPlayer(ContestMetadata contest, PlayerJoinRaw playerRegistrationRaw) {
 		UUID contestId = contest.getContestId();
 		executeBoardChange(contestId, () -> {
 			contestPlayersRegistry.registerPlayer(contest, playerRegistrationRaw);

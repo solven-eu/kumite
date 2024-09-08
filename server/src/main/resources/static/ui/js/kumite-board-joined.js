@@ -57,11 +57,11 @@ export default {
 	},
 	setup(props) {
 		const store = useKumiteStore();
-		
+
 		const game = ref(store.games[props.gameId]);
 		const contest = ref(store.contests[props.contestId]);
-		
-		const requiringPlayers = ref(contest.requiringPlayers)
+
+		const requiringPlayers = ref(contest.value.requiringPlayers);
 
 		return {
 			requiringPlayers,
@@ -74,7 +74,7 @@ export default {
 	      Waiting for more players ({{contest.players.length}} / {{ game.minPlayers }})
 	   </div>
 	   <!-- Can be played -->
-	   <div>
+	   <div v-else>
 	      <KumiteBoardMoveForm :gameId="gameId" :contestId="contestId" />
 	   </div>
 	</div>

@@ -1,6 +1,9 @@
 package eu.solven.kumite.game.optimization.tsp;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +18,6 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.solven.kumite.board.IKumiteBoard;
-import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
@@ -23,7 +25,6 @@ import eu.solven.kumite.leaderboard.IPlayerScore;
 import eu.solven.kumite.leaderboard.LeaderBoard;
 import eu.solven.kumite.leaderboard.PlayerDoubleScore;
 import eu.solven.kumite.player.IKumiteMove;
-import eu.solven.kumite.player.KumitePlayer;
 import lombok.Value;
 
 @Value
@@ -88,6 +89,10 @@ public class TravellingSalesmanProblem implements IGame {
 		TSPCity from = nameToCity.get(previousCity);
 		TSPCity to = nameToCity.get(city);
 
+		return distance(from, to);
+	}
+
+	private double distance(TSPCity from, TSPCity to) {
 		double xSquared = Math.pow(from.getX() - to.getX(), 2);
 		double ySquared = Math.pow(from.getY() - to.getY(), 2);
 
@@ -102,11 +107,6 @@ public class TravellingSalesmanProblem implements IGame {
 	@Override
 	public TSPBoard generateInitialBoard(RandomGenerator random) {
 		return boardGenerator.apply(random);
-	}
-
-	@Override
-	public boolean canAcceptPlayer(ContestMetadata contest, KumitePlayer player) {
-		return true;
 	}
 
 	@Override
@@ -136,12 +136,42 @@ public class TravellingSalesmanProblem implements IGame {
 	public Map<String, IKumiteMove> exampleMoves(IKumiteBoardView boardView, UUID playerId) {
 		TSPProblem problem = (TSPProblem) boardView;
 
-		List<String> orderedCities;
+		TSPSolution lexicographicalMove;
 		{
-			orderedCities = problem.getCities().stream().map(c -> c.getName()).collect(Collectors.toList());
+			List<String> cityNames = problem.getCities().stream().map(c -> c.getName()).collect(Collectors.toList());
+			lexicographicalMove = TSPSolution.builder().cities(cityNames).build();
 		}
-		TSPSolution rawMove = TSPSolution.builder().cities(orderedCities).build();
 
-		return Map.of("lexicographical", rawMove);
+		TSPSolution greedyMove;
+		{
+
+			List<TSPCity> orderedCities = new ArrayList<>();
+
+			Map<String, TSPCity> nameToCity = new HashMap<>();
+			problem.getCities().forEach(city -> nameToCity.put(city.getName(), city));
+
+			while (!nameToCity.isEmpty()) {
+				if (orderedCities.isEmpty()) {
+					// Add any city as first city
+					TSPCity anyCity = nameToCity.remove(nameToCity.keySet().iterator().next());
+
+					orderedCities.add(anyCity);
+				} else {
+					TSPCity currentCity = orderedCities.get(orderedCities.size() - 1);
+					TSPCity nextCity = nameToCity.values()
+							.stream()
+							.min(Comparator.comparing(candidateNextCity -> distance(currentCity, candidateNextCity)))
+							.get();
+
+					orderedCities.add(nextCity);
+					nameToCity.remove(nextCity.getName());
+				}
+			}
+
+			List<String> cityNames = orderedCities.stream().map(c -> c.getName()).collect(Collectors.toList());
+			greedyMove = TSPSolution.builder().cities(cityNames).build();
+		}
+
+		return Map.of("lexicographical", lexicographicalMove, "greedy", greedyMove);
 	}
 }

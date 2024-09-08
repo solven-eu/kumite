@@ -10,7 +10,7 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
-public class PlayerRegistrationRaw {
+public class PlayerJoinRaw {
 	UUID playerId;
 	UUID contestId;
 

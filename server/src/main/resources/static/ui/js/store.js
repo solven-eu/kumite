@@ -1,3 +1,5 @@
+import { watch } from "vue";
+
 import { defineStore } from "pinia";
 
 class NetworkError extends Error {
@@ -41,10 +43,17 @@ export const useKumiteStore = defineStore("kumite", {
 	}),
 	getters: {
 		// There will be a way to choose a different playerId amongst the account playerIds
-		playingPlayerId: (state) => state.account.playerId,
+		playingPlayerId: (store) => store.account.playerId,
 		// Default headers: we authenticate ourselves
-		apiHeaders: (state) => {
-			return { Authorization: "Bearer " + state.tokens.access_token };
+		apiHeaders: (store) => {
+			if (store.needsToRefreshAccessToken) {
+				// TODO Implement automated access_token refresh through Promise
+				throw new Error("access_token is missing or expired");
+			}
+			return { Authorization: "Bearer " + store.tokens.access_token };
+		},
+		needsToRefreshAccessToken: (store) => {
+			return !store.tokens.access_token || store.tokens.access_token_expired;
 		},
 	},
 	actions: {
@@ -68,10 +77,11 @@ export const useKumiteStore = defineStore("kumite", {
 					store.$patch({ metadata: metadata });
 				} catch (e) {
 					console.error("Issue on Network: ", e);
+					throw e;
 				}
 			}
 
-			fetchFromUrl("/api/public/v1/metadata");
+			return fetchFromUrl("/api/public/v1/metadata");
 		},
 
 		async loadUser() {
@@ -123,8 +133,24 @@ export const useKumiteStore = defineStore("kumite", {
 					const responseJson = await response.json();
 					const tokens = responseJson;
 
+					{
+						tokens.access_token_expired = false;
+					}
+
 					console.log("Tokens are stored");
 					store.$patch({ tokens: tokens });
+
+					watch(
+						() => store.tokens.access_token_expired,
+						(expired) => {
+							if (expired) {
+								console.log(
+									"access_token is expired. Triggering loadUserTokens",
+								);
+								loadUserTokens();
+							}
+						},
+					);
 
 					return tokens;
 				} catch (e) {
@@ -138,15 +164,15 @@ export const useKumiteStore = defineStore("kumite", {
 		},
 
 		async loadIfMissingUserTokens() {
-			const store = this;
-
-			if (store.tokens.access_token) {
-				console.debug("Tokens are already stored");
+			if (this.tokens.access_token && !this.tokens.access_token_expired) {
+				console.debug(
+					"Authenticated and an access_tokenTokens is stored stored",
+				);
 			} else {
 				await this.loadUserTokens();
 			}
 
-			return store.tokens;
+			return this.tokens;
 		},
 		async authenticatedFetch(url, fetchOptions) {
 			await this.loadIfMissingUserTokens();
@@ -176,6 +202,10 @@ export const useKumiteStore = defineStore("kumite", {
 					mergedFetchOptions,
 					response,
 				);
+
+				if (response.status == 401) {
+					this.tokens.access_token_expired = true;
+				}
 
 				return response;
 			});
@@ -247,7 +277,7 @@ export const useKumiteStore = defineStore("kumite", {
 						players: players,
 					};
 					store.$patch({
-						contests: { ...store.contests, [contestId]: mutatedContest},
+						contests: { ...store.contests, [contestId]: mutatedContest },
 					});
 				} catch (e) {
 					console.error("Issue on Network: ", e);

@@ -17,8 +17,8 @@ import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
 import eu.solven.kumite.lifecycle.BoardLifecycleManager;
+import eu.solven.kumite.player.PlayerJoinRaw.PlayerJoinRawBuilder;
 import eu.solven.kumite.player.PlayerMoveRaw.PlayerMoveRawBuilder;
-import eu.solven.kumite.player.PlayerRegistrationRaw.PlayerRegistrationRawBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -32,7 +32,7 @@ public class PlayerMovesHandler {
 	final BoardLifecycleManager boardLifecycleManager;
 
 	public Mono<ServerResponse> registerPlayer(ServerRequest request) {
-		PlayerRegistrationRawBuilder parameters = PlayerRegistrationRaw.builder();
+		PlayerJoinRawBuilder parameters = PlayerJoinRaw.builder();
 
 		UUID playerId = KumiteHandlerHelper.uuid(request, "player_id");
 		parameters.playerId(playerId);
@@ -44,11 +44,11 @@ public class PlayerMovesHandler {
 
 		Contest contest = contestsStore.getContest(contestId);
 
-		PlayerRegistrationRaw playerRegistrationRaw = parameters.build();
-		boardLifecycleManager.registerPlayer(contest.getContestMetadata(), playerRegistrationRaw);
+		PlayerJoinRaw playerJoinRaw = parameters.build();
+		boardLifecycleManager.registerPlayer(contest.getContestMetadata(), playerJoinRaw);
 
 		Map<String, ?> output =
-				Map.of("playerId", playerId, "contestId", contestId, "viewer", playerRegistrationRaw.isViewer());
+				Map.of("playerId", playerId, "contestId", contestId, "viewer", playerJoinRaw.isViewer());
 		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(output));
 	}
 

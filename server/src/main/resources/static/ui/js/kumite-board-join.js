@@ -61,6 +61,10 @@ export default {
 		// We load current accountPlayers to enable player registration
 		store.loadCurrentAccountPlayers();
 
+		const isLoading = ref(false);
+
+		const canJoinAsPlayer = ref(false);
+
 		const hasJoinedAsPlayer = ref(false);
 		const isJoiningAsPlayer = ref(false);
 		function joinAsPlayer() {
@@ -110,26 +114,85 @@ export default {
 			throw Error("Not implemented yet");
 		}
 
-		store.loadContestPlayers(props.contestId).then((done) => {
-			const contestPlayers = store.contests[props.contestId].players || [];
-			console.log("Contest players", contestPlayers);
-			const contestPlayerIds = contestPlayers.map((p) => p.playerId);
+		function loadContestView(playerId) {
+			const contestId = props.contestId;
 
-			if (contestPlayerIds.indexOf(store.playingPlayerId) == -1) {
-				console.log(
-					"Current player is not already playing contestId",
-					props.contestId,
-				);
-			} else {
-				console.log(
-					"Current player is already playing contestId",
-					props.contestId,
-				);
-				hasJoinedAsPlayer.value = true;
+			async function fetchFromUrl(url) {
+				store.nbBoardOperating++;
+
+				try {
+					// console.log("Fetch headers:", store.apiHeaders);
+					const response = await store.authenticatedFetch(url);
+					if (!response.ok) {
+						throw new Error("Rejected GET on url " + url);
+					}
+					const responseJson = await response.json();
+
+					return responseJson;
+				} catch (e) {
+					console.error("Issue on Network: ", e);
+					throw e;
+				} finally {
+					store.nbBoardOperating--;
+				}
 			}
-		});
+
+			return fetchFromUrl(
+				`/api/board/player?player_id=${playerId}&contest_id=${contestId}`,
+			);
+		}
+
+		function registerContestView(contestView) {
+			if (!store.contests[props.contestId].views) {
+				store.contests[props.contestId].views = {};
+			}
+			store.contests[props.contestId].views[contestView.playerId] = contestView;
+		}
+
+		/*
+		 * Polling the contest status every 5seconds.
+		 * The output can be used to cancel the polling.
+		 */
+		function shortPollContestView(playerId) {
+			return setInterval(() => {
+				console.log("Intervalled shortPollContestView");
+				loadContestView(playerId);
+			}, 5000);
+		}
+
+		isLoading.value = false;
+		store
+			.loadContestPlayers(props.contestId)
+			.then((done) => {
+				return loadContestView(store.playingPlayerId);
+			})
+			.then((contestView) => {
+				registerContestView(contestView);
+				console.debug("contestView", contestView);
+
+				if (contestView.playerCanJoin) {
+					canJoinAsPlayer.value = true;
+				}
+
+				if (contestView.playerHasJoined) {
+					hasJoinedAsPlayer.value = true;
+				}
+
+				if (contestView.accountIsViewing) {
+					hasJoinedAsViewer.value = true;
+				}
+
+				// We short poll the contestView to update its status like `requiringPlayers` or `gameOver`
+				shortPollContestView(contestView.playerId);
+			})
+			.finally(() => {
+				isLoading.value = false;
+			});
 
 		return {
+			isLoading,
+			canJoinAsPlayer,
+
 			hasJoinedAsPlayer,
 			isJoiningAsPlayer,
 			joinAsPlayer,
@@ -140,8 +203,12 @@ export default {
 	},
 	template: `
 	<div class="border" v-if="contest">
+		<!-- Loading metadata -->
+		<div v-if="isLoading">
+		   Loading {{isLoading}}
+		</div>
 	   <!-- IsJoining loader -->
-	   <div v-if="isJoiningAsPlayer || isJoiningAsViewer">
+	   <div v-else-if="isJoiningAsPlayer || isJoiningAsViewer">
 	      Joining {{isJoiningAsPlayer || isJoiningAsViewer}}
 	   </div>
 	   <!-- Joined as player -->
@@ -155,7 +222,7 @@ export default {
 	   <!-- Joining options -->
 	   <div v-else>
 	      <!-- Offer to join as player-->
-	      <div v-if="contest.acceptPlayers">
+	      <div v-if="canJoinAsPlayer">
 	         <button type="button" @click="joinAsPlayer()"  class="btn btn-outline-primary">Join contest as player</button>
 	         <!--span v-if="exampleMovesMetadata.error" class="alert alert-warning" role="alert">{{exampleMovesMetadata.error}}</span-->
 	      </div>

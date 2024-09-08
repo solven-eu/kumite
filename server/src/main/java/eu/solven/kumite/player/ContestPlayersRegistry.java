@@ -1,5 +1,6 @@
 package eu.solven.kumite.player;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -35,7 +36,7 @@ public class ContestPlayersRegistry {
 				.add(accountId);
 	}
 
-	public void registerPlayer(ContestMetadata contest, PlayerRegistrationRaw playerRegistrationRaw) {
+	public void registerPlayer(ContestMetadata contest, PlayerJoinRaw playerRegistrationRaw) {
 		UUID playerId = playerRegistrationRaw.getPlayerId();
 
 		if (playerRegistrationRaw.isViewer()) {
@@ -81,6 +82,18 @@ public class ContestPlayersRegistry {
 				// playerName?
 				.map(playerId -> KumitePlayer.builder().playerId(playerId).build())
 				.collect(Collectors.toList());
+	}
+
+	/**
+	 * 
+	 * @param contestId
+	 * @param playerId
+	 * @return true if given player owning account is already viewing this contest.
+	 */
+	public boolean isViewing(UUID contestId, UUID playerId) {
+		UUID accountId = playersRegistry.getAccountId(playerId);
+
+		return contestToViewingAccounts.getOrDefault(contestId, Collections.emptySet()).contains(accountId);
 	}
 
 	public boolean isRegisteredPlayer(UUID contestId, UUID playerId) {

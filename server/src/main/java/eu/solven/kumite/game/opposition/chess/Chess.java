@@ -6,13 +6,11 @@ import java.util.UUID;
 import java.util.random.RandomGenerator;
 
 import eu.solven.kumite.board.IKumiteBoard;
-import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.leaderboard.LeaderBoard;
 import eu.solven.kumite.player.IKumiteMove;
-import eu.solven.kumite.player.KumitePlayer;
 
 // https://peterellisjones.com/posts/generating-legal-chess-moves-efficiently/
 // https://github.com/desht/chesspresso
@@ -43,11 +41,6 @@ public class Chess implements IGame {
 	@Override
 	public IKumiteBoard generateInitialBoard(RandomGenerator random) {
 		return ChessBoard.builder().build();
-	}
-
-	@Override
-	public boolean canAcceptPlayer(ContestMetadata contest, KumitePlayer player) {
-		return !contest.isRequiringPlayers();
 	}
 
 	@Override

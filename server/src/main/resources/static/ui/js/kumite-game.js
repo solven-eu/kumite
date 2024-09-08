@@ -1,14 +1,20 @@
 // my-component.js
 import { ref } from "vue";
-import KumiteContests from "./kumite-contests.js";
+
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
+
 // https://stackoverflow.com/questions/69053972/adding-bootstrap-5-tooltip-to-vue-3
 import { Tooltip } from "bootstrap";
+
+import KumiteGameHeader from "./kumite-game-header.js";
+
+import KumiteContests from "./kumite-contests.js";
 
 export default {
 	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
+		KumiteGameHeader,
 		KumiteContests,
 	},
 	// https://vuejs.org/guide/components/props.html
@@ -62,7 +68,7 @@ export default {
 	{{game.error}}
 </div>
 <div v-else>
-	<h1><RouterLink :to="{path:'/html/games/' + game.gameId}">{{game.title}}</RouterLink></h1>
+	<KumiteGameHeader :gameId="gameId" />
 	
 	<span v-if="metadata.tags">
 		Tags: <span class="badge text-bg-secondary" v-for="tag in game.tags" data-bs-toggle="tooltip" :data-bs-title="metadata.tags[tag]">{{tag}}</span><br/>

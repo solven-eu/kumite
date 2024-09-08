@@ -22,6 +22,7 @@ public interface IGame {
 	 * @param move
 	 * @return true if this move is valid independently of the board state.
 	 */
+	// This should not return true by default, as no game would accept any IKumiteMove
 	default boolean isValidMove(IKumiteMove move) {
 		return true;
 	}
@@ -35,11 +36,16 @@ public interface IGame {
 	 * @return true if given player can join this game.
 	 */
 	default boolean canAcceptPlayer(ContestMetadata contest, KumitePlayer player) {
-		if (contest.getPlayers().stream().map(p -> p.getPlayerId()).anyMatch(p -> p.equals(player.getPlayerId()))) {
+		if (!contest.isAcceptingPlayers()) {
+			return false;
+		} else if (contest.getPlayers()
+				.stream()
+				.map(p -> p.getPlayerId())
+				.anyMatch(p -> p.equals(player.getPlayerId()))) {
 			// This player is already registered in given contest: most game accept each player at most once
 			return false;
 		}
-		return contest.isAcceptingPlayers();
+		return true;
 	}
 
 	IKumiteMove parseRawMove(Map<String, ?> rawMove);

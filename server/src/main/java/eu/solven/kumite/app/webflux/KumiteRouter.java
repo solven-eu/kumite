@@ -56,6 +56,8 @@ public class KumiteRouter {
 						contestSearchHandler::generateContest))
 
 				.and(RouterFunctions.route(RequestPredicates.GET("/api/board").and(json), boardHandler::getBoard))
+				.and(RouterFunctions.route(RequestPredicates.GET("/api/board/player").and(json),
+						boardHandler::contestStatusForPlayer))
 				.and(RouterFunctions.route(RequestPredicates.POST("/api/board/player").and(json),
 						playerMovesHandler::registerPlayer))
 				.and(RouterFunctions.route(RequestPredicates.GET("/api/board/moves").and(json),
