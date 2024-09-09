@@ -28,4 +28,14 @@ It will shortcut through security, making all calls being done with a fake user.
 
     heroku login
     heroku apps:create kumite-dev --region eu
+    heroku labs:enable "runtime-heroku-metrics" -a kumite-dev
+    
+    heroku open
+    
+## Run Heroku locally
+
+https://devcenter.heroku.com/articles/heroku-local
+
+    heroku local web
+    heroku local web -f Procfile.local
     
