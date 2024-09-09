@@ -1,0 +1,7 @@
+# Default profile: these properties are used for local development, but not in production
+
+kumite.random.seed: 0
+
+kumite.server:
+  # The URL of the server hosting games and contests 
+  base-url: http://localhost:8080

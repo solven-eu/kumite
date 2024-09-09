@@ -68,7 +68,7 @@ public class ContestSearchHandler {
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(BodyInserters.fromValue(contestsRegistry.searchContests(parameters.build())
 						.stream()
-						.map(ContestMetadataRaw::snapshot)
+						.map(ContestMetadata::snapshot)
 						.collect(Collectors.toList())));
 	}
 

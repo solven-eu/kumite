@@ -1,0 +1,8 @@
+spring:
+  application.name: kumite-player
+
+logging:
+  level:
+    org.springframework.security: INFO
+    eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter: DEBUG
+

@@ -2,8 +2,6 @@ package eu.solven.kumite.game.optimization.tsp;
 
 import java.util.List;
 
-import eu.solven.kumite.board.IKumiteBoard;
-import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerMoveRaw;
 
 /**

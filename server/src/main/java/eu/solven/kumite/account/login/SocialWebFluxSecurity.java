@@ -158,10 +158,7 @@ public class SocialWebFluxSecurity {
 					}
 				})
 
-				.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtDecoder(jwtDecoder)
-				// Default to ReactiveJwtAuthenticationConverter
-				// .jwtAuthenticationConverter(aa)
-				))
+				.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtDecoder(jwtDecoder)))
 
 				.authorizeExchange(auth -> auth
 						// Actuator is partly public
@@ -184,12 +181,6 @@ public class SocialWebFluxSecurity {
 						// The rest needs to be authenticated
 						.anyExchange()
 						.authenticated())
-				// .oauth2Login(Customizer.withDefaults())
-				// .logout((logout) -> logout.logoutSuccessHandler(oidcLogoutSuccessHandler()))
-
-				// Need to diable CORS and CSRF for APIs?
-				// .cors(c -> c.disable())
-				// .csrf(c -> c.disable())
 
 				// Default OAuth2 behavior is to redirect to login pages
 				// If not loged-in, we want to receive 401 and not 302 (which are good for UX)

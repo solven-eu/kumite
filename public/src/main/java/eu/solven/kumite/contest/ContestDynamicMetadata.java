@@ -9,7 +9,7 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
 /**
- * The set of metadata describing the evolving state of a contest.
+ * The set of metadata describing the evolving state of a contest, independently of current player.
  * 
  * @author Benoit Lacelle
  *

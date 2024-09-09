@@ -1,0 +1,4 @@
+
+kumite.server:
+  # A default token, valid if the server is started with `???`
+  access_token: someAccessTokenForFakePlayer

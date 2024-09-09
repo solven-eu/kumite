@@ -19,7 +19,12 @@
 	<name>aggregator</name>
 
 	<modules>
+		<!-- Resources shared between the server and the players -->
+		<module>public</module>
+		<!-- Host the contests, and serves the API -->
 		<module>server</module>
+		<!-- Demonstrate how to list and play contest -->
+		<module>player</module>
 	</modules>
 
 	<properties>
