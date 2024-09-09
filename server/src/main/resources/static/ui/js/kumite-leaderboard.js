@@ -1,25 +1,9 @@
-import { ref, watch } from "vue";
-import { mapState } from "pinia";
+import { ref, watch, onMounted, onUnmounted } from "vue";
+
+import { mapState, storeToRefs } from "pinia";
 import { useKumiteStore } from "./store.js";
 
 export default {
-	setup(props) {
-		const store = useKumiteStore();
-
-		store.loadLeaderboard(props.gameId, props.contestId);
-
-		const leaderboard = ref(store.leaderboards[props.contestId]);
-
-		watch(
-			() => leaderboard.stale,
-			(newValue) => {
-				console.log("Detected stale leaderboard", contestId);
-				store.loadLeaderboard(props.gameId, props.contestId);
-			},
-		);
-
-		return {};
-	},
 	// https://vuejs.org/guide/components/props.html
 	props: {
 		contestId: {
@@ -53,6 +37,62 @@ export default {
 			},
 		}),
 	},
+	methods: {
+		onMove: function (gameId, contestId) {
+			console.log("onMove", gameId, contestId);
+		},
+	},
+	setup(props) {
+		const store = useKumiteStore();
+
+		store.loadLeaderboard(props.gameId, props.contestId);
+
+		watch(
+			() => store.leaderboards[props.contestId]?.stale,
+			(newValue) => {
+				console.log("Detected stale leaderboard", props.contestId);
+				store.loadLeaderboard(props.gameId, props.contestId);
+			},
+		);
+
+		const shortPollLeaderboardInterval = ref(null);
+
+		function clearShortPollLeaderboard() {
+			if (shortPollLeaderboardInterval.value) {
+				console.log("Cancelling setInterval", "clearShortPollLeaderboard");
+				clearInterval(shortPollLeaderboardInterval.value);
+				shortPollLeaderboardInterval.value = null;
+			}
+		}
+
+		/*
+		 * Polling the contest status every 5seconds.
+		 * The output can be used to cancel the polling.
+		 */
+		function shortPollLeaderboard() {
+			// Cancel any existing related setInterval
+			clearShortPollLeaderboard();
+
+			const nextInterval = setInterval(() => {
+				console.log("Intervalled shortPollLeaderboard", props.contestId);
+				store.loadLeaderboard(props.gameId, props.contestId);
+			}, 5000);
+			shortPollLeaderboardInterval.value = nextInterval;
+
+			return nextInterval;
+		}
+
+		onMounted(() => {
+			// Update the leaderboard regularly
+			shortPollLeaderboard();
+		});
+
+		onUnmounted(() => {
+			clearShortPollLeaderboard();
+		});
+
+		return {};
+	},
 	template: `
 <div v-if="(!game || !contest || !leaderboard) && (nbGameFetching > 0 || nbContestFetching > 0 || nbLeaderboardFetching > 0)">
 	<div class="spinner-border" role="status">
@@ -64,6 +104,7 @@ export default {
 </div>
 <div v-else>
 	<i class="bi bi-speedometer"></i>
+	{{leaderboard}}
 	<div v-if="leaderboard.playerScores && leaderboard.playerScores.length">
 		<li v-for="item in leaderboard.playerScores">
 		  {{item.playerId}} has score {{item.score}}

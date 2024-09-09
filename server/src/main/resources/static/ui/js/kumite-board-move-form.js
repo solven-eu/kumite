@@ -2,8 +2,9 @@ import { ref } from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
-import KumiteBoardMoveJson from "./kumite-board-move-json.js";
-import KumiteBoardMoveTSP from "./kumite-board-move-tsp.js";
+import KumiteJsonBoardMove from "./board-renderers/kumite-json-board-move.js";
+import KumiteTSPBoardMove from "./board-renderers/kumite-tsp-board-move.js";
+import KumiteTicTacToeBoardMove from "./board-renderers/kumite-tictactoe-board-move.js";
 
 // Duplicated from store.js
 // TODO How can we share such a class?
@@ -20,8 +21,8 @@ class NetworkError extends Error {
 export default {
 	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
-		KumiteBoardMoveJson,
-		KumiteBoardMoveTSP,
+		KumiteJsonBoardMove,
+		KumiteTSPBoardMove,
 	},
 	// https://vuejs.org/guide/components/props.html
 	props: {
@@ -67,7 +68,8 @@ export default {
 			);
 		},
 	},
-	setup(props) {
+	emits: ["move-sent"],
+	setup(props, context) {
 		const store = useKumiteStore();
 
 		function loadExampleMoves() {
@@ -145,11 +147,16 @@ export default {
 							response,
 						);
 					}
+
+					// debugger;
+					// context.emit('move-sent', {gameId: props.gameId, contestId: props.contestId});
 					// The submitted move may have impacted the leaderboard
-					if (!store.leaderboards[contestId]) {
-						store.leaderboards[contestId] = {};
-					}
-					store.leaderboards[contestId].stale = true;
+					store.$patch((state) => {
+						if (!state.leaderboards[contestId]) {
+							state.leaderboards[contestId] = {};
+						}
+						state.leaderboards[contestId].stale = true;
+					});
 				} catch (e) {
 					console.error("Issue on Network:", e);
 				}
@@ -157,7 +164,7 @@ export default {
 
 			const playerId = store.playingPlayerId;
 			postFromUrl(
-				"/api/board/move?contest_id=" + contestId + "&player_id=" + playerId,
+				`/api/board/move?contest_id=${contestId}&player_id=${playerId}`,
 			);
 		}
 
@@ -229,8 +236,7 @@ export default {
 			   <label class="form-check-label" for="flexSwitchCheckDefault">Show as SVG</label>
 			</div>
 			<span>
-				<KumiteBoardMoveTSP :board="board" :rawMove="rawMove" v-if="showBoardWithMoveAsSvg" class="text-center" />
-				<KumiteBoardMoveJson :board="board" :rawMove="rawMove" v-else class="text-center" />
+				<component :is="board.moveSvg" v-bind="{ 'board': board, 'rawMove': rawMove}" :rawMove="rawMove" class="text-center" />
 			</span>
          </div>
 			<!-- Move Submitter-->

@@ -18,7 +18,7 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
-@JsonIgnoreProperties(value = "svg", allowGetters = true)
+@JsonIgnoreProperties(value = { "boardSvg", "moveSvg" }, allowGetters = true)
 public class TSPProblem implements IKumiteBoardView {
 	// The unordered set of cities waiting to be visited
 	@Singular
@@ -50,7 +50,12 @@ public class TSPProblem implements IKumiteBoardView {
 	// This property has to be sent to the UI, but there is no point in reading-it back
 	// @JsonProperty(access = Access.READ_ONLY)
 	@Override
-	public boolean isSvg() {
-		return true;
+	public String getBoardSvg() {
+		return "KumiteTSPBoardState";
+	}
+
+	@Override
+	public String getMoveSvg() {
+		return "KumiteTSPBoardMove";
 	}
 }

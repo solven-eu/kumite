@@ -317,7 +317,7 @@ export const useKumiteStore = defineStore("kumite", {
 		},
 		async loadGameIfMissing(gameId) {
 			if (this.games[gameId]) {
-				console.log("Skip loading gameId=", gameId);
+				console.debug("Skip loading gameId=", gameId);
 
 				return this.games[gameId];
 			} else {
@@ -454,7 +454,7 @@ export const useKumiteStore = defineStore("kumite", {
 			this.loadGameIfMissing(gameId);
 
 			if (this.contests[contestId]) {
-				console.log("Skip loading contestId=", contestId);
+				console.debug("Skip loading contestId=", contestId);
 				return Promise.resolve(this.contests[contestId]);
 			} else {
 				return this.loadContest(gameId, contestId);
@@ -462,7 +462,7 @@ export const useKumiteStore = defineStore("kumite", {
 		},
 
 		async loadBoard(gameId, contestId, playerId) {
-			console.log("gameId", gameId);
+			console.debug("gameId", gameId);
 			if (!playerId) {
 				playerId = this.playingPlayerId;
 			}
@@ -540,9 +540,14 @@ export const useKumiteStore = defineStore("kumite", {
 
 					const leaderboard = responseJson;
 
+					// We need to configure all object properties right-away
+					// Else, `stale` would not be reset/removed by a fresh leaderboard (i.e. without `stale` property)
+					// https://stackoverflow.com/questions/76709501/pinia-state-not-updating-when-using-spread-operator-object-in-patch
+					// https://github.com/vuejs/pinia/issues/43
+					leaderboard.stale = false;
+
 					// https://github.com/vuejs/pinia/discussions/440
 					console.log("Storing leaderboard for contestId", contestId);
-
 					store.$patch({
 						leaderboards: { ...store.leaderboards, [contestId]: leaderboard },
 					});

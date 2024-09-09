@@ -42,10 +42,6 @@ public class BoardHandler {
 		UUID contestId = KumiteHandlerHelper.uuid(request, "contest_id");
 		UUID playerId = KumiteHandlerHelper.uuid(request, "player_id");
 
-		IKumiteBoard board = boardsRegistry.makeDynamicBoardHolder(contestId).get();
-		// TODO Check if the playerId is the public one, or a viewer, or a player
-		IKumiteBoardView boardView = board.asView(playerId);
-
 		boolean playerHasJoined = contestPlayersRegistry.isRegisteredPlayer(contestId, playerId);
 
 		boolean accountIsViewing;
@@ -80,6 +76,20 @@ public class BoardHandler {
 						game.canAcceptPlayer(contestMetadata, KumitePlayer.builder().playerId(playerId).build());
 			}
 		}
+
+		IKumiteBoard board = boardsRegistry.makeDynamicBoardHolder(contestId).get();
+
+		UUID viewPlayerId;
+		if (playerHasJoined) {
+			viewPlayerId = playerId;
+		} else if (accountIsViewing) {
+			viewPlayerId = KumitePlayer.AUDIENCE_PLAYER_ID;
+		} else {
+			viewPlayerId = KumitePlayer.PREVIEW_PLAYER_ID;
+		}
+
+		// TODO Check if the playerId is the public one, or a viewer, or a player
+		IKumiteBoardView boardView = board.asView(viewPlayerId);
 
 		Map<String, Object> output = Map.of("contestId",
 				contestId,

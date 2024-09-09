@@ -83,7 +83,7 @@ export default {
 			clearShortPollBoard();
 
 			const nextInterval = setInterval(() => {
-				console.log("Intervalled shortPollBoard");
+				console.log("Intervalled shortPollBoard", props.contestId, playerId);
 				store.loadBoard(props.gameId, props.contestId, playerId);
 			}, 5000);
 			shortPollBoardInterval.value = nextInterval;
@@ -100,9 +100,7 @@ export default {
 			clearShortPollBoard();
 		});
 
-		return {
-			requiringPlayers,
-		};
+		return { contest, requiringPlayers };
 	},
 	template: `
 	<div class="border" v-if="contest">
