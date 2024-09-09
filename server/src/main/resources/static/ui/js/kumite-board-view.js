@@ -61,7 +61,7 @@ export default {
 	setup(props) {
 		const store = useKumiteStore();
 
-		const showBoardAsSvg = ref(false);
+		const showBoardAsJson = ref(false);
 
 		watch(
 			() => store.boards[props.contestId]?.stale,
@@ -70,8 +70,8 @@ export default {
 				store.loadBoard(props.gameId, props.contestId);
 			},
 		);
-
-		return { showBoardAsSvg };
+		
+		return { showBoardAsJson };
 	},
 	template: `
 	<div v-if="(!game || !contest || !board)">
@@ -88,7 +88,7 @@ export default {
 	   <div v-else class="border">
 	         Board: This is the view of the contest given players previous moves.
 	         <div class="form-check form-switch">
-	            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" v-model="showBoardAsSvg">
+	            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" v-model="showBoardAsJson">
 	            <label class="form-check-label" for="flexSwitchCheckDefault">Show as SVG</label>
 	         </div>
 			 	<!-- https://stackoverflow.com/questions/43658481/passing-props-dynamically-to-dynamic-component-in-vuejs -->

@@ -104,7 +104,6 @@ export default {
 </div>
 <div v-else>
 	<i class="bi bi-speedometer"></i>
-	{{leaderboard}}
 	<div v-if="leaderboard.playerScores && leaderboard.playerScores.length">
 		<li v-for="item in leaderboard.playerScores">
 		  {{item.playerId}} has score {{item.score}}

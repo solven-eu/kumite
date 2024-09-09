@@ -1,7 +1,7 @@
 package eu.solven.kumite.scenario;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -109,9 +109,9 @@ public class TestTSPLifecycle {
 						.build());
 
 		TSPBoard tspBoard = (TSPBoard) contest.getBoard().get();
-		Collection<IKumiteMove> someMove =
-				new TravellingSalesmanProblem().exampleMoves(tspBoard.asView(player.getPlayerId()), accountId).values();
-		TSPSolution rawMove = (TSPSolution) someMove.iterator().next();
+		Map<String, IKumiteMove> nameToMove =
+				new TravellingSalesmanProblem().exampleMoves(tspBoard.asView(player.getPlayerId()), accountId);
+		TSPSolution rawMove = (TSPSolution) nameToMove.get("lexicographical");
 
 		PlayerMoveRaw playerMove = PlayerMoveRaw.builder().playerId(player.getPlayerId()).move(rawMove).build();
 		boardLifecycleManager.onPlayerMove(contest, playerMove);
@@ -120,13 +120,22 @@ public class TestTSPLifecycle {
 				LeaderboardSearchParameters.builder().contestId(contest.getContestMetadata().getContestId()).build());
 
 		Assertions.assertThat(leaderboard.getPlayerScores()).hasSize(1);
-		Assertions.assertThat(leaderboard.getPlayerScores()).element(0).matches(ps -> {
-			Assertions.assertThat(ps.getPlayerId()).isEqualTo(player.getPlayerId());
+		Assertions.assertThat(leaderboard.getPlayerScores())
 
-			PlayerDoubleScore pds = (PlayerDoubleScore) ps;
-			Assertions.assertThat(pds.getScore()).isBetween(65.09, 65.10);
+				// lexicographical
+				.anySatisfy(ps -> {
+					Assertions.assertThat(ps.getPlayerId()).isEqualTo(player.getPlayerId());
 
-			return true;
-		});
+					PlayerDoubleScore pds = (PlayerDoubleScore) ps;
+					Assertions.assertThat(pds.getScore()).isBetween(65.09, 65.10);
+				})
+		// greedy
+		// .anySatisfy(ps -> {
+		// Assertions.assertThat(ps.getPlayerId()).isEqualTo(player.getPlayerId());
+		//
+		// PlayerDoubleScore pds = (PlayerDoubleScore) ps;
+		// Assertions.assertThat(pds.getScore()).isBetween(10.50, 10.51);
+		// })
+		;
 	}
 }

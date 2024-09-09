@@ -21,7 +21,7 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
-@JsonIgnoreProperties(value = "svg", allowGetters = true)
+@JsonIgnoreProperties(value = { "boardSvg", "moveSvg" }, allowGetters = true)
 public class TicTacToeBoard implements IKumiteBoard, IKumiteBoardView {
 	// The first player is designated as X. The second player is designated as O.
 	// @JsonSerialize(using = StdArraySerializers.CharArraySerializer.class)
