@@ -23,3 +23,9 @@ It will shortcut through security, making all calls being done with a fake user.
 
     mvn com.diffplug.spotless:spotless-maven-plugin:apply
     mvn com.diffplug.spotless:spotless-maven-plugin:check
+
+# Deploy to Heroku
+
+    heroku login
+    heroku apps:create kumite-dev --region eu
+    
