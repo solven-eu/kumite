@@ -8,9 +8,9 @@ import java.util.random.RandomGenerator;
 
 import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
+import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.IHasGameover;
-import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
 import eu.solven.kumite.leaderboard.LeaderBoard;
 import eu.solven.kumite.player.IKumiteMove;
 import eu.solven.kumite.player.KumitePlayer;

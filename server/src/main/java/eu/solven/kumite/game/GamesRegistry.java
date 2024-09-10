@@ -57,8 +57,8 @@ public class GamesRegistry {
 			metaStream = metaStream.filter(c -> c.getMaxPlayers() <= search.getMaxPlayers().getAsInt());
 		}
 
-		if (search.getTitlePattern().isPresent()) {
-			Predicate<String> titlePredicate = Pattern.compile(search.getTitlePattern().get()).asMatchPredicate();
+		if (search.getTitleRegex().isPresent()) {
+			Predicate<String> titlePredicate = Pattern.compile(search.getTitleRegex().get()).asMatchPredicate();
 			metaStream = metaStream.filter(c -> titlePredicate.test(c.getTitle()));
 		}
 

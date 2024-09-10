@@ -7,8 +7,8 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
-import eu.solven.kumite.contest.ContestMetadataRaw;
 import eu.solven.kumite.contest.Contest;
+import eu.solven.kumite.contest.ContestMetadataRaw;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GamesRegistry;

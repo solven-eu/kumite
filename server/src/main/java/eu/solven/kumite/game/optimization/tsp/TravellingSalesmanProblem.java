@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
+import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.contest.IHasGameover;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;

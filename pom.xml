@@ -25,6 +25,8 @@
 		<module>server</module>
 		<!-- Demonstrate how to list and play contest -->
 		<module>player</module>
+		<!-- Starts a server and a player in the same JVM -->
+		<module>monolith</module>
 	</modules>
 
 	<properties>
@@ -102,6 +104,12 @@
 						</pom>
 
 						<markdown>
+							<endWithNewline />
+							<indent>
+								<tabs>true</tabs>
+								<spacesPerTab>4</spacesPerTab>
+							</indent>
+
 							<includes>
 								<include>*.md</include>
 								<include>src/**/*.md</include>
@@ -162,6 +170,22 @@
 								<sortByKeys>true</sortByKeys>
 							</gson>
 						</json>
+
+						<!-- yaml formatting is disabled as it drops comments -->
+						<!--						<yaml>-->
+						<!--							<includes>-->
+						<!--								<include>src/**/*.yaml</include>-->
+						<!--								<include>src/**/*.yml</include>-->
+						<!--							</includes>-->
+
+						<!--							<jackson>-->
+
+						<!--								<yamlFeatures>-->
+						<!--									<WRITE_DOC_START_MARKER>false</WRITE_DOC_START_MARKER>-->
+						<!--									<MINIMIZE_QUOTES>true</MINIMIZE_QUOTES>-->
+						<!--								</yamlFeatures>-->
+						<!--							</jackson>-->
+						<!--						</yaml>-->
 
 						<javascript>
 							<includes>

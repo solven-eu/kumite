@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
-import eu.solven.kumite.contest.ContestCreationMetadata;
 import eu.solven.kumite.contest.Contest;
+import eu.solven.kumite.contest.ContestCreationMetadata;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
@@ -56,7 +56,9 @@ public class TestBoardLifecycleManager {
 	Contest contest = Contest.builder()
 			.contestId(contestId)
 			.game(game)
-			.hasPlayers(hasPlayers)
+			.players(hasPlayers)
+			.board(hasBoard)
+			.gameover(game.makeDynamicGameover(hasBoard))
 			.constantMetadata(ContestCreationMetadata.fromGame(game.getGameMetadata()).name("someContestName").build())
 			.build();
 

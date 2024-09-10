@@ -14,6 +14,12 @@ spring:
     graphiql:
       enabled: true
 
+  profiles:
+    group:
+      default:
+      - default_server
+      - fake_player
+
 logging:
   level:
     org.springframework.security: INFO
@@ -21,3 +27,5 @@ logging:
 
 kumite.login:
   signing-key: 'NEEDS_TO_BE_DEFINED'
+
+springdoc.show-actuator: true

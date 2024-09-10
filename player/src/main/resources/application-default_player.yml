@@ -1,0 +1,3 @@
+kumite.random.seed: 0
+kumite.server:
+  base-url: http://localhost:8080

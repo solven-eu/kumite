@@ -27,7 +27,7 @@ public class Contest implements IContest {
 	ContestCreationMetadata constantMetadata;
 
 	@Getter(value = AccessLevel.NONE)
-	IHasPlayers hasPlayers;
+	IHasPlayers players;
 
 	@NonNull
 	IGame game;
@@ -36,16 +36,16 @@ public class Contest implements IContest {
 	IHasBoard board;
 
 	@NonNull
-	IHasGameover hasGameover;
+	IHasGameover gameover;
 
 	@Override
 	public List<KumitePlayer> getPlayers() {
-		return hasPlayers.getPlayers();
+		return players.getPlayers();
 	}
 
 	@Override
 	public boolean isGameOver() {
-		return hasGameover.isGameOver();
+		return gameover.isGameOver();
 	}
 
 	@Override

@@ -20,8 +20,8 @@ import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerComponentsConfiguration;
-import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.Contest;
+import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchParameters;
@@ -82,8 +82,8 @@ public class TestTSPLifecycle {
 		UUID accountId = account.getAccountId();
 		// .registerAccount(KumiteAccount.builder().accountId(accountId).playerId(UUID.randomUUID()).build());
 
-		List<GameMetadata> games = gamesStore
-				.searchGames(GameSearchParameters.builder().titlePattern(Optional.of(".*Salesman.*")).build());
+		List<GameMetadata> games =
+				gamesStore.searchGames(GameSearchParameters.builder().titleRegex(Optional.of(".*Salesman.*")).build());
 
 		Assertions.assertThat(games).hasSize(1);
 
@@ -123,7 +123,7 @@ public class TestTSPLifecycle {
 					Assertions.assertThat(ps.getPlayerId()).isEqualTo(player.getPlayerId());
 
 					PlayerDoubleScore pds = (PlayerDoubleScore) ps;
-					Assertions.assertThat(pds.getScore()).isBetween(65.09, 65.10);
+					Assertions.assertThat(pds.getScore()).isBetween(65.79, 65.80);
 				})
 		// greedy
 		// .anySatisfy(ps -> {

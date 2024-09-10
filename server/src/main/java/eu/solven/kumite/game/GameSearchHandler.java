@@ -28,8 +28,8 @@ public class GameSearchHandler {
 		Optional<String> optMaxPlayers = request.queryParam("max_players");
 		optMaxPlayers.ifPresent(rawMax -> parameters.maxPlayers(OptionalInt.of(Integer.parseInt(rawMax))));
 
-		Optional<String> optTitle = request.queryParam("title");
-		optTitle.ifPresent(rawTitle -> parameters.titlePattern(Optional.of(rawTitle)));
+		Optional<String> optTitle = request.queryParam("title_regex");
+		optTitle.ifPresent(rawTitle -> parameters.titleRegex(Optional.of(rawTitle)));
 
 		return ServerResponse.ok()
 				.contentType(MediaType.APPLICATION_JSON)

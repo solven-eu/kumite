@@ -1,4 +1,3 @@
-# Default profile: these properties are used for local development, but not in production
 
 logging:
   level:

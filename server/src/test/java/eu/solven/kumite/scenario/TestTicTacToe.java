@@ -15,11 +15,11 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.solven.kumite.board.IKumiteBoard;
+import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.contest.IHasGameover;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToe;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToeBoard;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToeMove;
-import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
 import eu.solven.kumite.player.IKumiteMove;
 import eu.solven.kumite.player.PlayerMoveRaw;
 

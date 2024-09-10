@@ -20,5 +20,5 @@ public class GameSearchParameters {
 	OptionalInt maxPlayers = OptionalInt.empty();
 
 	@Default
-	Optional<String> titlePattern = Optional.empty();
+	Optional<String> titleRegex = Optional.empty();
 }

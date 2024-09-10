@@ -10,11 +10,11 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
+import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
-import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
 import eu.solven.kumite.lifecycle.BoardLifecycleManager;
 import eu.solven.kumite.player.PlayerJoinRaw.PlayerJoinRawBuilder;
 import eu.solven.kumite.player.PlayerMoveRaw.PlayerMoveRawBuilder;

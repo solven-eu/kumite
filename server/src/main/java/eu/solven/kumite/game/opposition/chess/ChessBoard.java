@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import eu.solven.kumite.board.IKumiteBoard;
-import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
+import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.player.PlayerMoveRaw;
 import lombok.Builder;
 import lombok.Value;

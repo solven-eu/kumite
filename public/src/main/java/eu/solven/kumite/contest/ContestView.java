@@ -2,7 +2,7 @@ package eu.solven.kumite.contest;
 
 import java.util.UUID;
 
-import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
+import eu.solven.kumite.board.IKumiteBoardView;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;

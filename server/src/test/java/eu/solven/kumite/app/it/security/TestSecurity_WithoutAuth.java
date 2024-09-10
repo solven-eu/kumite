@@ -14,11 +14,13 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import eu.solven.kumite.account.login.SocialWebFluxSecurity;
+import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
 // https://stackoverflow.com/questions/73881370/mocking-oauth2-client-with-webtestclient-for-servlet-applications-results-in-nul
+@ActiveProfiles(IKumiteSpringProfiles.P_DEFAULT_SERVER)
 @AutoConfigureWebTestClient
 public class TestSecurity_WithoutAuth {
 

@@ -54,9 +54,7 @@ public class ContestsRegistry {
 		return contest;
 	}
 
-	public Contest registerContest(IGame game,
-			ContestCreationMetadata constantMetadata,
-			IKumiteBoard board) {
+	public Contest registerContest(IGame game, ContestCreationMetadata constantMetadata, IKumiteBoard board) {
 		UUID contestId = uuidGenerator.randomUUID();
 		registerContest(contestId, constantMetadata);
 		boardsRegistry.registerBoard(contestId, board);
@@ -86,29 +84,31 @@ public class ContestsRegistry {
 		IHasBoard hasBoard = boardsRegistry.makeDynamicBoardHolder(contestId);
 		IHasPlayers hasPlayers = contestPlayersRegistry.makeDynamicHasPlayers(contestId);
 
-		IGame game = gamesRegistry.getGame(contestId);
+		UUID gameId = contestConstantMetadata.getGameId();
+
+		IGame game = gamesRegistry.getGame(gameId);
 		ContestBuilder contestBuilder = Contest.builder()
 				.contestId(contestId)
 				.game(game)
 				.constantMetadata(contestConstantMetadata)
 				.board(hasBoard)
-				.hasPlayers(hasPlayers)
-				.hasGameover(game.makeDynamicGameover(hasBoard));
+				.players(hasPlayers)
+				.gameover(game.makeDynamicGameover(hasBoard));
 
 		return contestBuilder.build();
 	}
 
 	public List<Contest> searchContests(ContestSearchParameters search) {
-		Stream<ContestCreationMetadata> contestStream;
+		Stream<Map.Entry<UUID, ContestCreationMetadata>> contestStream;
 
 		if (search.getContestId().isPresent()) {
 			UUID uuid = search.getContestId().get();
-			contestStream = Optional.ofNullable(uuidToContests.get(uuid)).stream();
+			contestStream = Optional.ofNullable(uuidToContests.get(uuid)).map(c -> Map.entry(uuid, c)).stream();
 		} else {
-			contestStream = uuidToContests.values().stream();
+			contestStream = uuidToContests.entrySet().stream();
 		}
 
-		Stream<Contest> metaStream = contestStream.map(c -> getContest(c.getGameId()));
+		Stream<Contest> metaStream = contestStream.map(c -> getContest(c.getKey()));
 
 		if (search.getGameId().isPresent()) {
 			metaStream = metaStream.filter(c -> c.getGameMetadata().getGameId().equals(search.getGameId().get()));

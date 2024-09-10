@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import eu.solven.kumite.board.IKumiteBoard;
-import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
+import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.player.PlayerMoveRaw;
 import lombok.Builder;
 import lombok.Value;

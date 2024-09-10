@@ -6,3 +6,18 @@ logging:
     org.springframework.security: INFO
     eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter: DEBUG
 
+kumite.playerId: "NEEDS_A_PROPER_VALUE"
+
+kumite.server:
+  # A default token, valid if the server is started with `???`
+  access_token: "NEEDS_A_PROPER_VALUE"
+
+
+spring:
+    profiles:
+      group:
+        default:
+  	  # Renamed to enable merging in monolith
+        - "default_player"
+        - "fake_player"
+		- "inject_default_games"

@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Profile;
 
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IKumiteBoard;
-import eu.solven.kumite.contest.ContestCreationMetadata;
 import eu.solven.kumite.contest.Contest;
+import eu.solven.kumite.contest.ContestCreationMetadata;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;

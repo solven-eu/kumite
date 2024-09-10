@@ -10,15 +10,14 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
-import eu.solven.kumite.contest.ContestDynamicMetadata;
 import eu.solven.kumite.contest.Contest;
+import eu.solven.kumite.contest.ContestDynamicMetadata;
 import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestSearchParameters.ContestSearchParametersBuilder;
 import eu.solven.kumite.contest.ContestView;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
-import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.KumitePlayer;
 import lombok.AllArgsConstructor;
@@ -46,8 +45,7 @@ public class BoardHandler {
 		boolean playerHasJoined = contestPlayersRegistry.isRegisteredPlayer(contestId, playerId);
 
 		ContestSearchParametersBuilder parameters = ContestSearchParameters.builder();
-		List<Contest> contest =
-				contestsRegistry.searchContests(parameters.contestId(Optional.of(contestId)).build());
+		List<Contest> contest = contestsRegistry.searchContests(parameters.contestId(Optional.of(contestId)).build());
 		if (contest.isEmpty()) {
 			throw new IllegalArgumentException("No contest for contestId=" + contestId);
 		} else if (contest.size() >= 2) {
