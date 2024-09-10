@@ -1,5 +1,10 @@
 package eu.solven.kumite.app.webflux;
 
+import static org.springdoc.core.fn.builders.apiresponse.Builder.responseBuilder;
+import static org.springdoc.core.fn.builders.parameter.Builder.parameterBuilder;
+
+import org.springdoc.core.fn.builders.parameter.Builder;
+import org.springdoc.webflux.core.fn.SpringdocRouteBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import eu.solven.kumite.app.greeting.GreetingHandler;
@@ -32,6 +36,7 @@ public class KumiteRouter {
 	@Value("classpath:/static/index.html")
 	private Resource indexHtml;
 
+	// https://github.com/springdoc/springdoc-openapi-demos/tree/2.x/springdoc-openapi-spring-boot-2-webflux-functional
 	@Bean
 	public RouterFunction<ServerResponse> route(GreetingHandler greetingHandler,
 			GameSearchHandler gamesSearchHandler,
@@ -43,39 +48,75 @@ public class KumiteRouter {
 			WebhooksHandler webhooksHandler) {
 		RequestPredicate json = RequestPredicates.accept(MediaType.APPLICATION_JSON);
 
-		return RouterFunctions.route(RequestPredicates.GET("/api/hello").and(json), greetingHandler::hello)
-				.and(RouterFunctions.route(RequestPredicates.GET("/api/games").and(json),
-						gamesSearchHandler::listGames))
+		Builder gameId = parameterBuilder().name("game_id").description("Search for a specific contestId");
+		Builder playerId = parameterBuilder().name("player_id").description("Search for a specific playerId");
+		Builder contestId = parameterBuilder().name("contest_id").description("Search for a specific contestId");
 
-				.and(RouterFunctions.route(RequestPredicates.GET("/api/players").and(json),
-						playersSearchHandler::listPlayers))
+		return SpringdocRouteBuilder.route()
+				.GET(RequestPredicates.GET("/api/hello").and(json),
+						greetingHandler::hello,
+						ops -> ops.operationId("hello"))
 
-				.and(RouterFunctions.route(RequestPredicates.GET("/api/contests").and(json),
-						contestSearchHandler::listContests))
-				.and(RouterFunctions.route(RequestPredicates.POST("/api/contests").and(json),
-						contestSearchHandler::generateContest))
+				.GET(RequestPredicates.GET("/api/games").and(json),
+						gamesSearchHandler::listGames,
+						ops -> ops.operationId("searchGames")
+								.parameter(gameId)
+								.parameter(parameterBuilder().name("min_players")
+										.description("Search games with at most given minPlayers"))
+								.parameter(parameterBuilder().name("max_players")
+										.description("Search games with at least given maxPlayers"))
+								.parameter(parameterBuilder().name("title_regex")
+										.description("Search games with a title matching given Regex"))
+								.response(responseBuilder().responseCode("200").description("Hello")))
 
-				.and(RouterFunctions.route(RequestPredicates.GET("/api/board").and(json), boardHandler::getBoard))
-				.and(RouterFunctions.route(RequestPredicates.POST("/api/board/player").and(json),
-						playerMovesHandler::registerPlayer))
-				.and(RouterFunctions.route(RequestPredicates.GET("/api/board/moves").and(json),
-						playerMovesHandler::listPlayerMoves))
-				.and(RouterFunctions.route(RequestPredicates.POST("/api/board/move").and(json),
-						playerMovesHandler::registerPlayerMove))
+				.GET(RequestPredicates.GET("/api/players").and(json),
+						playersSearchHandler::listPlayers,
+						ops -> ops.operationId("searchPlayers"))
 
-				.and(RouterFunctions.route(RequestPredicates.GET("/api/leaderboards").and(json),
-						leaderboardHandler::listScores))
+				.GET(RequestPredicates.GET("/api/contests").and(json),
+						contestSearchHandler::listContests,
+						ops -> ops.operationId("searchContest").parameter(gameId))
+				.POST(RequestPredicates.POST("/api/contests").and(json),
+						contestSearchHandler::generateContest,
+						ops -> ops.operationId("publishContest"))
 
-				.and(RouterFunctions.route(RequestPredicates.GET("/api/webhooks").and(json),
-						webhooksHandler::listWebhooks))
-				.and(RouterFunctions.route(RequestPredicates.PUT("/api/webhooks").and(json),
-						webhooksHandler::registerWebhook))
-				.and(RouterFunctions.route(RequestPredicates.DELETE("/api/webhooks").and(json),
-						webhooksHandler::dropWebhooks))
+				.GET(RequestPredicates.GET("/api/board").and(json),
+						boardHandler::getBoard,
+						ops -> ops.operationId("fetchBoard").parameter(playerId).parameter(contestId))
+				.POST(RequestPredicates.POST("/api/board/player").and(json),
+						playerMovesHandler::registerPlayer,
+						ops -> ops.operationId("registerPlayer")
+								.parameter(playerId)
+								.parameter(contestId)
+								.parameter(parameterBuilder().name("viewer")
+										.description("`true` if you want to spectate the contest")
+										.implementation(Boolean.class)))
+				.GET(RequestPredicates.GET("/api/board/moves").and(json),
+						playerMovesHandler::listPlayerMoves,
+						ops -> ops.operationId("fetchExampleMoves").parameter(playerId).parameter(contestId))
+				.POST(RequestPredicates.POST("/api/board/move").and(json),
+						playerMovesHandler::registerPlayerMove,
+						ops -> ops.operationId("publishMove").parameter(playerId).parameter(contestId))
+
+				.GET(RequestPredicates.GET("/api/leaderboards").and(json),
+						leaderboardHandler::listScores,
+						ops -> ops.operationId("fetchLeaderboard").parameter(contestId))
+
+				.GET(RequestPredicates.GET("/api/webhooks").and(json),
+						webhooksHandler::listWebhooks,
+						ops -> ops.operationId("listWebhooks"))
+				.PUT(RequestPredicates.PUT("/api/webhooks").and(json),
+						webhooksHandler::registerWebhook,
+						ops -> ops.operationId("publishWebhook"))
+				.DELETE(RequestPredicates.DELETE("/api/webhooks").and(json),
+						webhooksHandler::dropWebhooks,
+						ops -> ops.operationId("deleteWebhook"))
 
 				// The following routes are useful for the SinglePageApplication
-				.and(RouterFunctions.route(
-						RequestPredicates.GET("/html/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
-						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml)));
+				.GET(RequestPredicates.GET("/html/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
+						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml),
+						ops -> ops.operationId("redirectForSPA"))
+
+				.build();
 	}
 }

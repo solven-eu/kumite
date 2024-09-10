@@ -32,7 +32,7 @@ export default {
 	},
 	method: {
 		submitContestForm: function() {
-			const payload = {'constant_metadata': {'name': }};
+			const payload = {'constant_metadata': {'name': this.contestName}};
 			
 			console.log("Submitting contestCreation", constantMetadata);
 
@@ -71,11 +71,13 @@ export default {
 				`/api/board/move?contest_id=${contestId}&player_id=${playerId}`,
 			);
 		},
-	}
+	},
 	setup(props) {
 		const store = useKumiteStore();
+		
+		const contestName = ref("A nice name for a contest");
 
-		return {};
+		return {contestName};
 	},
 	template: `
 <div v-if="(!game)">
@@ -94,7 +96,7 @@ export default {
 	<form>
 	  <div class="mb-3">
 	    <label for="contestName" class="form-label">Email address</label>
-	    <input type="text" class="form-control" id="contestName" aria-describedby="emailHelp">
+	    <input type="text" class="form-control" id="contestName" v-model="contestName" aria-describedby="emailHelp">
 	    <div id="emailHelp" class="form-text">Pick a name so your friends can find your contest.</div>
 	  </div>
 	  <button type="submit" @click="submitContestForm" class="btn btn-primary">Submit</button>

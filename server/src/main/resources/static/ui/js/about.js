@@ -11,12 +11,14 @@ export default {
 	template: `
   <h1>Kumite</h1>
   This is a plateform for bots/algorithms contests.
+  <ul>
+  <li>
+  	<a href="https://github.com/solven-eu/kumite/" target="_blank">Github project</a>
+  </li>
   
-  <div v-if="nbAccountFetching">
-  	Loading the authenticated User details
-  </div>
-  <div v-else>
-  	account={{account}}
-  </div>
+  <li>
+  	<a href="./swagger-ui.html" target="_blank">OpenAPI</a>
+  </li>
+  </ul>
   `,
 };
