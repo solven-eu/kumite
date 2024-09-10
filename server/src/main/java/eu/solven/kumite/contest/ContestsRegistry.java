@@ -8,29 +8,64 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import eu.solven.kumite.board.BoardsRegistry;
+import eu.solven.kumite.board.IHasBoard;
+import eu.solven.kumite.board.IKumiteBoard;
+import eu.solven.kumite.contest.Contest.ContestBuilder;
+import eu.solven.kumite.game.GamesRegistry;
+import eu.solven.kumite.game.IGame;
+import eu.solven.kumite.player.ContestPlayersRegistry;
+import eu.solven.kumite.player.IHasPlayers;
+import eu.solven.kumite.tools.IUuidGenerator;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Slf4j
 public class ContestsRegistry {
+
+	@NonNull
+	final GamesRegistry gamesRegistry;
+
 	final LiveContestsRegistry liveContestsManager;
 
-	Map<UUID, Contest> uuidToContests = new ConcurrentHashMap<>();
+	@NonNull
+	final ContestPlayersRegistry contestPlayersRegistry;
 
-	public Contest registerContest(Contest contest) {
-		UUID contestId = contest.getContestMetadata().getContestId();
+	@NonNull
+	final BoardsRegistry boardsRegistry;
 
+	@NonNull
+	final IUuidGenerator uuidGenerator;
+
+	Map<UUID, ContestCreationMetadata> uuidToContests = new ConcurrentHashMap<>();
+
+	protected ContestCreationMetadata registerContest(UUID contestId, ContestCreationMetadata contest) {
 		if (contestId == null) {
 			throw new IllegalArgumentException("Missing contestId: " + contest);
 		}
 
-		Contest alreadyIn = uuidToContests.putIfAbsent(contestId, contest);
+		ContestCreationMetadata alreadyIn = uuidToContests.putIfAbsent(contestId, contest);
 		if (alreadyIn != null) {
 			throw new IllegalArgumentException("contestId already registered: " + contest);
 		}
 
-		if (contest.getContestMetadata().isGameOver()) {
+		return contest;
+	}
+
+	public Contest registerContest(IGame game,
+			ContestCreationMetadata constantMetadata,
+			IKumiteBoard board) {
+		UUID contestId = uuidGenerator.randomUUID();
+		registerContest(contestId, constantMetadata);
+		boardsRegistry.registerBoard(contestId, board);
+
+		Contest contest = getContest(contestId);
+
+		if (contest.isGameOver()) {
+			// There is a small chance of the game turning before between `registerBoard` and now
+			// (e.g. if the game has a very small timeout)
 			throw new IllegalArgumentException("When registered, a contest has not to be over");
 		} else {
 			liveContestsManager.registerContestLive(contestId);
@@ -44,15 +79,27 @@ public class ContestsRegistry {
 	}
 
 	public Contest getContest(UUID contestId) {
-		Contest contest = uuidToContests.get(contestId);
-		if (contest == null) {
+		ContestCreationMetadata contestConstantMetadata = uuidToContests.get(contestId);
+		if (contestConstantMetadata == null) {
 			throw new IllegalArgumentException("No contest registered for id=" + contestId);
 		}
-		return contest;
+		IHasBoard hasBoard = boardsRegistry.makeDynamicBoardHolder(contestId);
+		IHasPlayers hasPlayers = contestPlayersRegistry.makeDynamicHasPlayers(contestId);
+
+		IGame game = gamesRegistry.getGame(contestId);
+		ContestBuilder contestBuilder = Contest.builder()
+				.contestId(contestId)
+				.game(game)
+				.constantMetadata(contestConstantMetadata)
+				.board(hasBoard)
+				.hasPlayers(hasPlayers)
+				.hasGameover(game.makeDynamicGameover(hasBoard));
+
+		return contestBuilder.build();
 	}
 
-	public List<ContestMetadata> searchContests(ContestSearchParameters search) {
-		Stream<Contest> contestStream;
+	public List<Contest> searchContests(ContestSearchParameters search) {
+		Stream<ContestCreationMetadata> contestStream;
 
 		if (search.getContestId().isPresent()) {
 			UUID uuid = search.getContestId().get();
@@ -61,7 +108,7 @@ public class ContestsRegistry {
 			contestStream = uuidToContests.values().stream();
 		}
 
-		Stream<ContestMetadata> metaStream = contestStream.map(c -> c.getContestMetadata());
+		Stream<Contest> metaStream = contestStream.map(c -> getContest(c.getGameId()));
 
 		if (search.getGameId().isPresent()) {
 			metaStream = metaStream.filter(c -> c.getGameMetadata().getGameId().equals(search.getGameId().get()));

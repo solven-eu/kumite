@@ -77,7 +77,9 @@ export default {
 	<ul v-for="ref in game.references">
 		<li><a :href="ref" target="_blank">{{ref}}</a></li>
 	</ul>
-	<KumiteContests :gameId="gameId" :showGame="false"/>
+
+		<RouterLink :to="{path:'/html/games/' + game.gameId + '/contest-form'}"><i class="bi bi-trophy"></i> Create your own contest</RouterLink>
+		<KumiteContests :gameId="gameId" :showGame="false"/>
 </div>
   `,
 };

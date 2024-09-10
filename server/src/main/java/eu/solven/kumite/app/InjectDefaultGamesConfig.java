@@ -3,7 +3,6 @@ package eu.solven.kumite.app;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.random.RandomGenerator;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,22 +11,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import eu.solven.kumite.board.BoardsRegistry;
-import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
-import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestCreationMetadata;
-import eu.solven.kumite.contest.ContestMetadata;
+import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToe;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.player.ContestPlayersRegistry;
-import eu.solven.kumite.player.IHasPlayers;
 import eu.solven.kumite.tools.IUuidGenerator;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @Profile(IKumiteSpringProfiles.P_INJECT_DEFAULT_GAMES)
+@Slf4j
 public class InjectDefaultGamesConfig {
 
 	@Autowired
@@ -59,40 +57,22 @@ public class InjectDefaultGamesConfig {
 	}
 
 	@Bean
-	public Void injectStaticContests(ContestsRegistry contestsStore,
+	public Void injectStaticContests(ContestsRegistry contestsRegistry,
 			ContestPlayersRegistry playersRegistry,
 			Collection<IGame> games,
 			RandomGenerator randomGenerator,
 			IUuidGenerator uuidGenerator) {
 
 		games.forEach(game -> {
-			UUID contestId = uuidGenerator.randomUUID();
-			IHasPlayers players = playersRegistry.makeDynamicHasPlayers(contestId);
-
-			ContestMetadata contestMeta = ContestMetadata.builder()
-					.contestId(contestId)
-					.gameMetadata(game.getGameMetadata())
-					.constantMetadata(ContestCreationMetadata.fromGame(game.getGameMetadata())
-							.name("Auto-generated " + OffsetDateTime.now().format(DateTimeFormatter.ISO_INSTANT))
-							.build())
-					.hasPlayers(players)
-					.gameOver(false)
-					.build();
-
 			IKumiteBoard initialBoard = game.generateInitialBoard(randomGenerator);
 
-			boardRegistry.registerBoard(contestId, initialBoard);
+			Contest contest = contestsRegistry.registerContest(game,
+					ContestCreationMetadata.fromGame(game.getGameMetadata())
+							.name("Auto-generated " + OffsetDateTime.now().format(DateTimeFormatter.ISO_INSTANT))
+							.build(),
+					initialBoard);
 
-			IHasBoard hasBoard = boardRegistry.makeDynamicBoardHolder(contestId);
-
-			Contest contest = Contest.builder()
-					.contestMetadata(contestMeta)
-					.game(game)
-					.board(hasBoard)
-					.hasPlayers(players)
-					.build();
-
-			contestsStore.registerContest(contest);
+			log.info("{} generated {}", IKumiteSpringProfiles.P_INJECT_DEFAULT_GAMES, contest);
 		});
 
 		return null;

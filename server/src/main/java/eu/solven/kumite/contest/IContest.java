@@ -5,10 +5,8 @@ import java.util.UUID;
 import eu.solven.kumite.game.IHasGame;
 import eu.solven.kumite.player.IHasPlayers;
 
-public interface IContest extends IHasGame, IHasPlayers {
+public interface IContest extends IHasGame, IHasPlayers, IHasGameover {
 	UUID getContestId();
-
-	boolean isGameOver();
 
 	default boolean isRequiringPlayers() {
 		return getPlayers().size() < getGameMetadata().getMinPlayers();

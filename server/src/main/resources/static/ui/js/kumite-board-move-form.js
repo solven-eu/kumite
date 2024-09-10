@@ -163,7 +163,7 @@ export default {
 			}
 
 			const playerId = store.playingPlayerId;
-			postFromUrl(
+			return postFromUrl(
 				`/api/board/move?contest_id=${contestId}&player_id=${playerId}`,
 			);
 		}

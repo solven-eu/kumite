@@ -7,6 +7,7 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
+import eu.solven.kumite.contest.ContestMetadataRaw;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GameMetadata;
@@ -36,7 +37,7 @@ public class KumiteGraphQlController {
 	}
 
 	@SchemaMapping
-	public Contest contestById(UUID contestId) {
-		return contestsStore.getContest(contestId);
+	public ContestMetadataRaw contestById(UUID contestId) {
+		return Contest.snapshot(contestsStore.getContest(contestId));
 	}
 }

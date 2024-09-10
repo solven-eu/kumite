@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import eu.solven.kumite.contest.KumiteHandlerHelper;
+import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
 import eu.solven.kumite.game.GameSearchParameters.GameSearchParametersBuilder;
 import lombok.Value;
 import reactor.core.publisher.Mono;

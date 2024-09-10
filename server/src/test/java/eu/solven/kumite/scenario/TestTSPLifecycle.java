@@ -20,9 +20,8 @@ import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerComponentsConfiguration;
-import eu.solven.kumite.contest.Contest;
-import eu.solven.kumite.contest.ContestMetadata;
 import eu.solven.kumite.contest.ContestSearchParameters;
+import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchParameters;
@@ -88,7 +87,7 @@ public class TestTSPLifecycle {
 
 		Assertions.assertThat(games).hasSize(1);
 
-		List<ContestMetadata> contests = contestsStore.searchContests(
+		List<Contest> contests = contestsStore.searchContests(
 				ContestSearchParameters.builder().gameId(Optional.of(games.get(0).getGameId())).build());
 
 		Assertions.assertThat(contests)
@@ -102,11 +101,8 @@ public class TestTSPLifecycle {
 		KumitePlayer player = usersRegistry.getAccountMainPlayer(accountId);
 		Assertions.assertThat(player.getPlayerId()).isEqualTo(account.getPlayerId());
 
-		contestPlayersRegistry.registerPlayer(contest.getContestMetadata(),
-				PlayerJoinRaw.builder()
-						.contestId(contest.getContestMetadata().getContestId())
-						.playerId(player.getPlayerId())
-						.build());
+		contestPlayersRegistry.registerPlayer(contest,
+				PlayerJoinRaw.builder().contestId(contest.getContestId()).playerId(player.getPlayerId()).build());
 
 		TSPBoard tspBoard = (TSPBoard) contest.getBoard().get();
 		Map<String, IKumiteMove> nameToMove =
@@ -116,8 +112,8 @@ public class TestTSPLifecycle {
 		PlayerMoveRaw playerMove = PlayerMoveRaw.builder().playerId(player.getPlayerId()).move(rawMove).build();
 		boardLifecycleManager.onPlayerMove(contest, playerMove);
 
-		LeaderBoardRaw leaderboard = leaderboardRegistry.searchLeaderboard(
-				LeaderboardSearchParameters.builder().contestId(contest.getContestMetadata().getContestId()).build());
+		LeaderBoardRaw leaderboard = leaderboardRegistry
+				.searchLeaderboard(LeaderboardSearchParameters.builder().contestId(contest.getContestId()).build());
 
 		Assertions.assertThat(leaderboard.getPlayerScores()).hasSize(1);
 		Assertions.assertThat(leaderboard.getPlayerScores())

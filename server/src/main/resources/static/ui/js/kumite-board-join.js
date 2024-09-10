@@ -158,7 +158,7 @@ export default {
 	      Joining {{isJoiningAsPlayer || isJoiningAsViewer}}
 	   </div>
 	   <!-- Joined as player -->
-	   <div v-else-if="hasJoinedAsPlayer">KumiteBoardJoined
+	   <div v-else-if="hasJoinedAsPlayer">
 	   	<KumiteBoardJoined :gameId="gameId" :contestId="contestId" />
 	   </div>
 	   <!-- Joined as viewer -->

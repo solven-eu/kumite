@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
-import eu.solven.kumite.contest.ContestMetadata;
+import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class ContestPlayersRegistry {
 	// A cheater could use 2 accounts: one to look at public information, the other to actually play the game
 	final Map<UUID, Set<UUID>> contestToViewingAccounts = new ConcurrentHashMap<>();
 
-	private void registerViewingPlayer(ContestMetadata contest, UUID playerId) {
+	private void registerViewingPlayer(Contest contest, UUID playerId) {
 		if (KumitePlayer.AUDIENCE_PLAYER_ID.equals(playerId) || KumitePlayer.PREVIEW_PLAYER_ID.equals(playerId)) {
 			// There is no need to register the public player
 			return;
@@ -36,7 +36,7 @@ public class ContestPlayersRegistry {
 				.add(accountId);
 	}
 
-	public void registerPlayer(ContestMetadata contest, PlayerJoinRaw playerRegistrationRaw) {
+	public void registerPlayer(Contest contest, PlayerJoinRaw playerRegistrationRaw) {
 		UUID playerId = playerRegistrationRaw.getPlayerId();
 
 		if (playerRegistrationRaw.isViewer()) {
@@ -46,7 +46,7 @@ public class ContestPlayersRegistry {
 		}
 	}
 
-	private void registerPlayingPlayer(ContestMetadata contest, UUID playerId) {
+	private void registerPlayingPlayer(Contest contest, UUID playerId) {
 		if (KumitePlayer.AUDIENCE_PLAYER_ID.equals(playerId) || KumitePlayer.PREVIEW_PLAYER_ID.equals(playerId)) {
 			// This should have been handled before, while verifying authenticated account can play given playerId
 			throw new IllegalArgumentException("Public player is not allowed to play");

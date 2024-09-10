@@ -9,13 +9,13 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
 import eu.solven.kumite.contest.ContestDynamicMetadata;
-import eu.solven.kumite.contest.ContestMetadata;
+import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestSearchParameters.ContestSearchParametersBuilder;
 import eu.solven.kumite.contest.ContestView;
 import eu.solven.kumite.contest.ContestsRegistry;
-import eu.solven.kumite.contest.KumiteHandlerHelper;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
@@ -46,7 +46,7 @@ public class BoardHandler {
 		boolean playerHasJoined = contestPlayersRegistry.isRegisteredPlayer(contestId, playerId);
 
 		ContestSearchParametersBuilder parameters = ContestSearchParameters.builder();
-		List<ContestMetadata> contest =
+		List<Contest> contest =
 				contestsRegistry.searchContests(parameters.contestId(Optional.of(contestId)).build());
 		if (contest.isEmpty()) {
 			throw new IllegalArgumentException("No contest for contestId=" + contestId);
@@ -54,7 +54,7 @@ public class BoardHandler {
 			throw new IllegalStateException("Multiple contests for contestId=" + contestId + " contests=" + contest);
 		}
 
-		ContestMetadata contestMetadata = contest.get(0);
+		Contest contestMetadata = contest.get(0);
 
 		boolean accountIsViewing;
 		boolean playerCanJoin;
@@ -91,7 +91,7 @@ public class BoardHandler {
 
 		IKumiteBoardView boardView = board.asView(viewPlayerId);
 
-		ContestDynamicMetadata dynamicMetadata = ContestMetadata.snapshot(contestMetadata).getDynamicMetadata();
+		ContestDynamicMetadata dynamicMetadata = Contest.snapshot(contestMetadata).getDynamicMetadata();
 		ContestView contestView = ContestView.builder()
 				.contestId(contestId)
 				.playerId(playerId)

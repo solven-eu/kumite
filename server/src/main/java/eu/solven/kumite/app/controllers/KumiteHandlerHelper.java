@@ -1,4 +1,4 @@
-package eu.solven.kumite.contest;
+package eu.solven.kumite.app.controllers;
 
 import java.util.Optional;
 import java.util.UUID;

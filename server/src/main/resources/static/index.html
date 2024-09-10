@@ -42,6 +42,7 @@
 			import HelloView from './ui/js/hello.js'
 			import KumiteGames from './ui/js/kumite-games.js'
 			import KumiteGame from './ui/js/kumite-game.js'
+			import KumiteContestForm from './ui/js/kumite-contest-form.js'
 			import KumiteContests from './ui/js/kumite-contests.js'
 			import KumiteContest from './ui/js/kumite-contest.js'
 			import KumiteBoard from './ui/js/kumite-board.js'
@@ -56,6 +57,7 @@
 				// https://router.vuejs.org/guide/essentials/passing-props
 				{ path: '/html/games/:gameId', component: KumiteGame , props: true },
 				{ path: '/html/contests', component: KumiteContests },
+				{ path: '/html/games/:gameId/contest-form', component: KumiteContestForm , props: true },
 				{ path: '/html/games/:gameId/contest/:contestId', component: KumiteContest , props: true },
 				{ path: '/html/games/:gameId/contest/:contestId/board', component: KumiteBoard , props: true },
 				{ path: '/html/login', component: LoginChecker },

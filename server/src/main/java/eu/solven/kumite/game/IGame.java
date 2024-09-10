@@ -6,8 +6,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
 
+import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
-import eu.solven.kumite.contest.ContestMetadata;
+import eu.solven.kumite.contest.Contest;
+import eu.solven.kumite.contest.IHasGameover;
 import eu.solven.kumite.game.optimization.tsp.IKumiteBoardView;
 import eu.solven.kumite.leaderboard.LeaderBoard;
 import eu.solven.kumite.player.IKumiteMove;
@@ -35,7 +37,7 @@ public interface IGame {
 	 * @param player
 	 * @return true if given player can join this game.
 	 */
-	default boolean canAcceptPlayer(ContestMetadata contest, KumitePlayer player) {
+	default boolean canAcceptPlayer(Contest contest, KumitePlayer player) {
 		if (!contest.isAcceptingPlayers()) {
 			return false;
 		} else if (contest.getPlayers()
@@ -65,5 +67,7 @@ public interface IGame {
 	default Map<String, IKumiteMove> exampleMoves(IKumiteBoardView boardView, UUID playerId) {
 		return Collections.emptyMap();
 	}
+
+	IHasGameover makeDynamicGameover(IHasBoard hasBoard);
 
 }

@@ -9,7 +9,9 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
 
+import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
+import eu.solven.kumite.contest.IHasGameover;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
@@ -104,10 +106,14 @@ public class TicTacToe implements IGame {
 		return moves;
 	}
 
-	public boolean isGameOver(IKumiteBoard rawBoard) {
-		TicTacToeBoard board = (TicTacToeBoard) rawBoard;
+	@Override
+	public IHasGameover makeDynamicGameover(IHasBoard rawBoard) {
 
-		return board.isGameOver();
+		// TODO Implement a timeout logic
+		return () -> {
+			TicTacToeBoard board = (TicTacToeBoard) rawBoard.get();
+			return board.isGameOver();
+		};
 	}
 
 }

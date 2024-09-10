@@ -12,9 +12,8 @@ import org.junit.jupiter.api.Test;
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
-import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestCreationMetadata;
-import eu.solven.kumite.contest.ContestMetadata;
+import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
@@ -54,17 +53,11 @@ public class TestBoardLifecycleManager {
 	IKumiteBoard board = game.generateInitialBoard(new Random(0));
 	IHasBoard hasBoard = () -> board;
 	IHasPlayers hasPlayers = contestPlayersRegistry.makeDynamicHasPlayers(contestId);
-	ContestMetadata contestMetadata = ContestMetadata.builder()
-			.contestId(contestId)
-			.gameMetadata(game.getGameMetadata())
-			.hasPlayers(hasPlayers)
-			.constantMetadata(ContestCreationMetadata.fromGame(game.getGameMetadata()).name("someContestName").build())
-			.build();
 	Contest contest = Contest.builder()
-			.board(hasBoard)
+			.contestId(contestId)
 			.game(game)
 			.hasPlayers(hasPlayers)
-			.contestMetadata(contestMetadata)
+			.constantMetadata(ContestCreationMetadata.fromGame(game.getGameMetadata()).name("someContestName").build())
 			.build();
 
 	UUID playerId = UUID.randomUUID();
@@ -93,7 +86,7 @@ public class TestBoardLifecycleManager {
 
 		playersRegistry.registerPlayer(UUID.randomUUID(), KumitePlayer.builder().playerId(playerId).build());
 
-		manager.registerPlayer(contestMetadata,
+		manager.registerPlayer(contest,
 				PlayerJoinRaw.builder().contestId(contestId).playerId(playerId).isViewer(false).build());
 
 		PlayerMoveRaw playerMove = makeValidMove();
@@ -107,7 +100,7 @@ public class TestBoardLifecycleManager {
 
 		playersRegistry.registerPlayer(UUID.randomUUID(), KumitePlayer.builder().playerId(playerId).build());
 
-		manager.registerPlayer(contestMetadata,
+		manager.registerPlayer(contest,
 				PlayerJoinRaw.builder().contestId(contestId).playerId(playerId).isViewer(true).build());
 
 		PlayerMoveRaw playerMove = makeValidMove();

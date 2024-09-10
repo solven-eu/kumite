@@ -85,7 +85,7 @@ export default {
 			const nextInterval = setInterval(() => {
 				console.log("Intervalled shortPollBoard", props.contestId, playerId);
 				store.loadBoard(props.gameId, props.contestId, playerId);
-			}, 5000);
+			}, 50000);
 			shortPollBoardInterval.value = nextInterval;
 
 			return nextInterval;

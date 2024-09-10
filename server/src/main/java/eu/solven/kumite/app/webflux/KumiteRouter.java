@@ -52,7 +52,7 @@ public class KumiteRouter {
 
 				.and(RouterFunctions.route(RequestPredicates.GET("/api/contests").and(json),
 						contestSearchHandler::listContests))
-				.and(RouterFunctions.route(RequestPredicates.PUT("/api/contests").and(json),
+				.and(RouterFunctions.route(RequestPredicates.POST("/api/contests").and(json),
 						contestSearchHandler::generateContest))
 
 				.and(RouterFunctions.route(RequestPredicates.GET("/api/board").and(json), boardHandler::getBoard))

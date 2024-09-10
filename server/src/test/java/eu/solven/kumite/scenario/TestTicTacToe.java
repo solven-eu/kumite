@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.solven.kumite.board.IKumiteBoard;
+import eu.solven.kumite.contest.IHasGameover;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToe;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToeBoard;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToeMove;
@@ -34,6 +35,8 @@ public class TestTicTacToe {
 		int nbMinPlayers = game.getGameMetadata().getMinPlayers();
 
 		Map<Integer, UUID> playerIndexToPlayerId = new HashMap<>();
+
+		IHasGameover hasGameover = game.makeDynamicGameover(() -> board);
 
 		// Let all players plays one after the others
 		// 1 move for registration, and 5 moves filling the board
@@ -75,12 +78,12 @@ public class TestTicTacToe {
 			}
 
 			if (moveIndex < 3) {
-				Assertions.assertThat(game.isGameOver(board)).isFalse();
+				Assertions.assertThat(hasGameover.isGameOver()).isFalse();
 			}
 
 		}
 
 		// There must be a winner after having played at most 5 pair of moves
-		Assertions.assertThat(game.isGameOver(board)).isTrue();
+		Assertions.assertThat(hasGameover.isGameOver()).isTrue();
 	}
 }

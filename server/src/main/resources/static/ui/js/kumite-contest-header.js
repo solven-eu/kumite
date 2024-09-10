@@ -33,7 +33,7 @@ export default {
 
 		function clearShortPollContestDynamic() {
 			if (shortPollContestDynamicInterval.value) {
-				console.log("Cancelling setInterval");
+				console.log("Cancelling setInterval shortPollContestDynamic");
 				clearInterval(shortPollContestDynamicInterval.value);
 				shortPollContestDynamicInterval.value = null;
 			}

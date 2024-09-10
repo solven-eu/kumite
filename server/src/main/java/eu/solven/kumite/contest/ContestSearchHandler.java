@@ -1,8 +1,10 @@
 package eu.solven.kumite.contest;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 
 import org.springframework.http.MediaType;
@@ -12,16 +14,12 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.solven.kumite.board.BoardsRegistry;
-import eu.solven.kumite.board.IHasBoard;
+import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
 import eu.solven.kumite.board.IKumiteBoard;
-import eu.solven.kumite.contest.ContestMetadata.ContestMetadataBuilder;
 import eu.solven.kumite.contest.ContestSearchParameters.ContestSearchParametersBuilder;
+import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
-import eu.solven.kumite.player.ContestPlayersRegistry;
-import eu.solven.kumite.player.IHasPlayers;
-import eu.solven.kumite.tools.IUuidGenerator;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -38,13 +36,7 @@ public class ContestSearchHandler {
 	final ContestsRegistry contestsRegistry;
 
 	@NonNull
-	final ContestPlayersRegistry contestPlayersRegistry;
-
-	@NonNull
-	final BoardsRegistry boardsRegistry;
-
-	@NonNull
-	final IUuidGenerator uuidGenerator;
+	final RandomGenerator randomGenerator;
 
 	public Mono<ServerResponse> listContests(ServerRequest request) {
 		ContestSearchParametersBuilder parameters = ContestSearchParameters.builder();
@@ -68,47 +60,64 @@ public class ContestSearchHandler {
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(BodyInserters.fromValue(contestsRegistry.searchContests(parameters.build())
 						.stream()
-						.map(ContestMetadata::snapshot)
+						.map(Contest::snapshot)
 						.collect(Collectors.toList())));
 	}
 
+	// BEWARE we coupled the generation of a contest and its board. This may be poor design.
 	public Mono<ServerResponse> generateContest(ServerRequest request) {
 		UUID gameId = KumiteHandlerHelper.uuid(request, "game_id");
 
 		IGame game = gamesRegistry.getGame(gameId);
 
-		UUID contestId = uuidGenerator.randomUUID();
-
-		ContestMetadataBuilder parameters = ContestMetadata.builder().contestId(contestId);
-
-		parameters.gameMetadata(game.getGameMetadata());
-
 		return request.bodyToMono(Map.class).<ServerResponse>flatMap(contestBody -> {
-			ObjectMapper objectMapper = new ObjectMapper();
-			Map<String, ?> rawConstantMetdata = (Map<String, ?>) contestBody.get("constant_metadata");
+			Map<String, ?> rawConstantMetadata = (Map<String, ?>) contestBody.get("constant_metadata");
 
-			// TODO Check input values, especially minPlayers and maxPlayers given IGame own constrains
-			parameters.constantMetadata(objectMapper.convertValue(rawConstantMetdata, ContestCreationMetadata.class));
+			ContestCreationMetadata constantMetadata =
+					validateConstantMetadata(rawConstantMetadata, game.getGameMetadata());
 
 			Map<String, ?> rawBoard = (Map<String, ?>) contestBody.get("board");
-			IKumiteBoard board = game.parseRawBoard(rawBoard);
 
-			boardsRegistry.registerBoard(contestId, board);
+			IKumiteBoard board;
+			if (rawBoard == null) {
+				board = game.generateInitialBoard(randomGenerator);
+			} else {
+				board = game.parseRawBoard(rawBoard);
+			}
 
-			IHasBoard hasBoard = boardsRegistry.makeDynamicBoardHolder(contestId);
-			IHasPlayers hasPlayers = contestPlayersRegistry.makeDynamicHasPlayers(contestId);
-
-			Contest contest = Contest.builder()
-					.contestMetadata(parameters.build())
-					.game(game)
-					.board(hasBoard)
-					.hasPlayers(hasPlayers)
-					.build();
+			Contest registeredContest = contestsRegistry.registerContest(game, constantMetadata, board);
 
 			return ServerResponse.ok()
 					.contentType(MediaType.APPLICATION_JSON)
-					.body(BodyInserters.fromValue(contestsRegistry.registerContest(contest)));
+					.body(BodyInserters.fromValue(registeredContest));
 		});
+	}
+
+	private ContestCreationMetadata validateConstantMetadata(Map<String, ?> rawConstantMetadata,
+			GameMetadata gameMetadata) {
+		// Name is the only required parameter
+		String contestName = rawConstantMetadata.get("name").toString();
+
+		// Prepare a contestMetdata with default parameters
+		ContestCreationMetadata defaultContestMetadata =
+				ContestCreationMetadata.fromGame(gameMetadata).name(contestName).build();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		// Convert the default metadata into Map
+		Map<String, Object> rawMergedContestMetadata = objectMapper.convertValue(defaultContestMetadata, HashMap.class);
+		// Merge the custom metadata over the default metadata
+		rawMergedContestMetadata.putAll(rawConstantMetadata);
+
+		ContestCreationMetadata mergedContestMetadata =
+				objectMapper.convertValue(rawMergedContestMetadata, ContestCreationMetadata.class);
+
+		if (mergedContestMetadata.getMinPlayers() < gameMetadata.getMinPlayers()) {
+			throw new IllegalArgumentException("Invalid minPlayers: " + mergedContestMetadata.getMinPlayers());
+		} else if (mergedContestMetadata.getMaxPlayers() > gameMetadata.getMaxPlayers()) {
+			throw new IllegalArgumentException("Invalid maxPlayers: " + mergedContestMetadata.getMaxPlayers());
+		}
+
+		return mergedContestMetadata;
 	}
 
 }
