@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @Import({
 
-		KumiteRandomConfiguration.class,
+		KumitePlayerRandomConfiguration.class,
 
 })
 @Slf4j
@@ -47,6 +47,7 @@ public class KumitePlayerComponentsConfiguration {
 
 		Stream.of("Travelling Salesman Problem", "Tic-Tac-Toe").forEach(gameTitle -> {
 			ses.scheduleWithFixedDelay(() -> {
+				log.info("Looking for interesting contests for game LIKE `{}`", gameTitle);
 				kumiteServer.searchGames(GameSearchParameters.builder().titleRegex(Optional.of(gameTitle)).build())
 						.flatMap(game -> kumiteServer.searchContests(
 								ContestSearchParameters.builder().gameId(Optional.of(game.getGameId())).build()))
@@ -64,8 +65,11 @@ public class KumitePlayerComponentsConfiguration {
 								kumiteServer.joinContest(playerId, contestId);
 							}
 
+						})
+						.subscribe(view -> {
+							log.info("View: {}", view);
 						});
-			}, 1, 1, TimeUnit.MINUTES);
+			}, 1, 60, TimeUnit.SECONDS);
 		});
 
 		return null;

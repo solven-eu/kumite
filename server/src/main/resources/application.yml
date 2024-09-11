@@ -1,22 +1,9 @@
 spring:
-  application.name: kumite-server
-  security:
-    oauth2:
-      client:
-        registration:
-          github:
-            clientId: ${kumite.login.oauth2.github.clientId}
-            clientSecret: ${kumite.login.oauth2.github.clientSecret}
-          google:
-            client-id: google-client-id
-            client-secret: google-client-secret
-  graphql:
-    graphiql:
-      enabled: true
-
   profiles:
+    include: server
     group:
       default:
+      # - server
       - default_server
       - fake_player
 
@@ -27,5 +14,3 @@ logging:
 
 kumite.login:
   signing-key: 'NEEDS_TO_BE_DEFINED'
-
-springdoc.show-actuator: true

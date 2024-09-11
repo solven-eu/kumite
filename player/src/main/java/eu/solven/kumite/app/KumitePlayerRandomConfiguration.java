@@ -12,10 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @Slf4j
-public class KumiteRandomConfiguration {
+public class KumitePlayerRandomConfiguration {
 
 	@Bean
-	RandomGenerator randomGenerator(Environment env) {
+	RandomGenerator playerRandomGenerator(Environment env) {
 		String rawSeed = env.getProperty("kumite.random.seed", "random");
 		RandomGenerator r;
 		if ("random".equals(rawSeed)) {

@@ -41,7 +41,7 @@ public class KumiteWebclientServer implements IKumiteServer {
 		RequestHeadersSpec<?> spec = webClient.get()
 				.uri(uriBuilder -> uriBuilder.path("/api/games")
 						.queryParamIfPresent("game_id", search.getGameId())
-						.queryParamIfPresent("title", search.getTitleRegex())
+						.queryParamIfPresent("title_regex", search.getTitleRegex())
 						.build());
 
 		return spec.exchangeToFlux(r -> {

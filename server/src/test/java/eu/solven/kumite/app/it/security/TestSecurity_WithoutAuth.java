@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
 // https://stackoverflow.com/questions/73881370/mocking-oauth2-client-with-webtestclient-for-servlet-applications-results-in-nul
-@ActiveProfiles(IKumiteSpringProfiles.P_DEFAULT_SERVER)
+@ActiveProfiles({IKumiteSpringProfiles.P_DEFAULT_SERVER})
 @AutoConfigureWebTestClient
 public class TestSecurity_WithoutAuth {
 

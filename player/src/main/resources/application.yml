@@ -1,5 +1,14 @@
 spring:
   application.name: kumite-player
+  # https://stackoverflow.com/questions/26105061/spring-boot-without-the-web-server
+  main.web-application-type: NONE
+  profiles:
+    group:
+      default:
+      # Renamed to enable merging in monolith
+      - "default_player"
+      - "fake_player"
+      - "inject_default_games"
 
 logging:
   level:
@@ -13,11 +22,3 @@ kumite.server:
   access_token: "NEEDS_A_PROPER_VALUE"
 
 
-spring:
-    profiles:
-      group:
-        default:
-  	  # Renamed to enable merging in monolith
-        - "default_player"
-        - "fake_player"
-		- "inject_default_games"

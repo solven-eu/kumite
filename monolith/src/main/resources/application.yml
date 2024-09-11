@@ -3,6 +3,8 @@ spring:
     profiles:
       group:
         default:
-  	  # Renamed to enable merging in monolith
+        # Renamed to enable merging in monolith
         - "default_player"
         - "default_server"
+        - "server"
+        - "fake_player"
