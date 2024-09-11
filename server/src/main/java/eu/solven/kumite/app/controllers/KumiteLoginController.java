@@ -15,13 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.account.KumiteUserRaw;
 import eu.solven.kumite.account.KumiteUserRawRaw;
+import eu.solven.kumite.account.login.FakePlayerTokens;
 import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.webflux.LoginRouteButNotAuthenticatedException;
-import eu.solven.kumite.player.KumitePlayer;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -64,18 +63,8 @@ public class KumiteLoginController {
 	@GetMapping("/user")
 	public Mono<KumiteUser> user(@AuthenticationPrincipal Mono<OAuth2User> oauth2User) {
 		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_DEFAULT_FAKE_USER))) {
-			KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId("fakeProviderId").sub("fakeSub").build();
-			KumiteUserRaw raw = KumiteUserRaw.builder()
-					.rawRaw(rawRaw)
-					.username("fakeUsername")
-					.email("fake@fake")
-					.name("Fake User")
-					.build();
-			KumiteUser fakeUser = KumiteUser.builder()
-					.accountId(KumiteUser.FAKE_ACCOUNT_ID)
-					.playerId(KumitePlayer.FAKE_PLAYER_ID)
-					.raw(raw)
-					.build();
+
+			KumiteUser fakeUser = FakePlayerTokens.fakeUser();
 			return Mono.just(fakeUser);
 		} else if (oauth2User == null) {
 			// Happens if this route is called without authentication

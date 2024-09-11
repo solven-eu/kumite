@@ -25,9 +25,13 @@ import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.tools.IUuidGenerator;
 import eu.solven.kumite.tools.JdkUuidGenerator;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class KumiteTokenService {
 	public static final String KEY_JWT_SIGNINGKEY = "kumite.login.signing-key";
+	// Expect a value parsable by `Duration.parse`
+	public static final String KEY_ACCESSTOKEN_EXP = "kumite.login.oauth2_exp";
 
 	final Environment env;
 	final IUuidGenerator uuidgenerator;
@@ -85,7 +89,12 @@ public class KumiteTokenService {
 	 */
 	@SneakyThrows({ JOSEException.class })
 	public String generateAccessToken(KumiteUser user) {
-		Duration accessTokenValidity = Duration.ofHours(1);
+		Duration accessTokenValidity = Duration.parse(env.getProperty(KEY_ACCESSTOKEN_EXP, "PT1H"));
+
+		if (accessTokenValidity.compareTo(Duration.parse("PT1H")) > 0) {
+			log.warn("Unusual expiry for accessToken: {}", accessTokenValidity);
+		}
+
 		long expirationMs = accessTokenValidity.toMillis();
 
 		// Generating a Signed JWT

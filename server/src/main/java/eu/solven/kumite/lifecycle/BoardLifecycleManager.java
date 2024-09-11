@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IKumiteBoard;
+import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.PlayerJoinRaw;
@@ -95,15 +96,17 @@ public class BoardLifecycleManager {
 		executeBoardChange(contestId, () -> {
 			contestPlayersRegistry.registerPlayer(contest, playerRegistrationRaw);
 			if (!playerRegistrationRaw.isViewer()) {
-				boardRegistry.makeDynamicBoardHolder(contestId)
-						.get()
-						.registerPlayer(playerRegistrationRaw.getPlayerId());
+				IKumiteBoard board = boardRegistry.makeDynamicBoardHolder(contestId).get();
+				board.registerPlayer(playerRegistrationRaw.getPlayerId());
 			}
 		});
 	}
 
-	public void onPlayerMove(Contest contest, PlayerMoveRaw playerMove) {
+	public IKumiteBoardView onPlayerMove(Contest contest, PlayerMoveRaw playerMove) {
 		UUID contestId = contest.getContestId();
+
+		AtomicReference<IKumiteBoardView> refBoardView = new AtomicReference<>();
+
 		executeBoardChange(contestId, () -> {
 			UUID playerId = playerMove.getPlayerId();
 
@@ -136,6 +139,16 @@ public class BoardLifecycleManager {
 
 			// Persist the board (e.g. for concurrent changes)
 			boardRegistry.updateBoard(contestId, currentBoard);
+
+			refBoardView.set(currentBoard.asView(playerId));
 		});
+
+		IKumiteBoardView boardViewPostMove = refBoardView.get();
+
+		if (boardViewPostMove == null) {
+			throw new IllegalStateException("Should have failed, or have produced a view");
+		}
+
+		return boardViewPostMove;
 	}
 }

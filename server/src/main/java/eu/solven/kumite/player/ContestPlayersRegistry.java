@@ -99,4 +99,43 @@ public class ContestPlayersRegistry {
 	public boolean isRegisteredPlayer(UUID contestId, UUID playerId) {
 		return contestToPlayingPlayers.getOrDefault(contestId, Set.of()).contains(playerId);
 	}
+
+	public PlayingPlayer getPlayingPlayer(UUID playerId, Contest contestMetadata) {
+		UUID contestId = contestMetadata.getContestId();
+
+		boolean playerHasJoined = isRegisteredPlayer(contestId, playerId);
+
+		boolean accountIsViewing;
+		boolean playerCanJoin;
+
+		if (playerHasJoined) {
+			// A player can not join twice a contest
+			playerCanJoin = false;
+			// A player can not both play and view
+			accountIsViewing = false;
+		} else {
+			accountIsViewing = isViewing(contestId, playerId);
+
+			if (accountIsViewing) {
+				// A player can not join if it is viewing
+				playerCanJoin = false;
+			} else {
+				IGame game = gamesRegistry.getGame(contestMetadata.getGameMetadata().getGameId());
+
+				// BEWARE We need a mechanism to prevent one player to register to too many games
+				playerCanJoin =
+						game.canAcceptPlayer(contestMetadata, KumitePlayer.builder().playerId(playerId).build());
+			}
+		}
+
+		PlayingPlayer playingPlayer = PlayingPlayer.builder()
+				.playerId(playerId)
+				.playerHasJoined(playerHasJoined)
+				.playerCanJoin(playerCanJoin)
+				.accountIsViewing(accountIsViewing)
+				.build();
+
+		return playingPlayer;
+
+	}
 }

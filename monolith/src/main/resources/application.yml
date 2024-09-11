@@ -8,3 +8,4 @@ spring:
         - "default_server"
         - "server"
         - "fake_player"
+        - inject_default_games

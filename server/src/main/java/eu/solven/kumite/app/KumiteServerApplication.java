@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Import;
 import eu.solven.kumite.account.login.KumiteSecurity;
 import eu.solven.kumite.app.webflux.KumiteWebFluxConfiguration;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "none")
 @Import({ KumiteWebFluxConfiguration.class, KumiteServerComponentsConfiguration.class, KumiteSecurity.class })
 public class KumiteServerApplication {
 

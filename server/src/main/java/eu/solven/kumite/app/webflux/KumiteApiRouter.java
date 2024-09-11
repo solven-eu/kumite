@@ -5,10 +5,8 @@ import static org.springdoc.core.fn.builders.parameter.Builder.parameterBuilder;
 
 import org.springdoc.core.fn.builders.parameter.Builder;
 import org.springdoc.webflux.core.fn.SpringdocRouteBuilder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RequestPredicates;
@@ -31,14 +29,12 @@ import eu.solven.kumite.webhook.WebhooksHandler;
  *
  */
 @Configuration(proxyBeanMethods = false)
-public class KumiteRouter {
-
-	@Value("classpath:/static/index.html")
-	private Resource indexHtml;
+public class KumiteApiRouter {
 
 	// https://github.com/springdoc/springdoc-openapi-demos/tree/2.x/springdoc-openapi-spring-boot-2-webflux-functional
+	// https://stackoverflow.com/questions/6845772/should-i-use-singular-or-plural-name-convention-for-rest-resources
 	@Bean
-	public RouterFunction<ServerResponse> route(GreetingHandler greetingHandler,
+	public RouterFunction<ServerResponse> apiRoutes(GreetingHandler greetingHandler,
 			GameSearchHandler gamesSearchHandler,
 			PlayersSearchHandler playersSearchHandler,
 			ContestSearchHandler contestSearchHandler,
@@ -93,32 +89,25 @@ public class KumiteRouter {
 										.implementation(Boolean.class)))
 				.GET(RequestPredicates.GET("/api/board/moves").and(json),
 						playerMovesHandler::listPlayerMoves,
-						ops -> ops.operationId("fetchExampleMoves").parameter(playerId).parameter(contestId))
+						ops -> ops.operationId("fetchMoves").parameter(playerId).parameter(contestId))
 				.POST(RequestPredicates.POST("/api/board/move").and(json),
-						playerMovesHandler::registerPlayerMove,
-						ops -> ops.operationId("publishMove").parameter(playerId).parameter(contestId))
+						playerMovesHandler::playMove,
+						ops -> ops.operationId("playMove").parameter(playerId).parameter(contestId))
 
 				.GET(RequestPredicates.GET("/api/leaderboards").and(json),
 						leaderboardHandler::listScores,
 						ops -> ops.operationId("fetchLeaderboard").parameter(contestId))
 
-				.GET(RequestPredicates.GET("/api/webhooks").and(json),
-						webhooksHandler::listWebhooks,
-						ops -> ops.operationId("listWebhooks"))
-				.PUT(RequestPredicates.PUT("/api/webhooks").and(json),
-						webhooksHandler::registerWebhook,
-						ops -> ops.operationId("publishWebhook"))
-				.DELETE(RequestPredicates.DELETE("/api/webhooks").and(json),
-						webhooksHandler::dropWebhooks,
-						ops -> ops.operationId("deleteWebhook"))
-
-				// The following routes are useful for the SinglePageApplication
-				.GET(RequestPredicates.GET("/html/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
-						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml),
-						ops -> ops.operationId("spaToRoute"))
-				.GET(RequestPredicates.GET("/login").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
-						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml),
-						ops -> ops.operationId("spaToLogin"))
+				// Activate webhooks later. For now, we focus on long-polling
+				// .GET(RequestPredicates.GET("/api/webhooks").and(json),
+				// webhooksHandler::listWebhooks,
+				// ops -> ops.operationId("listWebhooks"))
+				// .PUT(RequestPredicates.PUT("/api/webhooks").and(json),
+				// webhooksHandler::registerWebhook,
+				// ops -> ops.operationId("publishWebhook"))
+				// .DELETE(RequestPredicates.DELETE("/api/webhooks").and(json),
+				// webhooksHandler::dropWebhooks,
+				// ops -> ops.operationId("deleteWebhook"))
 
 				.build();
 	}

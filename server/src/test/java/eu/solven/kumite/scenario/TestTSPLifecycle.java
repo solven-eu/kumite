@@ -41,6 +41,11 @@ import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerJoinRaw;
 import eu.solven.kumite.player.PlayerMoveRaw;
 
+/**
+ * 
+ * @author Benoit Lacelle
+ * @see TestTSPLifecycleThroughRouter
+ */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { KumiteServerComponentsConfiguration.class })
 @ActiveProfiles(IKumiteSpringProfiles.P_INJECT_DEFAULT_GAMES)
@@ -49,9 +54,6 @@ public class TestTSPLifecycle {
 
 	@Autowired
 	ContestPlayersRegistry contestPlayersRegistry;
-
-	// @Autowired
-	// AccountsStore accountsStore;
 
 	@Autowired
 	KumiteUsersRegistry usersRegistry;
@@ -80,7 +82,6 @@ public class TestTSPLifecycle {
 	public void testSinglePlayer() {
 		KumiteUser account = usersRegistry.registerOrUpdate(userRaw());
 		UUID accountId = account.getAccountId();
-		// .registerAccount(KumiteAccount.builder().accountId(accountId).playerId(UUID.randomUUID()).build());
 
 		List<GameMetadata> games =
 				gamesStore.searchGames(GameSearchParameters.builder().titleRegex(Optional.of(".*Salesman.*")).build());

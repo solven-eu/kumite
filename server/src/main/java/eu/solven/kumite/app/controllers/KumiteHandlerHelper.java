@@ -5,10 +5,10 @@ import java.util.UUID;
 
 import org.springframework.web.reactive.function.server.ServerRequest;
 
-import eu.solven.kumite.app.webflux.KumiteRouter;
+import eu.solven.kumite.app.webflux.KumiteApiRouter;
 
 /**
- * Helpers around {@link KumiteRouter} handlers.
+ * Helpers around {@link KumiteApiRouter} handlers.
  * 
  * @author Benoit Lacelle
  *

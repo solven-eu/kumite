@@ -9,7 +9,10 @@ import eu.solven.kumite.leaderboard.LeaderboardHandler;
 import eu.solven.kumite.webhook.WebhooksHandler;
 import lombok.extern.slf4j.Slf4j;
 
-@Import({ KumiteRouter.class,
+@Import({
+
+		KumiteApiRouter.class,
+		KumiteSpaRouter.class,
 
 		GreetingHandler.class,
 		GameSearchHandler.class,

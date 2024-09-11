@@ -38,7 +38,6 @@ public class KumitePlayerComponentsConfiguration {
 
 	@Bean
 	public Void playTicTacToe(IKumiteServer kumiteServer, Environment env) {
-		// UUID playerId = UUID.fromString(env.getRequiredProperty(null, env.cl))
 		UUID playerId = env.getRequiredProperty("kumite.playerId", UUID.class);
 
 		ScheduledExecutorService ses = Executors.newScheduledThreadPool(4);
@@ -57,20 +56,24 @@ public class KumitePlayerComponentsConfiguration {
 						})
 						.flatMap(game -> kumiteServer.searchContests(
 								ContestSearchParameters.builder().gameId(Optional.of(game.getGameId())).build()))
-						.flatMap(contest -> kumiteServer.loadBoard(contest.getContestId(), null))
+						.flatMap(contest -> kumiteServer.loadBoard(playerId, contest.getContestId()))
 						.filter(c -> !c.getDynamicMetadata().isGameOver())
 						.filter(c -> c.getDynamicMetadata().isAcceptingPlayers())
 						.doOnNext(contestView -> {
 							UUID contestId = contestView.getContestId();
-							log.info("Received board for contestId={}", contestId);
 
-							if (contestView.getPlayerHasJoined()) {
+							if (contestView.getPlayingPlayer().isPlayerHasJoined()) {
+								log.info("Received board for already joined contestId={}", contestId);
+
 								playingContests.add(contestId);
 								contestToDetails.put(contestId, contestView);
-							} else if (contestView.getPlayerCanJoin()) {
-								kumiteServer.joinContest(playerId, contestId);
+							} else if (contestView.getPlayingPlayer().isPlayerCanJoin()) {
+								log.info("Received board for joinable contestId={}", contestId);
+								kumiteServer.joinContest(playerId, contestId).subscribe(view -> {
+									log.info("Received board for joined contestId={}", contestId);
+									contestToDetails.put(contestId, contestView);
+								});
 							}
-
 						})
 						.subscribe(view -> {
 							log.info("View: {}", view);

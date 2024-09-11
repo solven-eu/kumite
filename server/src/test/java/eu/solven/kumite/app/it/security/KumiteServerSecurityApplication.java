@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Import;
 import eu.solven.kumite.account.login.KumiteSecurity;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.KumiteRandomConfiguration;
+import eu.solven.kumite.app.greeting.GreetingHandler;
+import eu.solven.kumite.app.webflux.KumiteSpaRouter;
 
 @SpringBootApplication
 @Import({ KumiteRandomConfiguration.class,
@@ -14,6 +16,9 @@ import eu.solven.kumite.app.KumiteRandomConfiguration;
 		KumiteSecurity.class,
 
 		KumiteUsersRegistry.class,
+
+		KumiteSpaRouter.class,
+		GreetingHandler.class,
 
 })
 public class KumiteServerSecurityApplication {

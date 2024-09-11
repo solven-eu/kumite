@@ -172,8 +172,8 @@ public class SocialWebFluxSecurity {
 						.permitAll()
 
 						// If `fakePlayer`, we give free-access to all resources. Else this rule is a no-op
-						.pathMatchers(defaultFakePlayer ? "/**" : "/none")
-						.permitAll()
+						// .pathMatchers(defaultFakePlayer ? "/**" : "/none")
+						// .permitAll()
 
 						// The rest needs to be authenticated
 						.anyExchange()

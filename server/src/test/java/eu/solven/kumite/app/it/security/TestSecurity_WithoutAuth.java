@@ -26,7 +26,6 @@ import eu.solven.kumite.app.greeting.GreetingHandler;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
-// We create a `@SpringBootTest`, starting an actual server on a `RANDOM_PORT`
 @SpringBootTest(classes = KumiteServerSecurityApplication.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
@@ -35,8 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 @AutoConfigureWebTestClient
 public class TestSecurity_WithoutAuth {
 
-	// Spring Boot will create a `WebTestClient` for you,
-	// already configure and ready to issue requests against "localhost:RANDOM_PORT"
 	@Autowired
 	private WebTestClient webTestClient;
 
@@ -54,9 +51,7 @@ public class TestSecurity_WithoutAuth {
 				.expectStatus()
 				.isOk()
 				.expectBody(String.class)
-				.value(greeting -> {
-					assertThat(greeting).isEqualTo("This is a public endpoint");
-				});
+				.value(greeting -> assertThat(greeting).isEqualTo("This is a public endpoint"));
 	}
 
 	@Test
@@ -73,9 +68,7 @@ public class TestSecurity_WithoutAuth {
 				.expectStatus()
 				.isOk()
 				.expectBody(String.class)
-				.value(greeting -> {
-					assertThat(greeting).isEqualTo("This is a public endpoint");
-				});
+				.value(greeting -> assertThat(greeting).contains("<title>Kumite</title>"));
 	}
 
 	@Test

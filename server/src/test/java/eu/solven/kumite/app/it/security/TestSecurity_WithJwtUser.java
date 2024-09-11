@@ -11,26 +11,24 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
-import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.OAuth2LoginMutator;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import eu.solven.kumite.account.KumiteUserRaw;
-import eu.solven.kumite.account.login.KumiteOAuth2UserService;
+import eu.solven.kumite.account.login.FakePlayerTokens;
+import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.account.login.SocialWebFluxSecurity;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.controllers.KumiteLoginController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
-import eu.solven.kumite.scenario.TestTSPLifecycle;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * OAuth2 enables logging-in a subset of APIs, especially the login APIs.
+ * JWT enables logging-in a subset of APIs, especially the applicative (e.g. not login) APIs.
  * 
  * @author Benoit Lacelle
  *
@@ -39,20 +37,21 @@ import lombok.extern.slf4j.Slf4j;
 // We create a `@SpringBootTest`, starting an actual server on a `RANDOM_PORT`
 @SpringBootTest(classes = KumiteServerSecurityApplication.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({ IKumiteSpringProfiles.P_DEFAULT_SERVER })
+@ActiveProfiles({ IKumiteSpringProfiles.P_DEFAULT_SERVER, IKumiteSpringProfiles.P_DEFAULT_FAKE_PLAYER })
 @Slf4j
 // https://stackoverflow.com/questions/73881370/mocking-oauth2-client-with-webtestclient-for-servlet-applications-results-in-nul
 @AutoConfigureWebTestClient
-@WithMockUser
-public class TestSecurity_WithOAuth2User {
-
-	// Spring Boot will create a `WebTestClient` for you,
-	// already configure and ready to issue requests against "localhost:RANDOM_PORT"
-	@Autowired
-	private WebTestClient webTestClient;
+public class TestSecurity_WithJwtUser {
 
 	@Autowired
-	KumiteOAuth2UserService oauth2UserService;
+	WebTestClient webTestClient;
+
+	@Autowired
+	KumiteTokenService tokenService;
+
+	protected String generateAccessToken() {
+		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser());
+	}
 
 	@Test
 	public void testApiPublic() {
@@ -62,6 +61,7 @@ public class TestSecurity_WithOAuth2User {
 
 				.get()
 				.uri("/api/public")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 
@@ -79,6 +79,7 @@ public class TestSecurity_WithOAuth2User {
 
 				.get()
 				.uri("/login")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.TEXT_HTML)
 				.exchange()
 
@@ -96,6 +97,7 @@ public class TestSecurity_WithOAuth2User {
 
 				.get()
 				.uri("/api/login/v1/providers")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 
@@ -124,73 +126,51 @@ public class TestSecurity_WithOAuth2User {
 	public void testLoginUser() {
 		log.debug("About {}", KumiteLoginController.class);
 
-		// Beware `.mutateWith(oauth2Login)` skips KumiteOAuth2UserService, hence automated registration on first OAuth2
-		// login
-		OAuth2LoginMutator oauth2Login;
-		{
-			KumiteUserRaw userRaw = TestTSPLifecycle.userRaw();
-			oauth2Login = SecurityMockServerConfigurers.mockOAuth2Login().attributes(attributes -> {
-				attributes.put("id", userRaw.getRawRaw().getSub());
-				attributes.put("providerId", userRaw.getRawRaw().getProviderId());
-			});
-			oauth2UserService.onKumiteUserRaw(userRaw);
-		}
-
 		webTestClient
-
-				.mutateWith(oauth2Login)
 
 				.get()
 				.uri("/api/login/v1/user")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 
 				.expectStatus()
-				.isOk()
-				.expectBody(Map.class)
-				.value(greeting -> {
-					Assertions.assertThat(greeting).containsKeys("accountId", "raw").hasSize(4);
-				});
+				// This routes requires OAuth2 authentication
+				.isUnauthorized();
 	}
 
 	@Test
 	public void testLoginToken() {
 		log.debug("About {}", KumiteLoginController.class);
 
-		// Beware `.mutateWith(oauth2Login)` skips KumiteOAuth2UserService, hence automated registration on first OAuth2
-		// login
-		OAuth2LoginMutator oauth2Login;
-		{
-			KumiteUserRaw userRaw = TestTSPLifecycle.userRaw();
-			oauth2Login = SecurityMockServerConfigurers.mockOAuth2Login().attributes(attributes -> {
-				attributes.put("id", userRaw.getRawRaw().getSub());
-				attributes.put("providerId", userRaw.getRawRaw().getProviderId());
-			});
-			oauth2UserService.onKumiteUserRaw(userRaw);
-		}
-
 		webTestClient
-
-				.mutateWith(oauth2Login)
 
 				.get()
 				.uri("/api/login/v1/token")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 
 				.expectStatus()
-				.isOk()
-				.expectBody(Map.class)
-				.value(tokens -> {
-					Assertions.assertThat(tokens).containsKey("access_token").hasSize(1);
-				});
+				// This routes requires OAuth2 authentication
+				.isFound()
+				.expectHeader()
+				.location("/login");
 	}
 
 	@Test
 	public void testApiPrivate() {
 		log.debug("About {}", GreetingHandler.class);
 
-		webTestClient.get().uri("/api/private").accept(MediaType.APPLICATION_JSON).exchange().expectStatus().isOk();
+		webTestClient.get()
+
+				.uri("/api/private")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+
+				.expectStatus()
+				.isOk();
 	}
 
 	@Test
@@ -198,9 +178,12 @@ public class TestSecurity_WithOAuth2User {
 		log.debug("About {}", GreetingHandler.class);
 
 		webTestClient.get()
+
 				.uri("/api/private/unknown")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
+
 				.expectStatus()
 				.isNotFound();
 	}
@@ -215,9 +198,11 @@ public class TestSecurity_WithOAuth2User {
 
 				.post()
 				.uri("/api/board/move?contest_id=7ffcb8e6-bf71-4817-9f72-077c22172643&player_id=11111111-1111-1111-1111-111111111111")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.bodyValue("{}")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
+
 				.expectStatus()
 				.isNotFound();
 	}
@@ -228,6 +213,7 @@ public class TestSecurity_WithOAuth2User {
 
 		StatusAssertions expectStatus = webTestClient.post()
 				.uri("/api/board/move?contest_id=7ffcb8e6-bf71-4817-9f72-077c22172643&player_id=11111111-1111-1111-1111-111111111111")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.bodyValue("{}")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
