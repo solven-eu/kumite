@@ -5,6 +5,7 @@ import { useKumiteStore } from "./store.js";
 export default {
 	computed: {
 		...mapState(useKumiteStore, [
+			"needsToLogin",
 			"account",
 			"tokens",
 			"nbAccountFetching",
@@ -29,7 +30,7 @@ export default {
 		store.loadMetadata();
 		store.loadUser();
 		store.loadUserTokens();
-
+		
 		return {};
 	},
 	template: `
@@ -66,6 +67,10 @@ export default {
   <main>
     <RouterView />
   </main>
+  
+  <div v-if="needsToLogin">
+	<RouterLink :to="{path:'/login'}"><i class="bi bi-trophy"></i> You need to login</RouterLink>
+  </div>
 
   <!--p>
     <strong>Current route path:</strong> {{ $route.fullPath }}

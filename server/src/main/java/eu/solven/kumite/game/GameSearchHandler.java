@@ -1,5 +1,6 @@
 package eu.solven.kumite.game;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -10,12 +11,14 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
 import eu.solven.kumite.game.GameSearchParameters.GameSearchParametersBuilder;
-import lombok.Value;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-@Value
+@RequiredArgsConstructor
+@Slf4j
 public class GameSearchHandler {
-	GamesRegistry gamesStore;
+	final GamesRegistry gamesRegistry;
 
 	public Mono<ServerResponse> listGames(ServerRequest request) {
 		GameSearchParametersBuilder parameters = GameSearchParameters.builder();
@@ -31,8 +34,8 @@ public class GameSearchHandler {
 		Optional<String> optTitle = request.queryParam("title_regex");
 		optTitle.ifPresent(rawTitle -> parameters.titleRegex(Optional.of(rawTitle)));
 
-		return ServerResponse.ok()
-				.contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue(gamesStore.searchGames(parameters.build())));
+		List<GameMetadata> games = gamesRegistry.searchGames(parameters.build());
+		log.info("Games for {}: {}", parameters, games);
+		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(games));
 	}
 }

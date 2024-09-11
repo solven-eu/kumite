@@ -21,6 +21,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import eu.solven.kumite.account.login.SocialWebFluxSecurity;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
+import eu.solven.kumite.app.controllers.KumiteLoginController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
 // https://stackoverflow.com/questions/73881370/mocking-oauth2-client-with-webtestclient-for-servlet-applications-results-in-nul
-@ActiveProfiles({IKumiteSpringProfiles.P_DEFAULT_SERVER})
+@ActiveProfiles({ IKumiteSpringProfiles.P_DEFAULT_SERVER })
 @AutoConfigureWebTestClient
 public class TestSecurity_WithoutAuth {
 
@@ -48,6 +49,25 @@ public class TestSecurity_WithoutAuth {
 				.get()
 				.uri("/api/public")
 				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+
+				.expectStatus()
+				.isOk()
+				.expectBody(String.class)
+				.value(greeting -> {
+					assertThat(greeting).isEqualTo("This is a public endpoint");
+				});
+	}
+
+	@Test
+	public void testLogin() {
+		log.debug("About {}", KumiteLoginController.class);
+
+		webTestClient
+
+				.get()
+				.uri("/login")
+				.accept(MediaType.TEXT_HTML)
 				.exchange()
 
 				.expectStatus()

@@ -28,6 +28,8 @@ export const useKumiteStore = defineStore("kumite", {
 		// Currently connected account
 		account: {},
 		tokens: {},
+		// Turned to true on 401 over `loadUser()`
+		needsToLogin: false,
 
 		// We loads information about various players (e.g. through leaderboards)
 		// Playing players are stores in contests
@@ -84,6 +86,7 @@ export const useKumiteStore = defineStore("kumite", {
 			return fetchFromUrl("/api/public/v1/metadata");
 		},
 
+		// This would not fail if the User needs to login.
 		async loadUser() {
 			const store = this;
 
@@ -91,7 +94,16 @@ export const useKumiteStore = defineStore("kumite", {
 				store.nbAccountLoading++;
 				try {
 					const response = await fetch(url);
-					if (!response.ok) {
+					
+					if (response.ok) {
+						console.warn("User is logged-in");
+						store.needsToLogin = false;
+					} else if (!response.ok) {
+						if (response.status === 401) {
+							console.warn("User needs to login");
+							store.needsToLogin = true;
+						}
+						
 						throw new NetworkError(
 							"Rejected request for games url" + url,
 							url,
@@ -101,18 +113,42 @@ export const useKumiteStore = defineStore("kumite", {
 
 					const responseJson = await response.json();
 					const user = responseJson;
+					
+					console.log("Loaded user:", user);
 
 					store.$patch({ account: user });
 				} catch (e) {
 					console.error("Issue on Network: ", e);
 					const user = { error: e };
 					store.$patch({ account: user });
+					return user;
 				} finally {
 					store.nbAccountLoading--;
 				}
 			}
 
 			return fetchFromUrl("/api/login/v1/user");
+		},
+		
+		async ensureUser() {
+			if (this.needsToLogin) {
+				throw new Error("User needs to login");
+			} 
+			
+			if (Object.keys(this.account?.user || {}).length !== 0) {
+				// We have loaded a user: we assume it does not need to login
+				return Promise.resolve(this.account.user);
+			} else {
+				// We need first to load current user
+				// It will enbale checking we are actually logged-in
+				return this.loadUser().then(user => {
+					if (this.needsToLogin) {
+						throw new Error("The user needs to login");
+					}
+					
+					return user;
+				});
+			}
 		},
 
 		async loadUserTokens() {
@@ -160,7 +196,10 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			return fetchFromUrl("/api/login/v1/token");
+			return this.ensureUser().then(() => {
+				console.log("We do have a User. Let's fetch tokens");
+				return fetchFromUrl("/api/login/v1/token");
+			});
 		},
 
 		async loadIfMissingUserTokens() {

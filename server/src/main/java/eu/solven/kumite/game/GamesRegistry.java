@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class GamesRegistry {
-	Map<UUID, IGame> idToGame = new ConcurrentHashMap<>();
+	final Map<UUID, IGame> idToGame = new ConcurrentHashMap<>();
 
 	public void registerGame(IGame game) {
 		UUID gameId = game.getGameMetadata().getGameId();

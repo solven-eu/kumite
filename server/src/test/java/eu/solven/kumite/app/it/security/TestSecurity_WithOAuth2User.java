@@ -73,6 +73,26 @@ public class TestSecurity_WithOAuth2User {
 				});
 	}
 
+
+	@Test
+	public void testLogin() {
+		log.debug("About {}", KumiteLoginController.class);
+
+		webTestClient
+
+				.get()
+				.uri("/login")
+				.accept(MediaType.TEXT_HTML)
+				.exchange()
+
+				.expectStatus()
+				.isOk()
+				.expectBody(String.class)
+				.value(greeting -> {
+					assertThat(greeting).isEqualTo("This is a public endpoint");
+				});
+	}
+
 	@Test
 	public void testLoginOptions() {
 		log.debug("About {}", GreetingHandler.class);

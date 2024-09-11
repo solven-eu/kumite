@@ -20,6 +20,7 @@ import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestView;
 import eu.solven.kumite.game.GameSearchParameters;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 
 @Configuration
 @Import({
@@ -49,6 +50,11 @@ public class KumitePlayerComponentsConfiguration {
 			ses.scheduleWithFixedDelay(() -> {
 				log.info("Looking for interesting contests for game LIKE `{}`", gameTitle);
 				kumiteServer.searchGames(GameSearchParameters.builder().titleRegex(Optional.of(gameTitle)).build())
+						.collectList()
+						.flatMapMany(games -> {
+							log.info("Games for `{}`: {}", gameTitle, games);
+							return Flux.fromStream(games.stream());
+						})
 						.flatMap(game -> kumiteServer.searchContests(
 								ContestSearchParameters.builder().gameId(Optional.of(game.getGameId())).build()))
 						.flatMap(contest -> kumiteServer.loadBoard(contest.getContestId(), null))

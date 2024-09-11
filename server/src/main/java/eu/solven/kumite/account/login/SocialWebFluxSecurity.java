@@ -63,11 +63,10 @@ public class SocialWebFluxSecurity {
 						"/api/login/v1/user",
 						"/api/login/v1/token",
 						"/oauth2/**",
-						"/",
-						"/index.html",
 						// Holds static resources (e.g. `/ui/js/store.js`)
 						"/ui/js/**",
 						// The routes used by the spa
+						"/",
 						"/login",
 						"/html/**",
 
@@ -79,15 +78,13 @@ public class SocialWebFluxSecurity {
 						// Login does not requires being loggged-in yet
 						.pathMatchers(
 								// "/login",
-								"/oauth2/**",
-								"/",
-								"/index.html")
+								"/oauth2/**")
 						.permitAll()
 						// Swagger UI
 						.pathMatchers("/swagger-ui.html", "/swagger-ui/**")
 						.permitAll()
 						// The route used by the SPA
-						.pathMatchers("/login", "/html/**")
+						.pathMatchers("/", "/html/**", "/login")
 						.permitAll()
 						// Webjars and static resources
 						.pathMatchers("/ui/js/**", "/webjars/**")

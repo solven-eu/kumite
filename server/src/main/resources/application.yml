@@ -1,11 +1,14 @@
 spring:
   profiles:
-    include: server
+    include: 
+      - server
+      - default
     group:
       default:
       # - server
       - default_server
       - fake_player
+      - inject_default_games
 
 logging:
   level:

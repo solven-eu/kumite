@@ -115,7 +115,10 @@ public class KumiteRouter {
 				// The following routes are useful for the SinglePageApplication
 				.GET(RequestPredicates.GET("/html/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
 						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml),
-						ops -> ops.operationId("redirectForSPA"))
+						ops -> ops.operationId("spaToRoute"))
+				.GET(RequestPredicates.GET("/login").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
+						request -> ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml),
+						ops -> ops.operationId("spaToLogin"))
 
 				.build();
 	}
