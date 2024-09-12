@@ -35,6 +35,8 @@ export default {
 		const boardCanvas = ref(null);
 		const board = props.board;
 
+		const errorMessage = ref("");
+
 		const width = 256; //window.innerWidth;
 		const height = 256; // window.innerHeight;
 
@@ -45,7 +47,8 @@ export default {
 			try {
 				move = JSON.parse(props.rawMove);
 			} catch (e) {
-				console.error("Invalid move", e);
+				console.warn("Invalid move", e);
+				errorMessage.value = e.message;
 				return;
 			}
 
@@ -57,6 +60,7 @@ export default {
 		function renderMove(move) {
 			if (!move || !move.cities) {
 				console.log("Can not render invalid move", move);
+				errorMessage.value = "Invalid move";
 				return;
 			}
 
@@ -73,10 +77,12 @@ export default {
 			function checkAndAddLine(from, to, renderer) {
 				if (!from) {
 					console.warn("Unknown city", from);
+					errorMessage.value = "Unknown city";
 					return;
 				}
 				if (!to) {
 					console.warn("Unknown city", to);
+					errorMessage.value = "Unknown city";
 					return;
 				}
 
@@ -112,6 +118,7 @@ export default {
 
 			console.log("Rendering move", move);
 			renderer.render();
+			errorMessage.value = "";
 		}
 
 		onMounted(() => {
@@ -139,9 +146,14 @@ export default {
 		return {
 			boardCanvas,
 			renderer,
+			errorMessage,
 		};
 	},
 	template: `
-	<div ref="boardCanvas" class="border" />
+    <div>
+	   <div ref="boardCanvas" class="border" />
+       {{errorMessage}}
+   </div>
+    
 	  `,
 };

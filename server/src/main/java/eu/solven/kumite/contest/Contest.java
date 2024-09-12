@@ -38,6 +38,7 @@ public class Contest implements IContest {
 	@NonNull
 	IHasGameover gameover;
 
+	// These are the contenders of the contest
 	@Override
 	public List<KumitePlayer> getPlayers() {
 		return players.getPlayers();
@@ -61,7 +62,7 @@ public class Contest implements IContest {
 						.acceptingPlayers(contest.isAcceptingPlayers())
 						.requiringPlayers(contest.isRequiringPlayers())
 						.gameOver(contest.isGameOver())
-						.players(contest.getPlayers().stream().map(p -> p.getPlayerId()).collect(Collectors.toSet()))
+						.contenders(contest.getPlayers().stream().map(p -> p.getPlayerId()).collect(Collectors.toSet()))
 						.build())
 				.build();
 	}

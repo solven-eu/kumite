@@ -10,6 +10,7 @@ import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestView;
 import eu.solven.kumite.game.GameSearchParameters;
 import eu.solven.kumite.game.IGameMetadataConstants;
+import eu.solven.kumite.player.PlayerContestStatus;
 import eu.solven.kumite.player.PlayerRawMovesHolder;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -54,11 +55,12 @@ public class KumitePlayer implements IKumitePlayer {
 				// Process each contest
 				.flatMap(contestView -> {
 					UUID contestId = contestView.getContestId();
+					PlayerContestStatus playerStatus = contestView.getPlayerStatus();
 
-					if (contestView.getPlayingPlayer().isPlayerHasJoined()) {
+					if (playerStatus.isPlayerHasJoined()) {
 						log.info("Received board for already joined contestId={}", contestId);
 						return Mono.empty();
-					} else if (contestView.getPlayingPlayer().isPlayerCanJoin()) {
+					} else if (contestView.getPlayerStatus().isPlayerCanJoin()) {
 						log.info("Received board for joinable contestId={}", contestId);
 						return kumiteServer.joinContest(playerId, contestId)
 								// We load the board again once we are signed-up
@@ -77,7 +79,7 @@ public class KumitePlayer implements IKumitePlayer {
 					}
 
 					Mono<PlayerRawMovesHolder> exampleMoves =
-							kumiteServer.getExampleMoves(joinedContestView.getPlayingPlayer().getPlayerId(), contestId);
+							kumiteServer.getExampleMoves(joinedContestView.getPlayerStatus().getPlayerId(), contestId);
 
 					return exampleMoves.flatMap(moves -> {
 						Optional<Map<String, ?>> selectedMove = selectMove(joinedContestView.getBoard(), moves);
@@ -127,10 +129,10 @@ public class KumitePlayer implements IKumitePlayer {
 				.flatMap(contestView -> {
 					UUID contestId = contestView.getContestId();
 
-					if (contestView.getPlayingPlayer().isPlayerHasJoined()) {
+					if (contestView.getPlayerStatus().isPlayerHasJoined()) {
 						log.info("Received board for already joined contestId={}", contestId);
 						return Mono.empty();
-					} else if (contestView.getPlayingPlayer().isPlayerCanJoin()) {
+					} else if (contestView.getPlayerStatus().isPlayerCanJoin()) {
 						log.info("Received board for joinable contestId={}", contestId);
 						return kumiteServer.joinContest(playerId, contestId)
 								.flatMap(playingPlayer -> kumiteServer.loadBoard(contestId, playerId));
@@ -150,7 +152,7 @@ public class KumitePlayer implements IKumitePlayer {
 					}
 
 					Mono<PlayerRawMovesHolder> exampleMoves =
-							kumiteServer.getExampleMoves(joinedContestView.getPlayingPlayer().getPlayerId(), contestId);
+							kumiteServer.getExampleMoves(joinedContestView.getPlayerStatus().getPlayerId(), contestId);
 					Mono<ContestView> monoContestViewPostMove = exampleMoves.flatMap(moves -> {
 						Optional<Map<String, ?>> optSelectedMove = selectMove(joinedContestView.getBoard(), moves);
 

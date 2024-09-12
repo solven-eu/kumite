@@ -94,7 +94,7 @@ export const useKumiteStore = defineStore("kumite", {
 				store.nbAccountLoading++;
 				try {
 					const response = await fetch(url);
-					
+
 					if (response.ok) {
 						console.warn("User is logged-in");
 						store.needsToLogin = false;
@@ -103,7 +103,7 @@ export const useKumiteStore = defineStore("kumite", {
 							console.warn("User needs to login");
 							store.needsToLogin = true;
 						}
-						
+
 						throw new NetworkError(
 							"Rejected request for games url" + url,
 							url,
@@ -113,7 +113,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 					const responseJson = await response.json();
 					const user = responseJson;
-					
+
 					console.log("Loaded user:", user);
 
 					store.$patch({ account: user });
@@ -129,23 +129,23 @@ export const useKumiteStore = defineStore("kumite", {
 
 			return fetchFromUrl("/api/login/v1/user");
 		},
-		
+
 		async ensureUser() {
 			if (this.needsToLogin) {
 				throw new Error("User needs to login");
-			} 
-			
+			}
+
 			if (Object.keys(this.account?.user || {}).length !== 0) {
 				// We have loaded a user: we assume it does not need to login
 				return Promise.resolve(this.account.user);
 			} else {
 				// We need first to load current user
 				// It will enbale checking we are actually logged-in
-				return this.loadUser().then(user => {
+				return this.loadUser().then((user) => {
 					if (this.needsToLogin) {
 						throw new Error("The user needs to login");
 					}
-					
+
 					return user;
 				});
 			}
@@ -178,12 +178,12 @@ export const useKumiteStore = defineStore("kumite", {
 
 					watch(
 						() => store.tokens.access_token_expired,
-						(expired) => {
-							if (expired) {
+						(access_token_expired) => {
+							if (access_token_expired) {
 								console.log(
 									"access_token is expired. Triggering loadUserTokens",
 								);
-								loadUserTokens();
+								this.loadUserTokens();
 							}
 						},
 					);
@@ -205,7 +205,8 @@ export const useKumiteStore = defineStore("kumite", {
 		async loadIfMissingUserTokens() {
 			if (this.tokens.access_token && !this.tokens.access_token_expired) {
 				console.debug(
-					"Authenticated and an access_tokenTokens is stored stored",
+					"Authenticated and an access_tokenTokens is stored",
+					this.tokens.access_token,
 				);
 			} else {
 				await this.loadUserTokens();
@@ -431,6 +432,22 @@ export const useKumiteStore = defineStore("kumite", {
 			return fetchFromUrl(url);
 		},
 
+		mergeContest(contestUpdate) {
+			const contestId = contestUpdate.contestId;
+			// The contest may be empty on first load
+			const oldContest = this.contests[contestId] || {};
+			// This this property right-away as it is watched
+			const mergedContest = { ...oldContest, ...contestUpdate, stale: false };
+
+			// BEWARE This is broken if we consider a user can manage multiple playerIds
+			console.log("Storing board for contestId", contestId, mergedContest);
+			this.$patch({
+				contests: { ...this.contests, [contestId]: mergedContest },
+			});
+
+			return mergedContest;
+		},
+
 		async loadContest(gameId, contestId) {
 			return this.loadGameIfMissing(gameId).then((game) => {
 				console.log("About to load/refresh contestId", contestId);
@@ -455,15 +472,10 @@ export const useKumiteStore = defineStore("kumite", {
 							throw new Error("Unknown contestId: " + contestId);
 						} else if (responseJson.length !== 1) {
 							console.error("We expected a single contest", responseJson);
+							return { contestId: contestId, status: "unknown" };
 						}
 
 						const contest = responseJson[0];
-
-						// https://github.com/vuejs/pinia/discussions/440
-						console.log("Registering contestId", contestId);
-						store.$patch({
-							contests: { ...store.contests, [contestId]: contest },
-						});
 
 						return contest;
 					} catch (e) {
@@ -474,9 +486,6 @@ export const useKumiteStore = defineStore("kumite", {
 						}
 
 						const contest = { contestId: contestId, status: "error", error: e };
-						store.$patch({
-							contests: { ...store.contests, [contestId]: contest },
-						});
 
 						return contest;
 					} finally {
@@ -485,7 +494,9 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 				return fetchFromUrl(
 					"/api/contests?game_id=" + gameId + "&contest_id=" + contestId,
-				);
+				).then((contest) => {
+					return this.mergeContest(contest);
+				});
 			});
 		},
 
@@ -526,21 +537,13 @@ export const useKumiteStore = defineStore("kumite", {
 							}
 
 							const responseJson = await response.json();
+							const contestWithBoard = responseJson;
 
-							const board = responseJson;
-
-							// BEWARE This is broken if we consider a user can manage multiple playerIds
-							console.log("Storing board for contestId", contestId);
-							store.$patch({ boards: { ...store.boards, [contestId]: board } });
-
-							return board;
+							return contestWithBoard;
 						} catch (e) {
-							console.error("Issue on Fetch: ", e, e.response.status);
+							console.error("Issue on Fetch: ", e.response.status, e);
 
-							const board = { contestId: contestId, status: "error", error: e };
-							store.$patch({ boards: { ...store.boards, [contestId]: board } });
-
-							return board;
+							return { contestId: contestId, status: "error", error: e };
 						} finally {
 							store.nbBoardFetching--;
 						}
@@ -553,7 +556,9 @@ export const useKumiteStore = defineStore("kumite", {
 							contestId +
 							"&player_id=" +
 							playerId,
-					);
+					).then((contestWithBoard) => {
+						return this.mergeContest(contestWithBoard);
+					});
 				});
 		},
 
@@ -597,6 +602,7 @@ export const useKumiteStore = defineStore("kumite", {
 						contestId: contestId,
 						status: "error",
 						error: e,
+						stale: false,
 					};
 					store.$patch({
 						leaderboards: { ...store.leaderboards, [contestId]: leaderboard },

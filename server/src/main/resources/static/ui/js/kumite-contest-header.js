@@ -47,10 +47,13 @@ export default {
 			// Cancel any existing related setInterval
 			clearShortPollContestDynamic();
 
+			const intervalPeriodMs = 50000;
+			console.log("setInterval", "shortPollContestDynamic", intervalPeriodMs);
+
 			const nextInterval = setInterval(() => {
 				console.log("Intervalled shortPollContestDynamic");
 				store.loadContest(props.gameId, props.contestId);
-			}, 5000);
+			}, intervalPeriodMs);
 			shortPollContestDynamicInterval.value = nextInterval;
 
 			return nextInterval;

@@ -49,7 +49,7 @@ public class PlayerMovesHandler {
 		boardLifecycleManager.registerPlayer(contest, playerJoinRaw);
 
 		boolean isViewer = playerJoinRaw.isViewer();
-		PlayingPlayer playingPlayer = PlayingPlayer.builder()
+		PlayerContestStatus playingPlayer = PlayerContestStatus.builder()
 				.playerId(playerId)
 
 				.playerHasJoined(!isViewer)
@@ -97,7 +97,7 @@ public class PlayerMovesHandler {
 
 			ContestView view = ContestView.builder()
 					.contestId(contestId)
-					.playingPlayer(PlayingPlayer.player(playerId))
+					.playerStatus(PlayerContestStatus.contender(playerId))
 					.board(objectMapper.convertValue(boardViewPostMove, Map.class))
 					.dynamicMetadata(Contest.snapshot(contest).getDynamicMetadata())
 					.build();

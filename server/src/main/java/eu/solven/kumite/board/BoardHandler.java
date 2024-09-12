@@ -22,7 +22,7 @@ import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.KumitePlayer;
-import eu.solven.kumite.player.PlayingPlayer;
+import eu.solven.kumite.player.PlayerContestStatus;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +57,7 @@ public class BoardHandler {
 
 		Contest contestMetadata = contest.get(0);
 
-		PlayingPlayer playingPlayer = contestPlayersRegistry.getPlayingPlayer(playerId, contestMetadata);
+		PlayerContestStatus playingPlayer = contestPlayersRegistry.getPlayingPlayer(playerId, contestMetadata);
 
 		IKumiteBoard board = boardsRegistry.makeDynamicBoardHolder(contestId).get();
 
@@ -67,7 +67,9 @@ public class BoardHandler {
 		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(contestView));
 	}
 
-	private ContestView makeContestView(Contest contestMetadata, PlayingPlayer playingPlayer, IKumiteBoard board) {
+	private ContestView makeContestView(Contest contestMetadata,
+			PlayerContestStatus playingPlayer,
+			IKumiteBoard board) {
 		UUID viewPlayerId;
 		if (playingPlayer.isPlayerHasJoined()) {
 			viewPlayerId = playingPlayer.getPlayerId();
@@ -82,7 +84,7 @@ public class BoardHandler {
 		ContestDynamicMetadata dynamicMetadata = Contest.snapshot(contestMetadata).getDynamicMetadata();
 		ContestView contestView = ContestView.builder()
 				.contestId(contestMetadata.getContestId())
-				.playingPlayer(playingPlayer)
+				.playerStatus(playingPlayer)
 				.board(new ObjectMapper().convertValue(boardView, Map.class))
 				.dynamicMetadata(dynamicMetadata)
 

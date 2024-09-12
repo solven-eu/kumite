@@ -3,7 +3,7 @@ package eu.solven.kumite.contest;
 import java.util.Map;
 import java.util.UUID;
 
-import eu.solven.kumite.player.PlayingPlayer;
+import eu.solven.kumite.player.PlayerContestStatus;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -23,7 +23,7 @@ public class ContestView {
 	UUID contestId;
 
 	@NonNull
-	PlayingPlayer playingPlayer;
+	PlayerContestStatus playerStatus;
 
 	@NonNull
 	ContestDynamicMetadata dynamicMetadata;

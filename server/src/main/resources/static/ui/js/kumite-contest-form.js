@@ -26,14 +26,19 @@ export default {
 		...mapState(useKumiteStore, ["nbGameFetching"]),
 		...mapState(useKumiteStore, {
 			game(store) {
-				return store.games[this.gameId] || {'error': 'not_loaded'};
+				return store.games[this.gameId] || { error: "not_loaded" };
 			},
 		}),
 	},
-	method: {
-		submitContestForm: function() {
-			const payload = {'constant_metadata': {'name': this.contestName}};
-			
+	method: {},
+	setup(props) {
+		const store = useKumiteStore();
+
+		const contestName = ref("A nice name for a contest");
+
+		const submitContestForm = function () {
+			const payload = { constant_metadata: { name: this.contestName } };
+
 			console.log("Submitting contestCreation", constantMetadata);
 
 			async function postFromUrl(url) {
@@ -41,7 +46,7 @@ export default {
 					const fetchOptions = {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify(move),
+						body: JSON.stringify(payload),
 					};
 					const response = await store.authenticatedFetch(url, fetchOptions);
 					if (!response.ok) {
@@ -52,32 +57,24 @@ export default {
 						);
 					}
 
-					// debugger;
-					// context.emit('move-sent', {gameId: props.gameId, contestId: props.contestId});
-					// The submitted move may have impacted the leaderboard
-					store.$patch((state) => {
-						if (!state.leaderboards[contestId]) {
-							state.leaderboards[contestId] = {};
-						}
-						state.leaderboards[contestId].stale = true;
-					});
+					const contest = await response.json();
+
+					{
+						console.log("Registering contestId", contest.contestId);
+						store.$patch({
+							contests: { ...store.contests, [contest.contestId]: contest },
+						});
+					}
 				} catch (e) {
 					console.error("Issue on Network:", e);
 				}
 			}
 
 			const playerId = store.playingPlayerId;
-			return postFromUrl(
-				`/api/board/move?contest_id=${contestId}&player_id=${playerId}`,
-			);
-		},
-	},
-	setup(props) {
-		const store = useKumiteStore();
-		
-		const contestName = ref("A nice name for a contest");
+			return postFromUrl(`/api/contests?game_id=${gameId}`);
+		};
 
-		return {contestName};
+		return { contestName, submitContestForm };
 	},
 	template: `
 <div v-if="(!game)">

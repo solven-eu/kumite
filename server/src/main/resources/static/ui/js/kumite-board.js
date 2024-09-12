@@ -47,7 +47,7 @@ export default {
 				return store.contests[this.contestId];
 			},
 			board(store) {
-				return store.boards[this.contestId]?.board;
+				return store.contests[this.contestId]?.board;
 			},
 		}),
 	},
@@ -58,7 +58,11 @@ export default {
 		store
 			.loadCurrentAccountPlayers()
 			.then((account) => {
-				store.loadBoard(props.gameId, props.contestId, store.playingPlayerId);
+				return store.loadBoard(
+					props.gameId,
+					props.contestId,
+					store.playingPlayerId,
+				);
 			})
 			.then((board) => {
 				console.log("We loaded board", board);

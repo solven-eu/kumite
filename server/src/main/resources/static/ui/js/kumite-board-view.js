@@ -3,6 +3,8 @@ import { ref, watch } from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
+import KumiteBoardViewCurl from "./kumite-board-view-curl.js";
+
 import KumiteJsonBoardState from "./board-renderers/kumite-json-board-state.js";
 import KumiteTSPBoardState from "./board-renderers/kumite-tsp-board-state.js";
 import KumiteTicTacToeBoardState from "./board-renderers/kumite-tictactoe-board-state.js";
@@ -10,6 +12,8 @@ import KumiteTicTacToeBoardState from "./board-renderers/kumite-tictactoe-board-
 export default {
 	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
+		KumiteBoardViewCurl,
+
 		KumiteJsonBoardState,
 		KumiteTSPBoardState,
 		KumiteTicTacToeBoardState,
@@ -23,10 +27,6 @@ export default {
 		gameId: {
 			type: String,
 			required: true,
-		},
-		showCurl: {
-			type: Boolean,
-			default: true,
 		},
 	},
 	computed: {
@@ -44,34 +44,24 @@ export default {
 				return store.contests[this.contestId];
 			},
 			board(store) {
-				return store.boards[this.contestId]?.board;
+				return store.contests[this.contestId]?.board;
 			},
 		}),
-		curlGetBoard() {
-			return (
-				"curl " +
-				window.location.protocol +
-				"//" +
-				window.location.host +
-				"/api/board?contest_id=" +
-				this.contestId
-			);
-		},
 	},
 	setup(props) {
 		const store = useKumiteStore();
 
-		const showBoardAsJson = ref(false);
-
 		watch(
-			() => store.boards[props.contestId]?.stale,
-			(newValue) => {
-				console.log("Detected stale board", props.contestId);
-				store.loadBoard(props.gameId, props.contestId);
+			() => store.contests[props.contestId]?.stale,
+			(stale) => {
+				if (stale) {
+					console.log("Detected stale board", props.contestId);
+					store.loadBoard(props.gameId, props.contestId);
+				}
 			},
 		);
-		
-		return { showBoardAsJson };
+
+		return {};
 	},
 	template: `
 	<div v-if="(!game || !contest || !board)">
@@ -85,18 +75,16 @@ export default {
 	<div v-else-if="game.error || contest.error || board.error">
 	   {{game.error || contest.error || board.error}}
 	</div>
-	   <div v-else class="border">
+	   <div v-else >
+       <div class="border position-relative">
 	         Board: This is the view of the contest given players previous moves.
-	         <div class="form-check form-switch">
-	            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" v-model="showBoardAsJson">
-	            <label class="form-check-label" for="flexSwitchCheckDefault">Show as SVG</label>
-	         </div>
 			 	<!-- https://stackoverflow.com/questions/43658481/passing-props-dynamically-to-dynamic-component-in-vuejs -->
 				<component :is="board.boardSvg" v-bind="{ 'board': board}" class="col text-center" />
-	            <div v-if="showCurl">
-	               cURL command: 
-	               <pre  style="overflow-y: scroll;" class="border">{{curlGetBoard}}</pre>
-	            </div>
+                
+                <div  class="position-absolute top-0 end-0" >
+                    <KumiteBoardViewCurl :gameId="gameId" :contestId="contestId" />
+                </div>
+                </div>
 	   </div>
   `,
 };

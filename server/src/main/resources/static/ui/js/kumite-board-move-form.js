@@ -119,12 +119,15 @@ export default {
 		function fillMove(json) {
 			this.rawMove = JSON.stringify(json);
 		}
+
+		const sendMoveError = ref("");
 		function sendMove() {
 			let move;
 			try {
 				move = JSON.parse(this.rawMove);
 			} catch (e) {
 				console.error("Issue parsing json: ", e);
+				sendMoveError = e.message;
 				return;
 			}
 
@@ -142,7 +145,11 @@ export default {
 					const response = await store.authenticatedFetch(url, fetchOptions);
 					if (!response.ok) {
 						throw new NetworkError(
-							"Rejected POST for move for games url=" + url,
+							"POST has failed (" +
+								response.statusText +
+								" - " +
+								response.status +
+								")",
 							url,
 							response,
 						);
@@ -156,9 +163,12 @@ export default {
 							state.leaderboards[contestId] = {};
 						}
 						state.leaderboards[contestId].stale = true;
+						state.boards[contestId].stale = true;
 					});
+					sendMoveError.value = "";
 				} catch (e) {
 					console.error("Issue on Network:", e);
+					sendMoveError.value = e.message;
 				}
 			}
 
@@ -186,6 +196,8 @@ export default {
 		});
 
 		return {
+			sendMoveError,
+
 			exampleMoves,
 			exampleMovesMetadata,
 			loadExampleMoves,
@@ -231,10 +243,6 @@ export default {
          </div>
 		 <!-- Move Visualizer-->
          <div class="row">
-			<div class="form-check form-switch">
-			   <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" v-model="showBoardWithMoveAsSvg">
-			   <label class="form-check-label" for="flexSwitchCheckDefault">Show as SVG</label>
-			</div>
 			<span>
 				<component :is="board.moveSvg" v-bind="{ 'board': board, 'rawMove': rawMove}" :rawMove="rawMove" class="text-center" />
 			</span>
@@ -242,7 +250,7 @@ export default {
 			<!-- Move Submitter-->
          <div>
             <button type="button" @click="sendMove()"  class="btn btn-outline-primary">Submit</button>
-            <span v-if="exampleMovesMetadata.error" class="alert alert-warning" role="alert">{{exampleMovesMetadata.error}}</span>
+            <span v-if="sendMoveError" class="alert alert-warning" role="alert">{{sendMoveError}}</span>
          </div>
       </form>
 	</div>

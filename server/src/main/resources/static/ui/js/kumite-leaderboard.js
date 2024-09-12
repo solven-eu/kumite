@@ -49,9 +49,11 @@ export default {
 
 		watch(
 			() => store.leaderboards[props.contestId]?.stale,
-			(newValue) => {
-				console.log("Detected stale leaderboard", props.contestId);
-				store.loadLeaderboard(props.gameId, props.contestId);
+			(stale) => {
+				if (stale) {
+					console.log("Detected stale leaderboard", props.contestId);
+					store.loadLeaderboard(props.gameId, props.contestId);
+				}
 			},
 		);
 

@@ -87,6 +87,9 @@ export default {
 					}
 					const responseJson = await response.json();
 
+					// Should we mark a contest as stale as soon as we do a POST?
+					store.contests[props.contestId].stale = true;
+
 					return responseJson;
 				} catch (e) {
 					console.error("Issue on Network: ", e);
@@ -119,15 +122,17 @@ export default {
 			.then((contestView) => {
 				console.debug("contestView", contestView);
 
-				if (contestView.playerCanJoin) {
+				const playerStatus = contestView.playerStatus;
+
+				if (playerStatus.playerCanJoin) {
 					canJoinAsPlayer.value = true;
 				}
 
-				if (contestView.playerHasJoined) {
+				if (playerStatus.playerHasJoined) {
 					hasJoinedAsPlayer.value = true;
 				}
 
-				if (contestView.accountIsViewing) {
+				if (playerStatus.accountIsViewing) {
 					hasJoinedAsViewer.value = true;
 				}
 			})

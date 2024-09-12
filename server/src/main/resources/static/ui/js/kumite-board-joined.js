@@ -40,19 +40,9 @@ export default {
 				return store.contests[this.contestId];
 			},
 			board(store) {
-				return store.boards[this.contestId];
+				return store.contests[this.contestId]?.board;
 			},
 		}),
-		curlGetBoard() {
-			return (
-				"curl " +
-				window.location.protocol +
-				"//" +
-				window.location.host +
-				"/api/board?contest_id=" +
-				this.contestId
-			);
-		},
 	},
 	setup(props) {
 		const store = useKumiteStore();
@@ -82,10 +72,13 @@ export default {
 			// Cancel any existing related setInterval
 			clearShortPollBoard();
 
+			const intervalPeriodMs = 50000;
+			console.log("setInterval", "shortPollBoard", intervalPeriodMs);
+
 			const nextInterval = setInterval(() => {
 				console.log("Intervalled shortPollBoard", props.contestId, playerId);
 				store.loadBoard(props.gameId, props.contestId, playerId);
-			}, 50000);
+			}, intervalPeriodMs);
 			shortPollBoardInterval.value = nextInterval;
 
 			return nextInterval;
@@ -106,7 +99,7 @@ export default {
 	<div class="border" v-if="contest">
 	   <!-- Waiting for players -->
 	   <div v-if="requiringPlayers">
-	      Waiting for more players ({{contest.dynamicMetadata.players.length}} / {{ contest.constantMetadata.minPlayers }})
+	      Waiting for more players ({{contest.dynamicMetadata.contenders.length}} / {{ contest.constantMetadata.minPlayers }})
 	   </div>
 	   <!-- Can be played -->
 	   <div v-else>

@@ -9,8 +9,8 @@ import eu.solven.kumite.contest.ContestView;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchParameters;
 import eu.solven.kumite.leaderboard.LeaderBoardRaw;
+import eu.solven.kumite.player.PlayerContestStatus;
 import eu.solven.kumite.player.PlayerRawMovesHolder;
-import eu.solven.kumite.player.PlayingPlayer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -21,7 +21,7 @@ public interface IKumiteServer {
 
 	Mono<ContestView> loadBoard(UUID playerId, UUID contestId);
 
-	Mono<PlayingPlayer> joinContest(UUID playerId, UUID contestId);
+	Mono<PlayerContestStatus> joinContest(UUID playerId, UUID contestId);
 
 	Mono<PlayerRawMovesHolder> getExampleMoves(UUID playerId, UUID contestId);
 

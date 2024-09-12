@@ -100,7 +100,7 @@ public class ContestPlayersRegistry {
 		return contestToPlayingPlayers.getOrDefault(contestId, Set.of()).contains(playerId);
 	}
 
-	public PlayingPlayer getPlayingPlayer(UUID playerId, Contest contestMetadata) {
+	public PlayerContestStatus getPlayingPlayer(UUID playerId, Contest contestMetadata) {
 		UUID contestId = contestMetadata.getContestId();
 
 		boolean playerHasJoined = isRegisteredPlayer(contestId, playerId);
@@ -128,7 +128,7 @@ public class ContestPlayersRegistry {
 			}
 		}
 
-		PlayingPlayer playingPlayer = PlayingPlayer.builder()
+		PlayerContestStatus playingPlayer = PlayerContestStatus.builder()
 				.playerId(playerId)
 				.playerHasJoined(playerHasJoined)
 				.playerCanJoin(playerCanJoin)

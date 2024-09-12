@@ -37,6 +37,24 @@ export default {
 
 			const positions = board.positions;
 
+			for (let i = 1; i < 3; i++) {
+				const hLine = new Line(
+					16,
+					(height / 3) * i,
+					width - 16,
+					(height / 3) * i,
+				);
+				renderer.scene.add(hLine);
+
+				const vLine = new Line(
+					(width / 3) * i,
+					16,
+					(width / 3) * i,
+					height - 16,
+				);
+				renderer.scene.add(vLine);
+			}
+
 			for (let i = 0; i < 9; i++) {
 				const char = positions.charAt(i);
 
@@ -56,12 +74,12 @@ export default {
 					const circle = new Circle(width * city.x, height * city.y, 1);
 					group.add(circle);
 				} else {
-					return;
+					// Nothing to render on not played positions
 				}
 
 				renderer.scene.add(group);
-				renderer.render();
 			}
+			renderer.render();
 		});
 
 		return {

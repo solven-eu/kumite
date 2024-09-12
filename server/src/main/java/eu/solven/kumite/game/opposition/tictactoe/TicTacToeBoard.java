@@ -161,4 +161,13 @@ public class TicTacToeBoard implements IKumiteBoard, IKumiteBoardView {
 		return false;
 	}
 
+	@Override
+	public String getBoardSvg() {
+		return "KumiteTicTacToeBoardState";
+	}
+
+	@Override
+	public String getMoveSvg() {
+		return "KumiteTicTacToeBoardMove";
+	}
 }

@@ -21,7 +21,7 @@ public class ContestDynamicMetadata {
 
 	// Should we return the actual list of players?
 	@NonNull
-	Set<UUID> players;
+	Set<UUID> contenders;
 
 	boolean acceptingPlayers;
 	boolean requiringPlayers;

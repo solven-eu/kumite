@@ -15,8 +15,8 @@ import eu.solven.kumite.contest.ContestView;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchParameters;
 import eu.solven.kumite.leaderboard.LeaderBoardRaw;
+import eu.solven.kumite.player.PlayerContestStatus;
 import eu.solven.kumite.player.PlayerRawMovesHolder;
-import eu.solven.kumite.player.PlayingPlayer;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -105,7 +105,7 @@ public class KumiteWebclientServer implements IKumiteServer {
 	}
 
 	@Override
-	public Mono<PlayingPlayer> joinContest(UUID playerId, UUID contestId) {
+	public Mono<PlayerContestStatus> joinContest(UUID playerId, UUID contestId) {
 		RequestBodySpec spec = webClient.post()
 				.uri(uriBuilder -> uriBuilder.path("/api/board/player")
 						.queryParam("player_id", playerId)
@@ -116,7 +116,7 @@ public class KumiteWebclientServer implements IKumiteServer {
 			if (!r.statusCode().is2xxSuccessful()) {
 				throw new IllegalArgumentException("Request rejected: " + r.statusCode());
 			}
-			return r.bodyToMono(PlayingPlayer.class);
+			return r.bodyToMono(PlayerContestStatus.class);
 		});
 	}
 

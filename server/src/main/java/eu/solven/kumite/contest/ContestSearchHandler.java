@@ -86,10 +86,9 @@ public class ContestSearchHandler {
 			}
 
 			Contest registeredContest = contestsRegistry.registerContest(game, constantMetadata, board);
+			ContestMetadataRaw snapshot = Contest.snapshot(registeredContest);
 
-			return ServerResponse.ok()
-					.contentType(MediaType.APPLICATION_JSON)
-					.body(BodyInserters.fromValue(registeredContest));
+			return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(snapshot));
 		});
 	}
 
