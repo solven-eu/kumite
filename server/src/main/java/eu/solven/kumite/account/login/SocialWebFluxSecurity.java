@@ -49,7 +49,7 @@ public class SocialWebFluxSecurity {
 			throw new IllegalStateException();
 		};
 
-		boolean defaultFakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_DEFAULT_FAKE_USER));
+		boolean defaultFakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_USER));
 		if (defaultFakeUser) {
 			log.warn("defaultFakeUser=true");
 		} else {
@@ -127,7 +127,7 @@ public class SocialWebFluxSecurity {
 	public SecurityWebFilterChain configureApi(ServerHttpSecurity http,
 			Environment env,
 			ReactiveJwtDecoder jwtDecoder) {
-		boolean defaultFakePlayer = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_DEFAULT_FAKE_PLAYER));
+		boolean defaultFakePlayer = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_PLAYER));
 		if (defaultFakePlayer) {
 			log.warn("defaultFakePlayer=true");
 		} else {

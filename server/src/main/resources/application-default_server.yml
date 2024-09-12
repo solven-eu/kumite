@@ -1,11 +1,19 @@
+# server: the default configuration for a contestServer
 
-logging:
-  level:
-    org.springframework.security: INFO
+spring:
+  application.name: kumite-server
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            clientId: ${kumite.login.oauth2.github.clientId}
+            clientSecret: ${kumite.login.oauth2.github.clientSecret}
+          google:
+            client-id: google-client-id
+            client-secret: google-client-secret
+  graphql:
+    graphiql:
+      enabled: true
 
-kumite.random.seed: 0
-
-kumite.login:
-  oauth2.github.clientId: Ov23liakPa9YkyfEZGZE
-  oauth2.github.clientSecret: 35faf73b496bb30fa17c1dd2f9fc8111874965ca
-  signing-key: '{"kty":"oct","kid":"d6ff447e-2a6e-4ef6-9e3d-792f2d23f11e","k":"bJpLdV8t1P_Pv9nay4zTVAU7C9VaBsR5pBtuAsAPkOU","alg":"HS256"}'
+springdoc.show-actuator: true

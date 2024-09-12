@@ -18,7 +18,7 @@ import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.player.IKumiteMove;
 import eu.solven.kumite.player.WaitForPlayersMove;
-import eu.solven.kumite.player.WaitForSignupsMove;
+import eu.solven.kumite.player.WaitForSignups;
 
 public class TicTacToe implements IGame {
 	GameMetadata gameMetadata = GameMetadata.builder()
@@ -70,7 +70,7 @@ public class TicTacToe implements IGame {
 
 		if (board.getPlayerIdToSymbol().size() != 2) {
 			// There is no possible move until there is 2 players
-			return Collections.singletonMap("Wait for sign-ups", WaitForSignupsMove.builder().build());
+			return Collections.singletonMap("Wait for sign-ups", WaitForSignups.builder().build());
 		}
 
 		char nextPlayerSymbol = board.getNextPlayerSymbol();

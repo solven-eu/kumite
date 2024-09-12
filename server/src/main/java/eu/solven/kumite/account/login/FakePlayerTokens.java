@@ -34,7 +34,7 @@ public class FakePlayerTokens {
 		SpringApplication springApplication = new SpringApplication(FakePlayerTokens.class);
 
 		springApplication.setWebApplicationType(WebApplicationType.NONE);
-		springApplication.setAdditionalProfiles(IKumiteSpringProfiles.P_DEFAULT_FAKE_PLAYER);
+		springApplication.setAdditionalProfiles(IKumiteSpringProfiles.P_FAKE_PLAYER);
 
 		Map<String, Object> defaultProperties = new LinkedHashMap<>();
 		// We set a quite long expiry as this is typically injected as default token in application-fake_player.yml

@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = KumiteServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({ IKumiteSpringProfiles.P_DEFAULT, IKumiteSpringProfiles.P_DEFAULT_FAKE_PLAYER, })
+@ActiveProfiles({ IKumiteSpringProfiles.P_FAKE })
 @Slf4j
 public class TestKumiteApiRouter {
 

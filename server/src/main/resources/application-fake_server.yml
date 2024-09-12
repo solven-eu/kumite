@@ -1,0 +1,7 @@
+# fake_server: we activate various unsafe mecanisms to make the server easier to run for development purposes
+
+# The constant seed is useful to push contestsIds to be the same on each run
+kumite.random.seed: 0
+
+kumite.login:
+  signing-key: '{"kty":"oct","kid":"d6ff447e-2a6e-4ef6-9e3d-792f2d23f11e","k":"bJpLdV8t1P_Pv9nay4zTVAU7C9VaBsR5pBtuAsAPkOU","alg":"HS256"}'

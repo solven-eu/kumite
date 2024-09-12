@@ -62,7 +62,7 @@ public class KumiteLoginController {
 	// @PreAuthorize("isAuthenticated()")
 	@GetMapping("/user")
 	public Mono<KumiteUser> user(@AuthenticationPrincipal Mono<OAuth2User> oauth2User) {
-		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_DEFAULT_FAKE_USER))) {
+		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_USER))) {
 
 			KumiteUser fakeUser = FakePlayerTokens.fakeUser();
 			return Mono.just(fakeUser);

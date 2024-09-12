@@ -1,4 +1,4 @@
-package eu.solven.kumite.app;
+package eu.solven.kumite.app.server;
 
 import java.util.Map;
 import java.util.UUID;
@@ -14,6 +14,7 @@ import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestView;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchParameters;
+import eu.solven.kumite.leaderboard.LeaderBoardRaw;
 import eu.solven.kumite.player.PlayerRawMovesHolder;
 import eu.solven.kumite.player.PlayingPlayer;
 import lombok.extern.slf4j.Slf4j;
@@ -149,6 +150,23 @@ public class KumiteWebclientServer implements IKumiteServer {
 				throw new IllegalArgumentException("Request rejected: " + r.statusCode());
 			}
 			return r.bodyToMono(ContestView.class);
+		});
+	}
+
+	@Override
+	public Mono<LeaderBoardRaw> loadLeaderboard(UUID contestId) {
+		RequestHeadersSpec<?> spec = webClient.get()
+				.uri(uriBuilder -> uriBuilder.path("/api/leaderboards")
+						// .queryParam("player_id", playerId)
+						.queryParam("contest_id", contestId)
+						.build());
+
+		return spec.exchangeToMono(r -> {
+			if (!r.statusCode().is2xxSuccessful()) {
+				throw new IllegalArgumentException("Request rejected: " + r.statusCode());
+			}
+			log.info("Search for leaderboard: {}", r.statusCode());
+			return r.bodyToMono(LeaderBoardRaw.class);
 		});
 	}
 

@@ -28,6 +28,7 @@ public class GameMetadata implements IGameMetadataConstants {
 	@Singular
 	List<URI> references;
 
+	// Tags mus not contains `,`, which is used as OR separator
 	@Singular
 	List<String> tags;
 

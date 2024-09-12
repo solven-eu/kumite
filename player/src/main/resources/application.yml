@@ -1,24 +1,28 @@
 spring:
-  application.name: kumite-player
-  # https://stackoverflow.com/questions/26105061/spring-boot-without-the-web-server
-  main.web-application-type: NONE
-  profiles:
-    group:
-      default:
-      # Renamed to enable merging in monolith
-      - "default_player"
-      - "fake_player"
-      - "inject_default_games"
+    application.name: kumite-player
+    # https://stackoverflow.com/questions/26105061/spring-boot-without-the-web-server
+    main.web-application-type: NONE
+    profiles:
+        include:
+          # Do not include `default`, as by `default` we include `fake_player` 
+        - default_server
+        group:
+            # `default` is used for quick-start: we enable fake security
+            default:
+            - fake_server
+            - fake_player
+            default_server:
+            - inject_default_games 
 
 logging:
-  level:
-    org.springframework.security: INFO
-    eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter: DEBUG
+    level:
+        org.springframework.security: INFO
+        eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter: DEBUG
 
 kumite.playerId: "NEEDS_A_PROPER_VALUE"
 
 kumite.server:
-  # A default token, valid if the server is started with `???`
-  access_token: "NEEDS_A_PROPER_VALUE"
+    # A default token, valid if the server is started with `???`
+    access_token: "NEEDS_A_PROPER_VALUE"
 
 

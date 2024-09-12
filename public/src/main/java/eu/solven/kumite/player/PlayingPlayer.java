@@ -7,6 +7,12 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
+/**
+ * A player and its status relatively to a contest.
+ * 
+ * @author Benoit Lacelle
+ *
+ */
 @Value
 @Builder
 @Jacksonized

@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 
 import com.nimbusds.jose.jwk.OctetSequenceKey;
 
+import eu.solven.kumite.app.IKumiteSpringProfiles;
 import lombok.SneakyThrows;
 
 @Configuration
@@ -37,6 +38,12 @@ public class KumiteJwtSigningConfiguration {
 	@SneakyThrows(ParseException.class)
 	public ReactiveJwtDecoder jwtDecoder(Environment env) {
 		String secretKeySpec = env.getRequiredProperty(KumiteTokenService.KEY_JWT_SIGNINGKEY);
+
+		if ("NEEDS_TO_BE_DEFINED".equals(secretKeySpec)) {
+			throw new IllegalStateException("Lack proper `" + KumiteTokenService.KEY_JWT_SIGNINGKEY
+					+ "` or spring.profiles.active="
+					+ IKumiteSpringProfiles.P_FAKE_SERVER);
+		}
 
 		OctetSequenceKey octetSequenceKey = OctetSequenceKey.parse(secretKeySpec);
 		SecretKey secretKey = octetSequenceKey.toSecretKey();

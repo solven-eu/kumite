@@ -62,6 +62,11 @@ public class GamesRegistry {
 			metaStream = metaStream.filter(c -> titlePredicate.test(c.getTitle()));
 		}
 
+		if (!search.getRequiredTags().isEmpty()) {
+			// TODO Handle tags with OR conditions (e.g. `tagA,tagB`)
+			metaStream = metaStream.filter(c -> c.getTags().containsAll(search.getRequiredTags()));
+		}
+
 		return metaStream.collect(Collectors.toList());
 	}
 

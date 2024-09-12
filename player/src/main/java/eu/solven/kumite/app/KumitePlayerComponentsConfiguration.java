@@ -1,26 +1,20 @@
 package eu.solven.kumite.app;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 
-import eu.solven.kumite.contest.ContestSearchParameters;
-import eu.solven.kumite.contest.ContestView;
-import eu.solven.kumite.game.GameSearchParameters;
+import eu.solven.kumite.app.player.IKumitePlayer;
+import eu.solven.kumite.app.player.KumitePlayer;
+import eu.solven.kumite.app.server.IKumiteServer;
+import eu.solven.kumite.app.server.KumiteWebclientServer;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
 
 @Configuration
 @Import({
@@ -37,51 +31,38 @@ public class KumitePlayerComponentsConfiguration {
 	}
 
 	@Bean
-	public Void playTicTacToe(IKumiteServer kumiteServer, Environment env) {
+	public IKumitePlayer kumitePlayer(IKumiteServer kumiteServer) {
+		return new KumitePlayer(kumiteServer);
+	}
+
+	@Bean
+	public Void playTicTacToe(IKumitePlayer kumitePlayer, Environment env) {
 		UUID playerId = env.getRequiredProperty("kumite.playerId", UUID.class);
 
 		ScheduledExecutorService ses = Executors.newScheduledThreadPool(4);
 
-		Map<UUID, ContestView> contestToDetails = new ConcurrentHashMap<>();
-		Set<UUID> playingContests = new ConcurrentSkipListSet<>();
+		ses.scheduleWithFixedDelay(() -> {
+			try {
+				log.info("Playing contests as {}", playerId);
+				kumitePlayer.playOptimizationGames(playerId);
+			} catch (Throwable t) {
+				log.warn("Issue while playing games", t);
+			}
 
-		Stream.of("Travelling Salesman Problem", "Tic-Tac-Toe").forEach(gameTitle -> {
-			ses.scheduleWithFixedDelay(() -> {
-				log.info("Looking for interesting contests for game LIKE `{}`", gameTitle);
-				kumiteServer.searchGames(GameSearchParameters.builder().titleRegex(Optional.of(gameTitle)).build())
-						.collectList()
-						.flatMapMany(games -> {
-							log.info("Games for `{}`: {}", gameTitle, games);
-							return Flux.fromStream(games.stream());
-						})
-						.flatMap(game -> kumiteServer.searchContests(
-								ContestSearchParameters.builder().gameId(Optional.of(game.getGameId())).build()))
-						.flatMap(contest -> kumiteServer.loadBoard(playerId, contest.getContestId()))
-						.filter(c -> !c.getDynamicMetadata().isGameOver())
-						.filter(c -> c.getDynamicMetadata().isAcceptingPlayers())
-						.doOnNext(contestView -> {
-							UUID contestId = contestView.getContestId();
+		}, 1, 60, TimeUnit.SECONDS);
 
-							if (contestView.getPlayingPlayer().isPlayerHasJoined()) {
-								log.info("Received board for already joined contestId={}", contestId);
+		ses.scheduleWithFixedDelay(() -> {
+			try {
+				log.info("Playing contests as {}", playerId);
+				kumitePlayer.play1v1(playerId);
+			} catch (Throwable t) {
+				log.warn("Issue while playing games", t);
+			}
 
-								playingContests.add(contestId);
-								contestToDetails.put(contestId, contestView);
-							} else if (contestView.getPlayingPlayer().isPlayerCanJoin()) {
-								log.info("Received board for joinable contestId={}", contestId);
-								kumiteServer.joinContest(playerId, contestId).subscribe(view -> {
-									log.info("Received board for joined contestId={}", contestId);
-									contestToDetails.put(contestId, contestView);
-								});
-							}
-						})
-						.subscribe(view -> {
-							log.info("View: {}", view);
-						});
-			}, 1, 60, TimeUnit.SECONDS);
-		});
+		}, 1, 60, TimeUnit.SECONDS);
 
 		return null;
 	}
+
 
 }

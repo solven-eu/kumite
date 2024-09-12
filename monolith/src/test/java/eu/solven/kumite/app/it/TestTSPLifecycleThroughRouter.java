@@ -14,10 +14,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import eu.solven.kumite.app.IKumiteServer;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerApplication;
-import eu.solven.kumite.app.KumiteWebclientServer;
+import eu.solven.kumite.app.server.IKumiteServer;
+import eu.solven.kumite.app.server.KumiteWebclientServer;
 import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.game.GameSearchParameters;
 import eu.solven.kumite.player.PlayerRawMovesHolder;
@@ -35,7 +35,7 @@ import reactor.core.publisher.Mono;
 // Should this move to `monolith` module?
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = KumiteServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({ IKumiteSpringProfiles.P_DEFAULT, IKumiteSpringProfiles.P_DEFAULT_FAKE_PLAYER, })
+@ActiveProfiles({ IKumiteSpringProfiles.P_DEFAULT, IKumiteSpringProfiles.P_FAKE_PLAYER, })
 @TestPropertySource(properties = { "kumite.random.seed=123",
 		"kumite.server.base-url=http://localhost:LocalServerPort",
 		"kumite.random.seed=123" })

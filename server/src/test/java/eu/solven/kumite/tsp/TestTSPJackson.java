@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.solven.kumite.game.optimization.tsp.TSPCity;
 import eu.solven.kumite.game.optimization.tsp.TSPProblem;
 
-public class TestTspJackson {
+public class TestTSPJackson {
 	ObjectMapper objectMapper = new ObjectMapper();
 
 	@Test
