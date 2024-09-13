@@ -499,7 +499,7 @@ export const useKumiteStore = defineStore("kumite", {
 					}
 				}
 				return fetchFromUrl(
-					"/api/contests?game_id=" + gameId + "&contest_id=" + contestId,
+					`/api/contests?game_id=${gameId}&contest_id=${contestId}`,
 				).then((contest) => {
 					return this.mergeContest(contest);
 				});

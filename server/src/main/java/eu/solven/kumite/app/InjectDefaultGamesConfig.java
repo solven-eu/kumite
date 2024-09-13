@@ -18,6 +18,7 @@ import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToe;
+import eu.solven.kumite.game.optimization.ping.Lag;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.tools.IUuidGenerator;
@@ -39,6 +40,11 @@ public class InjectDefaultGamesConfig {
 	@Bean
 	TicTacToe ticTacToe() {
 		return new TicTacToe();
+	}
+
+	@Bean
+	Lag lag() {
+		return new Lag();
 	}
 
 	// Chess is not ready, and is quite complex to implement. It would need to rely on some library (e.g.

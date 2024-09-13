@@ -3,16 +3,23 @@ package eu.solven.kumite.app.webflux;
 import static org.springdoc.core.fn.builders.apiresponse.Builder.responseBuilder;
 import static org.springdoc.core.fn.builders.parameter.Builder.parameterBuilder;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springdoc.core.fn.builders.parameter.Builder;
 import org.springdoc.webflux.core.fn.SpringdocRouteBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.board.BoardHandler;
 import eu.solven.kumite.contest.ContestSearchHandler;
@@ -21,6 +28,8 @@ import eu.solven.kumite.leaderboard.LeaderboardHandler;
 import eu.solven.kumite.player.PlayerMovesHandler;
 import eu.solven.kumite.player.PlayersSearchHandler;
 import eu.solven.kumite.webhook.WebhooksHandler;
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 /**
  * Redirect each route (e.g. `/games/someGameId`) to the appropriate handler.
@@ -29,6 +38,7 @@ import eu.solven.kumite.webhook.WebhooksHandler;
  *
  */
 @Configuration(proxyBeanMethods = false)
+@Slf4j
 public class KumiteApiRouter {
 
 	// https://github.com/springdoc/springdoc-openapi-demos/tree/2.x/springdoc-openapi-spring-boot-2-webflux-functional
@@ -109,6 +119,24 @@ public class KumiteApiRouter {
 				// webhooksHandler::dropWebhooks,
 				// ops -> ops.operationId("deleteWebhook"))
 
+				.filter((request, next) -> {
+					Optional<UUID> optPlayerId = KumiteHandlerHelper.optUuid(request, "player_id");
+
+					return Mono.justOrEmpty(optPlayerId).map(queryPlayerId -> {
+						Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+						log.debug("1We need to check if playerId={} is valid given JWT={}", queryPlayerId, auth);
+
+						return ReactiveSecurityContextHolder.getContext().map(securityContext -> {
+							log.debug("2We need to check if playerId={} is valid given JWT={}",
+									queryPlayerId,
+									securityContext.getAuthentication());
+
+							return Mono.empty();
+						});
+					}).then(next.handle(request));
+				}, ops -> {
+				})
 				.build();
+
 	}
 }

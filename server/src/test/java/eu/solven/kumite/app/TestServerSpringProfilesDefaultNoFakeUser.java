@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { EmptySpringBootApplication.class }, webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE_EXTERNAL_OAUTH2, IKumiteSpringProfiles.P_FAKE_SERVER })
+@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE_EXTERNAL_OAUTH2, IKumiteSpringProfiles.P_UNSAFE_SERVER })
 @Slf4j
 public class TestServerSpringProfilesDefaultNoFakeUser implements IKumiteSpringProfiles {
 
@@ -34,7 +34,7 @@ public class TestServerSpringProfilesDefaultNoFakeUser implements IKumiteSpringP
 
 		// By default, we include unsafe parameters
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_FAKE_PLAYER))).isFalse();
-		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_FAKE_SERVER))).isTrue();
+		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_UNSAFE_SERVER))).isTrue();
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_FAKE_USER))).isFalse();
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_UNSAFE_EXTERNAL_OAUTH2))).isTrue();
 

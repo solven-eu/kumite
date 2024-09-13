@@ -72,7 +72,7 @@ export default {
 		const store = useKumiteStore();
 
 		function loadExampleMoves() {
-			console.log("Loading example moves");
+			console.debug("Loading example moves");
 			async function fetchFromUrl(url) {
 				try {
 					const response = await store.authenticatedFetch(url);
@@ -82,6 +82,8 @@ export default {
 
 					const responseJson = await response.json();
 					const newExampleMoves = responseJson.moves;
+
+                    console.info("Loaded example moves", responseJson);
 
 					// This convoluted `modify` is needed until we clarify how wo can edit the Ref from this method
 					// https://stackoverflow.com/questions/26957719/replace-object-value-without-replacing-reference
@@ -108,12 +110,7 @@ export default {
 			// const viewingPlayerId = "00000000-0000-0000-0000-000000000000";
 			// const playerId = viewingPlayerId;
 			const playerId = store.playingPlayerId;
-			fetchFromUrl(
-				"/api/board/moves?contest_id=" +
-					props.contestId +
-					"&player_id=" +
-					playerId,
-			);
+			fetchFromUrl(`/api/board/moves?contest_id=${props.contestId}&player_id=${playerId}`);
 		}
 		function fillMove(json) {
 			this.rawMove = JSON.stringify(json);
@@ -186,7 +183,7 @@ export default {
 		const exampleMovesMetadata = ref({ loaded: false });
 
 		// We need to suggest a move is defined through JSON format
-		const rawMove = ref("{}");
+		const rawMove = ref(JSON.stringify({'some': 'json'}));
 
 		store.loadBoard(props.gameId, props.contestId);
 

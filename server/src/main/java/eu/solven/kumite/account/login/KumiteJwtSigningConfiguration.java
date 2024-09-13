@@ -42,7 +42,7 @@ public class KumiteJwtSigningConfiguration {
 		if ("NEEDS_TO_BE_DEFINED".equals(secretKeySpec)) {
 			throw new IllegalStateException("Lack proper `" + KumiteTokenService.KEY_JWT_SIGNINGKEY
 					+ "` or spring.profiles.active="
-					+ IKumiteSpringProfiles.P_FAKE_SERVER);
+					+ IKumiteSpringProfiles.P_UNSAFE_SERVER);
 		}
 
 		OctetSequenceKey octetSequenceKey = OctetSequenceKey.parse(secretKeySpec);

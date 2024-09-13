@@ -6,19 +6,19 @@ spring:
             default:
                 - default_server
                 - fake
-            not_fake:
+            secured:
                 - default_server
             heroku:
-                - not_fake
+                - secured
             unsafe_external_oauth2:
                 - default_server
             fake:
             - default_server
-            # fake_server provides unsafe security (JWT signature, etc)
-            - fake_server
+            # unsafe_server provides unsafe security (JWT signature, etc)
+            - unsafe_server
             # fake_user introduces a default fakeAccount with a default fakePlayer
             - fake_user
-            fake_server:
+            unsafe_server:
                 - default_server
             default_server:
             - inject_default_games

@@ -29,7 +29,7 @@ public class TestServerSpringProfilesHeroku implements IKumiteSpringProfiles {
 
 		// By default, we include unsafe parameters
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_FAKE_PLAYER))).isFalse();
-		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_FAKE_SERVER))).isFalse();
+		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_UNSAFE_SERVER))).isFalse();
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_FAKE_USER))).isFalse();
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_UNSAFE_EXTERNAL_OAUTH2))).isFalse();
 	}

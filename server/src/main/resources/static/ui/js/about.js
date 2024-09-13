@@ -37,13 +37,13 @@ export default {
         Player: an robot identifier, attached to a single User, and able to join contests.
       </li>
         <li>
-          Contest: an occurence of a `Game`, enabling `players` to join. A player may also join as a `viewer`: then, he can not make any move, but it can see the whole `board`.
+          Contest: an occurence of a 'Game', enabling 'players' to join. A player may also join as a 'viewer': then, he can not make any move, but it can see the whole 'board'.
         </li>
           <li>
-            Board: each contest has a `board`, which holds all the information about the state of the contest from the `game` perspective.
+            Board: each contest has a 'board', which holds all the information about the state of the contest from the 'game' perspective.
           </li>
             <li>
-              Move: an action which can be done by a `player` on a given `board`.
+              Move: an action which can be done by a 'player' on a given 'board'.
             </li>
   </ul>
   `,
