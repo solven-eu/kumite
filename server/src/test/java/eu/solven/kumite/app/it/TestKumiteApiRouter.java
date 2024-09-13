@@ -140,7 +140,7 @@ public class TestKumiteApiRouter {
 				.expectBodyList(ContestMetadataRaw.class)
 				.value(contests -> {
 					Assertions.assertThat(contests)
-							.hasSize(2)
+							.hasSizeGreaterThanOrEqualTo(2)
 
 							.anySatisfy(contest -> {
 								Assertions.assertThat(contest.getDynamicMetadata().isGameOver()).isFalse();

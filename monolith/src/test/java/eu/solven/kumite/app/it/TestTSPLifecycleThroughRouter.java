@@ -32,13 +32,11 @@ import reactor.core.publisher.Mono;
  * @author Benoit Lacelle
  * @see 'TestTSPLifecycle'
  */
-// Should this move to `monolith` module?
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = KumiteServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({ IKumiteSpringProfiles.P_DEFAULT, IKumiteSpringProfiles.P_FAKE_PLAYER, })
-@TestPropertySource(properties = { "kumite.random.seed=123",
-		"kumite.server.base-url=http://localhost:LocalServerPort",
-		"kumite.random.seed=123" })
+@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE_SERVER, IKumiteSpringProfiles.P_FAKE_PLAYER, })
+@TestPropertySource(
+		properties = { "kumite.random.seed=123", "kumite.server.base-url=http://localhost:LocalServerPort" })
 @Slf4j
 public class TestTSPLifecycleThroughRouter {
 
