@@ -47,7 +47,6 @@ export default {
 	setup(props) {
 		const store = useKumiteStore();
 
-		const game = ref(store.games[props.gameId]);
 		const contest = ref(store.contests[props.contestId]);
 
 		// https://github.com/vuejs/core/issues/5818

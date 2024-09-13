@@ -70,7 +70,7 @@ export default {
 
 			const group = new Group();
 
-			function checkAndAddLine(from, to, renderer) {
+			function checkAndAddLine(from, to) {
 				if (!from) {
 					console.warn("Unknown city", from);
 					return;
@@ -130,7 +130,7 @@ export default {
 
 			watch(
 				() => props.rawMove,
-				(newValue) => {
+				() => {
 					renderRawMove();
 				},
 			);

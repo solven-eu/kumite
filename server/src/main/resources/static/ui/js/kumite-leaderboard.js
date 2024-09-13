@@ -1,6 +1,6 @@
 import { ref, watch, onMounted, onUnmounted } from "vue";
 
-import { mapState, storeToRefs } from "pinia";
+import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
 export default {

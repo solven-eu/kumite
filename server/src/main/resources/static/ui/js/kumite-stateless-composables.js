@@ -1,5 +1,3 @@
-// my-component.js
-import { ref } from "vue";
 import KumiteLeaderboard from "./kumite-leaderboard.js";
 import KumiteBoardMoveForm from "./kumite-board-move-form.js";
 import { mapState } from "pinia";

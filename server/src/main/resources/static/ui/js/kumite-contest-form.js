@@ -53,11 +53,7 @@ export default {
 					};
 					const response = await store.authenticatedFetch(url, fetchOptions);
 					if (!response.ok) {
-						throw new NetworkError(
-							"Rejected POST for move for games url=" + url,
-							url,
-							response,
-						);
+						throw new Error("Rejected POST for move for games url=" + url);
 					}
 
 					const contest = await response.json();
@@ -76,7 +72,6 @@ export default {
 				}
 			}
 
-			const playerId = store.playingPlayerId;
 			return postFromUrl(`/api/contests?game_id=${props.gameId}`);
 		};
 

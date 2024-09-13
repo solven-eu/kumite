@@ -1,6 +1,3 @@
-// my-component.js
-import { ref } from "vue";
-
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
@@ -47,15 +44,7 @@ export default {
 		store.loadGameIfMissing(props.gameId);
 
 		// https://getbootstrap.com/docs/5.3/components/tooltips/
-		const tooltipTriggerList = document.querySelectorAll(
-			'[data-bs-toggle="tooltip"]',
-		);
-		const tooltipList = [...tooltipTriggerList].map(
-			(tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl),
-		);
-
 		// https://stackoverflow.com/questions/69053972/adding-bootstrap-5-tooltip-to-vue-3
-
 		new Tooltip(document.body, { selector: "[data-bs-toggle='tooltip']" });
 
 		return {};

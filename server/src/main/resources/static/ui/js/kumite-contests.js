@@ -1,5 +1,3 @@
-// my-component.js
-import { ref } from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 import KumiteContest from "./kumite-contest.js";

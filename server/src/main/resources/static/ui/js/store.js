@@ -275,9 +275,9 @@ export const useKumiteStore = defineStore("kumite", {
 					}
 
 					const responseJson = await response.json();
-					const user = responseJson;
+					const players = responseJson;
 
-					responseJson.forEach((player) => {
+					players.forEach((player) => {
 						console.log("Registering playerId", player.playerId);
 						store.$patch({
 							players: { ...store.players, [player.playerId]: player },
@@ -333,7 +333,7 @@ export const useKumiteStore = defineStore("kumite", {
 			return fetchFromUrl(`/api/players?contest_id=${contestId}`);
 		},
 
-		async loadGames(gameId) {
+		async loadGames() {
 			const store = this;
 
 			async function fetchFromUrl(url) {
@@ -454,7 +454,7 @@ export const useKumiteStore = defineStore("kumite", {
 		},
 
 		async loadContest(gameId, contestId) {
-			return this.loadGameIfMissing(gameId).then((game) => {
+			return this.loadGameIfMissing(gameId).then(() => {
 				console.log("About to load/refresh contestId", contestId);
 
 				const store = this;
@@ -507,7 +507,7 @@ export const useKumiteStore = defineStore("kumite", {
 		},
 
 		async loadContestIfMissing(gameId, contestId) {
-			return this.loadGameIfMissing(gameId).then((game) => {
+			return this.loadGameIfMissing(gameId).then(() => {
 				if (this.contests[contestId]) {
 					console.debug("Skip loading contestId=", contestId);
 					return Promise.resolve(this.contests[contestId]);
@@ -609,7 +609,7 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			return this.loadContestIfMissing(gameId, contestId).then((contest) =>
+			return this.loadContestIfMissing(gameId, contestId).then(() =>
 				fetchFromUrl("/api/leaderboards?contest_id=" + contestId),
 			);
 		},

@@ -57,7 +57,7 @@ export default {
 		// We load current accountPlayers to enable playingPlayerId
 		store
 			.loadCurrentAccountPlayers()
-			.then((account) => {
+			.then(() => {
 				return store.loadBoard(
 					props.gameId,
 					props.contestId,

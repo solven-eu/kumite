@@ -7,7 +7,7 @@ import { Group } from "https://cdn.jsdelivr.net/npm/two.js/src/group.js";
 
 // Importing Two means importing all modules, without tree-shacking
 // It is easier but (slightly) less efficient
-import Two from "https://cdn.jsdelivr.net/npm/two.js/src/two.js";
+// import Two from "https://cdn.jsdelivr.net/npm/two.js/src/two.js";
 
 // https://github.com/jonobr1/two.js/tree/main?tab=readme-ov-file#running-in-headless-environments
 // We may want to generate board views with server-side rendering
@@ -74,7 +74,7 @@ export default {
 
 			const group = new Group();
 
-			function checkAndAddLine(from, to, renderer) {
+			function checkAndAddLine(from, to) {
 				if (!from) {
 					console.warn("Unknown city", from);
 					errorMessage.value = "Unknown city";
@@ -137,7 +137,7 @@ export default {
 
 			watch(
 				() => props.rawMove,
-				(newValue) => {
+				() => {
 					renderRawMove();
 				},
 			);

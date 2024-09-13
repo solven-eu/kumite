@@ -1,4 +1,4 @@
-import { ref, onUnmounted } from "vue";
+import { ref } from "vue";
 
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";

@@ -1,4 +1,4 @@
-import { ref, watch } from "vue";
+import { watch } from "vue";
 
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";

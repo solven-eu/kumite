@@ -1,27 +1,27 @@
 type Query {
-	games: [Game]
-    gamesById(gameId: ID): Game
-    contestsById(contestId: ID): Contest
-    contestsByGameId(gameId: ID): [Contest]
-    playerById(playerId: ID): Player
-    playersByAccountId(accountId: ID): [Player]
-    playersByContestId(contestId: ID): [Player]
+  games: [Game]
+  gamesById(gameId: ID): Game
+  contestsById(contestId: ID): Contest
+  contestsByGameId(gameId: ID): [Contest]
+  playerById(playerId: ID): Player
+  playersByAccountId(accountId: ID): [Player]
+  playersByContestId(contestId: ID): [Player]
 }
 
 type Game {
-    gameId: ID
-    title: String
-    shoftDescription: String
-    contests: [Contest]
+  gameId: ID
+  title: String
+  shoftDescription: String
+  contests: [Contest]
 }
 
 type Contest {
-    contestId: ID
-    firstName: String
-    lastName: String
+  contestId: ID
+  firstName: String
+  lastName: String
 }
 
 type Player {
-    playerId: ID
-    accountId: ID
+  playerId: ID
+  accountId: ID
 }

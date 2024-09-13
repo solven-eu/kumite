@@ -6,7 +6,7 @@ export default {
 			required: true,
 		},
 	},
-	setup(props) {
+	setup() {
 		return {};
 	},
 	// https://stackoverflow.com/questions/7717929/how-do-i-get-pre-style-overflow-scroll-height-150px-to-display-at-parti

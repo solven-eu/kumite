@@ -71,7 +71,7 @@ export default {
 					);
 					group.add(line);
 				} else if (char === "O") {
-					const circle = new Circle(width * city.x, height * city.y, 1);
+					const circle = new Circle(width * x, height * y, 1);
 					group.add(circle);
 				} else {
 					// Nothing to render on not played positions

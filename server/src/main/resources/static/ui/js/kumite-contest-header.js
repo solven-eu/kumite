@@ -67,9 +67,7 @@ export default {
 			clearShortPollContestDynamic();
 		});
 
-		store
-			.loadContestIfMissing(props.gameId, props.contestId)
-			.then((contest) => {});
+		store.loadContestIfMissing(props.gameId, props.contestId);
 
 		return {};
 	},

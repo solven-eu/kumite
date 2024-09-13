@@ -30,7 +30,7 @@ export default {
 		store.loadMetadata();
 		store.loadUser();
 		store.loadUserTokens();
-		
+
 		return {};
 	},
 	template: `
