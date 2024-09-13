@@ -1,7 +1,9 @@
 package eu.solven.kumite.app.controllers;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.stream.StreamSupport;
 
 import org.springframework.core.env.Environment;
@@ -12,6 +14,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.solven.kumite.account.KumiteUser;
@@ -21,6 +24,7 @@ import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.webflux.LoginRouteButNotAuthenticatedException;
+import eu.solven.kumite.player.AccountPlayersRegistry;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -31,15 +35,10 @@ public class KumiteLoginController {
 	final InMemoryReactiveClientRegistrationRepository clientRegistrationRepository;
 
 	final KumiteUsersRegistry usersRegistry;
+	final AccountPlayersRegistry playersRegistry;
 	final Environment env;
 
 	final KumiteTokenService kumiteTokenService;
-
-	// Redirect to the UI route showing the User how to login
-	// @GetMapping
-	// public ResponseEntity<?> login() {
-	// return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).header(HttpHeaders.LOCATION, "/login").build();
-	// }
 
 	@GetMapping("/providers")
 	public Map<String, ?> loginProviders() {
@@ -89,8 +88,22 @@ public class KumiteLoginController {
 	}
 
 	@GetMapping("/token")
-	public Mono<Map<String, ?>> token(@AuthenticationPrincipal Mono<OAuth2User> oauth2User) {
-		return user(oauth2User).map(user -> kumiteTokenService.wrapInJwtToken(user));
+	public Mono<Map<String, ?>> token(@AuthenticationPrincipal Mono<OAuth2User> oauth2User,
+			@RequestParam(name = "player_id", required = false) String rawPlayerId) {
+		return user(oauth2User).map(user -> {
+			UUID playerId = KumiteHandlerHelper.optUuid(Optional.ofNullable(rawPlayerId)).orElse(user.getPlayerId());
+
+			checkValidPlayerId(user, playerId);
+
+			return kumiteTokenService.wrapInJwtToken(user, playerId);
+		});
+	}
+
+	void checkValidPlayerId(KumiteUser user, UUID playerId) {
+		UUID accountId = user.getAccountId();
+		if (!playersRegistry.makeDynamicHasPlayers(accountId).hasPlayerId(playerId)) {
+			throw new IllegalArgumentException("player_id=" + playerId + " is not managed by accountId=" + accountId);
+		}
 	}
 
 }

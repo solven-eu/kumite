@@ -35,7 +35,7 @@ public class TestKumiteTokenService {
 		UUID playerId = UUID.randomUUID();
 		KumiteUser user =
 				KumiteUser.builder().accountId(accountId).playerId(playerId).raw(TestTSPLifecycle.userRaw()).build();
-		String accessToken = tokenService.generateAccessToken(user);
+		String accessToken = tokenService.generateAccessToken(user, playerId);
 
 		{
 			JWSVerifier verifier = new MACVerifier((OctetSequenceKey) signatureSecret);
@@ -53,6 +53,6 @@ public class TestKumiteTokenService {
 		Jwt jwt = (Jwt) auth.getPrincipal();
 		Assertions.assertThat(jwt.getSubject()).isEqualTo(accountId.toString());
 		Assertions.assertThat(jwt.getAudience()).containsExactly("Kumite-Server");
-		Assertions.assertThat(jwt.getClaimAsString("mainPlayerId")).isEqualTo(playerId.toString());
+		Assertions.assertThat(jwt.getClaimAsString("playerId")).isEqualTo(playerId.toString());
 	}
 }

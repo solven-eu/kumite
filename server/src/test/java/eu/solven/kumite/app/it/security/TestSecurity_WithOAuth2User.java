@@ -20,6 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRaw;
 import eu.solven.kumite.account.login.KumiteOAuth2UserService;
 import eu.solven.kumite.account.login.SocialWebFluxSecurity;
@@ -157,6 +158,8 @@ public class TestSecurity_WithOAuth2User {
 	public void testLoginToken() {
 		log.debug("About {}", KumiteLoginController.class);
 
+		KumiteUser kumiteUser;
+
 		// Beware `.mutateWith(oauth2Login)` skips KumiteOAuth2UserService, hence automated registration on first OAuth2
 		// login
 		OAuth2LoginMutator oauth2Login;
@@ -166,7 +169,7 @@ public class TestSecurity_WithOAuth2User {
 				attributes.put("id", userRaw.getRawRaw().getSub());
 				attributes.put("providerId", userRaw.getRawRaw().getProviderId());
 			});
-			oauth2UserService.onKumiteUserRaw(userRaw);
+			kumiteUser = oauth2UserService.onKumiteUserRaw(userRaw);
 		}
 
 		webTestClient
@@ -182,7 +185,10 @@ public class TestSecurity_WithOAuth2User {
 				.isOk()
 				.expectBody(Map.class)
 				.value(tokens -> {
-					Assertions.assertThat(tokens).containsKey("access_token").hasSize(1);
+					Assertions.assertThat(tokens)
+							.containsKey("access_token")
+							.containsEntry("player_id", kumiteUser.getPlayerId().toString())
+							.hasSize(2);
 				});
 	}
 

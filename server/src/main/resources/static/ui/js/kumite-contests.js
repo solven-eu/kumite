@@ -26,12 +26,12 @@ export default {
 			contests(store) {
 				const allContests = Object.values(store.contests);
 
-				console.log("allContests", allContests);
+				console.debug("allContests", allContests);
 
 				if (this.gameId) {
 					// https://stackoverflow.com/questions/69091869/how-to-filter-an-array-in-array-of-objects-in-javascript
 					return allContests.filter(
-						(contest) => contest.constantMetadata.gameId == this.gameId,
+						(contest) => contest.constantMetadata.gameId === this.gameId,
 					);
 				} else {
 					return allContests;

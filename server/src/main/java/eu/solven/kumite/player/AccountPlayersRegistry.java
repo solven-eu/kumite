@@ -8,15 +8,15 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
 import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.game.GamesRegistry;
-import lombok.AllArgsConstructor;
+import eu.solven.kumite.account.login.FakePlayerTokens;
 
-@AllArgsConstructor
-public class AccountPlayersRegistry {
-	final GamesRegistry gamesRegistry;
-
+public final class AccountPlayersRegistry {
 	final Map<UUID, Set<UUID>> accountToPlayers = new ConcurrentHashMap<>();
 	final Map<UUID, UUID> playerIdToAccountId = new ConcurrentHashMap<>();
+
+	public AccountPlayersRegistry() {
+		registerPlayer(KumiteUser.FAKE_ACCOUNT_ID, FakePlayerTokens.fakePlayer());
+	}
 
 	public void registerPlayer(UUID accountId, KumitePlayer player) {
 		// Synchronized to make atomic changes to both `accountToPlayers` and `playerIdToAccountId`

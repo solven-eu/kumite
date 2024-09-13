@@ -32,7 +32,7 @@ public class TestBoardLifecycleManager {
 
 	BoardsRegistry boardRegistry = new BoardsRegistry();
 	GamesRegistry gamesRegistry = new GamesRegistry();
-	AccountPlayersRegistry playersRegistry = new AccountPlayersRegistry(gamesRegistry);
+	AccountPlayersRegistry playersRegistry = new AccountPlayersRegistry();
 
 	ContestPlayersRegistry contestPlayersRegistry = new ContestPlayersRegistry(gamesRegistry, playersRegistry);
 

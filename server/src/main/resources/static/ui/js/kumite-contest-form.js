@@ -35,9 +35,12 @@ export default {
 		const store = useKumiteStore();
 
 		const contestName = ref("A nice name for a contest");
+		const createdContest = ref({});
 
 		const submitContestForm = function () {
-			const payload = { constant_metadata: { name: this.contestName } };
+			const constantMetadata = {
+				constant_metadata: { name: contestName.value },
+			};
 
 			console.log("Submitting contestCreation", constantMetadata);
 
@@ -46,7 +49,7 @@ export default {
 					const fetchOptions = {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify(payload),
+						body: JSON.stringify(constantMetadata),
 					};
 					const response = await store.authenticatedFetch(url, fetchOptions);
 					if (!response.ok) {
@@ -58,6 +61,7 @@ export default {
 					}
 
 					const contest = await response.json();
+					console.log("Created contest", contest);
 
 					{
 						console.log("Registering contestId", contest.contestId);
@@ -65,16 +69,18 @@ export default {
 							contests: { ...store.contests, [contest.contestId]: contest },
 						});
 					}
+
+					createdContest.value = contest;
 				} catch (e) {
 					console.error("Issue on Network:", e);
 				}
 			}
 
 			const playerId = store.playingPlayerId;
-			return postFromUrl(`/api/contests?game_id=${gameId}`);
+			return postFromUrl(`/api/contests?game_id=${props.gameId}`);
 		};
 
-		return { contestName, submitContestForm };
+		return { contestName, submitContestForm, createdContest };
 	},
 	template: `
 <div v-if="(!game)">
@@ -96,8 +102,12 @@ export default {
 	    <input type="text" class="form-control" id="contestName" v-model="contestName" aria-describedby="emailHelp">
 	    <div id="emailHelp" class="form-text">Pick a name so your friends can find your contest.</div>
 	  </div>
-	  <button type="submit" @click="submitContestForm" class="btn btn-primary">Submit</button>
+	  <button type="button" @click="submitContestForm" class="btn btn-primary">Submit</button>
 	</form>
+    
+    <div v-if="createdContest.contestId">
+        <RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + createdContest.contestId}"><i class="bi bi-trophy"></i> {{createdContest.constantMetadata.name}}</RouterLink>
+    </div>
 </div>
   `,
 };

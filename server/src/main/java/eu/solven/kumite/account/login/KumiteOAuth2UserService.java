@@ -34,7 +34,7 @@ import reactor.core.publisher.Mono;
 public class KumiteOAuth2UserService extends DefaultReactiveOAuth2UserService {
 
 	// private final AccountsStore accountsStore;
-	private final KumiteUsersRegistry usersRegistry;
+	final KumiteUsersRegistry usersRegistry;
 
 	@Override
 	@SneakyThrows(OAuth2AuthenticationException.class)

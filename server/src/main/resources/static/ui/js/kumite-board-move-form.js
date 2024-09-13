@@ -54,7 +54,7 @@ export default {
 				return store.contests[this.contestId] || { error: "not_loaded" };
 			},
 			board(store) {
-				return store.boards[this.contestId]?.board || { error: "not_loaded" };
+				return store.contests[this.contestId]?.board || { error: "not_loaded" };
 			},
 		}),
 		curlPostBoard() {
@@ -68,7 +68,6 @@ export default {
 			);
 		},
 	},
-	emits: ["move-sent"],
 	setup(props, context) {
 		const store = useKumiteStore();
 
@@ -163,7 +162,7 @@ export default {
 							state.leaderboards[contestId] = {};
 						}
 						state.leaderboards[contestId].stale = true;
-						state.boards[contestId].stale = true;
+						state.contests[contestId].stale = true;
 					});
 					sendMoveError.value = "";
 				} catch (e) {
@@ -189,11 +188,7 @@ export default {
 		// We need to suggest a move is defined through JSON format
 		const rawMove = ref("{}");
 
-		const showBoardWithMoveAsSvg = ref(false);
-		store.loadBoard(props.gameId, props.contestId).then((board) => {
-			// If this board enables SVG, activates it by default
-			showBoardWithMoveAsSvg.value = store.boards[props.contestId].svg;
-		});
+		store.loadBoard(props.gameId, props.contestId);
 
 		return {
 			sendMoveError,
@@ -204,17 +199,22 @@ export default {
 			rawMove,
 			fillMove,
 			sendMove,
-			showBoardWithMoveAsSvg,
 		};
 	},
 	template: `
-	<div v-if="(!game || !contest || !board) && (nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
+	<div v-if="(!game || !contest || !board)">
+  <div v-if="(nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
 	   <div class="spinner-border" role="status">
 	      <span class="visually-hidden">Loading contestId={{contestId}}</span>
 	   </div>
-	</div>
-	<div v-else-if="game.error || contest.error || board.error">
-	   {{game.error || contest.error || board.error}}
+       </div>
+
+       <div v-else-if="game.error || contest.error || board.error">
+          {{game.error || contest.error || board.error}}
+       </div>
+       <div v-else>
+          ???
+       </div>
 	</div>
 	<div v-else class="container border">
       <form>

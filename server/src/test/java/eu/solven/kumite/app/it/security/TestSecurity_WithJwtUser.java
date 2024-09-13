@@ -25,6 +25,7 @@ import eu.solven.kumite.account.login.SocialWebFluxSecurity;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.controllers.KumiteLoginController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
+import eu.solven.kumite.player.KumitePlayer;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -49,7 +50,7 @@ public class TestSecurity_WithJwtUser {
 	KumiteTokenService tokenService;
 
 	protected String generateAccessToken() {
-		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser());
+		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser(), KumitePlayer.FAKE_PLAYER_ID);
 	}
 
 	@Test

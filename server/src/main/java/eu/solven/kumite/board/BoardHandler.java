@@ -50,6 +50,8 @@ public class BoardHandler {
 		ContestSearchParametersBuilder parameters = ContestSearchParameters.builder();
 		List<Contest> contest = contestsRegistry.searchContests(parameters.contestId(Optional.of(contestId)).build());
 		if (contest.isEmpty()) {
+			// https://stackoverflow.com/questions/5604816/whats-the-most-appropriate-http-status-code-for-an-item-not-found-error-page
+			// We may want a specific exception + httpStatusCode
 			throw new IllegalArgumentException("No contest for contestId=" + contestId);
 		} else if (contest.size() >= 2) {
 			throw new IllegalStateException("Multiple contests for contestId=" + contestId + " contests=" + contest);

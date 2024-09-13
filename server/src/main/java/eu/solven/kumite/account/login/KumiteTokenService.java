@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.springframework.core.env.Environment;
@@ -34,12 +35,12 @@ public class KumiteTokenService {
 	public static final String KEY_ACCESSTOKEN_EXP = "kumite.login.oauth2_exp";
 
 	final Environment env;
-	final IUuidGenerator uuidgenerator;
+	final IUuidGenerator uuidGenerator;
 	final Supplier<OctetSequenceKey> supplierSymetricKey;
 
 	public KumiteTokenService(Environment env, IUuidGenerator uuidgenerator) {
 		this.env = env;
-		this.uuidgenerator = uuidgenerator;
+		this.uuidGenerator = uuidgenerator;
 		this.supplierSymetricKey = () -> loadSigningJwk();
 	}
 
@@ -48,9 +49,9 @@ public class KumiteTokenService {
 		return OctetSequenceKey.parse(env.getRequiredProperty(KEY_JWT_SIGNINGKEY));
 	}
 
-	public Map<String, ?> wrapInJwtToken(KumiteUser user) {
-		String accessToken = generateAccessToken(user);
-		return Map.of("access_token", accessToken);
+	public Map<String, ?> wrapInJwtToken(KumiteUser user, UUID playerId) {
+		String accessToken = generateAccessToken(user, playerId);
+		return Map.of("access_token", accessToken, "player_id", playerId);
 	}
 
 	public static void main(String[] args) {
@@ -82,13 +83,14 @@ public class KumiteTokenService {
 	 * 
 	 * @param user
 	 *            The user for whom to generate an access token.
+	 * @param playerId
 	 * @throws IllegalArgumentException
 	 *             if provided argument is <code>null</code>.
 	 * @return The generated JWT access token.
 	 * @throws IllegalStateException
 	 */
 	@SneakyThrows({ JOSEException.class })
-	public String generateAccessToken(KumiteUser user) {
+	public String generateAccessToken(KumiteUser user, UUID playerId) {
 		Duration accessTokenValidity = Duration.parse(env.getProperty(KEY_ACCESSTOKEN_EXP, "PT1H"));
 
 		if (accessTokenValidity.compareTo(Duration.parse("PT1H")) > 0) {
@@ -109,11 +111,11 @@ public class KumiteTokenService {
 		JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder().subject(user.getAccountId().toString())
 				.audience("Kumite-Server")
 				.issuer("https://kumite.com")
-				.jwtID(uuidgenerator.randomUUID().toString())
+				.jwtID(uuidGenerator.randomUUID().toString())
 				.issueTime(curDate)
 				.notBeforeTime(Date.from(Instant.now()))
 				.expirationTime(Date.from(Instant.now().plusMillis(expirationMs)))
-				.claim("mainPlayerId", user.getPlayerId().toString());
+				.claim("playerId", playerId.toString());
 
 		SignedJWT signedJWT = new SignedJWT(headerBuilder.build(), claimsSetBuilder.build());
 

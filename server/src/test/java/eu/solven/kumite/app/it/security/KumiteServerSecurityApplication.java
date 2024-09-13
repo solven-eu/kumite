@@ -9,6 +9,7 @@ import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.KumiteRandomConfiguration;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.app.webflux.KumiteSpaRouter;
+import eu.solven.kumite.player.AccountPlayersRegistry;
 
 @SpringBootApplication
 @Import({ KumiteRandomConfiguration.class,
@@ -19,6 +20,9 @@ import eu.solven.kumite.app.webflux.KumiteSpaRouter;
 
 		KumiteSpaRouter.class,
 		GreetingHandler.class,
+
+		// This is needed as security often checks the players of an account
+		AccountPlayersRegistry.class,
 
 })
 public class KumiteServerSecurityApplication {

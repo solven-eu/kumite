@@ -40,6 +40,10 @@ public class KumiteHandlerHelper {
 		return optUuid.map(rawUuid -> uuid(rawUuid));
 	}
 
+	public static Optional<UUID> optUuid(Optional<String> optRaw) {
+		return optRaw.map(raw -> uuid(raw));
+	}
+
 	public static Optional<Boolean> optBoolean(ServerRequest request, String idKey) {
 		Optional<String> optBoolean = request.queryParam(idKey);
 

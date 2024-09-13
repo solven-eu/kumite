@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
@@ -50,8 +50,9 @@ export default {
 		const game = ref(store.games[props.gameId]);
 		const contest = ref(store.contests[props.contestId]);
 
-		const requiringPlayers = ref(
-			contest.value.dynamicMetadata.requiringPlayers,
+		// https://github.com/vuejs/core/issues/5818
+		const requiringPlayers = computed(
+			() => contest.value.dynamicMetadata.requiringPlayers,
 		);
 
 		const shortPollBoardInterval = ref(null);

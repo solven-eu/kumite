@@ -26,6 +26,7 @@ public class TicTacToe implements IGame {
 			.title("Tic-Tac-Toe")
 			.tag(IGameMetadataConstants.TAG_1V1)
 			.tag(IGameMetadataConstants.TAG_PERFECT_INFORMATION)
+			.tag(IGameMetadataConstants.TAG_TURNBASED)
 			.minPlayers(2)
 			.maxPlayers(2)
 			.shortDescription(

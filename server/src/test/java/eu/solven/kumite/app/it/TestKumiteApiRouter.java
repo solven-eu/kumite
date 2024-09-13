@@ -22,6 +22,7 @@ import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchHandler;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
+import eu.solven.kumite.player.KumitePlayer;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
@@ -37,7 +38,7 @@ public class TestKumiteApiRouter {
 	KumiteTokenService tokenService;
 
 	protected String generateAccessToken() {
-		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser());
+		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser(), KumitePlayer.FAKE_PLAYER_ID);
 	}
 
 	@Test

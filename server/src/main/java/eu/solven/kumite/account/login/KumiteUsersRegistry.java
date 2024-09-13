@@ -8,21 +8,24 @@ import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUser.KumiteUserBuilder;
 import eu.solven.kumite.account.KumiteUserRaw;
 import eu.solven.kumite.account.KumiteUserRawRaw;
+import eu.solven.kumite.player.AccountPlayersRegistry;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.tools.IUuidGenerator;
-import lombok.Value;
+import lombok.RequiredArgsConstructor;
 
-@Value
+@RequiredArgsConstructor
 public class KumiteUsersRegistry {
-	IUuidGenerator uuidGenerator;
+	final IUuidGenerator uuidGenerator;
+
+	final AccountPlayersRegistry playersRegistry;
 
 	// This is a cache of the external information about a user
 	// This is useful to enrich some data about other players (e.g. a Leaderboard)
-	Map<KumiteUserRawRaw, KumiteUser> userIdToUser = new ConcurrentHashMap<>();
+	final Map<KumiteUserRawRaw, KumiteUser> userIdToUser = new ConcurrentHashMap<>();
 
 	// We may have multiple users for a single account
 	// This maps to the latest/main one
-	Map<UUID, KumiteUserRawRaw> accountIdToUser = new ConcurrentHashMap<>();
+	final Map<UUID, KumiteUserRawRaw> accountIdToUser = new ConcurrentHashMap<>();
 
 	public KumiteUser getUser(UUID accountId) {
 		KumiteUserRawRaw rawUser = accountIdToUser.get(accountId);
@@ -63,14 +66,15 @@ public class KumiteUsersRegistry {
 
 					UUID playerId = uuidGenerator.randomUUID();
 					kumiteUserBuilder.playerId(playerId);
+
+					playersRegistry.registerPlayer(accountId, KumitePlayer.builder().playerId(playerId).build());
+					accountIdToUser.putIfAbsent(accountId, rawRaw);
 				} else {
 					kumiteUserBuilder.accountId(alreadyIn.getAccountId()).playerId(alreadyIn.getPlayerId());
 				}
 
 				return kumiteUserBuilder.build();
 			});
-
-			accountIdToUser.putIfAbsent(kumiteUser.getAccountId(), rawRaw);
 		}
 
 		return kumiteUser;

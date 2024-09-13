@@ -47,7 +47,7 @@ public class FakePlayerTokens {
 
 	@Bean
 	public Void generateFakePlayerToken(KumiteTokenService tokenService) {
-		String accessToken = tokenService.generateAccessToken(fakeUser());
+		String accessToken = tokenService.generateAccessToken(fakeUser(), KumitePlayer.FAKE_PLAYER_ID);
 
 		log.info("access_token for fakeUser: {}", accessToken);
 
@@ -67,6 +67,10 @@ public class FakePlayerTokens {
 				.playerId(KumitePlayer.FAKE_PLAYER_ID)
 				.raw(raw)
 				.build();
+	}
+
+	public static KumitePlayer fakePlayer() {
+		return KumitePlayer.builder().playerId(KumitePlayer.FAKE_PLAYER_ID).build();
 	}
 
 }

@@ -34,13 +34,13 @@ export default {
 		]),
 		...mapState(useKumiteStore, {
 			game(store) {
-				return store.games[this.gameId];
+				return store.games[this.gameId] || { status: "not_loaded" };
 			},
 			contest(store) {
-				return store.contests[this.contestId];
+				return store.contests[this.contestId] || { status: "not_loaded" };
 			},
 			board(store) {
-				return store.boards[this.contestId];
+				return store.contests[this.contestId].board || { status: "not_loaded" };
 			},
 		}),
 		curlGetBoard() {

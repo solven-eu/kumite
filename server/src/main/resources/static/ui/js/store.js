@@ -93,6 +93,7 @@ export const useKumiteStore = defineStore("kumite", {
 			async function fetchFromUrl(url) {
 				store.nbAccountLoading++;
 				try {
+					// Rely on session for authentication
 					const response = await fetch(url);
 
 					if (response.ok) {
@@ -157,6 +158,7 @@ export const useKumiteStore = defineStore("kumite", {
 			async function fetchFromUrl(url) {
 				store.nbAccountLoading++;
 				try {
+					// Rely on session for authentication
 					const response = await fetch(url);
 					if (!response.ok) {
 						throw new NetworkError(
@@ -191,6 +193,7 @@ export const useKumiteStore = defineStore("kumite", {
 					return tokens;
 				} catch (e) {
 					console.error("Issue on Network: ", e);
+					return { error: e };
 				} finally {
 					store.nbAccountLoading--;
 				}
@@ -198,7 +201,9 @@ export const useKumiteStore = defineStore("kumite", {
 
 			return this.ensureUser().then(() => {
 				console.log("We do have a User. Let's fetch tokens");
-				return fetchFromUrl("/api/login/v1/token");
+				return fetchFromUrl(
+					`/api/login/v1/token?player_id=${this.playingPlayerId}`,
+				);
 			});
 		},
 
@@ -273,9 +278,9 @@ export const useKumiteStore = defineStore("kumite", {
 					const user = responseJson;
 
 					responseJson.forEach((player) => {
-						console.log("Registering playerId", item.playerId);
+						console.log("Registering playerId", player.playerId);
 						store.$patch({
-							players: { ...store.players, [item.playerId]: item },
+							players: { ...store.players, [player.playerId]: player },
 						});
 					});
 				} catch (e) {
@@ -285,7 +290,7 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			return fetchFromUrl("/api/players?account_id=" + store.account.accountId);
+			return fetchFromUrl(`/api/players?account_id=${store.account.accountId}`);
 		},
 		async loadContestPlayers(contestId) {
 			const store = this;
@@ -325,7 +330,7 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			return fetchFromUrl("/api/players?contest_id=" + contestId);
+			return fetchFromUrl(`/api/players?contest_id=${contestId}`);
 		},
 
 		async loadGames(gameId) {
@@ -397,7 +402,7 @@ export const useKumiteStore = defineStore("kumite", {
 						store.nbGameFetching--;
 					}
 				}
-				fetchFromUrl("/api/games?game_id=" + gameId);
+				return fetchFromUrl("/api/games?game_id=" + gameId);
 			}
 		},
 
@@ -409,7 +414,7 @@ export const useKumiteStore = defineStore("kumite", {
 					const response = await store.authenticatedFetch(url);
 					const responseJson = await response.json();
 
-					console.log("responseJson", responseJson);
+					console.debug("responseJson", responseJson);
 
 					responseJson.forEach((contest) => {
 						console.log("Registering contestId", contest.contestId);
@@ -469,8 +474,9 @@ export const useKumiteStore = defineStore("kumite", {
 						const responseJson = await response.json();
 
 						if (responseJson.length === 0) {
-							throw new Error("Unknown contestId: " + contestId);
+							return { contestId: contestId, status: "unknown" };
 						} else if (responseJson.length !== 1) {
+							// This should not happen as we provided an input contestId
 							console.error("We expected a single contest", responseJson);
 							return { contestId: contestId, status: "unknown" };
 						}
@@ -501,14 +507,14 @@ export const useKumiteStore = defineStore("kumite", {
 		},
 
 		async loadContestIfMissing(gameId, contestId) {
-			this.loadGameIfMissing(gameId);
-
-			if (this.contests[contestId]) {
-				console.debug("Skip loading contestId=", contestId);
-				return Promise.resolve(this.contests[contestId]);
-			} else {
-				return this.loadContest(gameId, contestId);
-			}
+			return this.loadGameIfMissing(gameId).then((game) => {
+				if (this.contests[contestId]) {
+					console.debug("Skip loading contestId=", contestId);
+					return Promise.resolve(this.contests[contestId]);
+				} else {
+					return this.loadContest(gameId, contestId);
+				}
+			});
 		},
 
 		async loadBoard(gameId, contestId, playerId) {
@@ -519,53 +525,43 @@ export const useKumiteStore = defineStore("kumite", {
 
 			const store = this;
 
-			return this.loadGameIfMissing(gameId)
-				.then((game) => {
-					return this.loadContestIfMissing(gameId, contestId);
-				})
-				.then((contest) => {
-					async function fetchFromUrl(url) {
-						store.nbBoardFetching++;
-						try {
-							const response = await store.authenticatedFetch(url);
-							if (!response.ok) {
-								throw new NetworkError(
-									"Rejected request for contest: " + contestId,
-									url,
-									response,
-								);
-							}
+			return this.loadContestIfMissing(gameId, contestId).then((contest) => {
+				if (contest.status === "unknown") {
+					return contest;
+				}
 
-							const responseJson = await response.json();
-							const contestWithBoard = responseJson;
-
-							return contestWithBoard;
-						} catch (e) {
-							console.error("Issue on Fetch: ", e.response.status, e);
-
-							return { contestId: contestId, status: "error", error: e };
-						} finally {
-							store.nbBoardFetching--;
+				async function fetchFromUrl(url) {
+					store.nbBoardFetching++;
+					try {
+						const response = await store.authenticatedFetch(url);
+						if (!response.ok) {
+							throw new NetworkError(
+								"Rejected request for board: " + contestId,
+								url,
+								response,
+							);
 						}
-					}
 
-					return fetchFromUrl(
-						"/api/board?game_id=" +
-							gameId +
-							"&contest_id=" +
-							contestId +
-							"&player_id=" +
-							playerId,
-					).then((contestWithBoard) => {
-						return this.mergeContest(contestWithBoard);
-					});
-				});
+						const responseJson = await response.json();
+						const contestWithBoard = responseJson;
+
+						return contestWithBoard;
+					} catch (e) {
+						console.error("Issue on Fetch: ", e.response.status, e);
+
+						return { contestId: contestId, status: "error", error: e };
+					} finally {
+						store.nbBoardFetching--;
+					}
+				}
+
+				return fetchFromUrl(
+					`/api/board?game_id=${gameId}&contest_id=${contestId}&player_id=${playerId}`,
+				).then((contestWithBoard) => this.mergeContest(contestWithBoard));
+			});
 		},
 
 		async loadLeaderboard(gameId, contestId) {
-			this.loadGameIfMissing(gameId);
-			this.loadContestIfMissing(gameId, contestId);
-
 			const store = this;
 
 			async function fetchFromUrl(url) {
@@ -612,7 +608,10 @@ export const useKumiteStore = defineStore("kumite", {
 					store.nbLeaderboardFetching--;
 				}
 			}
-			return fetchFromUrl("/api/leaderboards?contest_id=" + contestId);
+
+			return this.loadContestIfMissing(gameId, contestId).then((contest) =>
+				fetchFromUrl("/api/leaderboards?contest_id=" + contestId),
+			);
 		},
 	},
 });

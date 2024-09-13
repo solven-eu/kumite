@@ -4,13 +4,11 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.player.AccountPlayersRegistry;
 import eu.solven.kumite.player.KumitePlayer;
 
 public class TestAccountPlayersRegistry {
-	GamesRegistry gamesRegistry = new GamesRegistry();
-	AccountPlayersRegistry playersRegistry = new AccountPlayersRegistry(gamesRegistry);
+	AccountPlayersRegistry playersRegistry = new AccountPlayersRegistry();
 
 	@Test
 	public void testFakePlayer() {
