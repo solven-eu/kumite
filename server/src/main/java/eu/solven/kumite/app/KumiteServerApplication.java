@@ -5,10 +5,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
 import eu.solven.kumite.account.login.KumiteSecurity;
+import eu.solven.kumite.app.properties.GitPropertySourceConfig;
 import eu.solven.kumite.app.webflux.KumiteWebFluxConfiguration;
 
 @SpringBootApplication(scanBasePackages = "none")
-@Import({ KumiteWebFluxConfiguration.class, KumiteServerComponentsConfiguration.class, KumiteSecurity.class })
+@Import({ KumiteWebFluxConfiguration.class,
+		KumiteServerComponentsConfiguration.class,
+		KumiteSecurity.class,
+		GitPropertySourceConfig.class })
 public class KumiteServerApplication {
 
 	public static void main(String[] args) {

@@ -185,7 +185,7 @@ export const useKumiteStore = defineStore("kumite", {
 								console.log(
 									"access_token is expired. Triggering loadUserTokens",
 								);
-								this.loadUserTokens();
+								store.loadUserTokens();
 							}
 						},
 					);

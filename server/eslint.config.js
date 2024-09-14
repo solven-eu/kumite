@@ -14,8 +14,8 @@ import vueEslintParser from "vue-eslint-parser";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 
 // About HTML templates in .js files:
-// We prefix the html block with `/*html*/`, which shall be detected by some VSCode extension (// https://marketplace.visualstudio.com/items?itemName=Tobermory.es6-string-html)
-// And by Prettier. It is also referred in https://fr.vuejs.org/guide/quick-start
+// We prefix the html block with `/* HTML */`, which shall be detected by some VSCode extension (// https://marketplace.visualstudio.com/items?itemName=Tobermory.es6-string-html)
+// And by Prettier (https://github.com/prettier/prettier/issues/12957). It is also referred in https://fr.vuejs.org/guide/quick-start
 
 export default [
     js.configs.recommended,
