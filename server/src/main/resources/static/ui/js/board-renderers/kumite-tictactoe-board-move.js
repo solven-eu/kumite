@@ -141,7 +141,5 @@ export default {
 			renderer,
 		};
 	},
-	template: `
-	<div ref="boardCanvas" class="border" />
-	  `,
+	template: /* HTML */ ` <div ref="boardCanvas" class="border" /> `,
 };

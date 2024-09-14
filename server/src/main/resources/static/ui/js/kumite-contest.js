@@ -46,27 +46,24 @@ export default {
 
 		return {};
 	},
-	template: `
-<div v-if="(!game || !contest) && (nbGameFetching > 0 || nbContestFetching > 0)">
-	<div class="spinner-border" role="status">
-	  <span class="visually-hidden">Loading contestId={{contestId}}</span>
-	</div>
-</div>
-<div v-else-if="game.error || contest.error">
-	{{game.error || contest.error}}
-</div>
-<div v-else>
+	template: /* HTML */ `
+        <div v-if="(!game || !contest) && (nbGameFetching > 0 || nbContestFetching > 0)">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading contestId={{contestId}}</span>
+            </div>
+        </div>
+        <div v-else-if="game.error || contest.error">{{game.error || contest.error}}</div>
+        <div v-else>
+            <KumiteGameHeader :gameId="gameId" v-if="showGame" />
+            <KumiteContestHeader :gameId="gameId" :contestId="contestId" />
 
-	<KumiteGameHeader :gameId="gameId" v-if="showGame" />
-	<KumiteContestHeader :gameId="gameId" :contestId="contestId" />
+            <div v-if="contest.dynamicMetadata.acceptingPlayers">
+                <RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + contestId + '/board'}">
+                    <button type="button" class="btn btn-outline-primary">Preview the board</button>
+                </RouterLink>
+            </div>
 
-	<div v-if="contest.dynamicMetadata.acceptingPlayers">
-		<RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + contestId + '/board'}">
-			<button type="button" class="btn btn-outline-primary">Preview the board</button>
-		</RouterLink>
-	</div>
-	
-	<KumiteLeaderboard :gameId="gameId" :contestId="contestId"/>
-</div>
-  `,
+            <KumiteLeaderboard :gameId="gameId" :contestId="contestId" />
+        </div>
+    `,
 };

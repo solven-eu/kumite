@@ -189,7 +189,8 @@
 
 						<javascript>
 							<includes>
-								<!-- You have to set the target manually -->
+								<!-- Do not include HTML and Vue files -->
+								<!-- https://biomejs.dev/internals/language-support/#html-super-languages-support -->
 								<include>src/**/*.js</include>
 							</includes>
 

@@ -95,25 +95,19 @@ export default {
 
 		return {};
 	},
-	template: `
-<div v-if="(!game || !contest || !leaderboard) && (nbGameFetching > 0 || nbContestFetching > 0 || nbLeaderboardFetching > 0)">
-	<div class="spinner-border" role="status">
-	  <span class="visually-hidden">Loading leaderboard for contestId={{contestId}}</span>
-	</div>
-</div>
-<div v-else-if="game.error || contest.error || leaderboard.error">
-	{{game.error || contest.error || leaderboard.error}}
-</div>
-<div v-else>
-	<i class="bi bi-speedometer"></i>
-	<div v-if="leaderboard.playerScores && leaderboard.playerScores.length">
-		<li v-for="item in leaderboard.playerScores">
-		  {{item.playerId}} has score {{item.score}}
-		</li>
-	</div>
-	<span v-else>
-		Leaderboard is empty
-	</span>
-</div>
-  `,
+	template: /* HTML */ `
+        <div v-if="(!game || !contest || !leaderboard) && (nbGameFetching > 0 || nbContestFetching > 0 || nbLeaderboardFetching > 0)">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading leaderboard for contestId={{contestId}}</span>
+            </div>
+        </div>
+        <div v-else-if="game.error || contest.error || leaderboard.error">{{game.error || contest.error || leaderboard.error}}</div>
+        <div v-else>
+            <i class="bi bi-speedometer"></i>
+            <div v-if="leaderboard.playerScores && leaderboard.playerScores.length">
+                <li v-for="item in leaderboard.playerScores">{{item.playerId}} has score {{item.score}}</li>
+            </div>
+            <span v-else> Leaderboard is empty </span>
+        </div>
+    `,
 };

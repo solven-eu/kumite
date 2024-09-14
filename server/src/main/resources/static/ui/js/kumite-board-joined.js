@@ -95,16 +95,16 @@ export default {
 
 		return { contest, requiringPlayers };
 	},
-	template: `
-	<div class="border" v-if="contest">
-	   <!-- Waiting for players -->
-	   <div v-if="requiringPlayers">
-	      Waiting for more players ({{contest.dynamicMetadata.contenders.length}} / {{ contest.constantMetadata.minPlayers }})
-	   </div>
-	   <!-- Can be played -->
-	   <div v-else>
-	      <KumiteBoardMoveForm :gameId="gameId" :contestId="contestId" />
-	   </div>
-	</div>
-  `,
+	template: /* HTML */ `
+        <div class="border" v-if="contest">
+            <!-- Waiting for players -->
+            <div v-if="requiringPlayers">
+                Waiting for more players ({{contest.dynamicMetadata.contenders.length}} / {{ contest.constantMetadata.minPlayers }})
+            </div>
+            <!-- Can be played -->
+            <div v-else>
+                <KumiteBoardMoveForm :gameId="gameId" :contestId="contestId" />
+            </div>
+        </div>
+    `,
 };

@@ -40,7 +40,11 @@ export default {
 				return store.contests[this.contestId] || { status: "not_loaded" };
 			},
 			board(store) {
-				return store.contests[this.contestId].board || { status: "not_loaded" };
+				return (
+					store.contests[this.contestId].board || {
+						status: "not_loaded",
+					}
+				);
 			},
 		}),
 		curlGetBoard() {
@@ -152,37 +156,31 @@ export default {
 			joinAsViewer,
 		};
 	},
-	template: `
-	<div class="border" v-if="contest">
-		<!-- Loading metadata -->
-		<div v-if="isLoading">
-		   Loading {{isLoading}}
-		</div>
-	   <!-- IsJoining loader -->
-	   <div v-else-if="isJoiningAsPlayer || isJoiningAsViewer">
-	      Joining {{isJoiningAsPlayer || isJoiningAsViewer}}
-	   </div>
-	   <!-- Joined as player -->
-	   <div v-else-if="hasJoinedAsPlayer">
-	   	<KumiteBoardJoined :gameId="gameId" :contestId="contestId" />
-	   </div>
-	   <!-- Joined as viewer -->
-	   <div v-else-if="hasJoinedAsViewer">
-	      hasJoinedAsViewer={{hasJoinedAsViewer}}
-	   </div>
-	   <!-- Joining options -->
-	   <div v-else>
-	      <!-- Offer to join as player-->
-	      <div v-if="canJoinAsPlayer">
-	         <button type="button" @click="joinAsPlayer()"  class="btn btn-outline-primary">Join contest as player</button>
-	         <!--span v-if="exampleMovesMetadata.error" class="alert alert-warning" role="alert">{{exampleMovesMetadata.error}}</span-->
-	      </div>
-	      <!-- Offer to join as viewer -->
-	      <div>
-	         <button type="button" @click="joinAsViewer()"  class="btn btn-outline-primary" disabled>Join contest as viewer</button>
-	         <!--span v-if="exampleMovesMetadata.error" class="alert alert-warning" role="alert">{{exampleMovesMetadata.error}}</span-->
-	      </div>
-	   </div>
-	</div>
-  `,
+	template: /* HTML */ `
+        <div class="border" v-if="contest">
+            <!-- Loading metadata -->
+            <div v-if="isLoading">Loading {{isLoading}}</div>
+            <!-- IsJoining loader -->
+            <div v-else-if="isJoiningAsPlayer || isJoiningAsViewer">Joining {{isJoiningAsPlayer || isJoiningAsViewer}}</div>
+            <!-- Joined as player -->
+            <div v-else-if="hasJoinedAsPlayer">
+                <KumiteBoardJoined :gameId="gameId" :contestId="contestId" />
+            </div>
+            <!-- Joined as viewer -->
+            <div v-else-if="hasJoinedAsViewer">hasJoinedAsViewer={{hasJoinedAsViewer}}</div>
+            <!-- Joining options -->
+            <div v-else>
+                <!-- Offer to join as player-->
+                <div v-if="canJoinAsPlayer">
+                    <button type="button" @click="joinAsPlayer()" class="btn btn-outline-primary">Join contest as player</button>
+                    <!--span v-if="exampleMovesMetadata.error" class="alert alert-warning" role="alert">{{exampleMovesMetadata.error}}</span-->
+                </div>
+                <!-- Offer to join as viewer -->
+                <div>
+                    <button type="button" @click="joinAsViewer()" class="btn btn-outline-primary" disabled>Join contest as viewer</button>
+                    <!--span v-if="exampleMovesMetadata.error" class="alert alert-warning" role="alert">{{exampleMovesMetadata.error}}</span-->
+                </div>
+            </div>
+        </div>
+    `,
 };

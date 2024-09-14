@@ -49,26 +49,23 @@ export default {
 
 		return {};
 	},
-	template: `
-<div v-if="!game && nbGameFetching > 0">
-  	Loading <RouterLink :to="{path:'/html/games/' + gameId}">game={{gameId}}</RouterLink>
-</div>
-<div v-else-if="game.error">
-	{{game.error}}
-</div>
-<div v-else>
-	<KumiteGameHeader :gameId="gameId" />
-	
-	<span v-if="metadata.tags">
-		Tags: <span class="badge text-bg-secondary" v-for="tag in game.tags" data-bs-toggle="tooltip" :data-bs-title="metadata.tags[tag]">{{tag}}</span><br/>
-	</span>
-	Description: {{game.shortDescription}}<br/>
-	<ul v-for="ref in game.references">
-		<li><a :href="ref" target="_blank">{{ref}}</a></li>
-	</ul>
+	template: /* HTML */ `
+        <div v-if="!game && nbGameFetching > 0">Loading <RouterLink :to="{path:'/html/games/' + gameId}">game={{gameId}}</RouterLink></div>
+        <div v-else-if="game.error">{{game.error}}</div>
+        <div v-else>
+            <KumiteGameHeader :gameId="gameId" />
 
-		<RouterLink :to="{path:'/html/games/' + game.gameId + '/contest-form'}"><i class="bi bi-trophy"></i> Create your own contest</RouterLink>
-		<KumiteContests :gameId="gameId" :showGame="false"/>
-</div>
-  `,
+            <span v-if="metadata.tags">
+                Tags: <span class="badge text-bg-secondary" v-for="tag in game.tags" data-bs-toggle="tooltip" :data-bs-title="metadata.tags[tag]">{{tag}}</span
+                ><br />
+            </span>
+            Description: {{game.shortDescription}}<br />
+            <ul v-for="ref in game.references">
+                <li><a :href="ref" target="_blank">{{ref}}</a></li>
+            </ul>
+
+            <RouterLink :to="{path:'/html/games/' + game.gameId + '/contest-form'}"><i class="bi bi-trophy"></i> Create your own contest</RouterLink>
+            <KumiteContests :gameId="gameId" :showGame="false" />
+        </div>
+    `,
 };

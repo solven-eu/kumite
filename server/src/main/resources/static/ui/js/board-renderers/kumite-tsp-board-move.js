@@ -149,11 +149,10 @@ export default {
 			errorMessage,
 		};
 	},
-	template: `
-    <div>
-	   <div ref="boardCanvas" class="border" />
-       {{errorMessage}}
-   </div>
-    
-	  `,
+	template: /* HTML */ `
+        <div>
+            <div ref="boardCanvas" class="border" />
+            {{errorMessage}}
+        </div>
+    `,
 };

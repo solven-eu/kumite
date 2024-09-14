@@ -62,7 +62,10 @@ export default {
 					{
 						console.log("Registering contestId", contest.contestId);
 						store.$patch({
-							contests: { ...store.contests, [contest.contestId]: contest },
+							contests: {
+								...store.contests,
+								[contest.contestId]: contest,
+							},
 						});
 					}
 
@@ -77,32 +80,32 @@ export default {
 
 		return { contestName, submitContestForm, createdContest };
 	},
-	template: `
-<div v-if="(!game)">
-	<div v-if="(nbGameFetching > 0)" >
-		<div class="spinner-border" role="status">
-		  <span class="visually-hidden">Loading gameId={{gameId}}</span>
-		</div>
-	</div>
-	<div v-else>
-		{{ game.error }}
-	</div>
-</div>
-<div v-else>
-	<KumiteGameHeader :gameId="gameId" v-if="showGame" />
-	
-	<form>
-	  <div class="mb-3">
-	    <label for="contestName" class="form-label">Email address</label>
-	    <input type="text" class="form-control" id="contestName" v-model="contestName" aria-describedby="emailHelp">
-	    <div id="emailHelp" class="form-text">Pick a name so your friends can find your contest.</div>
-	  </div>
-	  <button type="button" @click="submitContestForm" class="btn btn-primary">Submit</button>
-	</form>
-    
-    <div v-if="createdContest.contestId">
-        <RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + createdContest.contestId}"><i class="bi bi-trophy"></i> {{createdContest.constantMetadata.name}}</RouterLink>
-    </div>
-</div>
-  `,
+	template: /* HTML */ `
+        <div v-if="(!game)">
+            <div v-if="(nbGameFetching > 0)">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading gameId={{gameId}}</span>
+                </div>
+            </div>
+            <div v-else>{{ game.error }}</div>
+        </div>
+        <div v-else>
+            <KumiteGameHeader :gameId="gameId" v-if="showGame" />
+
+            <form>
+                <div class="mb-3">
+                    <label for="contestName" class="form-label">Email address</label>
+                    <input type="text" class="form-control" id="contestName" v-model="contestName" aria-describedby="emailHelp" />
+                    <div id="emailHelp" class="form-text">Pick a name so your friends can find your contest.</div>
+                </div>
+                <button type="button" @click="submitContestForm" class="btn btn-primary">Submit</button>
+            </form>
+
+            <div v-if="createdContest.contestId">
+                <RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + createdContest.contestId}"
+                    ><i class="bi bi-trophy"></i> {{createdContest.constantMetadata.name}}</RouterLink
+                >
+            </div>
+        </div>
+    `,
 };

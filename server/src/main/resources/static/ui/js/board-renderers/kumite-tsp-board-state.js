@@ -44,9 +44,5 @@ export default {
 			boardCanvas,
 		};
 	},
-	template: `
-<div ref="boardCanvas" class="border">
-
-</div>
-  `,
+	template: /* HTML */ ` <div ref="boardCanvas" class="border"></div> `,
 };

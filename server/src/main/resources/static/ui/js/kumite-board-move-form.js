@@ -55,7 +55,11 @@ export default {
 				return store.contests[this.contestId] || { error: "not_loaded" };
 			},
 			board(store) {
-				return store.contests[this.contestId]?.board || { error: "not_loaded" };
+				return (
+					store.contests[this.contestId]?.board || {
+						error: "not_loaded",
+					}
+				);
 			},
 		}),
 		curlPostBoard() {
@@ -201,58 +205,52 @@ export default {
 			sendMove,
 		};
 	},
-	template: `
-	<div v-if="(!game || !contest || !board)">
-  <div v-if="(nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
-	   <div class="spinner-border" role="status">
-	      <span class="visually-hidden">Loading contestId={{contestId}}</span>
-	   </div>
-       </div>
+	template: /* HTML */ `
+        <div v-if="(!game || !contest || !board)">
+            <div v-if="(nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading contestId={{contestId}}</span>
+                </div>
+            </div>
 
-       <div v-else-if="game.error || contest.error || board.error">
-          {{game.error || contest.error || board.error}}
-       </div>
-       <div v-else>
-          ???
-       </div>
-	</div>
-	<div v-else class="container border">
-      <form>
-	  	<!-- Move Editor -->
-         <div class="row">
-			<div class="col">
-			   <label for="move" class="form-label">Submit a move/solution:</label>
-			   <textarea class="form-control" rows="3" v-model="rawMove"></textarea>
-			</div>
-		 	<div class="col my-auto">
-			 	<span v-if="!exampleMovesMetadata.loaded">
-	            	<button type="button" @click="loadExampleMoves" class="btn btn-outline-secondary">Load some available moves</button>
-				</span>
-					<span v-else-if="Object.keys(exampleMoves).length > 0" class="btn-group ">
-					   <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-					   	Prefill with an example move
-					   </button>
-					   <ul class="dropdown-menu">
-					      <li><a class="dropdown-item" @click="fillMove(moveJson)" v-for="(moveJson, moveKey) in exampleMoves">{{moveKey}}</a></li>
-					   </ul>
-					</span>
-					   <span v-else>
-					      Not a single example move. It may not be your turn.
-					   </span>
-		   </div>
-         </div>
-		 <!-- Move Visualizer-->
-         <div class="row">
-			<span>
-				<component :is="board.moveSvg" v-bind="{ 'board': board, 'rawMove': rawMove}" :rawMove="rawMove" class="text-center" />
-			</span>
-         </div>
-			<!-- Move Submitter-->
-         <div>
-            <button type="button" @click="sendMove()"  class="btn btn-outline-primary">Submit</button>
-            <span v-if="sendMoveError" class="alert alert-warning" role="alert">{{sendMoveError}}</span>
-         </div>
-      </form>
-	</div>
-  `,
+            <div v-else-if="game.error || contest.error || board.error">{{game.error || contest.error || board.error}}</div>
+            <div v-else>???</div>
+        </div>
+        <div v-else class="container border">
+            <form>
+                <!-- Move Editor -->
+                <div class="row">
+                    <div class="col">
+                        <label for="move" class="form-label">Submit a move/solution:</label>
+                        <textarea class="form-control" rows="3" v-model="rawMove"></textarea>
+                    </div>
+                    <div class="col my-auto">
+                        <span v-if="!exampleMovesMetadata.loaded">
+                            <button type="button" @click="loadExampleMoves" class="btn btn-outline-secondary">Load some available moves</button>
+                        </span>
+                        <span v-else-if="Object.keys(exampleMoves).length > 0" class="btn-group ">
+                            <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                Prefill with an example move
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" @click="fillMove(moveJson)" v-for="(moveJson, moveKey) in exampleMoves">{{moveKey}}</a></li>
+                            </ul>
+                        </span>
+                        <span v-else> Not a single example move. It may not be your turn. </span>
+                    </div>
+                </div>
+                <!-- Move Visualizer-->
+                <div class="row">
+                    <span>
+                        <component :is="board.moveSvg" v-bind="{ 'board': board, 'rawMove': rawMove}" :rawMove="rawMove" class="text-center" />
+                    </span>
+                </div>
+                <!-- Move Submitter-->
+                <div>
+                    <button type="button" @click="sendMove()" class="btn btn-outline-primary">Submit</button>
+                    <span v-if="sendMoveError" class="alert alert-warning" role="alert">{{sendMoveError}}</span>
+                </div>
+            </form>
+        </div>
+    `,
 };

@@ -50,14 +50,13 @@ export default {
 
 		return {};
 	},
-	template: `
-  <div v-if="Object.values(contests).length == 0 && nbContestFetching > 0">
-  	Loading contests
-	</div>
-	<div v-else class="container">
-	  <div class="row border" v-for="contest in contests">
-		<KumiteContest :gameId="contest.constantMetadata.gameId" :contestId="contest.contestId" :showGame="showGame"/>
-	  </div>
-  </div>
-  `,
+
+	template: /* HTML */ `
+        <div -if="Object.values(contests).length == 0 && nbContestFetching > 0">Loading contests</div>
+        <div v-else class="container">
+            <div class="row border" v-for="contest in contests">
+                <KumiteContest :gameId="contest.constantMetadata.gameId" :contestId="contest.contestId" :showGame="showGame" />
+            </div>
+        </div>
+    `,
 };

@@ -26,14 +26,12 @@ export default {
 
 		return { isLoading, loginProviders };
 	},
-	template: `
-  <div v-if="isLoading">
-  	Loading login options
-	</div>
-	<div v-else>
-	  <li v-for="item in loginProviders">
-	    <a :href="item.login_url">{{ item.registration_id }}</a>
-	  </li>
-  </div>
-  `,
+	template: /* HTML */ `
+        <div v-if="isLoading">Loading login options</div>
+        <div v-else>
+            <li v-for="item in loginProviders">
+                <a :href="item.login_url">{{ item.registration_id }}</a>
+            </li>
+        </div>
+    `,
 };

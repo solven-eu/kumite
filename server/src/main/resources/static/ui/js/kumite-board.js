@@ -71,24 +71,22 @@ export default {
 		return {};
 	},
 	// https://stackoverflow.com/questions/7717929/how-do-i-get-pre-style-overflow-scroll-height-150px-to-display-at-parti
-	template: `
-	<div v-if="(!game || !contest || !board)">
-		<div class="spinner-border" role="status" v-if="(nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
-		   <span class="visually-hidden">Loading board for contestId={{contestId}}</span>
-		</div>
-	   <div v-else>
-	      <span>Issue loading board for contestId={{contestId}}</span>
-	   </div>
-	</div>
-	<div v-else-if="game.error || contest.error || board.error">
-	   {{game.error || contest.error || board.error}}
-	</div>
-	<div v-else class="container">
-		  <KumiteGameHeader class="row" :gameId="gameId" />
-		  <KumiteContestHeader class="row" :gameId="gameId" :contestId="contestId" />
-	   		<KumiteBoardView  class="row" :gameId="gameId" :contestId="contestId"  />
-         <KumiteBoardJoin class="row border" :gameId="gameId" :contestId="contestId" />
-	      <KumiteLeaderboard class="row border" :gameId="gameId" :contestId="contestId" />
-	</div>
-  `,
+	template: /* HTML */ `
+        <div v-if="(!game || !contest || !board)">
+            <div class="spinner-border" role="status" v-if="(nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
+                <span class="visually-hidden">Loading board for contestId={{contestId}}</span>
+            </div>
+            <div v-else>
+                <span>Issue loading board for contestId={{contestId}}</span>
+            </div>
+        </div>
+        <div v-else-if="game.error || contest.error || board.error">{{game.error || contest.error || board.error}}</div>
+        <div v-else class="container">
+            <KumiteGameHeader class="row" :gameId="gameId" />
+            <KumiteContestHeader class="row" :gameId="gameId" :contestId="contestId" />
+            <KumiteBoardView class="row" :gameId="gameId" :contestId="contestId" />
+            <KumiteBoardJoin class="row border" :gameId="gameId" :contestId="contestId" />
+            <KumiteLeaderboard class="row border" :gameId="gameId" :contestId="contestId" />
+        </div>
+    `,
 };

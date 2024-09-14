@@ -39,7 +39,11 @@ export default {
 				return store.contests[this.contestId] || { error: "not_loaded" };
 			},
 			board(store) {
-				return store.contests[this.contestId]?.board || { error: "not_loaded" };
+				return (
+					store.contests[this.contestId]?.board || {
+						error: "not_loaded",
+					}
+				);
 			},
 		}),
 		curlGetBoard() {
@@ -64,7 +68,7 @@ export default {
 		return {};
 	},
 	// https://stackoverflow.com/questions/7717929/how-do-i-get-pre-style-overflow-scroll-height-150px-to-display-at-parti
-	template: `
+	template: /* HTML */ `
 <div v-if="(!game || !contest || !board) && (nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
 	<div class="spinner-border" role="status">
 	  <span class="visually-hidden">Loading contestId={{contestId}}</span>

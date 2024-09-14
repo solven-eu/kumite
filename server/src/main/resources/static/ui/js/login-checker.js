@@ -40,17 +40,13 @@ export default {
 
 		return { isLoading, isAuthenticated, user };
 	},
-	template: `
-    <div v-if="isLoading">
-    	Loading...
-	</div>
-    <div v-else>
-	  	<div v-if="isAuthenticated">
-	  		Welcome {{user.raw.name}}. ?Logout?
-		</div>
-	  	<div v-else>
-			<LoginOptions/>
-		</div>
-  	</div>
-  `,
+	template: /* HTML */ `
+        <div v-if="isLoading">Loading...</div>
+        <div v-else>
+            <div v-if="isAuthenticated">Welcome {{user.raw.name}}. ?Logout?</div>
+            <div v-else>
+                <LoginOptions />
+            </div>
+        </div>
+    `,
 };

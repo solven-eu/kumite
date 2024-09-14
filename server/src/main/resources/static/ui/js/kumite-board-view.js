@@ -63,28 +63,26 @@ export default {
 
 		return {};
 	},
-	template: `
-	<div v-if="(!game || !contest || !board)">
-		<div class="spinner-border" role="status" v-if="(nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
-		   <span class="visually-hidden">Loading board for contestId={{contestId}}</span>
-		</div>
-	   <div class="spinner-border" role="status" v-else>
-	      <span class="visually-hidden">Issue loading board for contestId={{contestId}}</span>
-	   </div>
-	</div>
-	<div v-else-if="game.error || contest.error || board.error">
-	   {{game.error || contest.error || board.error}}
-	</div>
-	   <div v-else >
-       <div class="border position-relative">
-	         Board: This is the view of the contest given players previous moves.
-			 	<!-- https://stackoverflow.com/questions/43658481/passing-props-dynamically-to-dynamic-component-in-vuejs -->
-				<component :is="board.boardSvg" v-bind="{ 'board': board}" class="col text-center" />
-                
-                <div  class="position-absolute top-0 end-0" >
+	template: /* HTML */ `
+        <div v-if="(!game || !contest || !board)">
+            <div class="spinner-border" role="status" v-if="(nbGameFetching > 0 || nbContestFetching > 0 || nbBoardFetching > 0)">
+                <span class="visually-hidden">Loading board for contestId={{contestId}}</span>
+            </div>
+            <div class="spinner-border" role="status" v-else>
+                <span class="visually-hidden">Issue loading board for contestId={{contestId}}</span>
+            </div>
+        </div>
+        <div v-else-if="game.error || contest.error || board.error">{{game.error || contest.error || board.error}}</div>
+        <div v-else>
+            <div class="border position-relative">
+                Board: This is the view of the contest given players previous moves.
+                <!-- https://stackoverflow.com/questions/43658481/passing-props-dynamically-to-dynamic-component-in-vuejs -->
+                <component :is="board.boardSvg" v-bind="{ 'board': board}" class="col text-center" />
+
+                <div class="position-absolute top-0 end-0">
                     <KumiteBoardViewCurl :gameId="gameId" :contestId="contestId" />
                 </div>
-                </div>
-	   </div>
-  `,
+            </div>
+        </div>
+    `,
 };

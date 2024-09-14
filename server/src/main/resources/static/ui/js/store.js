@@ -280,7 +280,10 @@ export const useKumiteStore = defineStore("kumite", {
 					players.forEach((player) => {
 						console.log("Registering playerId", player.playerId);
 						store.$patch({
-							players: { ...store.players, [player.playerId]: player },
+							players: {
+								...store.players,
+								[player.playerId]: player,
+							},
 						});
 					});
 				} catch (e) {
@@ -321,7 +324,10 @@ export const useKumiteStore = defineStore("kumite", {
 						players: players,
 					};
 					store.$patch({
-						contests: { ...store.contests, [contestId]: mutatedContest },
+						contests: {
+							...store.contests,
+							[contestId]: mutatedContest,
+						},
 					});
 				} catch (e) {
 					console.error("Issue on Network: ", e);
@@ -349,7 +355,9 @@ export const useKumiteStore = defineStore("kumite", {
 
 					responseJson.forEach((item) => {
 						console.log("Registering gameId", item.gameId);
-						store.$patch({ games: { ...store.games, [item.gameId]: item } });
+						store.$patch({
+							games: { ...store.games, [item.gameId]: item },
+						});
 					});
 				} catch (e) {
 					console.error("Issue on Network: ", e);
@@ -388,14 +396,22 @@ export const useKumiteStore = defineStore("kumite", {
 
 						// https://github.com/vuejs/pinia/discussions/440
 						console.log("Registering gameId", gameId);
-						store.$patch({ games: { ...store.games, [gameId]: game } });
+						store.$patch({
+							games: { ...store.games, [gameId]: game },
+						});
 
 						return game;
 					} catch (e) {
 						console.error("Issue on Fetch: ", e);
 
-						const game = { gameId: gameId, status: "error", error: e };
-						store.$patch({ games: { ...store.games, [gameId]: game } });
+						const game = {
+							gameId: gameId,
+							status: "error",
+							error: e,
+						};
+						store.$patch({
+							games: { ...store.games, [gameId]: game },
+						});
 
 						return game;
 					} finally {
@@ -419,7 +435,10 @@ export const useKumiteStore = defineStore("kumite", {
 					responseJson.forEach((contest) => {
 						console.log("Registering contestId", contest.contestId);
 						store.$patch({
-							contests: { ...store.contests, [contest.contestId]: contest },
+							contests: {
+								...store.contests,
+								[contest.contestId]: contest,
+							},
 						});
 					});
 				} catch (e) {
@@ -442,7 +461,11 @@ export const useKumiteStore = defineStore("kumite", {
 			// The contest may be empty on first load
 			const oldContest = this.contests[contestId] || {};
 			// This this property right-away as it is watched
-			const mergedContest = { ...oldContest, ...contestUpdate, stale: false };
+			const mergedContest = {
+				...oldContest,
+				...contestUpdate,
+				stale: false,
+			};
 
 			// BEWARE This is broken if we consider a user can manage multiple playerIds
 			console.log("Storing board for contestId", contestId, mergedContest);
@@ -491,7 +514,11 @@ export const useKumiteStore = defineStore("kumite", {
 							console.error("Issue on Fetch: ", e);
 						}
 
-						const contest = { contestId: contestId, status: "error", error: e };
+						const contest = {
+							contestId: contestId,
+							status: "error",
+							error: e,
+						};
 
 						return contest;
 					} finally {
@@ -549,7 +576,11 @@ export const useKumiteStore = defineStore("kumite", {
 					} catch (e) {
 						console.error("Issue on Fetch: ", e.response.status, e);
 
-						return { contestId: contestId, status: "error", error: e };
+						return {
+							contestId: contestId,
+							status: "error",
+							error: e,
+						};
 					} finally {
 						store.nbBoardFetching--;
 					}
@@ -589,7 +620,10 @@ export const useKumiteStore = defineStore("kumite", {
 					// https://github.com/vuejs/pinia/discussions/440
 					console.log("Storing leaderboard for contestId", contestId);
 					store.$patch({
-						leaderboards: { ...store.leaderboards, [contestId]: leaderboard },
+						leaderboards: {
+							...store.leaderboards,
+							[contestId]: leaderboard,
+						},
 					});
 				} catch (e) {
 					console.error("Issue on Fetch: ", e, e.response.status);
@@ -601,7 +635,10 @@ export const useKumiteStore = defineStore("kumite", {
 						stale: false,
 					};
 					store.$patch({
-						leaderboards: { ...store.leaderboards, [contestId]: leaderboard },
+						leaderboards: {
+							...store.leaderboards,
+							[contestId]: leaderboard,
+						},
 					});
 					return leaderboard;
 				} finally {
