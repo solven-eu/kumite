@@ -1,5 +1,7 @@
 # unsafe_external_oauth2: activates development version of oauth2 providers: useful to check the User-login flow
 
+
 kumite.login:
+    # https://github.com/settings/applications/2686735
     oauth2.github.clientId: Ov23liakPa9YkyfEZGZE
     oauth2.github.clientSecret: 35faf73b496bb30fa17c1dd2f9fc8111874965ca

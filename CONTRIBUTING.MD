@@ -44,4 +44,20 @@ https://devcenter.heroku.com/articles/heroku-local
     heroku local web
     heroku local web -f Procfile.local
     heroku local web --port 8080
-    
+
+## Run Heroku
+
+    heroku config:set SPRING_PROFILES_ACTIVE=heroku
+    heroku config:set KUMITE_LOGIN_SIGNING_KEY='{"kty":"oct","kid":"9a115fc0-135d-47b3-b156-1fc1f83f25bd","k":"5xQN4l91m5QLQWKaXY0cuA21OBHy4LgCD7OhOotHEXs","alg":"HS256"}' (KumiteTokenService)
+
+## OAuth2 Applications
+
+### Github for Heroku (PRD)
+
+https://github.com/organizations/solven-eu/settings/applications/2707435
+
+    heroku config
+    heroku config:set KUMITE_LOGIN_OAUTH2_GITHUB_CLIENTID=Ov23linFq8dxGOOIL1WA
+    heroku config:set KUMITE_LOGIN_OAUTH2_GITHUB_CLIENTSECRET=XYZ
+
+

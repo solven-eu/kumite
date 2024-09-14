@@ -11,7 +11,7 @@ import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.app.webflux.KumiteSpaRouter;
 import eu.solven.kumite.player.AccountPlayersRegistry;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "none")
 @Import({ KumiteRandomConfiguration.class,
 
 		KumiteSecurity.class,

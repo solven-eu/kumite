@@ -15,6 +15,7 @@ import eu.solven.kumite.app.controllers.KumitePublicController;
 import eu.solven.kumite.app.controllers.MetadataController;
 import eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter;
 import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
+import lombok.extern.slf4j.Slf4j;
 
 // https://docs.spring.io/spring-security/reference/reactive/oauth2/login/advanced.html#webflux-oauth2-login-advanced-userinfo-endpoint
 @RestController
@@ -29,12 +30,12 @@ import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
 		KumiteJwtSigningConfiguration.class,
 
 })
+@Slf4j
 public class KumiteSecurity {
 
 	@Profile(IKumiteSpringProfiles.P_SECURED)
 	@Bean
 	public Void checkSecured(Environment env) {
-
 		boolean acceptUnsafe = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE,
 				IKumiteSpringProfiles.P_FAKE_PLAYER,
 				IKumiteSpringProfiles.P_UNSAFE_SERVER,
@@ -43,6 +44,12 @@ public class KumiteSecurity {
 
 		if (acceptUnsafe) {
 			throw new IllegalStateException("At least one unsafe profile is activated");
+		}
+
+		if ("NEEDS_TO_BE_DEFINED".equals(env.getProperty("kumite.login.oauth2.github.clientId"))) {
+			log.warn("We lack a proper environment variable for XXX");
+		} else if ("NEEDS_TO_BE_DEFINED".equals(env.getProperty("kumite.login.oauth2.github.clientSecret"))) {
+			log.warn("We lack a proper environment variable for XXX");
 		}
 
 		return null;

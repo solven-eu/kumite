@@ -49,11 +49,11 @@ public class SocialWebFluxSecurity {
 			throw new IllegalStateException();
 		};
 
-		boolean defaultFakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_USER));
-		if (defaultFakeUser) {
-			log.warn("defaultFakeUser=true");
+		boolean fakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_USER));
+		if (fakeUser) {
+			log.warn("{}=true", IKumiteSpringProfiles.P_FAKE_USER);
 		} else {
-			log.info("defaultFakeUser=false");
+			log.info("{}=false", IKumiteSpringProfiles.P_FAKE_USER);
 		}
 
 		return http
@@ -67,7 +67,8 @@ public class SocialWebFluxSecurity {
 						"/ui/js/**",
 						// The routes used by the spa
 						"/",
-						"/login",
+						"/favicon.ico",
+						// "/login",
 						"/html/**",
 
 						"/swagger-ui.html",
@@ -84,10 +85,12 @@ public class SocialWebFluxSecurity {
 						.pathMatchers("/swagger-ui.html", "/swagger-ui/**")
 						.permitAll()
 						// The route used by the SPA
-						.pathMatchers("/", "/html/**", "/login")
+						.pathMatchers("/", "/html/**"
+						// ,"/login"
+						)
 						.permitAll()
 						// Webjars and static resources
-						.pathMatchers("/ui/js/**", "/webjars/**")
+						.pathMatchers("/ui/js/**", "/webjars/**", "/favicon.ico")
 						.permitAll()
 
 						// If there is no logged-in user, we return a 401
@@ -96,14 +99,14 @@ public class SocialWebFluxSecurity {
 
 						// If `fakeUser`, we give free-access to all resources. Else this rule is a no-op, and these
 						// routes needs authentication
-						.pathMatchers(defaultFakeUser ? "/api/login/v1/token" : "/none")
+						.pathMatchers(fakeUser ? "/api/login/v1/token" : "/none")
 						.permitAll()
 
 						// The rest needs to be authenticated
 						.anyExchange()
 						.authenticated())
 
-				.formLogin(login -> login.loginPage("http%s://localhost:8080/login".formatted(isSsl ? "s" : ""))
+				.formLogin(login -> login.loginPage("http%s://localhost:8080/html/login".formatted(isSsl ? "s" : ""))
 						// Required not to get an NPE at `.build()`
 						.authenticationManager(ram))
 				.oauth2Login(

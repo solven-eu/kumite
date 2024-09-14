@@ -7,8 +7,8 @@ spring:
             client:
                 registration:
                     github:
-                        clientId: ${kumite.login.oauth2.github.clientId}
-                        clientSecret: ${kumite.login.oauth2.github.clientSecret}
+                        clientId: ${kumite.login.oauth2.github.clientId:NEEDS_TO_BE_DEFINED}
+                        clientSecret: ${kumite.login.oauth2.github.clientSecret:NEEDS_TO_BE_DEFINED}
                     google:
                         client-id: google-client-id
                         client-secret: google-client-secret

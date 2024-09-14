@@ -37,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = KumiteServerSecurityApplication.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+// We rely on fakePlayer in order to skip the accountRegistration+defaultPlayer flow
 @ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE_SERVER, IKumiteSpringProfiles.P_FAKE_PLAYER })
 @Slf4j
 // https://stackoverflow.com/questions/73881370/mocking-oauth2-client-with-webtestclient-for-servlet-applications-results-in-nul
@@ -78,7 +79,7 @@ public class TestSecurity_WithJwtUser {
 		webTestClient
 
 				.get()
-				.uri("/login")
+				.uri("/html/login")
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.TEXT_HTML)
 				.exchange()

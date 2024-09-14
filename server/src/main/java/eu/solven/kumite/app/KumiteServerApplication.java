@@ -9,10 +9,14 @@ import eu.solven.kumite.app.properties.GitPropertySourceConfig;
 import eu.solven.kumite.app.webflux.KumiteWebFluxConfiguration;
 
 @SpringBootApplication(scanBasePackages = "none")
-@Import({ KumiteWebFluxConfiguration.class,
+@Import({
+
+		KumiteWebFluxConfiguration.class,
 		KumiteServerComponentsConfiguration.class,
 		KumiteSecurity.class,
-		GitPropertySourceConfig.class })
+		GitPropertySourceConfig.class
+
+})
 public class KumiteServerApplication {
 
 	public static void main(String[] args) {

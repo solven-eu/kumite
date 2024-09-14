@@ -55,20 +55,54 @@ public class TestSecurity_WithoutAuth {
 	}
 
 	@Test
-	public void testLogin() {
-		log.debug("About {}", KumiteLoginController.class);
+	public void testApiFavicon() {
+		log.debug("About {}", GreetingHandler.class);
 
 		webTestClient
 
 				.get()
-				.uri("/login")
+				.uri("/favicon.ico")
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+
+				.expectStatus()
+				.isOk()
+				.expectBody(byte[].class)
+				.value(byteArray -> assertThat(byteArray).hasSize(15406));
+	}
+
+	@Test
+	public void testApiSpaRoute() {
+		log.debug("About {}", GreetingHandler.class);
+
+		webTestClient
+
+				.get()
+				.uri("/html/some/route")
 				.accept(MediaType.TEXT_HTML)
 				.exchange()
 
 				.expectStatus()
 				.isOk()
 				.expectBody(String.class)
-				.value(greeting -> assertThat(greeting).contains("<title>Kumite</title>"));
+				.value(indexHtml -> assertThat(indexHtml).contains("<title>Kumite</title>"));
+	}
+
+	@Test
+	public void testLogin() {
+		log.debug("About {}", KumiteLoginController.class);
+
+		webTestClient
+
+				.get()
+				.uri("/html/login")
+				.accept(MediaType.TEXT_HTML)
+				.exchange()
+
+				.expectStatus()
+				.isOk()
+				.expectBody(String.class)
+				.value(indexHtml -> assertThat(indexHtml).contains("<title>Kumite</title>"));
 	}
 
 	@Test

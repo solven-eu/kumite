@@ -30,4 +30,4 @@ logging:
 
 kumite.login:
     # Used to sign the JWT, which are used to interact withthe API
-    signing-key: "NEEDS_TO_BE_DEFINED"
+    signing-key: NEEDS_TO_BE_DEFINED

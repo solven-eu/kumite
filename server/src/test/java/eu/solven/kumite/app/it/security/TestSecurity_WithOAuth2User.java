@@ -79,7 +79,7 @@ public class TestSecurity_WithOAuth2User {
 		webTestClient
 
 				.get()
-				.uri("/login")
+				.uri("/html/login")
 				.accept(MediaType.TEXT_HTML)
 				.exchange()
 
