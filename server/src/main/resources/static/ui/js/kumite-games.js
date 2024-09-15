@@ -23,7 +23,14 @@ export default {
 		return {};
 	},
 	template: /* HTML */ `
-        <div v-if="Object.keys(games) == 0 && nbGameFetching > 0">Loading games</div>
+        <div v-if="Object.keys(games) == 0">
+        <div v-if="nbGameFetching > 0">
+                        Loading games
+                    </div>
+                    <div v-else>
+                                    Issue loading games (or no games at all)
+                                </div>
+        </div>
         <div v-else class="container">
             <div class="row border" v-for="game in games">
                 <KumiteGame :gameId="game.gameId" v-if="!game.error" />

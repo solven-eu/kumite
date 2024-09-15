@@ -11,9 +11,11 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import eu.solven.kumite.account.login.FakePlayerTokens;
 import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
-import eu.solven.kumite.player.AccountPlayersRegistry;
+import eu.solven.kumite.player.IAccountPlayersRegistry;
+import eu.solven.kumite.player.persistence.BijectiveAccountPlayersRegistry;
 import eu.solven.kumite.tools.IUuidGenerator;
 import eu.solven.kumite.tools.JdkUuidGenerator;
+import eu.solven.kumite.user.InMemoryUserRepository;
 
 public class TestKumiteLoginController {
 	final ClientRegistration someClientRegistration = ClientRegistration.withRegistrationId("someRegistrationId")
@@ -27,8 +29,10 @@ public class TestKumiteLoginController {
 
 	final IUuidGenerator uuidGenerator = new JdkUuidGenerator();
 
-	final AccountPlayersRegistry playersRegistry = new AccountPlayersRegistry();
-	final KumiteUsersRegistry usersRegistry = new KumiteUsersRegistry(uuidGenerator, playersRegistry);
+	final IAccountPlayersRegistry playersRegistry = new BijectiveAccountPlayersRegistry();
+	final InMemoryUserRepository userRepository = new InMemoryUserRepository(uuidGenerator, playersRegistry);
+
+	final KumiteUsersRegistry usersRegistry = new KumiteUsersRegistry(userRepository, userRepository);
 	final Environment env = new MockEnvironment();
 
 	final KumiteTokenService kumiteTokenService = new KumiteTokenService(env, uuidGenerator);

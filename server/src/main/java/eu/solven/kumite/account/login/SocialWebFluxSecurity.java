@@ -65,11 +65,14 @@ public class SocialWebFluxSecurity {
 						"/oauth2/**",
 						// Holds static resources (e.g. `/ui/js/store.js`)
 						"/ui/js/**",
+						"/ui/img/**",
 						// The routes used by the spa
 						"/",
 						"/favicon.ico",
 						// "/login",
 						"/html/**",
+
+						"/login/oauth2/code/*",
 
 						"/swagger-ui.html",
 						"/swagger-ui/**",
@@ -79,7 +82,7 @@ public class SocialWebFluxSecurity {
 						// Login does not requires being loggged-in yet
 						.pathMatchers(
 								// "/login",
-								"/oauth2/**")
+								"/login/oauth2/code/**")
 						.permitAll()
 						// Swagger UI
 						.pathMatchers("/swagger-ui.html", "/swagger-ui/**")
@@ -90,7 +93,7 @@ public class SocialWebFluxSecurity {
 						)
 						.permitAll()
 						// Webjars and static resources
-						.pathMatchers("/ui/js/**", "/webjars/**", "/favicon.ico")
+						.pathMatchers("/ui/js/**", "/ui/img/**", "/webjars/**", "/favicon.ico")
 						.permitAll()
 
 						// If there is no logged-in user, we return a 401
@@ -111,7 +114,7 @@ public class SocialWebFluxSecurity {
 						.authenticationManager(ram))
 				.oauth2Login(
 						oauth2 -> oauth2.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler(
-								"http%s://localhost:8080/api/private/user".formatted(isSsl ? "s" : ""))))
+								"http%s://localhost:8080/html/login?success".formatted(isSsl ? "s" : ""))))
 
 				.build();
 	}
@@ -130,13 +133,6 @@ public class SocialWebFluxSecurity {
 	public SecurityWebFilterChain configureApi(ServerHttpSecurity http,
 			Environment env,
 			ReactiveJwtDecoder jwtDecoder) {
-		boolean defaultFakePlayer = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_PLAYER));
-		if (defaultFakePlayer) {
-			log.warn("defaultFakePlayer=true");
-		} else {
-			log.info("defaultFakePlayer=false");
-		}
-
 		if (DISABLE_CSRF_CORS) {
 			// i.e. authentication based on a JWT as header, not automated auth through cookie and session
 			log.warn("We disabled CORS and CSRF in API, as the API has stateless auth");
@@ -174,10 +170,6 @@ public class SocialWebFluxSecurity {
 						.pathMatchers("/api/login/v1/providers")
 						.permitAll()
 
-						// If `fakePlayer`, we give free-access to all resources. Else this rule is a no-op
-						// .pathMatchers(defaultFakePlayer ? "/**" : "/none")
-						// .permitAll()
-
 						// The rest needs to be authenticated
 						.anyExchange()
 						.authenticated())
@@ -194,15 +186,5 @@ public class SocialWebFluxSecurity {
 				// .anonymous(a -> a.principal("AnonymousKarateka"))
 				.build();
 	}
-
-	// public static Converter<JWT, Mono<JWTClaimsSet>> makeSimpleJwtToClaimsConverter() {
-	// return jwt -> {
-	// try {
-	// return Mono.just(jwt.getJWTClaimsSet());
-	// } catch (ParseException e) {
-	// throw new IllegalArgumentException(e);
-	// }
-	// };
-	// }
 
 }

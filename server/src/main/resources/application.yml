@@ -2,31 +2,33 @@ spring:
     profiles:
         # Do not add any default `include`, else `default would never kicks in`
         group:
-            # `default` is used for quick-start: we enable fake security
+            # `default` is used for quick-start: we enable unsafe and fake
             default:
                 - default_server
-                - fake
+                - unsafe
+                # fake_user introduces a default fakeAccount with a default fakePlayer
+                - fake_user
+            default_server:
+                - inject_default_games
             secured:
                 - default_server
             heroku:
                 - secured
-            unsafe_external_oauth2:
-                - default_server
-            fake:
+            unsafe:
                 - default_server
                 # unsafe_server provides unsafe security (JWT signature, etc)
                 - unsafe_server
-                # fake_user introduces a default fakeAccount with a default fakePlayer
-                - fake_user
+                - unsafe_external_oauth2
             unsafe_server:
                 - default_server
-            default_server:
-                - inject_default_games
+            unsafe_external_oauth2:
+                - default_server
 
 logging:
     level:
         org.springframework.security: INFO
         eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter: DEBUG
+        eu.solven.kumite.app.webflux.KumiteWebExceptionHandler: DEBUG
 
 kumite.login:
     # Used to sign the JWT, which are used to interact withthe API

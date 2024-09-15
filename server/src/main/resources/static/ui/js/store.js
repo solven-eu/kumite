@@ -3,13 +3,20 @@ import { watch } from "vue";
 import { defineStore } from "pinia";
 
 class NetworkError extends Error {
-	constructor(message, url, response) {
-		super(message);
-		this.name = this.constructor.name;
+    constructor(message, url, response) {
+        super(message);
+        this.name = this.constructor.name;
 
-		this.url = url;
-		this.response = response;
-	}
+        this.url = url;
+        this.response = response;
+    }
+}
+
+class UserNeedsToLoginError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = this.constructor.name;
+    }
 }
 
 export const useKumiteStore = defineStore("kumite", {
@@ -28,7 +35,8 @@ export const useKumiteStore = defineStore("kumite", {
 		// Currently connected account
 		account: {},
 		tokens: {},
-		// Turned to true on 401 over `loadUser()`
+        // Initially, we assume we are logged-in as we may have a session cookie
+		// May be turned to true by 401 on `loadUser()`
 		needsToLogin: false,
 
 		// We loads information about various players (e.g. through leaderboards)
@@ -59,11 +67,19 @@ export const useKumiteStore = defineStore("kumite", {
 		},
 	},
 	actions: {
+        // Typically useful when an error is wrapped in the store
+        onSwallowedError(error) {
+            if (error instanceof NetworkError) {
+                console.warn("An NetworkError is not being rethrown", error, error.response.status);
+            } else {
+                console.error("An Error is not being rethrown", error);
+            }
+        },
+        
 		async loadMetadata() {
 			const store = this;
 
 			async function fetchFromUrl(url) {
-				try {
 					const response = await fetch(url);
 					if (!response.ok) {
 						throw new NetworkError(
@@ -77,65 +93,69 @@ export const useKumiteStore = defineStore("kumite", {
 					const metadata = responseJson;
 
 					store.$patch({ metadata: metadata });
-				} catch (e) {
-					console.error("Issue on Network: ", e);
-					throw e;
-				}
 			}
 
 			return fetchFromUrl("/api/public/v1/metadata");
 		},
 
 		// This would not fail if the User needs to login.
+        // Callers would generally rely on `ensureUser()`
 		async loadUser() {
 			const store = this;
 
 			async function fetchFromUrl(url) {
-				store.nbAccountLoading++;
-				try {
-					// Rely on session for authentication
-					const response = await fetch(url);
 
-					if (response.ok) {
-						console.warn("User is logged-in");
-						store.needsToLogin = false;
-					} else if (!response.ok) {
-						if (response.status === 401) {
-							console.warn("User needs to login");
-							store.needsToLogin = true;
-						}
+                let response;
+                
+                // The following block can fail if there is no netwrk connection
+                // (Are we sure? Where are the unitTests?)
+                {
+    				store.nbAccountLoading++;
+    				try {
+    					// Rely on session for authentication
+    					response = await fetch(url);
+    				} finally {
+    					store.nbAccountLoading--;
+    				}
+                }
 
-						throw new NetworkError(
-							"Rejected request for games url" + url,
-							url,
-							response,
-						);
-					}
+                if (response.status === 401) {
+                    throw new UserNeedsToLoginError("User needs to login");
+                } else if (!response.ok) {
+                    // What is this scenario? ServerInternalError?
+                    throw new NetworkError(
+                        "Rejected request for games url" + url,
+                        url,
+                        response,
+                    );
+                }
 
-					const responseJson = await response.json();
-					const user = responseJson;
+                // We can typically get a Network error while fetching the json
+                const responseJson = await response.json();
+                const user = responseJson;
 
-					console.log("Loaded user:", user);
+                console.log("User is logged-in", user);
+                store.needsToLogin = false; 
 
-					store.$patch({ account: user });
-				} catch (e) {
-					console.error("Issue on Network: ", e);
-					const user = { error: e };
-					store.$patch({ account: user });
-					return user;
-				} finally {
-					store.nbAccountLoading--;
-				}
+                return user;
 			}
 
-			return fetchFromUrl("/api/login/v1/user");
+			return fetchFromUrl("/api/login/v1/user").then(user => {
+                store.$patch({ account: user });
+                
+                return user;
+            }).catch(e => {
+                // Whatever the error, we tell the user needs to login
+                console.warn("User needs to login");
+                store.needsToLogin = true;
+
+                const user = { error: e };
+                return user;
+            });
 		},
 
+        // @throws UserNeedsToLoginError if not logged-in
 		async ensureUser() {
-			if (this.needsToLogin) {
-				throw new Error("User needs to login");
-			}
-
 			if (Object.keys(this.account?.user || {}).length !== 0) {
 				// We have loaded a user: we assume it does not need to login
 				return Promise.resolve(this.account.user);
@@ -144,8 +164,11 @@ export const useKumiteStore = defineStore("kumite", {
 				// It will enbale checking we are actually logged-in
 				return this.loadUser().then((user) => {
 					if (this.needsToLogin) {
+                        // We are still not logged-in
 						throw new Error("The user needs to login");
-					}
+					} else if (user.error) {
+                        throw new Error("Issue when loading the user: " + user.error);
+                    }
 
 					return user;
 				});
@@ -192,7 +215,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 					return tokens;
 				} catch (e) {
-					console.error("Issue on Network: ", e);
+                    store.onSwallowedError(e);
 					return { error: e };
 				} finally {
 					store.nbAccountLoading--;
@@ -287,7 +310,7 @@ export const useKumiteStore = defineStore("kumite", {
 						});
 					});
 				} catch (e) {
-					console.error("Issue on Network: ", e);
+                    store.onSwallowedError(e);
 				} finally {
 					store.nbAccountLoading--;
 				}
@@ -330,7 +353,7 @@ export const useKumiteStore = defineStore("kumite", {
 						},
 					});
 				} catch (e) {
-					console.error("Issue on Network: ", e);
+					store.onSwallowedError(e);
 				} finally {
 					store.nbAccountLoading--;
 				}
@@ -360,7 +383,7 @@ export const useKumiteStore = defineStore("kumite", {
 						});
 					});
 				} catch (e) {
-					console.error("Issue on Network: ", e);
+					store.onSwallowedError(e);
 				} finally {
 					store.nbGameFetching--;
 				}
@@ -402,7 +425,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 						return game;
 					} catch (e) {
-						console.error("Issue on Fetch: ", e);
+                        store.onSwallowedError(e);
 
 						const game = {
 							gameId: gameId,
@@ -442,7 +465,7 @@ export const useKumiteStore = defineStore("kumite", {
 						});
 					});
 				} catch (e) {
-					console.error("Issue on Network: ", e);
+                    store.onSwallowedError(e);
 				} finally {
 					store.nbContestFetching--;
 				}
@@ -508,11 +531,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 						return contest;
 					} catch (e) {
-						if (e instanceof NetworkError) {
-							console.error("Issue on Fetch: ", e, e.response.status);
-						} else {
-							console.error("Issue on Fetch: ", e);
-						}
+                        store.onSwallowedError(e);
 
 						const contest = {
 							contestId: contestId,
@@ -574,7 +593,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 						return contestWithBoard;
 					} catch (e) {
-						console.error("Issue on Fetch: ", e.response.status, e);
+                        store.onSwallowedError(e);
 
 						return {
 							contestId: contestId,
@@ -626,7 +645,7 @@ export const useKumiteStore = defineStore("kumite", {
 						},
 					});
 				} catch (e) {
-					console.error("Issue on Fetch: ", e, e.response.status);
+                    store.onSwallowedError(e);
 
 					const leaderboard = {
 						contestId: contestId,

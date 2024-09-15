@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.IKumiteBoardView;
+import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerMoveRaw;
 import lombok.Builder;
 import lombok.NonNull;
@@ -42,6 +44,11 @@ public class TSPBoard implements IKumiteBoard {
 
 	@Override
 	public void registerPlayer(UUID playerId) {
-		// Optimization problems can accept any player
+		playerToLatestSolution.put(playerId, TSPSolution.EMPTY);
+	}
+
+	@Override
+	public List<KumitePlayer> snapshotPlayers() {
+		return playerToLatestSolution.keySet().stream().map(KumitePlayer::fromPlayerId).collect(Collectors.toList());
 	}
 }

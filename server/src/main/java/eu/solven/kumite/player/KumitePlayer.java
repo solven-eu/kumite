@@ -35,6 +35,10 @@ public class KumitePlayer {
 	@NonNull
 	UUID playerId;
 
+	public static KumitePlayer fromPlayerId(UUID playerId) {
+		return KumitePlayer.builder().playerId(playerId).build();
+	}
+
 	// UUID accountId;
 
 	// Nice-name, editable by the account

@@ -56,6 +56,11 @@ public class TravellingSalesmanProblem implements IGame {
 	};
 
 	ToDoubleBiFunction<TSPBoard, TSPSolution> solutionToScore = (p, s) -> {
+		if (!p.getProblem().getCities().isEmpty() && s.getCities().isEmpty()) {
+			// The problem is not empty while the solution is empty: this is the initial solution on player registration
+			return Double.MAX_VALUE;
+		}
+
 		Map<String, TSPCity> nameToCity = new TreeMap<>();
 		p.getProblem().getCities().forEach(c -> nameToCity.put(c.getName(), c));
 

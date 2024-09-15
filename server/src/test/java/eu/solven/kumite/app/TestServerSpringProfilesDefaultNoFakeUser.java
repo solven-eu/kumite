@@ -33,12 +33,8 @@ public class TestServerSpringProfilesDefaultNoFakeUser implements IKumiteSpringP
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_INJECT_DEFAULT_GAMES))).isTrue();
 
 		// By default, we include unsafe parameters
-		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_FAKE_PLAYER))).isFalse();
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_UNSAFE_SERVER))).isTrue();
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_FAKE_USER))).isFalse();
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_UNSAFE_EXTERNAL_OAUTH2))).isTrue();
-
-		// `.getActiveProfiles` does not include implicit default profile
-		// Assertions.assertThat(env.getActiveProfiles()).isEmpty();
 	}
 }

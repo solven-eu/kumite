@@ -6,20 +6,21 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.stream.Collectors;
 
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
+@Slf4j
 public class ContestPlayersRegistry {
 	final GamesRegistry gamesRegistry;
-	final AccountPlayersRegistry playersRegistry;
+	final IAccountPlayersRegistry accountPlayersRegistry;
 
-	// We track active player per contest. It enables not storing this information in the board.
-	final Map<UUID, Set<UUID>> contestToPlayingPlayers = new ConcurrentHashMap<>();
+	final IContendersRepository contestPlayersRepository;
+
 	// Once a player is viewing, it can not play as it got some private information about the game.
 	// The public information of a board is available by querying the board with playerId=KumitePlayer.PUBLIC
 	// A cheater could use 2 accounts: one to look at public information, the other to actually play the game
@@ -31,7 +32,7 @@ public class ContestPlayersRegistry {
 			return;
 		}
 
-		UUID accountId = playersRegistry.getAccountId(playerId);
+		UUID accountId = accountPlayersRegistry.getAccountId(playerId);
 		contestToViewingAccounts.computeIfAbsent(contest.getContestId(), k -> new ConcurrentSkipListSet<>())
 				.add(accountId);
 	}
@@ -67,21 +68,24 @@ public class ContestPlayersRegistry {
 		// No need to synchronize as BoardLifecycleManager ensure single-threaded per contest
 		{
 			if (game.canAcceptPlayer(contest, KumitePlayer.builder().playerId(playerId).build())) {
-				contestToPlayingPlayers.computeIfAbsent(contestId, k -> new ConcurrentSkipListSet<>()).add(playerId);
+				contestPlayersRepository.registerContender(contestId, playerId);
 			} else {
 				throw new IllegalArgumentException(
 						"player=" + playerId + " can not be registered on contestId=" + contestId);
 			}
 		}
+
+		// We may want to prevent a player to register into too many contests
+		long nbPlayingGames = -1;
+		// contestToPlayingPlayers.values().stream().filter(players -> players.contains(playerId)).count();
+		log.info("playerId={} has registered into contestId={}. Now playing {} contests",
+				playerId,
+				contestId,
+				nbPlayingGames);
 	}
 
 	public IHasPlayers makeDynamicHasPlayers(UUID contestId) {
-		return () -> contestToPlayingPlayers.getOrDefault(contestId, Set.of())
-				.stream()
-				.sorted()
-				// playerName?
-				.map(playerId -> KumitePlayer.builder().playerId(playerId).build())
-				.collect(Collectors.toList());
+		return contestPlayersRepository.makeDynamicHasPlayers(contestId);
 	}
 
 	/**
@@ -91,13 +95,13 @@ public class ContestPlayersRegistry {
 	 * @return true if given player owning account is already viewing this contest.
 	 */
 	public boolean isViewing(UUID contestId, UUID playerId) {
-		UUID accountId = playersRegistry.getAccountId(playerId);
+		UUID accountId = accountPlayersRegistry.getAccountId(playerId);
 
 		return contestToViewingAccounts.getOrDefault(contestId, Collections.emptySet()).contains(accountId);
 	}
 
 	public boolean isRegisteredPlayer(UUID contestId, UUID playerId) {
-		return contestToPlayingPlayers.getOrDefault(contestId, Set.of()).contains(playerId);
+		return contestPlayersRepository.isContender(contestId, playerId);
 	}
 
 	public PlayerContestStatus getPlayingPlayer(UUID playerId, Contest contestMetadata) {

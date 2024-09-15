@@ -43,10 +43,10 @@ public class KumiteWebclientServer implements IKumiteServer {
 	}
 
 	// https://github.com/spring-projects/spring-boot/issues/5077
-	public KumiteWebclientServer(Environment env, int randomServerPort) {
+	public KumiteWebclientServer(Environment env, int randomServerPort, String defaultAccessToken) {
 		String serverUrl = env.getRequiredProperty("kumite.server.base-url")
 				.replaceFirst("LocalServerPort", Integer.toString(randomServerPort));
-		String accessToken = env.getRequiredProperty("kumite.server.access_token");
+		String accessToken = env.getProperty("kumite.server.access_token", defaultAccessToken);
 
 		webClient = WebClient.builder()
 				.baseUrl(serverUrl)

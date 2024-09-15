@@ -36,8 +36,7 @@ public class KumiteSecurity {
 	@Profile(IKumiteSpringProfiles.P_SECURED)
 	@Bean
 	public Void checkSecured(Environment env) {
-		boolean acceptUnsafe = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE,
-				IKumiteSpringProfiles.P_FAKE_PLAYER,
+		boolean acceptUnsafe = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_UNSAFE,
 				IKumiteSpringProfiles.P_UNSAFE_SERVER,
 				IKumiteSpringProfiles.P_FAKE_USER,
 				IKumiteSpringProfiles.P_UNSAFE_EXTERNAL_OAUTH2));

@@ -64,7 +64,7 @@ public class BoardHandler {
 		IKumiteBoard board = boardsRegistry.makeDynamicBoardHolder(contestId).get();
 
 		ContestView contestView = makeContestView(contestMetadata, playingPlayer, board);
-		log.info("Serving board for contestId={}", contestView.getContestId());
+		log.debug("Serving board for contestId={}", contestView.getContestId());
 
 		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(contestView));
 	}

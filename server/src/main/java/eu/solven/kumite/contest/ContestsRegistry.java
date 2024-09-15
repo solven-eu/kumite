@@ -28,7 +28,8 @@ public class ContestsRegistry {
 	@NonNull
 	final GamesRegistry gamesRegistry;
 
-	final LiveContestsRegistry liveContestsManager;
+	// @NonNull
+	// final LiveContestsRegistry liveContestsManager;
 
 	@NonNull
 	final ContestPlayersRegistry contestPlayersRegistry;
@@ -65,16 +66,17 @@ public class ContestsRegistry {
 			// There is a small chance of the game turning before between `registerBoard` and now
 			// (e.g. if the game has a very small timeout)
 			throw new IllegalArgumentException("When registered, a contest has not to be over");
-		} else {
-			liveContestsManager.registerContestLive(contestId);
 		}
+		// else {
+		// liveContestsManager.registerContestLive(contestId);
+		// }
 
 		return contest;
 	}
 
-	public void registerGameOver(UUID contestId) {
-		liveContestsManager.registerContestOver(contestId);
-	}
+	// public void registerGameOver(UUID contestId) {
+	// liveContestsManager.registerContestOver(contestId);
+	// }
 
 	public Contest getContest(UUID contestId) {
 		ContestCreationMetadata contestConstantMetadata = uuidToContests.get(contestId);

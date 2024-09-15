@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class GamesRegistry {
+	// One day, we could register externalized games, interacting by API. It will be a way not to concentrate all Games
+	// in this project.
 	final Map<UUID, IGame> idToGame = new ConcurrentHashMap<>();
 
 	public void registerGame(IGame game) {

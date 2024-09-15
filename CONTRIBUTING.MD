@@ -4,11 +4,16 @@
 
 # Start the server
 
-Start the server locally
+Fast-track (skipping the need to login with an external identity referential (like Github):
 
     cd server
-    mvn spring-boot:run -Dspring-boot.run.profiles=inject_default_games,fake_user
+    mvn spring-boot:run
 
+## Start the server with external identity referential (like Github)
+
+    cd server
+    mvn spring-boot:run -Dspring-boot.run.profiles=unsafe
+    
 ## Spring Profiles
 
 ### `-Dspring-boot.run.profiles=inject_default_games`

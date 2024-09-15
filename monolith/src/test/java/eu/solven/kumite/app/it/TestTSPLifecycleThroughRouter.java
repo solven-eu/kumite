@@ -14,13 +14,17 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import eu.solven.kumite.account.login.FakePlayerTokens;
+import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerApplication;
 import eu.solven.kumite.app.server.IKumiteServer;
 import eu.solven.kumite.app.server.KumiteWebclientServer;
 import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.game.GameSearchParameters;
+import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerRawMovesHolder;
+import eu.solven.kumite.tools.JdkUuidGenerator;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -34,9 +38,10 @@ import reactor.core.publisher.Mono;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = KumiteServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE_SERVER, IKumiteSpringProfiles.P_FAKE_PLAYER, })
-@TestPropertySource(
-		properties = { "kumite.random.seed=123", "kumite.server.base-url=http://localhost:LocalServerPort" })
+@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE_SERVER, IKumiteSpringProfiles.P_FAKE_USER, })
+@TestPropertySource(properties = { "kumite.random.seed=123",
+		"kumite.playerId=11111111-1111-1111-1111-111111111111",
+		"kumite.server.base-url=http://localhost:LocalServerPort" })
 @Slf4j
 public class TestTSPLifecycleThroughRouter {
 
@@ -49,9 +54,11 @@ public class TestTSPLifecycleThroughRouter {
 
 	@Test
 	public void testSinglePlayer() {
-		IKumiteServer kumiteServer = new KumiteWebclientServer(env, randomServerPort);
+		UUID playerId = KumitePlayer.FAKE_PLAYER_ID;
+		KumiteTokenService kumiteTokenService = new KumiteTokenService(env, new JdkUuidGenerator());
+		String accessToken = kumiteTokenService.generateAccessToken(FakePlayerTokens.fakeUser(), playerId);
 
-		UUID playerId = env.getRequiredProperty("kumite.playerId", UUID.class);
+		IKumiteServer kumiteServer = new KumiteWebclientServer(env, randomServerPort, accessToken);
 
 		kumiteServer
 				// Search for games given a human-friendly pattern

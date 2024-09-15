@@ -27,9 +27,13 @@ export default {
 			{ deep: true },
 		);
 
-		store.loadMetadata();
-		store.loadUser();
-		store.loadUserTokens();
+		store.loadMetadata().then(metadata => {
+            return store.ensureUser();    
+        }).then(user => {
+            return store.loadUserTokens();            
+        }).catch(error => {
+            store.onSwallowedError(error);
+        });
 
 		return {};
 	},
@@ -77,21 +81,13 @@ export default {
             </main>
 
             <div v-if="needsToLogin">
-                <RouterLink :to="{path:'/login'}"><i class="bi bi-trophy"></i> You need to login</RouterLink>
-            </div>
+                <div v-if="$route.fullPath !== '/html/login'">
+                    <RouterLink :to="{path:'/html/login'}"><i class="bi bi-person"></i> You need to login</RouterLink>
+            </div></div>
 
-            <!--p>
-    <strong>Current route path:</strong> {{ $route.fullPath }}
-  </p-->
-            <!--p>
-	  <strong>Current account:</strong> {{ account }}
-	</p-->
-            <p>
+            <p v-else>
                 <strong><i class="bi bi-person"></i>playerId:</strong> {{ playingPlayerId }}
             </p>
-            <!--p>
-		  <strong>tokens:</strong> {{ tokens }}
-		</p-->
         </div>
     `,
 };

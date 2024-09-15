@@ -59,7 +59,6 @@ export default {
                 Tags: <span class="badge text-bg-secondary" v-for="tag in game.tags" data-bs-toggle="tooltip" :data-bs-title="metadata.tags[tag]">{{tag}}</span
                 ><br />
             </span>
-            Description: {{game.shortDescription}}<br />
             <ul v-for="ref in game.references">
                 <li><a :href="ref" target="_blank">{{ref}}</a></li>
             </ul>

@@ -7,12 +7,14 @@ import java.util.Map;
 import java.util.OptionalInt;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.IKumiteBoardView;
+import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerMoveRaw;
 import lombok.Builder;
 import lombok.Value;
@@ -169,5 +171,10 @@ public class TicTacToeBoard implements IKumiteBoard, IKumiteBoardView {
 	@Override
 	public String getMoveSvg() {
 		return "KumiteTicTacToeBoardMove";
+	}
+
+	@Override
+	public List<KumitePlayer> snapshotPlayers() {
+		return playerIdToSymbol.keySet().stream().map(KumitePlayer::fromPlayerId).collect(Collectors.toList());
 	}
 }

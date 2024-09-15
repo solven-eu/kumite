@@ -13,10 +13,16 @@ export default {
 			type: String,
 			// required: true,
 		},
-		showGame: {
-			type: Boolean,
-			default: true,
-		},
+        showGame: {
+            type: Boolean,
+            // As we show multiple contests, we do not show the game (by default)
+            default: false,
+        },
+        showLeaderboard: {
+            type: Boolean,
+            // As we show multiple contests, we do not show the leaderboard (by default)
+            default: false,
+        },
 	},
 	computed: {
 		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching"]),
@@ -52,10 +58,10 @@ export default {
 	},
 
 	template: /* HTML */ `
-        <div -if="Object.values(contests).length == 0 && nbContestFetching > 0">Loading contests</div>
+        <div v-if="Object.values(contests).length == 0 && nbContestFetching > 0">Loading contests</div>
         <div v-else class="container">
             <div class="row border" v-for="contest in contests">
-                <KumiteContest :gameId="contest.constantMetadata.gameId" :contestId="contest.contestId" :showGame="showGame" />
+                <KumiteContest :gameId="contest.constantMetadata.gameId" :contestId="contest.contestId" :showGame="showGame" :showLeaderboard="showLeaderboard" />
             </div>
         </div>
     `,

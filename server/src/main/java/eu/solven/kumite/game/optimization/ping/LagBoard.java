@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.IKumiteBoardView;
+import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerMoveRaw;
 import lombok.Builder;
 import lombok.Value;
@@ -42,5 +44,14 @@ public class LagBoard implements IKumiteBoard, IKumiteBoardView {
 	@Override
 	public void registerPlayer(UUID playerId) {
 		// Optimization problems can accept any player
+		playerToLatestLagMs.put(playerId, Long.MAX_VALUE);
+	}
+
+	@Override
+	public List<KumitePlayer> snapshotPlayers() {
+		return playerToLatestLagMs.keySet()
+				.stream()
+				.map(playerId -> KumitePlayer.fromPlayerId(playerId))
+				.collect(Collectors.toList());
 	}
 }

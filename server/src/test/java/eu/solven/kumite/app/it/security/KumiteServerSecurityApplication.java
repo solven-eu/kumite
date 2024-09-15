@@ -9,7 +9,8 @@ import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.KumiteRandomConfiguration;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.app.webflux.KumiteSpaRouter;
-import eu.solven.kumite.player.AccountPlayersRegistry;
+import eu.solven.kumite.player.persistence.BijectiveAccountPlayersRegistry;
+import eu.solven.kumite.user.InMemoryUserRepository;
 
 @SpringBootApplication(scanBasePackages = "none")
 @Import({ KumiteRandomConfiguration.class,
@@ -17,12 +18,13 @@ import eu.solven.kumite.player.AccountPlayersRegistry;
 		KumiteSecurity.class,
 
 		KumiteUsersRegistry.class,
+		InMemoryUserRepository.class,
 
 		KumiteSpaRouter.class,
 		GreetingHandler.class,
 
-		// This is needed as security often checks the players of an account
-		AccountPlayersRegistry.class,
+		// IAccountPlayersRegistry is needed as security often checks the players of an account
+		BijectiveAccountPlayersRegistry.class,
 
 })
 public class KumiteServerSecurityApplication {

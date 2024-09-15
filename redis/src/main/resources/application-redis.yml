@@ -1,0 +1,6 @@
+# https://app.redislabs.com/#/databases/12516930/subscription/2419490/view-bdb/configuration
+
+spring.data.redis:
+    # RedisCloud automatically injects given environment variable
+    url: ${rediscloud.url:NEEDS_TO_BE_DEFINED}
+    # password: ${kumite.redis.password:NEEDS_TO_BE_DEFINED}

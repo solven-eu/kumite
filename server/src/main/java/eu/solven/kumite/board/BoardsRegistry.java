@@ -1,19 +1,18 @@
 package eu.solven.kumite.board;
 
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
+import eu.solven.kumite.board.persistence.IBoardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
 public class BoardsRegistry {
-	final Map<UUID, IKumiteBoard> contestIdToBoard = new ConcurrentHashMap<>();
+	final IBoardRepository boardRepository;
 
 	public void registerBoard(UUID contestId, IKumiteBoard initialBoard) {
-		IKumiteBoard alreadyIn = contestIdToBoard.putIfAbsent(contestId, initialBoard);
+		IKumiteBoard alreadyIn = boardRepository.putIfAbsent(contestId, initialBoard);
 		if (alreadyIn != null) {
 			throw new IllegalArgumentException(
 					"board already registered (" + alreadyIn + ") for contestId=" + contestId);
@@ -21,14 +20,14 @@ public class BoardsRegistry {
 	}
 
 	public IHasBoard makeDynamicBoardHolder(UUID contestId) {
-		if (!contestIdToBoard.containsKey(contestId)) {
+		if (!boardRepository.containsKey(contestId)) {
 			throw new IllegalArgumentException("Unknown contestId=" + contestId);
 		}
 
-		return () -> contestIdToBoard.get(contestId);
+		return () -> boardRepository.getBoard(contestId).get();
 	}
 
 	public void updateBoard(UUID contestId, IKumiteBoard currentBoard) {
-		contestIdToBoard.put(contestId, currentBoard);
+		boardRepository.updateBoard(contestId, currentBoard);
 	}
 }

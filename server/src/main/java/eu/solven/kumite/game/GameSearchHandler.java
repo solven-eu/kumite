@@ -41,7 +41,7 @@ public class GameSearchHandler {
 		}
 
 		List<GameMetadata> games = gamesRegistry.searchGames(parameters.build());
-		log.info("Games for {}: {}", parameters, games);
+		log.debug("Games for {}: {}", parameters, games);
 		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(games));
 	}
 }

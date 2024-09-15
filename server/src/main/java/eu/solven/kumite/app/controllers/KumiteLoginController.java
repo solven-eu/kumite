@@ -24,7 +24,7 @@ import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.webflux.LoginRouteButNotAuthenticatedException;
-import eu.solven.kumite.player.AccountPlayersRegistry;
+import eu.solven.kumite.player.IAccountPlayersRegistry;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -35,7 +35,7 @@ public class KumiteLoginController {
 	final InMemoryReactiveClientRegistrationRepository clientRegistrationRepository;
 
 	final KumiteUsersRegistry usersRegistry;
-	final AccountPlayersRegistry playersRegistry;
+	final IAccountPlayersRegistry playersRegistry;
 	final Environment env;
 
 	final KumiteTokenService kumiteTokenService;

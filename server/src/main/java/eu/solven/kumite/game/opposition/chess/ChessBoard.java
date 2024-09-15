@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.IKumiteBoardView;
+import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerMoveRaw;
 import lombok.Builder;
 import lombok.Value;
@@ -37,5 +38,10 @@ public class ChessBoard implements IKumiteBoard, IKumiteBoardView {
 	@Override
 	public void registerPlayer(UUID playerId) {
 		throw new IllegalArgumentException("TODO");
+	}
+
+	@Override
+	public List<KumitePlayer> snapshotPlayers() {
+		return Collections.emptyList();
 	}
 }

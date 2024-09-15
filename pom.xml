@@ -27,6 +27,8 @@
 		<module>player</module>
 		<!-- Starts a server and a player in the same JVM -->
 		<module>monolith</module>
+		<!-- Use Redis as persistence layer -->
+		<module>redis</module>
 	</modules>
 
 	<properties>

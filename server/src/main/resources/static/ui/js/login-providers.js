@@ -1,5 +1,5 @@
-// my-component.js
 import { ref } from "vue";
+
 export default {
 	setup() {
 		const error = ref({});
@@ -22,7 +22,7 @@ export default {
 			}
 		}
 
-		theData("http://localhost:8080/login/providers");
+		theData("/api/login/v1/providers");
 
 		return { isLoading, loginProviders };
 	},

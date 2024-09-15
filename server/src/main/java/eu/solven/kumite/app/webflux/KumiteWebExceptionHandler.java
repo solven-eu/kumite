@@ -30,12 +30,22 @@ public class KumiteWebExceptionHandler implements WebExceptionHandler {
 		if (e instanceof NoResourceFoundException) {
 			// Let the default WebExceptionHandler manage 404
 			return Mono.error(e);
-		} else if (e instanceof IllegalArgumentException) {
-			exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
+		}
+
+		HttpStatus httpStatus;
+		if (e instanceof IllegalArgumentException) {
+			httpStatus = HttpStatus.BAD_REQUEST;
 		} else if (e instanceof LoginRouteButNotAuthenticatedException) {
-			exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+			httpStatus = HttpStatus.UNAUTHORIZED;
 		} else {
-			exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+		}
+
+		exchange.getResponse().setStatusCode(httpStatus);
+		if (log.isDebugEnabled()) {
+			log.warn("Returning a {} given {} ({})", httpStatus, e.getClass(), e.getMessage(), e);
+		} else {
+			log.warn("Returning a {} given {} ({})", httpStatus, e.getClass(), e.getMessage());
 		}
 
 		Map<String, Object> responseBody = new LinkedHashMap<>();

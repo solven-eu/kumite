@@ -12,37 +12,44 @@ import org.junit.jupiter.api.Test;
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
+import eu.solven.kumite.board.persistence.IBoardRepository;
+import eu.solven.kumite.board.persistence.InMemoryBoardRepository;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestCreationMetadata;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.lifecycle.BoardLifecycleManager;
-import eu.solven.kumite.player.AccountPlayersRegistry;
+import eu.solven.kumite.player.ContestPlayersFromBoard;
 import eu.solven.kumite.player.ContestPlayersRegistry;
+import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
 import eu.solven.kumite.player.IKumiteMove;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerJoinRaw;
 import eu.solven.kumite.player.PlayerMoveRaw;
+import eu.solven.kumite.player.persistence.BijectiveAccountPlayersRegistry;
 
 public class TestBoardLifecycleManager {
 	// We check with as async Executor to ensure proper errorManagement
 	Executor executor = Executors.newSingleThreadExecutor();
 
-	BoardsRegistry boardRegistry = new BoardsRegistry();
+	IBoardRepository boardRepository = new InMemoryBoardRepository();
+	BoardsRegistry boardRegistry = new BoardsRegistry(boardRepository);
 	GamesRegistry gamesRegistry = new GamesRegistry();
-	AccountPlayersRegistry playersRegistry = new AccountPlayersRegistry();
+	IAccountPlayersRegistry accountPlayers = new BijectiveAccountPlayersRegistry();
 
-	ContestPlayersRegistry contestPlayersRegistry = new ContestPlayersRegistry(gamesRegistry, playersRegistry);
+	ContestPlayersRegistry contestPlayersRegistry =
+			new ContestPlayersRegistry(gamesRegistry, accountPlayers, new ContestPlayersFromBoard(boardRepository));
 
-	BoardLifecycleManager manager = new BoardLifecycleManager(boardRegistry, contestPlayersRegistry, executor);
+	BoardLifecycleManager boardLifecycleManager =
+			new BoardLifecycleManager(boardRegistry, contestPlayersRegistry, executor);
 	UUID contestId = UUID.randomUUID();
 
 	@Test
 	public void testAsync_Exception() {
 		Assertions.assertThatThrownBy(() -> {
-			manager.executeBoardChange(contestId, () -> {
+			boardLifecycleManager.executeBoardChange(contestId, () -> {
 				throw new Error("Any error");
 			});
 		}).isInstanceOf(IllegalArgumentException.class);
@@ -50,29 +57,43 @@ public class TestBoardLifecycleManager {
 
 	IGame game = new TravellingSalesmanProblem();
 
-	IKumiteBoard board = game.generateInitialBoard(new Random(0));
-	IHasBoard hasBoard = () -> board;
-	IHasPlayers hasPlayers = contestPlayersRegistry.makeDynamicHasPlayers(contestId);
-	Contest contest = Contest.builder()
-			.contestId(contestId)
-			.game(game)
-			.players(hasPlayers)
-			.board(hasBoard)
-			.gameover(game.makeDynamicGameover(hasBoard))
-			.constantMetadata(ContestCreationMetadata.fromGame(game.getGameMetadata()).name("someContestName").build())
-			.build();
+	UUID accountId = UUID.randomUUID();
+	UUID playerId = accountPlayers.generatePlayerId(accountId);
 
-	UUID playerId = UUID.randomUUID();
+	IKumiteBoard board = game.generateInitialBoard(new Random(0));
+	IHasBoard hasBoard;
+	IHasPlayers hasPlayers;
+
+	Contest contest;
+
+	{
+		gamesRegistry.registerGame(game);
+		boardRegistry.registerBoard(contestId, board);
+
+		hasBoard = boardRegistry.makeDynamicBoardHolder(contestId);
+		hasPlayers = contestPlayersRegistry.makeDynamicHasPlayers(contestId);
+
+		contest = Contest.builder()
+				.contestId(contestId)
+				.game(game)
+				.players(hasPlayers)
+				.board(hasBoard)
+				.gameover(game.makeDynamicGameover(hasBoard))
+				.constantMetadata(
+						ContestCreationMetadata.fromGame(game.getGameMetadata()).name("someContestName").build())
+				.build();
+	}
 
 	@Test
 	public void testPlayerMove_PlayerNotRegistered() {
-		gamesRegistry.registerGame(game);
-		boardRegistry.registerBoard(contestId, board);
+		accountPlayers.registerPlayer(accountId, KumitePlayer.builder().playerId(playerId).build());
+
+		// Skip `playersRegistry.registerPlayer`
 
 		PlayerMoveRaw playerMove = makeValidMove();
 
 		Assertions.assertThatThrownBy(() -> {
-			manager.onPlayerMove(contest, playerMove);
+			boardLifecycleManager.onPlayerMove(contest, playerMove);
 		}).isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -83,32 +104,26 @@ public class TestBoardLifecycleManager {
 
 	@Test
 	public void testPlayerMove() {
-		gamesRegistry.registerGame(game);
-		boardRegistry.registerBoard(contestId, board);
+		accountPlayers.registerPlayer(accountId, KumitePlayer.builder().playerId(playerId).build());
 
-		playersRegistry.registerPlayer(UUID.randomUUID(), KumitePlayer.builder().playerId(playerId).build());
-
-		manager.registerPlayer(contest,
+		boardLifecycleManager.registerPlayer(contest,
 				PlayerJoinRaw.builder().contestId(contestId).playerId(playerId).isViewer(false).build());
 
 		PlayerMoveRaw playerMove = makeValidMove();
-		manager.onPlayerMove(contest, playerMove);
+		boardLifecycleManager.onPlayerMove(contest, playerMove);
 	}
 
 	@Test
 	public void testViewerMove() {
-		gamesRegistry.registerGame(game);
-		boardRegistry.registerBoard(contestId, board);
+		accountPlayers.registerPlayer(accountId, KumitePlayer.builder().playerId(playerId).build());
 
-		playersRegistry.registerPlayer(UUID.randomUUID(), KumitePlayer.builder().playerId(playerId).build());
-
-		manager.registerPlayer(contest,
+		boardLifecycleManager.registerPlayer(contest,
 				PlayerJoinRaw.builder().contestId(contestId).playerId(playerId).isViewer(true).build());
 
 		PlayerMoveRaw playerMove = makeValidMove();
 
 		Assertions.assertThatThrownBy(() -> {
-			manager.onPlayerMove(contest, playerMove);
+			boardLifecycleManager.onPlayerMove(contest, playerMove);
 		}).isInstanceOf(IllegalArgumentException.class);
 	}
 }

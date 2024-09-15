@@ -1,4 +1,4 @@
-package eu.solven.kumite.player;
+package eu.solven.kumite.player.persistence;
 
 import java.util.Map;
 import java.util.Set;
@@ -9,15 +9,30 @@ import java.util.stream.Collectors;
 
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.login.FakePlayerTokens;
+import eu.solven.kumite.player.IAccountPlayersRegistry;
+import eu.solven.kumite.player.IHasPlayers;
+import eu.solven.kumite.player.KumitePlayer;
+import eu.solven.kumite.tools.IUuidGenerator;
 
-public final class AccountPlayersRegistry {
+/**
+ * An in-memory implementation of {@link IAccountPlayersRegistry}
+ * 
+ * @author Benoit Lacelle
+ *
+ */
+public final class InMemoryAccountPlayersRegistry implements IAccountPlayersRegistry {
 	final Map<UUID, Set<UUID>> accountToPlayers = new ConcurrentHashMap<>();
 	final Map<UUID, UUID> playerIdToAccountId = new ConcurrentHashMap<>();
 
-	public AccountPlayersRegistry() {
+	final IUuidGenerator uuidGenerator;
+
+	public InMemoryAccountPlayersRegistry(IUuidGenerator uuidGenerator) {
+		this.uuidGenerator = uuidGenerator;
+
 		registerPlayer(KumiteUser.FAKE_ACCOUNT_ID, FakePlayerTokens.fakePlayer());
 	}
 
+	@Override
 	public void registerPlayer(UUID accountId, KumitePlayer player) {
 		// Synchronized to make atomic changes to both `accountToPlayers` and `playerIdToAccountId`
 		synchronized (this) {
@@ -31,6 +46,7 @@ public final class AccountPlayersRegistry {
 		}
 	}
 
+	@Override
 	public UUID getAccountId(UUID playerId) {
 		if (KumitePlayer.FAKE_PLAYER_ID.equals(playerId)) {
 			return KumiteUser.FAKE_ACCOUNT_ID;
@@ -43,6 +59,7 @@ public final class AccountPlayersRegistry {
 		return accountId;
 	}
 
+	@Override
 	public IHasPlayers makeDynamicHasPlayers(UUID accountId) {
 		return () -> accountToPlayers.getOrDefault(accountId, Set.of())
 				.stream()
@@ -50,5 +67,10 @@ public final class AccountPlayersRegistry {
 				// playerName?
 				.map(playerId -> KumitePlayer.builder().playerId(playerId).build())
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public UUID generatePlayerId(UUID accountId) {
+		return uuidGenerator.randomUUID();
 	}
 }

@@ -27,6 +27,10 @@ export default {
 			type: Boolean,
 			default: true,
 		},
+        showLeaderboard: {
+            type: Boolean,
+            default: true,
+        },
 	},
 	computed: {
 		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching"]),
@@ -47,15 +51,20 @@ export default {
 		return {};
 	},
 	template: /* HTML */ `
-        <div v-if="(!game || !contest) && (nbGameFetching > 0 || nbContestFetching > 0)">
-            <div class="spinner-border" role="status">
-                <span class="visually-hidden">Loading contestId={{contestId}}</span>
+        <div v-if="(!game || !contest)">
+            <div v-if="(nbGameFetching > 0 || nbContestFetching > 0)">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading contestId={{contestId}}</span>
+                </div>
+            </div>
+            <div v-else>
+                <span>Issue loading contestId={{contestId}}</span>
             </div>
         </div>
-        <div v-else-if="game.error || contest.error">{{game.error || contest.error}}</div>
+            <div v-else-if="game.error || contest.error">{{game.error || contest.error}}</div>
         <div v-else>
-            <KumiteGameHeader :gameId="gameId" v-if="showGame" />
             <KumiteContestHeader :gameId="gameId" :contestId="contestId" />
+            <KumiteGameHeader :gameId="gameId" v-if="showGame" />
 
             <div v-if="contest.dynamicMetadata.acceptingPlayers">
                 <RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + contestId + '/board'}">
@@ -63,7 +72,7 @@ export default {
                 </RouterLink>
             </div>
 
-            <KumiteLeaderboard :gameId="gameId" :contestId="contestId" />
+            <KumiteLeaderboard :gameId="gameId" :contestId="contestId" v-if="showLeaderboard" />
         </div>
     `,
 };

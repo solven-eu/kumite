@@ -17,13 +17,13 @@ public interface IKumiteSpringProfiles {
 	// If true, we install at startup a small bunch of games
 	String P_INJECT_DEFAULT_GAMES = "inject_default_games";
 
-	// Activates the whole fake configuration
-	String P_FAKE = "fake";
-	// If true, we bypass the account+player tokens
-	String P_FAKE_PLAYER = "fake_player";
+	// Activates the whole unsafe configuration
+	String P_UNSAFE = "unsafe";
 	// If true, we bypass the User login in the UI (i.e. the external-OAuth2 step required to produce account+player
 	// tokens)
 	String P_FAKE_USER = "fake_user";
+	// `fake_player` will enable relying on the fakePlayer but it will not tweat security related to 
+//	String P_FAKE_PLAYER = "fake_player";
 
 	// If true, we rely on unsafe security settings (like DEV OAuth2 providers, and an unsafe JWT signingKey)
 	String P_UNSAFE_SERVER = "unsafe_server";
@@ -35,4 +35,6 @@ public interface IKumiteSpringProfiles {
 
 	// Checks there is not a single unsafe|fake configurations activated
 	String P_SECURED = "secured";
+
+	String P_REDIS = "redis";
 }

@@ -21,7 +21,7 @@ public class PlayersSearchHandler {
 	@NonNull
 	ContestPlayersRegistry contestsPlayersRegistry;
 	@NonNull
-	AccountPlayersRegistry accountPlayersRegistry;
+	IAccountPlayersRegistry accountPlayersRegistry;
 
 	public Mono<ServerResponse> listPlayers(ServerRequest request) {
 		PlayersSearchParametersBuilder parametersBuilder = PlayersSearchParameters.builder();

@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import eu.solven.kumite.board.BoardsRegistry;
@@ -13,8 +12,6 @@ import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,14 +21,6 @@ public class LeaderboardRegistry {
 	final BoardsRegistry boardRegistry;
 	final ContestsRegistry contestsRegistry;
 	final GamesRegistry gamesRegistry;
-
-	@Getter(AccessLevel.NONE)
-	Map<UUID, LeaderBoard> contestToLeaderboard = new ConcurrentHashMap<>();
-
-	void registerScore(UUID contestId, IPlayerScore playerScore) {
-
-		contestToLeaderboard.computeIfAbsent(contestId, k -> LeaderBoard.builder().build()).registerScore(playerScore);
-	}
 
 	public LeaderBoardRaw searchLeaderboard(LeaderboardSearchParameters search) {
 		UUID contestId = search.getContestId();
@@ -47,10 +36,9 @@ public class LeaderboardRegistry {
 		// We may introduce a feature to return a subset of the leaderboard, for instance around some playerId score
 
 		// Should we get the comparator from the contest/game?
-		List<PlayerDoubleScore> playerScores = playerToScore.values()
+		List<IPlayerScore> playerScores = playerToScore.values()
 				.stream()
-				.map(ps -> (PlayerDoubleScore) ps)
-				.sorted(Comparator.comparing(ps -> ps.getScore()))
+				.sorted(Comparator.comparing(ps -> ps.getComparableScore()))
 				.collect(Collectors.toList());
 
 		return LeaderBoardRaw.builder().playerScores(playerScores).build();
