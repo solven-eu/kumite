@@ -18,5 +18,5 @@ public interface IPlayerScore {
 	 * @return a way to order score for leaderboards. Some scores may not be easily converted into aone-dimensional
 	 *         double.
 	 */
-	double getComparableScore();
+	Number asNumber();
 }

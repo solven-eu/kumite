@@ -43,7 +43,7 @@ public class TSPBoard implements IKumiteBoard {
 	}
 
 	@Override
-	public void registerPlayer(UUID playerId) {
+	public void registerContender(UUID playerId) {
 		playerToLatestSolution.put(playerId, TSPSolution.EMPTY);
 	}
 

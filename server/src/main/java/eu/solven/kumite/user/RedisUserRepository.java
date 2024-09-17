@@ -55,7 +55,7 @@ public class RedisUserRepository implements IKumiteUserRawRawRepository, IKumite
 
 		if (user.isEmpty()) {
 			UUID accountId = uuidGenerator.randomUUID();
-			UUID playerId = playersRegistry.generatePlayerId(accountId);
+			UUID playerId = playersRegistry.generateMainPlayerId(accountId);
 
 			KumiteUser kumiteUser =
 					KumiteUser.builder().accountId(accountId).playerId(playerId).raw(kumiteUserRaw).build();

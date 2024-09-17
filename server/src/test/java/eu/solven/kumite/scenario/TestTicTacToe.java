@@ -46,7 +46,7 @@ public class TestTicTacToe {
 
 				if (moveIndex == 0) {
 					// The first move is to register each player
-					board.registerPlayer(playerId);
+					board.registerContender(playerId);
 				}
 
 				IKumiteBoardView boardView = board.asView(playerId);

@@ -2,6 +2,7 @@
 spring:
     profiles:
         include:
+        - monolith
           # Do not include `default`, as by `default` we include `fake_player` 
         - default_server
         - default_player
@@ -12,3 +13,4 @@ spring:
             - fake_player
             default_server:
             - inject_default_games
+

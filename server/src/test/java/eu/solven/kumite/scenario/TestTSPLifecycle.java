@@ -29,10 +29,9 @@ import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.optimization.tsp.TSPBoard;
 import eu.solven.kumite.game.optimization.tsp.TSPSolution;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
-import eu.solven.kumite.leaderboard.LeaderBoardRaw;
+import eu.solven.kumite.leaderboard.LeaderboardRaw;
 import eu.solven.kumite.leaderboard.LeaderboardRegistry;
 import eu.solven.kumite.leaderboard.LeaderboardSearchParameters;
-import eu.solven.kumite.leaderboard.PlayerDoubleScore;
 import eu.solven.kumite.lifecycle.BoardLifecycleManager;
 import eu.solven.kumite.lifecycle.ContestLifecycleManager;
 import eu.solven.kumite.player.ContestPlayersRegistry;
@@ -48,7 +47,7 @@ import eu.solven.kumite.player.PlayerMoveRaw;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { KumiteServerComponentsConfiguration.class })
-@ActiveProfiles(IKumiteSpringProfiles.P_INJECT_DEFAULT_GAMES)
+@ActiveProfiles({ IKumiteSpringProfiles.P_INJECT_DEFAULT_GAMES, IKumiteSpringProfiles.P_INMEMORY })
 @TestPropertySource(properties = "kumite.random.seed=123")
 public class TestTSPLifecycle {
 
@@ -113,7 +112,7 @@ public class TestTSPLifecycle {
 		PlayerMoveRaw playerMove = PlayerMoveRaw.builder().playerId(player.getPlayerId()).move(rawMove).build();
 		boardLifecycleManager.onPlayerMove(contest, playerMove);
 
-		LeaderBoardRaw leaderboard = leaderboardRegistry
+		LeaderboardRaw leaderboard = leaderboardRegistry
 				.searchLeaderboard(LeaderboardSearchParameters.builder().contestId(contest.getContestId()).build());
 
 		Assertions.assertThat(leaderboard.getPlayerScores()).hasSize(1);
@@ -123,8 +122,7 @@ public class TestTSPLifecycle {
 				.anySatisfy(ps -> {
 					Assertions.assertThat(ps.getPlayerId()).isEqualTo(player.getPlayerId());
 
-					PlayerDoubleScore pds = (PlayerDoubleScore) ps;
-					Assertions.assertThat(pds.getScore()).isBetween(65.79, 65.80);
+					Assertions.assertThat(ps.getScore().doubleValue()).isBetween(65.79, 65.80);
 				})
 		// greedy
 		// .anySatisfy(ps -> {

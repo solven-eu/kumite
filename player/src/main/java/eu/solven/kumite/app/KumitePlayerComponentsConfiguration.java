@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 
-import eu.solven.kumite.app.player.IKumitePlayer;
-import eu.solven.kumite.app.player.KumitePlayer;
+import eu.solven.kumite.app.player.IGamingLogic;
+import eu.solven.kumite.app.player.RandomGamingLogic;
 import eu.solven.kumite.app.server.IKumiteServer;
 import eu.solven.kumite.app.server.KumiteWebclientServer;
 import lombok.extern.slf4j.Slf4j;
@@ -31,12 +31,12 @@ public class KumitePlayerComponentsConfiguration {
 	}
 
 	@Bean
-	public IKumitePlayer kumitePlayer(IKumiteServer kumiteServer) {
-		return new KumitePlayer(kumiteServer);
+	public IGamingLogic kumitePlayer(IKumiteServer kumiteServer) {
+		return new RandomGamingLogic(kumiteServer);
 	}
 
 	@Bean
-	public Void playTicTacToe(IKumitePlayer kumitePlayer, Environment env) {
+	public Void playGames(IGamingLogic kumitePlayer, Environment env) {
 		UUID playerId = env.getRequiredProperty("kumite.playerId", UUID.class);
 
 		ScheduledExecutorService ses = Executors.newScheduledThreadPool(4);
@@ -54,7 +54,7 @@ public class KumitePlayerComponentsConfiguration {
 		ses.scheduleWithFixedDelay(() -> {
 			try {
 				log.info("Playing contests as {}", playerId);
-				kumitePlayer.play1v1(playerId);
+				kumitePlayer.play1v1TurnBasedGames(playerId);
 			} catch (Throwable t) {
 				log.warn("Issue while playing games", t);
 			}

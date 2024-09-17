@@ -7,7 +7,13 @@ import eu.solven.kumite.board.IKumiteBoard;
 
 public interface IBoardRepository {
 
-	IKumiteBoard putIfAbsent(UUID contestId, IKumiteBoard initialBoard);
+	/**
+	 * 
+	 * @param contestId
+	 * @param initialBoard
+	 * @return if alreadyIn, the already present value
+	 */
+	Optional<IKumiteBoard> putIfAbsent(UUID contestId, IKumiteBoard initialBoard);
 
 	boolean containsKey(UUID contestId);
 

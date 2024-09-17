@@ -68,6 +68,10 @@ public class TicTacToe implements IGame {
 	@Override
 	public Map<String, IKumiteMove> exampleMoves(IKumiteBoardView boardView, UUID playerId) {
 		TicTacToeBoard board = (TicTacToeBoard) boardView;
+		
+		if (board.isGameOver()) {
+			return Collections.singletonMap("Game is over", WaitForSignups.builder().build());
+		}
 
 		if (board.getPlayerIdToSymbol().size() != 2) {
 			// There is no possible move until there is 2 players

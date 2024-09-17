@@ -1,5 +1,8 @@
-// my-component.js
 import { ref } from "vue";
+
+import { mapState } from "pinia";
+import { useKumiteStore } from "./store.js";
+
 import LoginOptions from "./login-providers.js";
 
 export default {
@@ -7,46 +10,32 @@ export default {
 	components: {
 		LoginOptions,
 	},
+    computed: {
+        ...mapState(useKumiteStore, [
+            "nbAccountFetching",
+        ]),
+        ...mapState(useKumiteStore, {
+            user(store) {
+                return store.account || {'error': 'not_loaded'};
+            },
+        }),
+    },
 	setup() {
-		const error = ref({});
-		const isLoading = ref(true);
-		const isAuthenticated = ref(false);
-		const user = ref({});
+        const store = useKumiteStore();
 
-		async function theData(url) {
-			try {
-				isLoading.value = true;
-				const response = await fetch(url);
-				//		if (!response.ok) {
-				//		  throw new Error(`Response status: ${response.status}`);
-				//		}
-				//	    const responseJson = {};; //;
-				isAuthenticated.value = response.status !== 401;
-				if (isAuthenticated.value) {
-					user.value = await response.json();
-					console.log("User is authenticated", user.value);
-				} else {
-					console.log("User is NOT authenticated");
-				}
-			} catch (e) {
-				console.error("Issue on Network: ", e);
-				error.value = e;
-			} finally {
-				isLoading.value = false;
-			}
-		}
+        store.loadUser();
 
-		theData("/api/login/v1/user");
-
-		return { isLoading, isAuthenticated, user };
+		return {  };
 	},
 	template: /* HTML */ `
-        <div v-if="isLoading">Loading...</div>
-        <div v-else>
-            <div v-if="isAuthenticated">Welcome {{user.raw.name}}. ?Logout?</div>
+        <div v-if="needsToLogin">
+            <div v-if="nbAccountFetching > 0">Loading...</div>
             <div v-else>
-                <LoginOptions />
+                    <LoginOptions />
             </div>
+        </div>
+        <div>
+            Welcome {{user.raw.name}}. ?Logout?
         </div>
     `,
 };

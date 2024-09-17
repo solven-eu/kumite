@@ -16,7 +16,14 @@ public class InMemoryContestPlayersRepository implements IContendersRepository {
 
 	@Override
 	public boolean registerContender(UUID contestId, UUID playerId) {
-		return contestToContenders.computeIfAbsent(contestId, k -> new ConcurrentSkipListSet<>()).add(playerId);
+		boolean addPlayer =
+				contestToContenders.computeIfAbsent(contestId, k -> new ConcurrentSkipListSet<>()).add(playerId);
+
+		if (addPlayer) {
+			throw new IllegalStateException("playerId=" + playerId + " is already registered in " + contestId);
+		}
+
+		return false;
 	}
 
 	private Set<UUID> viewContenders(UUID contestId) {

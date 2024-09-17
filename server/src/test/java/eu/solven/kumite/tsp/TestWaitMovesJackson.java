@@ -13,7 +13,7 @@ import eu.solven.kumite.player.WaitForPlayersMove;
 import eu.solven.kumite.player.WaitForSignups;
 
 public class TestWaitMovesJackson {
-	ObjectMapper objectMapper = new ObjectMapper();
+	final ObjectMapper objectMapper = new ObjectMapper();
 
 	@Test
 	public void testJacksonWaitForPlayers() throws JsonMappingException, JsonProcessingException {

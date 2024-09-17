@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRawRaw;
-import eu.solven.kumite.account.login.FakePlayerTokens;
+import eu.solven.kumite.account.fake_player.FakePlayerTokens;
 import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;

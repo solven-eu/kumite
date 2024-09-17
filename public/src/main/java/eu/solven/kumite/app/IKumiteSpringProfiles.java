@@ -22,8 +22,8 @@ public interface IKumiteSpringProfiles {
 	// If true, we bypass the User login in the UI (i.e. the external-OAuth2 step required to produce account+player
 	// tokens)
 	String P_FAKE_USER = "fake_user";
-	// `fake_player` will enable relying on the fakePlayer but it will not tweat security related to 
-//	String P_FAKE_PLAYER = "fake_player";
+	// `fake_player` will enable relying on the fakePlayer but it will not tweat security related to
+	// String P_FAKE_PLAYER = "fake_player";
 
 	// If true, we rely on unsafe security settings (like DEV OAuth2 providers, and an unsafe JWT signingKey)
 	String P_UNSAFE_SERVER = "unsafe_server";
@@ -36,5 +36,8 @@ public interface IKumiteSpringProfiles {
 	// Checks there is not a single unsafe|fake configurations activated
 	String P_SECURED = "secured";
 
+	// InMemory enables easy run but lack of persistence
+	String P_INMEMORY = "inmemory";
+	// Redis will use some Redis persistence storage
 	String P_REDIS = "redis";
 }

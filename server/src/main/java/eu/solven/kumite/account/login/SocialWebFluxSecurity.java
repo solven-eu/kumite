@@ -112,6 +112,9 @@ public class SocialWebFluxSecurity {
 				.formLogin(login -> login.loginPage("http%s://localhost:8080/html/login".formatted(isSsl ? "s" : ""))
 						// Required not to get an NPE at `.build()`
 						.authenticationManager(ram))
+				// How to request prompt=consent for Github?
+				// https://docs.spring.io/spring-security/reference/servlet/oauth2/client/authorization-grants.html
+				// https://stackoverflow.com/questions/74242738/how-to-logout-from-oauth-signed-in-web-app-with-github
 				.oauth2Login(
 						oauth2 -> oauth2.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler(
 								"http%s://localhost:8080/html/login?success".formatted(isSsl ? "s" : ""))))

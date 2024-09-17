@@ -8,12 +8,18 @@ import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestView;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchParameters;
-import eu.solven.kumite.leaderboard.LeaderBoardRaw;
+import eu.solven.kumite.leaderboard.LeaderboardRaw;
 import eu.solven.kumite.player.PlayerContestStatus;
 import eu.solven.kumite.player.PlayerRawMovesHolder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Wraps the gaming API
+ * 
+ * @author Benoit Lacelle
+ *
+ */
 public interface IKumiteServer {
 	Flux<GameMetadata> searchGames(GameSearchParameters search);
 
@@ -28,6 +34,6 @@ public interface IKumiteServer {
 	// We may want not to receive the board, for optimization reasons.
 	Mono<ContestView> playMove(UUID playerId, UUID contestId, Map<String, ?> move);
 
-	Mono<LeaderBoardRaw> loadLeaderboard(UUID contestId);
+	Mono<LeaderboardRaw> loadLeaderboard(UUID contestId);
 
 }

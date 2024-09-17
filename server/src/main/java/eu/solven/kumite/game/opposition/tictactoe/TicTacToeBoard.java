@@ -99,18 +99,23 @@ public class TicTacToeBoard implements IKumiteBoard, IKumiteBoardView {
 	}
 
 	@Override
-	public void registerPlayer(UUID playerId) {
-		if (playerIdToSymbol.isEmpty()) {
+	public void registerContender(UUID playerId) {
+		if (playerIdToSymbol.containsKey(playerId)) {
+			throw new IllegalArgumentException("playerId=" + playerId + " is already registered");
+		} else if (playerIdToSymbol.isEmpty()) {
 			playerIdToSymbol.put(playerId, 'X');
 		} else if (playerIdToSymbol.size() == 1) {
 			playerIdToSymbol.put(playerId, 'O');
 		} else {
-			throw new IllegalArgumentException("There is already 2 players");
+			throw new IllegalArgumentException("There is already 2 players: " + playerIdToSymbol);
 		}
-
 	}
 
-	public OptionalInt optWinningChar() {
+	/**
+	 * 
+	 * @return if there is a winning position, the symbol of the winner
+	 */
+	protected OptionalInt optWinningSymbol() {
 		for (int i = 0; i < 3; i++) {
 			// Checking columns
 			if (positions[0 + i] != '_' && positions[0 + i] == positions[3 + i]
@@ -138,12 +143,12 @@ public class TicTacToeBoard implements IKumiteBoard, IKumiteBoardView {
 	// Ignored as the gameOver should be computed by the game, not hold in the board itself
 	@JsonIgnore
 	public boolean isGameOver() {
-		if (!hasLeftMove()) {
+		if (!hasAvailableMove()) {
 			// Not a single playable position: the game is over (may be a draw)
 			return true;
 		}
 
-		OptionalInt winningChar = optWinningChar();
+		OptionalInt winningChar = optWinningSymbol();
 
 		// As soon as there is a winnignChar, the game is over
 		return winningChar.isPresent();
@@ -153,7 +158,7 @@ public class TicTacToeBoard implements IKumiteBoard, IKumiteBoardView {
 	 * 
 	 * @return true if there is at least one playable position
 	 */
-	private boolean hasLeftMove() {
+	private boolean hasAvailableMove() {
 		for (char someChar : positions) {
 			if (someChar == '_') {
 				return true;

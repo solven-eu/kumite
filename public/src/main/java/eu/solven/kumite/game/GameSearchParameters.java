@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -28,4 +30,13 @@ public class GameSearchParameters {
 
 	@Default
 	Optional<String> titleRegex = Optional.empty();
+
+	// Tags can be OR-ed by being joined with a ','.
+	public static String or(String firstTag, String... moreTags) {
+		return Stream.concat(Stream.of(firstTag), Stream.of(moreTags)).peek(tag -> {
+			if (tag.contains(",")) {
+				throw new IllegalArgumentException("An individual tag must not contain a ','");
+			}
+		}).collect(Collectors.joining(","));
+	}
 }

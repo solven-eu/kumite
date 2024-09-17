@@ -9,8 +9,8 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
-public class LeaderBoardRaw {
+public class LeaderboardRaw {
 	// This should be ordered at creation
-	List<? extends IPlayerScore> playerScores;
+	List<? extends PlayerScoreRaw> playerScores;
 
 }

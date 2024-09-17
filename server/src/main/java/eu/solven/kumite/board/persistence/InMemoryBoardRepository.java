@@ -13,8 +13,9 @@ public class InMemoryBoardRepository implements IBoardRepository {
 	final Map<UUID, IKumiteBoard> contestIdToBoard = new ConcurrentHashMap<>();
 
 	@Override
-	public IKumiteBoard putIfAbsent(UUID contestId, IKumiteBoard initialBoard) {
-		return contestIdToBoard.putIfAbsent(contestId, initialBoard);
+	public Optional<IKumiteBoard> putIfAbsent(UUID contestId, IKumiteBoard initialBoard) {
+		IKumiteBoard alreadyIn = contestIdToBoard.putIfAbsent(contestId, initialBoard);
+		return Optional.ofNullable(alreadyIn);
 	}
 
 	@Override

@@ -7,6 +7,12 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Value;
 
+/**
+ * The parameters to search amongst contests.
+ * 
+ * @author Benoit Lacelle
+ *
+ */
 @Value
 @Builder
 public class ContestSearchParameters {
@@ -22,13 +28,25 @@ public class ContestSearchParameters {
 	// OptionalInt maxPlayers = OptionalInt.empty();
 
 	// Some game may accept players while being started
+	// `null` means no filter
 	@Default
-	boolean acceptPlayers = true;
+	Boolean acceptPlayers = null;
 
 	// Typically if the minimum number of players is not yet reached
+	// `null` means no filter
 	@Default
-	boolean requirePlayers = false;
+	Boolean requirePlayers = null;
 
+	// `null` means no filter
 	@Default
-	boolean gameOver = false;
+	Boolean gameOver = false;
+
+	public static ContestSearchParameters searchContestId(UUID contestId) {
+		return ContestSearchParameters.builder()
+				// Search for given contestId
+				.contestId(Optional.of(contestId))
+				// Cancel the sensible defaults
+				.gameOver(null)
+				.build();
+	}
 }

@@ -24,7 +24,12 @@ public class ContestPlayersFromBoard implements IContendersRepository {
 	@Override
 	public boolean registerContender(UUID contestId, UUID playerId) {
 		IKumiteBoard optBoard = requireBoard(contestId);
-		optBoard.registerPlayer(playerId);
+
+//		if (optBoard.snapshotPlayers().stream().noneMatch(p -> p.getPlayerId().equals(playerId))) {
+//			throw new IllegalStateException("The board should have registered the player");
+//		}
+		optBoard.registerContender(playerId);
+
 		return true;
 	}
 

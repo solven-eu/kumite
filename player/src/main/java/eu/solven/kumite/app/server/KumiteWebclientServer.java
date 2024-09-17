@@ -14,7 +14,7 @@ import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestView;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchParameters;
-import eu.solven.kumite.leaderboard.LeaderBoardRaw;
+import eu.solven.kumite.leaderboard.LeaderboardRaw;
 import eu.solven.kumite.player.PlayerContestStatus;
 import eu.solven.kumite.player.PlayerRawMovesHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -54,12 +54,19 @@ public class KumiteWebclientServer implements IKumiteServer {
 				.build();
 	}
 
+	// see GameSearchHandler
 	@Override
 	public Flux<GameMetadata> searchGames(GameSearchParameters search) {
 		RequestHeadersSpec<?> spec = webClient.get()
 				.uri(uriBuilder -> uriBuilder.path("/api/games")
 						.queryParamIfPresent("game_id", search.getGameId())
 						.queryParamIfPresent("title_regex", search.getTitleRegex())
+						.queryParam("tag", search.getRequiredTags())
+						.queryParamIfPresent("title_regex", search.getTitleRegex())
+						.queryParamIfPresent("min_players",
+								search.getMinPlayers().stream().mapToObj(Integer::toString).findAny())
+						.queryParamIfPresent("max_players",
+								search.getMaxPlayers().stream().mapToObj(Integer::toString).findAny())
 						.build());
 
 		return spec.exchangeToFlux(r -> {
@@ -154,7 +161,7 @@ public class KumiteWebclientServer implements IKumiteServer {
 	}
 
 	@Override
-	public Mono<LeaderBoardRaw> loadLeaderboard(UUID contestId) {
+	public Mono<LeaderboardRaw> loadLeaderboard(UUID contestId) {
 		RequestHeadersSpec<?> spec = webClient.get()
 				.uri(uriBuilder -> uriBuilder.path("/api/leaderboards")
 						// .queryParam("player_id", playerId)
@@ -166,7 +173,7 @@ public class KumiteWebclientServer implements IKumiteServer {
 				throw new IllegalArgumentException("Request rejected: " + r.statusCode());
 			}
 			log.info("Search for leaderboard: {}", r.statusCode());
-			return r.bodyToMono(LeaderBoardRaw.class);
+			return r.bodyToMono(LeaderboardRaw.class);
 		});
 	}
 

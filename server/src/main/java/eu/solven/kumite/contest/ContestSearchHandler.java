@@ -68,13 +68,16 @@ public class ContestSearchHandler {
 	public Mono<ServerResponse> generateContest(ServerRequest request) {
 		UUID gameId = KumiteHandlerHelper.uuid(request, "game_id");
 
+		// TODO Get this from JWT
+		UUID authorAccountId = UUID.randomUUID();
+
 		IGame game = gamesRegistry.getGame(gameId);
 
 		return request.bodyToMono(Map.class).<ServerResponse>flatMap(contestBody -> {
 			Map<String, ?> rawConstantMetadata = (Map<String, ?>) contestBody.get("constant_metadata");
 
 			ContestCreationMetadata constantMetadata =
-					validateConstantMetadata(rawConstantMetadata, game.getGameMetadata());
+					validateConstantMetadata(authorAccountId, rawConstantMetadata, game.getGameMetadata());
 
 			Map<String, ?> rawBoard = (Map<String, ?>) contestBody.get("board");
 
@@ -92,14 +95,15 @@ public class ContestSearchHandler {
 		});
 	}
 
-	private ContestCreationMetadata validateConstantMetadata(Map<String, ?> rawConstantMetadata,
+	private ContestCreationMetadata validateConstantMetadata(UUID authorAccountId,
+			Map<String, ?> rawConstantMetadata,
 			GameMetadata gameMetadata) {
 		// Name is the only required parameter
 		String contestName = rawConstantMetadata.get("name").toString();
 
 		// Prepare a contestMetdata with default parameters
 		ContestCreationMetadata defaultContestMetadata =
-				ContestCreationMetadata.fromGame(gameMetadata).name(contestName).build();
+				ContestCreationMetadata.fromGame(gameMetadata).name(contestName).author(authorAccountId).build();
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		// Convert the default metadata into Map

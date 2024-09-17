@@ -58,7 +58,7 @@ public class TestBoardLifecycleManager {
 	IGame game = new TravellingSalesmanProblem();
 
 	UUID accountId = UUID.randomUUID();
-	UUID playerId = accountPlayers.generatePlayerId(accountId);
+	UUID playerId = accountPlayers.generateMainPlayerId(accountId);
 
 	IKumiteBoard board = game.generateInitialBoard(new Random(0));
 	IHasBoard hasBoard;
@@ -79,8 +79,10 @@ public class TestBoardLifecycleManager {
 				.players(hasPlayers)
 				.board(hasBoard)
 				.gameover(game.makeDynamicGameover(hasBoard))
-				.constantMetadata(
-						ContestCreationMetadata.fromGame(game.getGameMetadata()).name("someContestName").build())
+				.constantMetadata(ContestCreationMetadata.fromGame(game.getGameMetadata())
+						.name("someContestName")
+						.author(accountId)
+						.build())
 				.build();
 	}
 

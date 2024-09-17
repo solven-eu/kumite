@@ -1,22 +1,15 @@
 package eu.solven.kumite.board;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestDynamicMetadata;
 import eu.solven.kumite.contest.ContestSearchParameters;
-import eu.solven.kumite.contest.ContestSearchParameters.ContestSearchParametersBuilder;
 import eu.solven.kumite.contest.ContestView;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GamesRegistry;
@@ -47,8 +40,8 @@ public class BoardHandler {
 		UUID playerId = KumiteHandlerHelper.uuid(request, "player_id");
 		UUID contestId = KumiteHandlerHelper.uuid(request, "contest_id");
 
-		ContestSearchParametersBuilder parameters = ContestSearchParameters.builder();
-		List<Contest> contest = contestsRegistry.searchContests(parameters.contestId(Optional.of(contestId)).build());
+		ContestSearchParameters search = ContestSearchParameters.searchContestId(contestId);
+		List<Contest> contest = contestsRegistry.searchContests(search);
 		if (contest.isEmpty()) {
 			// https://stackoverflow.com/questions/5604816/whats-the-most-appropriate-http-status-code-for-an-item-not-found-error-page
 			// We may want a specific exception + httpStatusCode
@@ -66,7 +59,7 @@ public class BoardHandler {
 		ContestView contestView = makeContestView(contestMetadata, playingPlayer, board);
 		log.debug("Serving board for contestId={}", contestView.getContestId());
 
-		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(contestView));
+		return KumiteHandlerHelper.okAsJson(contestView);
 	}
 
 	private ContestView makeContestView(Contest contestMetadata,
@@ -84,10 +77,9 @@ public class BoardHandler {
 		IKumiteBoardView boardView = board.asView(viewPlayerId);
 
 		ContestDynamicMetadata dynamicMetadata = Contest.snapshot(contestMetadata).getDynamicMetadata();
-		ContestView contestView = ContestView.builder()
+		ContestView contestView = ContestView.fromView(boardView)
 				.contestId(contestMetadata.getContestId())
 				.playerStatus(playingPlayer)
-				.board(new ObjectMapper().convertValue(boardView, Map.class))
 				.dynamicMetadata(dynamicMetadata)
 
 				.build();

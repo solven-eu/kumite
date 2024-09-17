@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.StandardEnvironment;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
@@ -49,18 +50,14 @@ public class KumiteTokenService {
 		return OctetSequenceKey.parse(env.getRequiredProperty(KEY_JWT_SIGNINGKEY));
 	}
 
-	public Map<String, ?> wrapInJwtToken(KumiteUser user, UUID playerId) {
-		String accessToken = generateAccessToken(user, playerId);
-		return Map.of("access_token", accessToken, "player_id", playerId);
-	}
-
 	public static void main(String[] args) {
-		JWK secretKey = generateSignatureSecret(new JdkUuidGenerator());
+		Environment env = new StandardEnvironment();
+		JWK secretKey = new KumiteTokenService(env, new JdkUuidGenerator()).generateSignatureSecret();
 		System.out.println("Secret key for JWT signing: " + secretKey.toJSONString());
 	}
 
 	@SneakyThrows(JOSEException.class)
-	static JWK generateSignatureSecret(IUuidGenerator uuidgenerator) {
+	JWK generateSignatureSecret() {
 		// https://connect2id.com/products/nimbus-jose-jwt/examples/jws-with-hmac
 		// Generate random 256-bit (32-byte) shared secret
 		// SecureRandom random = new SecureRandom();
@@ -68,12 +65,47 @@ public class KumiteTokenService {
 		String rawNbBits = KumiteJwtSigningConfiguration.MAC_ALGORITHM.getName().substring("HS".length());
 		int nbBits = Integer.parseInt(rawNbBits);
 
-		OctetSequenceKey jwk = new OctetSequenceKeyGenerator(nbBits).keyID(uuidgenerator.randomUUID().toString())
+		OctetSequenceKey jwk = new OctetSequenceKeyGenerator(nbBits).keyID(uuidGenerator.randomUUID().toString())
 				.algorithm(JWSAlgorithm.parse(KumiteJwtSigningConfiguration.MAC_ALGORITHM.getName()))
 				.issueTime(new Date())
 				.generate();
 
 		return jwk;
+	}
+
+	public String generateAccessToken(KumiteUser user, UUID playerId, Duration accessTokenValidity) {
+		// Generating a Signed JWT
+		// https://auth0.com/blog/rs256-vs-hs256-whats-the-difference/
+		// https://security.stackexchange.com/questions/194830/recommended-asymmetric-algorithms-for-jwt
+		// https://curity.io/resources/learn/jwt-best-practices/
+		JWSHeader.Builder headerBuilder =
+				new JWSHeader.Builder(JWSAlgorithm.parse(KumiteJwtSigningConfiguration.MAC_ALGORITHM.getName()))
+						.type(JOSEObjectType.JWT);
+
+		Instant now = Instant.now();
+
+		JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder().subject(user.getAccountId().toString())
+				.audience("Kumite-Server")
+				.issuer("https://kumite.com")
+				// https://www.oauth.com/oauth2-servers/access-tokens/self-encoded-access-tokens/
+				// This JWTId is very important, as it could be used to ban some access_token used by some lost VM
+				// running some bot.
+				.jwtID(uuidGenerator.randomUUID().toString())
+				.issueTime(Date.from(now))
+				.notBeforeTime(Date.from(now))
+				.expirationTime(Date.from(now.plus(accessTokenValidity)))
+				.claim("playerId", playerId.toString());
+
+		SignedJWT signedJWT = new SignedJWT(headerBuilder.build(), claimsSetBuilder.build());
+
+		try {
+			JWSSigner signer = new MACSigner(supplierSymetricKey.get());
+			signedJWT.sign(signer);
+		} catch (JOSEException e) {
+			throw new IllegalStateException("Issue signing the JWT", e);
+		}
+
+		return signedJWT.serialize();
 	}
 
 	/**
@@ -89,39 +121,22 @@ public class KumiteTokenService {
 	 * @return The generated JWT access token.
 	 * @throws IllegalStateException
 	 */
-	@SneakyThrows({ JOSEException.class })
-	public String generateAccessToken(KumiteUser user, UUID playerId) {
+	public Map<String, ?> wrapInJwtToken(KumiteUser user, UUID playerId) {
 		Duration accessTokenValidity = Duration.parse(env.getProperty(KEY_ACCESSTOKEN_EXP, "PT1H"));
 
 		if (accessTokenValidity.compareTo(Duration.parse("PT1H")) > 0) {
+			// This typically happens when generating a long-lives access_token for development properties
 			log.warn("Unusual expiry for accessToken: {}", accessTokenValidity);
 		}
 
-		long expirationMs = accessTokenValidity.toMillis();
+		String accessToken = generateAccessToken(user, playerId, accessTokenValidity);
 
-		// Generating a Signed JWT
-		// https://auth0.com/blog/rs256-vs-hs256-whats-the-difference/
-		// https://security.stackexchange.com/questions/194830/recommended-asymmetric-algorithms-for-jwt
-		// https://curity.io/resources/learn/jwt-best-practices/
-		JWSHeader.Builder headerBuilder =
-				new JWSHeader.Builder(JWSAlgorithm.parse(KumiteJwtSigningConfiguration.MAC_ALGORITHM.getName()))
-						.type(JOSEObjectType.JWT);
-
-		Date curDate = new Date();
-		JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder().subject(user.getAccountId().toString())
-				.audience("Kumite-Server")
-				.issuer("https://kumite.com")
-				.jwtID(uuidGenerator.randomUUID().toString())
-				.issueTime(curDate)
-				.notBeforeTime(Date.from(Instant.now()))
-				.expirationTime(Date.from(Instant.now().plusMillis(expirationMs)))
-				.claim("playerId", playerId.toString());
-
-		SignedJWT signedJWT = new SignedJWT(headerBuilder.build(), claimsSetBuilder.build());
-
-		JWSSigner signer = new MACSigner(supplierSymetricKey.get());
-		signedJWT.sign(signer);
-
-		return signedJWT.serialize();
+		// https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
+		return Map.ofEntries(Map.entry("access_token", accessToken),
+				Map.entry("player_id", playerId),
+				Map.entry("token_type", "Bearer"),
+				// https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
+				Map.entry("expires_in", accessTokenValidity.toSeconds()));
 	}
+
 }

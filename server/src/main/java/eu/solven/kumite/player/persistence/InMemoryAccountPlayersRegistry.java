@@ -7,8 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
-import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.account.login.FakePlayerTokens;
+import eu.solven.kumite.account.fake_player.FakePlayerTokens;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
 import eu.solven.kumite.player.KumitePlayer;
@@ -29,7 +28,8 @@ public final class InMemoryAccountPlayersRegistry implements IAccountPlayersRegi
 	public InMemoryAccountPlayersRegistry(IUuidGenerator uuidGenerator) {
 		this.uuidGenerator = uuidGenerator;
 
-		registerPlayer(KumiteUser.FAKE_ACCOUNT_ID, FakePlayerTokens.fakePlayer());
+		registerPlayer(FakePlayerTokens.FAKE_ACCOUNT_ID, FakePlayerTokens.fakePlayer());
+		registerPlayer(FakePlayerTokens.FAKE_ACCOUNT_ID, FakePlayerTokens.fakePlayer());
 	}
 
 	@Override
@@ -48,8 +48,8 @@ public final class InMemoryAccountPlayersRegistry implements IAccountPlayersRegi
 
 	@Override
 	public UUID getAccountId(UUID playerId) {
-		if (KumitePlayer.FAKE_PLAYER_ID.equals(playerId)) {
-			return KumiteUser.FAKE_ACCOUNT_ID;
+		if (FakePlayerTokens.isFakePlayer(playerId)) {
+			return FakePlayerTokens.FAKE_ACCOUNT_ID;
 		}
 
 		UUID accountId = playerIdToAccountId.get(playerId);
@@ -70,7 +70,7 @@ public final class InMemoryAccountPlayersRegistry implements IAccountPlayersRegi
 	}
 
 	@Override
-	public UUID generatePlayerId(UUID accountId) {
+	public UUID generateMainPlayerId(UUID accountId) {
 		return uuidGenerator.randomUUID();
 	}
 }

@@ -55,6 +55,19 @@ public class KumiteSecurity {
 	}
 
 	@Bean
+	public Void checkSpringProfilesConsistency(Environment env) {
+		boolean acceptInMemory = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_INMEMORY));
+		boolean acceptRedis = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_REDIS));
+
+		if (acceptRedis && acceptInMemory) {
+			throw new IllegalStateException(
+					"Can not be both " + IKumiteSpringProfiles.P_INMEMORY + " and " + IKumiteSpringProfiles.P_REDIS);
+		}
+
+		return null;
+	}
+
+	@Bean
 	WebFilter kumiteExceptionRoutingWebFilter() {
 		return new KumiteExceptionRoutingWebFilter();
 	}

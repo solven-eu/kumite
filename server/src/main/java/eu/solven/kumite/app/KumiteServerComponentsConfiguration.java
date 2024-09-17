@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Import;
 
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.persistence.InMemoryKumiteConfiguration;
+import eu.solven.kumite.app.persistence.RedisKumiteConfiguration;
 import eu.solven.kumite.board.BoardHandler;
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.contest.ContestsRegistry;
@@ -20,6 +21,7 @@ import eu.solven.kumite.player.ContestPlayersFromBoard;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.PlayerMovesHandler;
 import eu.solven.kumite.player.PlayersSearchHandler;
+import eu.solven.kumite.redis.KumiteRedisConfiguration;
 import eu.solven.kumite.webhook.WebhooksRegistry;
 
 @Configuration
@@ -43,8 +45,12 @@ import eu.solven.kumite.webhook.WebhooksRegistry;
 
 		InjectDefaultGamesConfig.class,
 
-		InMemoryKumiteConfiguration.class,
 		ContestPlayersFromBoard.class,
+
+		// Only one of the following persistence options will actually kicks-in
+		InMemoryKumiteConfiguration.class,
+		RedisKumiteConfiguration.class,
+		KumiteRedisConfiguration.class,
 
 })
 public class KumiteServerComponentsConfiguration {

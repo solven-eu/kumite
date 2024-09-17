@@ -69,7 +69,7 @@ export default {
                             </li>
 
                             <li class="nav-item" v-if="account.raw">
-                                Current user: {{account.raw.name}}<img :src="account.raw.picture" class="img-thumbnail" alt="..." v-if="account.raw.picture" />
+                                Current user: {{account.raw.name}}<img :src="account.raw.picture" class="img-thumbnail" alt="You're looking nice" width="128" width="height" v-if="account.raw.picture" />
                             </li>
                         </ul>
                     </div>

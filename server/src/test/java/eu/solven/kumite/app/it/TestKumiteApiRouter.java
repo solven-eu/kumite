@@ -1,5 +1,7 @@
 package eu.solven.kumite.app.it;
 
+import java.time.Duration;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import eu.solven.kumite.account.login.FakePlayerTokens;
+import eu.solven.kumite.account.fake_player.FakePlayerTokens;
 import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerApplication;
@@ -22,12 +24,11 @@ import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchHandler;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
-import eu.solven.kumite.player.KumitePlayer;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = KumiteServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE })
+@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, IKumiteSpringProfiles.P_INMEMORY })
 @Slf4j
 public class TestKumiteApiRouter {
 
@@ -38,7 +39,9 @@ public class TestKumiteApiRouter {
 	KumiteTokenService tokenService;
 
 	protected String generateAccessToken() {
-		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser(), KumitePlayer.FAKE_PLAYER_ID);
+		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser(),
+				FakePlayerTokens.FAKE_PLAYER_ID1,
+				Duration.ofMinutes(1));
 	}
 
 	@Test

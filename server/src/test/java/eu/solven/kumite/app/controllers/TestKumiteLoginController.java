@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
-import eu.solven.kumite.account.login.FakePlayerTokens;
+import eu.solven.kumite.account.fake_player.FakePlayerTokens;
 import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.player.IAccountPlayersRegistry;

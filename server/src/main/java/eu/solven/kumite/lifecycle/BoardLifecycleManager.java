@@ -94,20 +94,8 @@ public class BoardLifecycleManager {
 	public void registerPlayer(Contest contest, PlayerJoinRaw playerRegistrationRaw) {
 		UUID contestId = contest.getContestId();
 		executeBoardChange(contestId, () -> {
+			// The registry takes in charge the registration in the board
 			contestPlayersRegistry.registerPlayer(contest, playerRegistrationRaw);
-
-			if (!playerRegistrationRaw.isViewer()) {
-				IKumiteBoard board = boardRegistry.makeDynamicBoardHolder(contestId).get();
-				try {
-					board.registerPlayer(playerRegistrationRaw.getPlayerId());
-				} catch (Throwable t) {
-					// What should we do about contestPlayersRegistry? Remove the player? Force gameOver? Drop
-					// contestPlayersRegistry and rely only on the board?
-					throw new IllegalStateException(
-							"Issue after registering a player, but before registering it on the board",
-							t);
-				}
-			}
 		});
 	}
 

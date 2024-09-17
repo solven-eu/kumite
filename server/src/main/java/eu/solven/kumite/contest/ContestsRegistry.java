@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -12,6 +11,7 @@ import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest.ContestBuilder;
+import eu.solven.kumite.contest.persistence.IContestsRepository;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.player.ContestPlayersRegistry;
@@ -40,19 +40,18 @@ public class ContestsRegistry {
 	@NonNull
 	final IUuidGenerator uuidGenerator;
 
-	Map<UUID, ContestCreationMetadata> uuidToContests = new ConcurrentHashMap<>();
+	final IContestsRepository contestsRepository;
 
-	protected ContestCreationMetadata registerContest(UUID contestId, ContestCreationMetadata contest) {
+	protected Optional<ContestCreationMetadata> registerContest(UUID contestId, ContestCreationMetadata contest) {
 		if (contestId == null) {
 			throw new IllegalArgumentException("Missing contestId: " + contest);
 		}
 
-		ContestCreationMetadata alreadyIn = uuidToContests.putIfAbsent(contestId, contest);
-		if (alreadyIn != null) {
-			throw new IllegalArgumentException("contestId already registered: " + contest);
+		Optional<ContestCreationMetadata> optAlreadyIn = contestsRepository.putIfAbsent(contestId, contest);
+		if (optAlreadyIn.isEmpty()) {
+			log.warn("Trying to initialize multiple times board for contestId={}", contestId);
 		}
-
-		return contest;
+		return optAlreadyIn;
 	}
 
 	public Contest registerContest(IGame game, ContestCreationMetadata constantMetadata, IKumiteBoard board) {
@@ -79,10 +78,8 @@ public class ContestsRegistry {
 	// }
 
 	public Contest getContest(UUID contestId) {
-		ContestCreationMetadata contestConstantMetadata = uuidToContests.get(contestId);
-		if (contestConstantMetadata == null) {
-			throw new IllegalArgumentException("No contest registered for id=" + contestId);
-		}
+		ContestCreationMetadata contestConstantMetadata = contestsRepository.getById(contestId)
+				.orElseThrow(() -> new IllegalArgumentException("No contest registered for id=" + contestId));
 		IHasBoard hasBoard = boardsRegistry.makeDynamicBoardHolder(contestId);
 		IHasPlayers hasPlayers = contestPlayersRegistry.makeDynamicHasPlayers(contestId);
 
@@ -105,9 +102,9 @@ public class ContestsRegistry {
 
 		if (search.getContestId().isPresent()) {
 			UUID uuid = search.getContestId().get();
-			contestStream = Optional.ofNullable(uuidToContests.get(uuid)).map(c -> Map.entry(uuid, c)).stream();
+			contestStream = contestsRepository.getById(uuid).map(c -> Map.entry(uuid, c)).stream();
 		} else {
-			contestStream = uuidToContests.entrySet().stream();
+			contestStream = contestsRepository.stream();
 		}
 
 		Stream<Contest> metaStream = contestStream.map(c -> getContest(c.getKey()));
@@ -116,16 +113,16 @@ public class ContestsRegistry {
 			metaStream = metaStream.filter(c -> c.getGameMetadata().getGameId().equals(search.getGameId().get()));
 		}
 
-		if (search.isGameOver()) {
-			metaStream = metaStream.filter(c -> c.isGameOver());
+		if (search.getGameOver() != null) {
+			metaStream = metaStream.filter(c -> search.getGameOver().equals(c.isGameOver()));
 		}
 
-		if (search.isAcceptPlayers()) {
-			metaStream = metaStream.filter(c -> c.isAcceptingPlayers());
+		if (search.getAcceptPlayers() != null) {
+			metaStream = metaStream.filter(c -> search.getAcceptPlayers().equals(c.isAcceptingPlayers()));
 		}
 
-		if (search.isRequirePlayers()) {
-			metaStream = metaStream.filter(c -> c.isRequiringPlayers());
+		if (search.getRequirePlayers() != null) {
+			metaStream = metaStream.filter(c -> search.getRequirePlayers().equals(c.isRequiringPlayers()));
 		}
 
 		return metaStream.collect(Collectors.toList());

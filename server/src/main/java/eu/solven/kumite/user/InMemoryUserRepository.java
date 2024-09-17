@@ -49,7 +49,7 @@ public class InMemoryUserRepository implements IKumiteUserRepository, IKumiteUse
 				UUID accountId = uuidGenerator.randomUUID();
 				kumiteUserBuilder.accountId(accountId);
 
-				UUID playerId = playersRegistry.generatePlayerId(accountId);
+				UUID playerId = playersRegistry.generateMainPlayerId(accountId);
 				kumiteUserBuilder.playerId(playerId);
 
 				log.info("Registering as new user accountId={} playerId={} raw={}", accountId, playerId, kumiteUserRaw);

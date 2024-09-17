@@ -2,7 +2,10 @@ package eu.solven.kumite.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.solven.kumite.account.login.KumiteSecurity;
 import eu.solven.kumite.app.properties.GitPropertySourceConfig;
@@ -14,13 +17,18 @@ import eu.solven.kumite.app.webflux.KumiteWebFluxConfiguration;
 		KumiteWebFluxConfiguration.class,
 		KumiteServerComponentsConfiguration.class,
 		KumiteSecurity.class,
-		GitPropertySourceConfig.class
+		GitPropertySourceConfig.class,
 
 })
 public class KumiteServerApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(KumiteServerApplication.class, args);
+	}
+
+	@Bean
+	public ObjectMapper objectMapper() {
+		return KumiteJackson.objectMapper();
 	}
 
 }

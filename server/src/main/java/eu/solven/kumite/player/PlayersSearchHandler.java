@@ -4,24 +4,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
 import eu.solven.kumite.player.PlayersSearchParameters.PlayersSearchParametersBuilder;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@Value
-@Builder
+@AllArgsConstructor
 public class PlayersSearchHandler {
-	@NonNull
-	ContestPlayersRegistry contestsPlayersRegistry;
-	@NonNull
-	IAccountPlayersRegistry accountPlayersRegistry;
+	final ContestPlayersRegistry contestsPlayersRegistry;
+	final IAccountPlayersRegistry accountPlayersRegistry;
 
 	public Mono<ServerResponse> listPlayers(ServerRequest request) {
 		PlayersSearchParametersBuilder parametersBuilder = PlayersSearchParameters.builder();
@@ -43,6 +37,6 @@ public class PlayersSearchHandler {
 			throw new IllegalArgumentException("Need at least one filtering clause");
 		}
 
-		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(players));
+		return KumiteHandlerHelper.okAsJson(players);
 	}
 }

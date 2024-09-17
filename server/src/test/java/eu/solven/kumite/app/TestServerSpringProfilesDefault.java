@@ -12,7 +12,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * This tests the default configuration: we rely on multiple mecanisms circumventing security.
+ * This tests the default configuration: we rely on multiple mechanisms circumventing security.
  * 
  * @author Benoit Lacelle
  *
@@ -29,6 +29,9 @@ public class TestServerSpringProfilesDefault implements IKumiteSpringProfiles {
 	public void testSpringProfiles() {
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_DEFAULT_SERVER))).isTrue();
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_INJECT_DEFAULT_GAMES))).isTrue();
+
+		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_REDIS))).isFalse();
+		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_INMEMORY))).isTrue();
 
 		// By default, we include unsafe parameters
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_UNSAFE_SERVER))).isTrue();

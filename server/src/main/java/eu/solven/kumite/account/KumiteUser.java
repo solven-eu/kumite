@@ -18,8 +18,8 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 public class KumiteUser {
-	// IKumiteSpringProfiles.P_DEFAULT_FAKE_USER
-	public static final UUID FAKE_ACCOUNT_ID = UUID.fromString("11111111-1111-1111-1111-111111111112");
+	// Used to create contests
+	public static final UUID SERVER_ACCOUNTID = UUID.fromString("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF");
 
 	// Multiple Users may be attached to the same account (e.g. by using different OAuth2 providers)
 	@NonNull

@@ -67,6 +67,21 @@ public class Contest implements IContest {
 				.build();
 	}
 
+	/**
+	 * 
+	 * @param contest
+	 * @param boardViewPostMove
+	 * @return
+	 */
+	// public static ContestDynamicMetadata snapshot(Contest contest, IKumiteBoardView boardViewPostMove) {
+	// return ContestDynamicMetadata.builder()
+	// .acceptingPlayers(contest.isAcceptingPlayers())
+	// .requiringPlayers(contest.isRequiringPlayers())
+	// .gameOver(boardViewPostMove.isGameOver())
+	// .contenders(contest.getPlayers().stream().map(p -> p.getPlayerId()).collect(Collectors.toSet()))
+	// .build();
+	// }
+
 	public void checkValidMove(PlayerMoveRaw playerMove) {
 		UUID playerId = playerMove.getPlayerId();
 		IKumiteMove move = playerMove.getMove();

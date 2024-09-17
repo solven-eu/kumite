@@ -3,6 +3,7 @@ package eu.solven.kumite.game;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -65,8 +66,12 @@ public class GamesRegistry {
 		}
 
 		if (!search.getRequiredTags().isEmpty()) {
-			// TODO Handle tags with OR conditions (e.g. `tagA,tagB`)
-			metaStream = metaStream.filter(c -> c.getTags().containsAll(search.getRequiredTags()));
+			Set<String> requiredTags = search.getRequiredTags();
+
+			metaStream = metaStream.filter(c -> {
+				// TODO Handle tags with OR conditions (e.g. `tagA,tagB`)
+				return c.getTags().containsAll(requiredTags);
+			});
 		}
 
 		return metaStream.collect(Collectors.toList());

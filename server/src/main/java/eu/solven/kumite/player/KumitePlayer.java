@@ -29,9 +29,6 @@ public class KumitePlayer {
 	// useful for games with ImperfectInformation
 	public static final UUID AUDIENCE_PLAYER_ID = UUID.fromString("00000000-0000-0000-2222-000000000000");
 
-	// IKumiteSpringProfiles.P_DEFAULT_FAKE_USER
-	public static final UUID FAKE_PLAYER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-
 	@NonNull
 	UUID playerId;
 

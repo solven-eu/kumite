@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.Singular;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
@@ -21,6 +22,7 @@ public class ContestDynamicMetadata {
 
 	// Should we return the actual list of players?
 	@NonNull
+	@Singular
 	Set<UUID> contenders;
 
 	boolean acceptingPlayers;

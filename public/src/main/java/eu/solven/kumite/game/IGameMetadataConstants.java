@@ -1,6 +1,12 @@
 package eu.solven.kumite.game;
 
+import java.util.UUID;
+
 public interface IGameMetadataConstants {
+	// Used to refer to something not existing. This is used for internal use (like race-conditions, as a placeholder
+	// not to manipulate null). It should never be returned through API.
+	UUID EMPTY = UUID.fromString("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF");
+
 	// An optimization game consists in proposing the best solution to a given problem. They can be played independently
 	// by any players.
 	String TAG_OPTIMIZATION = "optimization";

@@ -9,13 +9,14 @@
     </parent>
     <artifactId>server</artifactId>
     <description>Contests Server</description>
+
     <dependencies>
         <dependency>
             <groupId>eu.solven.kumite</groupId>
             <artifactId>public</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>eu.solven.kumite</groupId>
             <artifactId>redis</artifactId>
@@ -128,6 +129,15 @@
             <groupId>com.microsoft.playwright</groupId>
             <artifactId>playwright</artifactId>
             <version>1.47.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <!-- https://www.baeldung.com/spring-embedded-redis -->
+            <!-- https://github.com/codemonstur/embedded-redis -->
+            <groupId>com.github.codemonstur</groupId>
+            <artifactId>embedded-redis</artifactId>
+            <version>1.4.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

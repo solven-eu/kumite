@@ -1,4 +1,4 @@
-package eu.solven.kumite.game.optimization.ping;
+package eu.solven.kumite.game.optimization.lag;
 
 import java.net.URI;
 import java.util.Map;

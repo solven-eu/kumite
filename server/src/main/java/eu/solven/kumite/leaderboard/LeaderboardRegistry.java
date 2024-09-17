@@ -1,5 +1,6 @@
 package eu.solven.kumite.leaderboard;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class LeaderboardRegistry {
 	final ContestsRegistry contestsRegistry;
 	final GamesRegistry gamesRegistry;
 
-	public LeaderBoardRaw searchLeaderboard(LeaderboardSearchParameters search) {
+	public LeaderboardRaw searchLeaderboard(LeaderboardSearchParameters search) {
 		UUID contestId = search.getContestId();
 		IKumiteBoard board = boardRegistry.makeDynamicBoardHolder(contestId).get();
 
@@ -38,9 +39,21 @@ public class LeaderboardRegistry {
 		// Should we get the comparator from the contest/game?
 		List<IPlayerScore> playerScores = playerToScore.values()
 				.stream()
-				.sorted(Comparator.comparing(ps -> ps.getComparableScore()))
+				.sorted(Comparator.comparing(ps -> ps.asNumber().doubleValue()))
 				.collect(Collectors.toList());
 
-		return LeaderBoardRaw.builder().playerScores(playerScores).build();
+		List<PlayerScoreRaw> rawPlayerScores = new ArrayList<>(playerScores.size());
+
+		for (int rank = 0; rank < playerScores.size(); rank++) {
+			IPlayerScore playerScore = playerScores.get(rank);
+			PlayerScoreRaw rawScore = PlayerScoreRaw.builder()
+					.rank(rank)
+					.playerId(playerScore.getPlayerId())
+					.score(playerScore.asNumber())
+					.build();
+			rawPlayerScores.add(rawScore);
+		}
+
+		return LeaderboardRaw.builder().playerScores(rawPlayerScores).build();
 	}
 }

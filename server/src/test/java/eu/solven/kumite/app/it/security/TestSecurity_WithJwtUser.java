@@ -2,6 +2,7 @@ package eu.solven.kumite.app.it.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -19,13 +20,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import eu.solven.kumite.account.login.FakePlayerTokens;
+import eu.solven.kumite.account.fake_player.FakePlayerTokens;
 import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.account.login.SocialWebFluxSecurity;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.controllers.KumiteLoginController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
-import eu.solven.kumite.player.KumitePlayer;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -50,7 +50,9 @@ public class TestSecurity_WithJwtUser {
 	KumiteTokenService tokenService;
 
 	protected String generateAccessToken() {
-		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser(), KumitePlayer.FAKE_PLAYER_ID);
+		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser(),
+				FakePlayerTokens.FAKE_PLAYER_ID1,
+				Duration.ofMinutes(1));
 	}
 
 	@Test

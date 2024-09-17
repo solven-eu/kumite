@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
@@ -43,11 +44,11 @@ public class ContestPlayersRegistry {
 		if (playerRegistrationRaw.isViewer()) {
 			registerViewingPlayer(contest, playerId);
 		} else {
-			registerPlayingPlayer(contest, playerId);
+			registerContender(contest, playerId);
 		}
 	}
 
-	private void registerPlayingPlayer(Contest contest, UUID playerId) {
+	private void registerContender(Contest contest, UUID playerId) {
 		if (KumitePlayer.AUDIENCE_PLAYER_ID.equals(playerId) || KumitePlayer.PREVIEW_PLAYER_ID.equals(playerId)) {
 			// This should have been handled before, while verifying authenticated account can play given playerId
 			throw new IllegalArgumentException("Public player is not allowed to play");
@@ -68,7 +69,22 @@ public class ContestPlayersRegistry {
 		// No need to synchronize as BoardLifecycleManager ensure single-threaded per contest
 		{
 			if (game.canAcceptPlayer(contest, KumitePlayer.builder().playerId(playerId).build())) {
-				contestPlayersRepository.registerContender(contestId, playerId);
+				boolean registeredInBoard = contestPlayersRepository.registerContender(contestId, playerId);
+				if (registeredInBoard) {
+					log.info(
+							"Skip `board.registerContender` as already managed by `contestPlayersRepository.registerContender`");
+				} else {
+					IKumiteBoard board = contest.getBoard().get();
+					try {
+						board.registerContender(playerId);
+					} catch (Throwable t) {
+						// What should we do about contestPlayersRegistry? Remove the player? Force gameOver? Drop
+						// contestPlayersRegistry and rely only on the board?
+						throw new IllegalStateException(
+								"Issue after registering a player, but before registering it on the board",
+								t);
+					}
+				}
 			} else {
 				throw new IllegalArgumentException(
 						"player=" + playerId + " can not be registered on contestId=" + contestId);

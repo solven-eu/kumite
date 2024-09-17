@@ -37,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @ExtendWith(SpringExtension.class)
-// We create a `@SpringBootTest`, starting an actual server on a `RANDOM_PORT`
 @SpringBootTest(classes = KumiteServerSecurityApplication.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE_SERVER, })
@@ -187,8 +186,10 @@ public class TestSecurity_WithOAuth2User {
 				.value(tokens -> {
 					Assertions.assertThat(tokens)
 							.containsKey("access_token")
+							.containsEntry("token_type", "Bearer")
 							.containsEntry("player_id", kumiteUser.getPlayerId().toString())
-							.hasSize(2);
+							.containsEntry("expires_in", 3600)
+							.hasSize(4);
 				});
 	}
 

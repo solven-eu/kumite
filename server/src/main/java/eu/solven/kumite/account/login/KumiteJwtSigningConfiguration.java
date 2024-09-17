@@ -16,6 +16,7 @@ import com.nimbusds.jose.jwk.OctetSequenceKey;
 
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @Import({
@@ -23,6 +24,7 @@ import lombok.SneakyThrows;
 		KumiteTokenService.class,
 
 })
+@Slf4j
 public class KumiteJwtSigningConfiguration {
 
 	public static final MacAlgorithm MAC_ALGORITHM = MacAlgorithm.HS256;
@@ -36,13 +38,16 @@ public class KumiteJwtSigningConfiguration {
 	// Jwt). And later a Jwt to a AbstractAuthenticationToken.
 	@Bean
 	@SneakyThrows(ParseException.class)
-	public ReactiveJwtDecoder jwtDecoder(Environment env) {
+	public ReactiveJwtDecoder jwtDecoder(Environment env, KumiteTokenService kumiteTokenService) {
 		String secretKeySpec = env.getRequiredProperty(KumiteTokenService.KEY_JWT_SIGNINGKEY);
 
 		if ("NEEDS_TO_BE_DEFINED".equals(secretKeySpec)) {
 			throw new IllegalStateException("Lack proper `" + KumiteTokenService.KEY_JWT_SIGNINGKEY
 					+ "` or spring.profiles.active="
 					+ IKumiteSpringProfiles.P_UNSAFE_SERVER);
+		} else if ("GENERATE".equals(secretKeySpec)) {
+			log.warn("We generate a random signingKey");
+			secretKeySpec = kumiteTokenService.generateSignatureSecret().toJSONString();
 		}
 
 		OctetSequenceKey octetSequenceKey = OctetSequenceKey.parse(secretKeySpec);

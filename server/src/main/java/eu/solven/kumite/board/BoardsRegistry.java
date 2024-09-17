@@ -1,5 +1,6 @@
 package eu.solven.kumite.board;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import eu.solven.kumite.board.persistence.IBoardRepository;
@@ -12,8 +13,8 @@ public class BoardsRegistry {
 	final IBoardRepository boardRepository;
 
 	public void registerBoard(UUID contestId, IKumiteBoard initialBoard) {
-		IKumiteBoard alreadyIn = boardRepository.putIfAbsent(contestId, initialBoard);
-		if (alreadyIn != null) {
+		Optional<IKumiteBoard> alreadyIn = boardRepository.putIfAbsent(contestId, initialBoard);
+		if (alreadyIn.isPresent()) {
 			throw new IllegalArgumentException(
 					"board already registered (" + alreadyIn + ") for contestId=" + contestId);
 		}

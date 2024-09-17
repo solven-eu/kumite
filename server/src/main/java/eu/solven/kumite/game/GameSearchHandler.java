@@ -35,6 +35,9 @@ public class GameSearchHandler {
 		optTitle.ifPresent(rawTitle -> parameters.titleRegex(Optional.of(rawTitle)));
 
 		// https://stackoverflow.com/questions/24059773/correct-way-to-pass-multiple-values-for-same-parameter-name-in-get-request
+		// `tag=a&tag=b` means we are looking for `a AND b`
+		// `tag=a,b` means we are looking for `a OR b`
+		// `tag=a,b&tag=c` means we are looking for `(a AND b) OR c`
 		List<String> tags = request.queryParams().get("tag");
 		if (tags != null) {
 			tags.forEach(tag -> parameters.requiredTag(tag));

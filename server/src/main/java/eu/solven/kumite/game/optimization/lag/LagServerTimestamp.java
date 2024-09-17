@@ -1,4 +1,4 @@
-package eu.solven.kumite.game.optimization.ping;
+package eu.solven.kumite.game.optimization.lag;
 
 import eu.solven.kumite.player.IKumiteMove;
 import lombok.Builder;

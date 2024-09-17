@@ -3,7 +3,7 @@ package eu.solven.kumite.player.persistence;
 import java.util.Collections;
 import java.util.UUID;
 
-import eu.solven.kumite.account.KumiteUser;
+import eu.solven.kumite.account.fake_player.FakePlayerTokens;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
 import eu.solven.kumite.player.KumitePlayer;
@@ -22,9 +22,9 @@ public final class BijectiveAccountPlayersRegistry implements IAccountPlayersReg
 	@Override
 	public void registerPlayer(UUID accountId, KumitePlayer player) {
 		UUID playerId = player.getPlayerId();
-		if (accountId.equals(KumiteUser.FAKE_ACCOUNT_ID) && playerId.equals(KumitePlayer.FAKE_PLAYER_ID)) {
+		if (accountId.equals(FakePlayerTokens.FAKE_ACCOUNT_ID) && FakePlayerTokens.isFakePlayer(playerId)) {
 			log.info("Registering the fakeUser");
-		} else if (playerId.equals(generatePlayerId(accountId))) {
+		} else if (playerId.equals(generateMainPlayerId(accountId))) {
 			log.info("Registering accountId={} playerId={}", accountId, playerId);
 		} else {
 			throw new IllegalArgumentException("Invalid playerId=" + playerId + " given accountId=" + accountId);
@@ -33,8 +33,8 @@ public final class BijectiveAccountPlayersRegistry implements IAccountPlayersReg
 
 	@Override
 	public UUID getAccountId(UUID playerId) {
-		if (playerId.equals(KumitePlayer.FAKE_PLAYER_ID)) {
-			return KumiteUser.FAKE_ACCOUNT_ID;
+		if (FakePlayerTokens.isFakePlayer(playerId)) {
+			return FakePlayerTokens.FAKE_ACCOUNT_ID;
 		}
 
 		return accountIdGivenPlayerId(playerId);
@@ -42,15 +42,15 @@ public final class BijectiveAccountPlayersRegistry implements IAccountPlayersReg
 
 	@Override
 	public IHasPlayers makeDynamicHasPlayers(UUID accountId) {
-		UUID playerId = generatePlayerId(accountId);
+		UUID playerId = generateMainPlayerId(accountId);
 
 		return () -> Collections.singletonList(KumitePlayer.builder().playerId(playerId).build());
 	}
 
 	@Override
-	public UUID generatePlayerId(UUID accountId) {
-		if (accountId.equals(KumiteUser.FAKE_ACCOUNT_ID)) {
-			return KumitePlayer.FAKE_PLAYER_ID;
+	public UUID generateMainPlayerId(UUID accountId) {
+		if (accountId.equals(FakePlayerTokens.FAKE_ACCOUNT_ID)) {
+			return FakePlayerTokens.FAKE_PLAYER_ID1;
 		}
 
 		return playerIdGivenAccountId(accountId);

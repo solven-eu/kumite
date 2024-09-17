@@ -3,9 +3,13 @@ package eu.solven.kumite.app.controllers;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
 
 import eu.solven.kumite.app.webflux.KumiteApiRouter;
+import reactor.core.publisher.Mono;
 
 /**
  * Helpers around {@link KumiteApiRouter} handlers.
@@ -54,6 +58,10 @@ public class KumiteHandlerHelper {
 
 			return Boolean.parseBoolean(rawBoolean);
 		});
+	}
+
+	public static Mono<ServerResponse> okAsJson(Object body) {
+		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(body));
 	}
 
 }

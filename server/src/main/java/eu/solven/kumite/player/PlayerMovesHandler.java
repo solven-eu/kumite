@@ -4,12 +4,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
 import eu.solven.kumite.board.IKumiteBoardView;
@@ -57,7 +53,7 @@ public class PlayerMovesHandler {
 				.accountIsViewing(isViewer)
 				.build();
 
-		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(playingPlayer));
+		return KumiteHandlerHelper.okAsJson(playingPlayer);
 	}
 
 	// This would return a list of possible moves. The list may not be exhaustive, but indicative.
@@ -75,34 +71,29 @@ public class PlayerMovesHandler {
 
 		PlayerMovesHolder movesHolder = PlayerMovesHolder.builder().moves(moves).build();
 
-		return ServerResponse.ok()
-				.contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue(PlayerMovesHolder.snapshot(movesHolder)));
+		return KumiteHandlerHelper.okAsJson(PlayerMovesHolder.snapshot(movesHolder));
 	}
 
 	public Mono<ServerResponse> playMove(ServerRequest request) {
 		UUID playerId = KumiteHandlerHelper.uuid(request, "player_id");
 		UUID contestId = KumiteHandlerHelper.uuid(request, "contest_id");
 
-		Contest contest = contestsRegistry.getContest(contestId);
-		IGame game = gamesRegistry.getGame(contest.getGameMetadata().getGameId());
+		Contest contestPreMove = contestsRegistry.getContest(contestId);
+		IGame game = gamesRegistry.getGame(contestPreMove.getGameMetadata().getGameId());
 
-		return request.bodyToMono(Map.class).<ServerResponse>flatMap(rawMove -> {
+		return request.bodyToMono(Map.class).map(rawMove -> {
 			IKumiteMove move = game.parseRawMove(rawMove);
 
 			PlayerMoveRaw playerMove = PlayerMoveRaw.builder().playerId(playerId).move(move).build();
-			IKumiteBoardView boardViewPostMove = boardLifecycleManager.onPlayerMove(contest, playerMove);
+			IKumiteBoardView boardViewPostMove = boardLifecycleManager.onPlayerMove(contestPreMove, playerMove);
 
-			ObjectMapper objectMapper = new ObjectMapper();
-
-			ContestView view = ContestView.builder()
+			ContestView view = ContestView.fromView(boardViewPostMove)
 					.contestId(contestId)
 					.playerStatus(PlayerContestStatus.contender(playerId))
-					.board(objectMapper.convertValue(boardViewPostMove, Map.class))
-					.dynamicMetadata(Contest.snapshot(contest).getDynamicMetadata())
+					.dynamicMetadata(Contest.snapshot(contestPreMove).getDynamicMetadata())
 					.build();
 
-			return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(view));
-		});
+			return view;
+		}).flatMap(KumiteHandlerHelper::okAsJson);
 	}
 }

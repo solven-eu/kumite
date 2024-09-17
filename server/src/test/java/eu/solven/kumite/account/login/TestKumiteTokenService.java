@@ -1,6 +1,7 @@
 package eu.solven.kumite.account.login;
 
 import java.text.ParseException;
+import java.time.Duration;
 import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
@@ -28,14 +29,14 @@ public class TestKumiteTokenService {
 
 	@Test
 	public void testJwt_randomSecret() throws JOSEException, ParseException {
-		JWK signatureSecret = KumiteTokenService.generateSignatureSecret(JdkUuidGenerator.INSTANCE);
+		JWK signatureSecret = tokenService.generateSignatureSecret();
 		env.setProperty(KumiteTokenService.KEY_JWT_SIGNINGKEY, signatureSecret.toJSONString());
 
 		UUID accountId = UUID.randomUUID();
 		UUID playerId = UUID.randomUUID();
 		KumiteUser user =
 				KumiteUser.builder().accountId(accountId).playerId(playerId).raw(TestTSPLifecycle.userRaw()).build();
-		String accessToken = tokenService.generateAccessToken(user, playerId);
+		String accessToken = tokenService.generateAccessToken(user, playerId, Duration.ofMinutes(1));
 
 		{
 			JWSVerifier verifier = new MACVerifier((OctetSequenceKey) signatureSecret);
@@ -45,7 +46,7 @@ public class TestKumiteTokenService {
 		}
 
 		JwtReactiveAuthenticationManager authManager =
-				new JwtReactiveAuthenticationManager(new KumiteJwtSigningConfiguration().jwtDecoder(env));
+				new JwtReactiveAuthenticationManager(new KumiteJwtSigningConfiguration().jwtDecoder(env, tokenService));
 
 		Authentication auth = authManager.authenticate(new BearerTokenAuthenticationToken(accessToken)).block();
 

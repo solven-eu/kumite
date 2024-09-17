@@ -1,5 +1,6 @@
 package eu.solven.kumite.app.it;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,7 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import eu.solven.kumite.account.login.FakePlayerTokens;
+import eu.solven.kumite.account.fake_player.FakePlayerTokens;
 import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerApplication;
@@ -22,7 +23,6 @@ import eu.solven.kumite.app.server.IKumiteServer;
 import eu.solven.kumite.app.server.KumiteWebclientServer;
 import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.game.GameSearchParameters;
-import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerRawMovesHolder;
 import eu.solven.kumite.tools.JdkUuidGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,9 @@ import reactor.core.publisher.Mono;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = KumiteServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE_SERVER, IKumiteSpringProfiles.P_FAKE_USER, })
+@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE_SERVER,
+		IKumiteSpringProfiles.P_FAKE_USER,
+		IKumiteSpringProfiles.P_INMEMORY })
 @TestPropertySource(properties = { "kumite.random.seed=123",
 		"kumite.playerId=11111111-1111-1111-1111-111111111111",
 		"kumite.server.base-url=http://localhost:LocalServerPort" })
@@ -54,9 +56,10 @@ public class TestTSPLifecycleThroughRouter {
 
 	@Test
 	public void testSinglePlayer() {
-		UUID playerId = KumitePlayer.FAKE_PLAYER_ID;
+		UUID playerId = FakePlayerTokens.FAKE_PLAYER_ID1;
 		KumiteTokenService kumiteTokenService = new KumiteTokenService(env, new JdkUuidGenerator());
-		String accessToken = kumiteTokenService.generateAccessToken(FakePlayerTokens.fakeUser(), playerId);
+		String accessToken =
+				kumiteTokenService.generateAccessToken(FakePlayerTokens.fakeUser(), playerId, Duration.ofMinutes(1));
 
 		IKumiteServer kumiteServer = new KumiteWebclientServer(env, randomServerPort, accessToken);
 

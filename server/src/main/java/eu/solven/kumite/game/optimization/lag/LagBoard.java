@@ -1,4 +1,4 @@
-package eu.solven.kumite.game.optimization.ping;
+package eu.solven.kumite.game.optimization.lag;
 
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +42,7 @@ public class LagBoard implements IKumiteBoard, IKumiteBoardView {
 	}
 
 	@Override
-	public void registerPlayer(UUID playerId) {
+	public void registerContender(UUID playerId) {
 		// Optimization problems can accept any player
 		playerToLatestLagMs.put(playerId, Long.MAX_VALUE);
 	}

@@ -36,7 +36,7 @@ public class ChessBoard implements IKumiteBoard, IKumiteBoardView {
 	}
 
 	@Override
-	public void registerPlayer(UUID playerId) {
+	public void registerContender(UUID playerId) {
 		throw new IllegalArgumentException("TODO");
 	}
 

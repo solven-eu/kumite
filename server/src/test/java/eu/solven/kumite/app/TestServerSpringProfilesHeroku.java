@@ -26,6 +26,9 @@ public class TestServerSpringProfilesHeroku implements IKumiteSpringProfiles {
 
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_DEFAULT_SERVER))).isTrue();
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_INJECT_DEFAULT_GAMES))).isTrue();
+		// Heroku alone does not trigger Redis
+		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_REDIS))).isFalse();
+		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_INMEMORY))).isFalse();
 
 		// By default, we include unsafe parameters
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_UNSAFE_SERVER))).isFalse();

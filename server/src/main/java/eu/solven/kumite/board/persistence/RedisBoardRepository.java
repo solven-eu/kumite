@@ -18,10 +18,7 @@ public class RedisBoardRepository implements IBoardRepository {
 	final RedisTemplate<Object, Object> redisTemplate;
 
 	private RepositoryKey<UUID> key(UUID contestId) {
-		return RepositoryKey.<UUID>builder()
-				.storeName(RedisBoardRepository.class.getSimpleName())
-				.actualKey(contestId)
-				.build();
+		return RepositoryKey.<UUID>builder().storeName(this.getClass().getSimpleName()).actualKey(contestId).build();
 	}
 
 	private BoundValueOperations<Object, Object> valueOp(UUID contestId) {
@@ -29,15 +26,20 @@ public class RedisBoardRepository implements IBoardRepository {
 	}
 
 	@Override
-	public IKumiteBoard putIfAbsent(UUID contestId, IKumiteBoard initialBoard) {
+	public Optional<IKumiteBoard> putIfAbsent(UUID contestId, IKumiteBoard initialBoard) {
 		Boolean result = valueOp(contestId).setIfAbsent(initialBoard);
 		log.info("contestId={} putIfAbsent={}", contestId, result);
-		return initialBoard;
+		if (Boolean.TRUE.equals(result)) {
+			return Optional.empty();
+		} else {
+			log.warn("Trying to initialize multiple times board for contestId={}", contestId);
+			return getBoard(contestId);
+		}
 	}
 
 	@Override
 	public boolean containsKey(UUID contestId) {
-		return redisTemplate.hasKey(contestId);
+		return redisTemplate.hasKey(key(contestId));
 	}
 
 	@Override
