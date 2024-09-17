@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -73,7 +74,7 @@ public class KumiteTokenService {
 		return jwk;
 	}
 
-	public String generateAccessToken(KumiteUser user, UUID playerId, Duration accessTokenValidity) {
+	public String generateAccessToken(KumiteUser user, Set<UUID> playerIds, Duration accessTokenValidity) {
 		// Generating a Signed JWT
 		// https://auth0.com/blog/rs256-vs-hs256-whats-the-difference/
 		// https://security.stackexchange.com/questions/194830/recommended-asymmetric-algorithms-for-jwt
@@ -94,7 +95,7 @@ public class KumiteTokenService {
 				.issueTime(Date.from(now))
 				.notBeforeTime(Date.from(now))
 				.expirationTime(Date.from(now.plus(accessTokenValidity)))
-				.claim("playerId", playerId.toString());
+				.claim("playerIds", playerIds);
 
 		SignedJWT signedJWT = new SignedJWT(headerBuilder.build(), claimsSetBuilder.build());
 
@@ -129,7 +130,7 @@ public class KumiteTokenService {
 			log.warn("Unusual expiry for accessToken: {}", accessTokenValidity);
 		}
 
-		String accessToken = generateAccessToken(user, playerId, accessTokenValidity);
+		String accessToken = generateAccessToken(user, Set.of(playerId), accessTokenValidity);
 
 		// https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
 		return Map.ofEntries(Map.entry("access_token", accessToken),

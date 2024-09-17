@@ -3,6 +3,7 @@ package eu.solven.kumite.account.fake_player;
 import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
@@ -32,7 +33,8 @@ public class RunFakePlayerToken {
 		SpringApplication springApplication = new SpringApplication(RunFakePlayerToken.class);
 
 		springApplication.setWebApplicationType(WebApplicationType.NONE);
-		springApplication.setAdditionalProfiles(IKumiteSpringProfiles.P_FAKE_USER);
+		springApplication.setAdditionalProfiles(IKumiteSpringProfiles.P_UNSAFE_SERVER,
+				IKumiteSpringProfiles.P_FAKE_USER);
 
 		Map<String, Object> defaultProperties = new LinkedHashMap<>();
 		// We set a quite long expiry as this is typically injected as default token in application-fake_player.yml
@@ -46,7 +48,7 @@ public class RunFakePlayerToken {
 	@Bean
 	public Void generateFakePlayerToken(KumiteTokenService tokenService) {
 		String accessToken = tokenService.generateAccessToken(FakePlayerTokens.fakeUser(),
-				FakePlayerTokens.FAKE_PLAYER_ID1,
+				Set.of(FakePlayerTokens.FAKE_PLAYER_ID1, FakePlayerTokens.FAKE_PLAYER_ID2),
 				Duration.ofDays(365));
 
 		log.info("access_token for fakeUser: {}", accessToken);

@@ -1,5 +1,6 @@
 package eu.solven.kumite.app;
 
+import java.util.Set;
 import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
@@ -29,8 +30,11 @@ public class TestParseFakePlayer implements IKumiteSpringProfiles {
 
 	@Test
 	public void testPlayerIdFromAccessToken() {
-		UUID playerId = conf.playerIdFromAccessToken(env);
+		Set<UUID> playerIds = conf.playerIdFromAccessToken(env);
 
-		Assertions.assertThat(playerId).isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+		Assertions.assertThat(playerIds)
+				.contains(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+				.contains(UUID.fromString("11111111-1111-1111-1111-222222222222"))
+				.hasSize(2);
 	}
 }

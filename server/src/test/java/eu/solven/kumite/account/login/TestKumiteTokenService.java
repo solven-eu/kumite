@@ -2,6 +2,7 @@ package eu.solven.kumite.account.login;
 
 import java.text.ParseException;
 import java.time.Duration;
+import java.util.Set;
 import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
@@ -36,7 +37,7 @@ public class TestKumiteTokenService {
 		UUID playerId = UUID.randomUUID();
 		KumiteUser user =
 				KumiteUser.builder().accountId(accountId).playerId(playerId).raw(TestTSPLifecycle.userRaw()).build();
-		String accessToken = tokenService.generateAccessToken(user, playerId, Duration.ofMinutes(1));
+		String accessToken = tokenService.generateAccessToken(user, Set.of(playerId), Duration.ofMinutes(1));
 
 		{
 			JWSVerifier verifier = new MACVerifier((OctetSequenceKey) signatureSecret);

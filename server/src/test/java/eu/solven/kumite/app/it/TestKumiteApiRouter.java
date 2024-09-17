@@ -1,6 +1,7 @@
 package eu.solven.kumite.app.it;
 
 import java.time.Duration;
+import java.util.Set;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,7 @@ public class TestKumiteApiRouter {
 
 	protected String generateAccessToken() {
 		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser(),
-				FakePlayerTokens.FAKE_PLAYER_ID1,
+				Set.of(FakePlayerTokens.FAKE_PLAYER_ID1),
 				Duration.ofMinutes(1));
 	}
 

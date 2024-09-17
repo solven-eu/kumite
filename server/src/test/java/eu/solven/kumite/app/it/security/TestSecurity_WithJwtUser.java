@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -51,7 +52,7 @@ public class TestSecurity_WithJwtUser {
 
 	protected String generateAccessToken() {
 		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser(),
-				FakePlayerTokens.FAKE_PLAYER_ID1,
+				Set.of(FakePlayerTokens.FAKE_PLAYER_ID1),
 				Duration.ofMinutes(1));
 	}
 

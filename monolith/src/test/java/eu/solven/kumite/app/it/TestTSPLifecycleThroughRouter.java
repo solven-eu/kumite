@@ -3,6 +3,7 @@ package eu.solven.kumite.app.it;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -58,8 +59,8 @@ public class TestTSPLifecycleThroughRouter {
 	public void testSinglePlayer() {
 		UUID playerId = FakePlayerTokens.FAKE_PLAYER_ID1;
 		KumiteTokenService kumiteTokenService = new KumiteTokenService(env, new JdkUuidGenerator());
-		String accessToken =
-				kumiteTokenService.generateAccessToken(FakePlayerTokens.fakeUser(), playerId, Duration.ofMinutes(1));
+		String accessToken = kumiteTokenService
+				.generateAccessToken(FakePlayerTokens.fakeUser(), Set.of(playerId), Duration.ofMinutes(1));
 
 		IKumiteServer kumiteServer = new KumiteWebclientServer(env, randomServerPort, accessToken);
 
