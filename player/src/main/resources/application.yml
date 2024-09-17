@@ -9,8 +9,7 @@ spring:
         group:
             # `default` is used for quick-start: we enable fake security
             default:
-            - fake_server
-            - fake_player
+            - fake_user
             default_server:
             - inject_default_games 
 
