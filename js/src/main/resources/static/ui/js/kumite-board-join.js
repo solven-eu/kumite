@@ -6,11 +6,9 @@ import { useKumiteStore } from "./store.js";
 import KumiteBoardJoined from "./kumite-board-joined.js";
 
 export default {
-	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
 		KumiteBoardJoined,
 	},
-	// https://vuejs.org/guide/components/props.html
 	props: {
 		contestId: {
 			type: String,

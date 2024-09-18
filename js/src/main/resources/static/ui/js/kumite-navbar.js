@@ -1,4 +1,3 @@
-import { watch } from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
@@ -15,18 +14,6 @@ export default {
 	setup() {
 		const store = useKumiteStore();
 
-		// https://pinia.vuejs.org/core-concepts/state.html
-		// Bottom of the page: there is a snippet for automatic persistence in localStorage
-		// We still need to reload from localStorage on boot
-		watch(
-			store.$state,
-			(state) => {
-				// persist the whole state to the local storage whenever it changes
-				localStorage.setItem("kumiteState", JSON.stringify(state));
-			},
-			{ deep: true },
-		);
-
 		store.loadMetadata().then(metadata => {
             return store.ensureUser();    
         }).then(user => {
@@ -38,7 +25,6 @@ export default {
 		return {};
 	},
 	template: /* HTML */ `
-        <div class="container">
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <div class="container-fluid">
                     <RouterLink class="navbar-brand" to="/">Kumite</RouterLink>
@@ -69,25 +55,11 @@ export default {
                             </li>
 
                             <li class="nav-item" v-if="account.raw">
-                                Current user: {{account.raw.name}}<img :src="account.raw.picture" class="img-thumbnail" alt="You're looking nice" width="128" width="height" v-if="account.raw.picture" />
+                                Current user: {{account.raw.name}}<img :src="account.raw.picture" class="img-thumbnail" alt="You're looking nice" width="128" height="128" v-if="account.raw.picture" />
                             </li>
                         </ul>
                     </div>
                 </div>
             </nav>
-
-            <main>
-                <RouterView />
-            </main>
-
-            <div v-if="needsToLogin">
-                <div v-if="$route.fullPath !== '/html/login'">
-                    <RouterLink :to="{path:'/html/login'}"><i class="bi bi-person"></i> You need to login</RouterLink>
-            </div></div>
-
-            <p v-else>
-                <strong><i class="bi bi-person"></i>playerId:</strong> {{ playingPlayerId }}
-            </p>
-        </div>
     `,
 };

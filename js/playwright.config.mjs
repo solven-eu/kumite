@@ -37,6 +37,13 @@ const config = defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      
+      // https://martinmcgee.dev/posts/how-to-ignore-cors-playwright/
+      // https://playwright.dev/docs/api/class-testoptions#test-options-bypass-csp
+      bypassCSP: true, // add this to disable cors
+      launchOptions: {
+        args: ['--disable-web-security'], // add this to disable cors
+      },
     },
 
     {
@@ -71,11 +78,13 @@ const config = defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  // webServer: {
+  webServer: {
   //   command: 'npm run start',
+  command: '(cd ../server; mvn spring-boot:run;)',
   //   url: 'http://127.0.0.1:3000',
+url: 'http://127.0.0.1:8080',
   //   reuseExistingServer: !process.env.CI,
-  // },
+  },
 });
 
 // https://github.com/microsoft/playwright/issues/12138

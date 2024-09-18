@@ -21,6 +21,8 @@
 	<modules>
 		<!-- Resources shared between the server and the players -->
 		<module>public</module>
+        <!-- The Javascript resource of the Contest server -->
+        <module>js</module>
 		<!-- Host the contests, and serves the API -->
 		<module>server</module>
 		<!-- Demonstrate how to list and play contest -->
@@ -231,6 +233,32 @@
 						</execution>
 					</executions>
 				</plugin>
+				
+				
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+                    </includeOnlyProperties>
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                    <skip>${maven.gitcommitid.skip}</skip>
+                </configuration>
+            </plugin>
 			</plugins>
 		</pluginManagement>
 	</build>

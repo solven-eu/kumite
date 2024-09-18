@@ -10,4 +10,11 @@
 
 https://playwright.dev/docs/intro
 
-    npm playwright test --ui
+    npx playwright test --ui
+    npx playwright show-report
+    
+## Generate new tests
+
+https://playwright.dev/docs/codegen-intro
+
+    npx playwright codegen

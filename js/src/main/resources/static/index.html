@@ -15,10 +15,13 @@
         <!-- https://vuejs.org/guide/quick-start -->
         <!-- https://github.com/vuejs/router/issues/694 -->
         <!-- // https://github.com/vuejs/pinia/issues/2205 -->
-        <script type="importmap">
+        <!-- https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/crossorigin -->
+        <!-- https://github.com/WICG/import-maps/issues/76 -->
+        <!-- https://github.com/jsdelivr/jsdelivr/issues/18038 -->
+        <script type="importmap" crossorigin="anonymous">
             {
                 "imports": {
-                    "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+                    "vue": "https://unpkg.com/vue@3.5.6/dist/vue.esm-browser.js",
                     "vue-router": "https://unpkg.com/vue-router@4.4.3/dist/vue-router.esm-browser.js",
                     "@vue/devtools-api": "https://unpkg.com/@vue/devtools-api@6.2.1/lib/esm/index.js",
                     "pinia": "https://unpkg.com/pinia@2.2.2/dist/pinia.esm-browser.js",
