@@ -2,6 +2,7 @@ package eu.solven.kumite.account.login;
 
 import java.text.ParseException;
 import java.time.Duration;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -55,6 +56,6 @@ public class TestKumiteTokenService {
 		Jwt jwt = (Jwt) auth.getPrincipal();
 		Assertions.assertThat(jwt.getSubject()).isEqualTo(accountId.toString());
 		Assertions.assertThat(jwt.getAudience()).containsExactly("Kumite-Server");
-		Assertions.assertThat(jwt.getClaimAsString("playerId")).isEqualTo(playerId.toString());
+		Assertions.assertThat(jwt.getClaimAsStringList("playerIds")).isEqualTo(List.of(playerId.toString()));
 	}
 }

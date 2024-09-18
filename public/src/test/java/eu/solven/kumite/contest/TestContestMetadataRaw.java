@@ -23,8 +23,23 @@ public class TestContestMetadataRaw {
 				.build();
 
 		String asString = objectMapper.writeValueAsString(initial);
-		// Ensure we write timestamp as ISO
-		Assertions.assertThat(asString).contains(initial.getConstantMetadata().getCreated().toString());
+
+		// Ensure we write timestamp as ISO:
+		{
+
+			String createdAsString = initial.getConstantMetadata().getCreated().toString();
+
+			Assertions.assertThat(createdAsString).endsWith("Z");
+			createdAsString = createdAsString.substring(0, createdAsString.length() - "Z".length());
+
+			// Jackson would strip the trailing 0 in milliseconds
+			while (createdAsString.endsWith("0")) {
+				// Jackson strips trailing 0 in milliseconds
+				createdAsString = createdAsString.substring(0, createdAsString.length() - 1);
+			}
+
+			Assertions.assertThat(asString).contains(createdAsString + "Z");
+		}
 
 		ContestMetadataRaw fromString = objectMapper.readValue(asString, ContestMetadataRaw.class);
 
