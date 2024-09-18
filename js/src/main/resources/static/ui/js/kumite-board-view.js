@@ -30,12 +30,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, [
-			"nbGameFetching",
-			"nbContestFetching",
-			"nbBoardFetching",
-			"playingPlayerId",
-		]),
+		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "nbBoardFetching", "playingPlayerId"]),
 		...mapState(useKumiteStore, {
 			game(store) {
 				return store.games[this.gameId];

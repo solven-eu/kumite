@@ -31,6 +31,15 @@ const config = defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
+  
+  // https://playwright.dev/docs/test-timeouts
+  timeout: 5000,
+  expect: { timeout: 3000 },
+  
+  // https://github.com/microsoft/playwright/issues/14854
+  use: {
+      screenshot: "only-on-failure",
+    },
 
   /* Configure projects for major browsers */
   projects: [
@@ -83,7 +92,7 @@ const config = defineConfig({
   command: '(cd ../server; mvn spring-boot:run;)',
   //   url: 'http://127.0.0.1:3000',
 url: 'http://127.0.0.1:8080',
-  //   reuseExistingServer: !process.env.CI,
+     reuseExistingServer: !process.env.CI,
   },
 });
 

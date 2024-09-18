@@ -1,28 +1,29 @@
 {
-  "dependencies": {
-    "vue": "^3.4.37"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.47.1",
-    "@types/node": "^22.5.5",
-    "@vitejs/plugin-vue": "^5.1.2",
-    "eslint": "^9.10.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-vue": "^9.28.0",
-    "prettier": "3.3.3",
-    "vite": "^5.4.1"
-  },
-  "name": "kumite",
-  "private": true,
-  "scripts": {
-    "build": "vite build",
-    "dev": "vite",
-    "format": "prettier .  --write",
-    "lint": "eslint --fix src/main/resources/static",
-    "lint_debug": "eslint --fix src/main/resources/static --debug",
-    "preview": "vite preview"
-  },
-  "type": "module",
-  "version": "0.0.0"
+    "dependencies": {
+        "vue": "^3.4.37"
+    },
+    "devDependencies": {
+        "@playwright/test": "^1.47.1",
+        "@types/node": "^22.5.5",
+        "@vitejs/plugin-vue": "^5.1.2",
+        "eslint": "^9.10.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-prettier": "^5.2.1",
+        "eslint-plugin-vue": "^9.28.0",
+        "prettier": "3.3.3",
+        "vite": "^5.4.1"
+    },
+    "name": "kumite",
+    "private": true,
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite",
+        "format": "prettier .  --write",
+        "lint": "eslint --fix src/main/resources/static",
+        "lint_debug": "eslint --fix src/main/resources/static --debug",
+        "preview": "vite preview",
+        "pw_localhost8080": "npx playwright test localhost8080  --project=chromium"
+    },
+    "type": "module",
+    "version": "0.0.0"
 }

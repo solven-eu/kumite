@@ -13,16 +13,16 @@ export default {
 			type: String,
 			// required: true,
 		},
-        showGame: {
-            type: Boolean,
-            // As we show multiple contests, we do not show the game (by default)
-            default: false,
-        },
-        showLeaderboard: {
-            type: Boolean,
-            // As we show multiple contests, we do not show the leaderboard (by default)
-            default: false,
-        },
+		showGame: {
+			type: Boolean,
+			// As we show multiple contests, we do not show the game (by default)
+			default: false,
+		},
+		showLeaderboard: {
+			type: Boolean,
+			// As we show multiple contests, we do not show the leaderboard (by default)
+			default: false,
+		},
 	},
 	computed: {
 		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching"]),
@@ -34,9 +34,7 @@ export default {
 
 				if (this.gameId) {
 					// https://stackoverflow.com/questions/69091869/how-to-filter-an-array-in-array-of-objects-in-javascript
-					return allContests.filter(
-						(contest) => contest.constantMetadata.gameId === this.gameId,
-					);
+					return allContests.filter((contest) => contest.constantMetadata.gameId === this.gameId);
 				} else {
 					return allContests;
 				}
@@ -61,7 +59,12 @@ export default {
         <div v-if="Object.values(contests).length == 0 && nbContestFetching > 0">Loading contests</div>
         <div v-else class="container">
             <div class="row border" v-for="contest in contests">
-                <KumiteContest :gameId="contest.constantMetadata.gameId" :contestId="contest.contestId" :showGame="showGame" :showLeaderboard="showLeaderboard" />
+                <KumiteContest
+                    :gameId="contest.constantMetadata.gameId"
+                    :contestId="contest.contestId"
+                    :showGame="showGame"
+                    :showLeaderboard="showLeaderboard"
+                />
             </div>
         </div>
     `,

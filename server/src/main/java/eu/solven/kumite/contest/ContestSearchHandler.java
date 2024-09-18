@@ -1,6 +1,5 @@
 package eu.solven.kumite.contest;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,6 +13,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.solven.kumite.app.KumiteJackson;
 import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.ContestSearchParameters.ContestSearchParametersBuilder;
@@ -98,6 +98,10 @@ public class ContestSearchHandler {
 	private ContestCreationMetadata validateConstantMetadata(UUID authorAccountId,
 			Map<String, ?> rawConstantMetadata,
 			GameMetadata gameMetadata) {
+		if (rawConstantMetadata.containsKey("created")) {
+			throw new IllegalArgumentException("`created` must not be provided by the author");
+		}
+
 		// Name is the only required parameter
 		String contestName = rawConstantMetadata.get("name").toString();
 
@@ -105,9 +109,9 @@ public class ContestSearchHandler {
 		ContestCreationMetadata defaultContestMetadata =
 				ContestCreationMetadata.fromGame(gameMetadata).name(contestName).author(authorAccountId).build();
 
-		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectMapper objectMapper = KumiteJackson.objectMapper();
 		// Convert the default metadata into Map
-		Map<String, Object> rawMergedContestMetadata = objectMapper.convertValue(defaultContestMetadata, HashMap.class);
+		Map<String, Object> rawMergedContestMetadata = objectMapper.convertValue(defaultContestMetadata, Map.class);
 		// Merge the custom metadata over the default metadata
 		rawMergedContestMetadata.putAll(rawConstantMetadata);
 

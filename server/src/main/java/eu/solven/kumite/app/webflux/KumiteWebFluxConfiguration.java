@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 		KumiteApiRouter.class,
 		KumiteSpaRouter.class,
+		KumiteFakeUserRouter.class,
 
 		GreetingHandler.class,
 		GameSearchHandler.class,

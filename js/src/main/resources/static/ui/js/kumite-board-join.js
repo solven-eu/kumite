@@ -24,12 +24,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, [
-			"nbGameFetching",
-			"nbContestFetching",
-			"nbBoardFetching",
-			"playingPlayerId",
-		]),
+		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "nbBoardFetching", "playingPlayerId"]),
 		...mapState(useKumiteStore, {
 			game(store) {
 				return store.games[this.gameId] || { status: "not_loaded" };
@@ -46,14 +41,7 @@ export default {
 			},
 		}),
 		curlGetBoard() {
-			return (
-				"curl " +
-				window.location.protocol +
-				"//" +
-				window.location.host +
-				"/api/board?contest_id=" +
-				this.contestId
-			);
+			return "curl " + window.location.protocol + "//" + window.location.host + "/api/board?contest_id=" + this.contestId;
 		},
 	},
 	setup(props) {
@@ -83,9 +71,7 @@ export default {
 						method: "POST",
 					});
 					if (!response.ok) {
-						throw new Error(
-							"Rejected request for joining as player url " + url,
-						);
+						throw new Error("Rejected request for joining as player url " + url);
 					}
 					const responseJson = await response.json();
 
@@ -103,9 +89,7 @@ export default {
 				}
 			}
 
-			return fetchFromUrl(
-				`/api/board/player?player_id=${playerId}&contest_id=${contestId}&viewer=false`,
-			).then((playingPlayer) => {
+			return fetchFromUrl(`/api/board/player?player_id=${playerId}&contest_id=${contestId}&viewer=false`).then((playingPlayer) => {
 				console.debug("playingPlayer", playingPlayer);
 				isJoiningAsPlayer.value = false;
 				hasJoinedAsPlayer.value = true;

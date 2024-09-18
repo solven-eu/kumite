@@ -16,11 +16,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, [
-			"nbGameFetching",
-			"nbContestFetching",
-			"nbLeaderboardFetching",
-		]),
+		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "nbLeaderboardFetching"]),
 		...mapState(useKumiteStore, {
 			game(store) {
 				return store.games[this.gameId] || { error: "not_loaded" };

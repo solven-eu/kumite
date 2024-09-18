@@ -38,20 +38,10 @@ export default {
 			const positions = board.positions;
 
 			for (let i = 1; i < 3; i++) {
-				const hLine = new Line(
-					16,
-					(height / 3) * i,
-					width - 16,
-					(height / 3) * i,
-				);
+				const hLine = new Line(16, (height / 3) * i, width - 16, (height / 3) * i);
 				renderer.scene.add(hLine);
 
-				const vLine = new Line(
-					(width / 3) * i,
-					16,
-					(width / 3) * i,
-					height - 16,
-				);
+				const vLine = new Line((width / 3) * i, 16, (width / 3) * i, height - 16);
 				renderer.scene.add(vLine);
 			}
 
@@ -63,12 +53,7 @@ export default {
 				const group = new Group();
 
 				if (char === "X") {
-					const line = new Line(
-						(width / 3) * x - 16,
-						(height / 3) * y - 16,
-						(width / 3) * x + 16,
-						(height / 3) * y + 16,
-					);
+					const line = new Line((width / 3) * x - 16, (height / 3) * y - 16, (width / 3) * x + 16, (height / 3) * y + 16);
 					group.add(line);
 				} else if (char === "O") {
 					const circle = new Circle(width * x, height * y, 1);

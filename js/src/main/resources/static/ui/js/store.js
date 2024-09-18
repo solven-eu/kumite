@@ -3,20 +3,20 @@ import { watch } from "vue";
 import { defineStore } from "pinia";
 
 class NetworkError extends Error {
-    constructor(message, url, response) {
-        super(message);
-        this.name = this.constructor.name;
+	constructor(message, url, response) {
+		super(message);
+		this.name = this.constructor.name;
 
-        this.url = url;
-        this.response = response;
-    }
+		this.url = url;
+		this.response = response;
+	}
 }
 
 class UserNeedsToLoginError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = this.constructor.name;
-    }
+	constructor(message) {
+		super(message);
+		this.name = this.constructor.name;
+	}
 }
 
 export const useKumiteStore = defineStore("kumite", {
@@ -35,7 +35,7 @@ export const useKumiteStore = defineStore("kumite", {
 		// Currently connected account
 		account: {},
 		tokens: {},
-        // Initially, we assume we are logged-in as we may have a session cookie
+		// Initially, we assume we are logged-in as we may have a session cookie
 		// May be turned to true by 401 on `loadUser()`
 		needsToLogin: false,
 
@@ -67,94 +67,87 @@ export const useKumiteStore = defineStore("kumite", {
 		},
 	},
 	actions: {
-        // Typically useful when an error is wrapped in the store
-        onSwallowedError(error) {
-            if (error instanceof NetworkError) {
-                console.warn("An NetworkError is not being rethrown", error, error.response.status);
-            } else {
-                console.error("An Error is not being rethrown", error);
-            }
-        },
-        
+		// Typically useful when an error is wrapped in the store
+		onSwallowedError(error) {
+			if (error instanceof NetworkError) {
+				console.warn("An NetworkError is not being rethrown", error, error.response.status);
+			} else {
+				console.error("An Error is not being rethrown", error);
+			}
+		},
+
 		async loadMetadata() {
 			const store = this;
 
 			async function fetchFromUrl(url) {
-					const response = await fetch(url);
-					if (!response.ok) {
-						throw new NetworkError(
-							"Rejected request for games url" + url,
-							url,
-							response,
-						);
-					}
+				const response = await fetch(url);
+				if (!response.ok) {
+					throw new NetworkError("Rejected request for games url" + url, url, response);
+				}
 
-					const responseJson = await response.json();
-					const metadata = responseJson;
+				const responseJson = await response.json();
+				const metadata = responseJson;
 
-					store.$patch({ metadata: metadata });
+				store.$patch({ metadata: metadata });
 			}
 
 			return fetchFromUrl("/api/public/v1/metadata");
 		},
 
 		// This would not fail if the User needs to login.
-        // Callers would generally rely on `ensureUser()`
+		// Callers would generally rely on `ensureUser()`
 		async loadUser() {
 			const store = this;
 
 			async function fetchFromUrl(url) {
+				let response;
 
-                let response;
-                
-                // The following block can fail if there is no netwrk connection
-                // (Are we sure? Where are the unitTests?)
-                {
-    				store.nbAccountLoading++;
-    				try {
-    					// Rely on session for authentication
-    					response = await fetch(url);
-    				} finally {
-    					store.nbAccountLoading--;
-    				}
-                }
+				// The following block can fail if there is no netwrk connection
+				// (Are we sure? Where are the unitTests?)
+				{
+					store.nbAccountLoading++;
+					try {
+						// Rely on session for authentication
+						response = await fetch(url);
+					} finally {
+						store.nbAccountLoading--;
+					}
+				}
 
-                if (response.status === 401) {
-                    throw new UserNeedsToLoginError("User needs to login");
-                } else if (!response.ok) {
-                    // What is this scenario? ServerInternalError?
-                    throw new NetworkError(
-                        "Rejected request for games url" + url,
-                        url,
-                        response,
-                    );
-                }
+				if (response.status === 401) {
+					throw new UserNeedsToLoginError("User needs to login");
+				} else if (!response.ok) {
+					// What is this scenario? ServerInternalError?
+					throw new NetworkError("Rejected request for games url" + url, url, response);
+				}
 
-                // We can typically get a Network error while fetching the json
-                const responseJson = await response.json();
-                const user = responseJson;
+				// We can typically get a Network error while fetching the json
+				const responseJson = await response.json();
+				const user = responseJson;
 
-                console.log("User is logged-in", user);
-                store.needsToLogin = false; 
+				console.log("User is logged-in", user);
+				store.needsToLogin = false;
 
-                return user;
+				return user;
 			}
 
-			return fetchFromUrl("/api/login/v1/user").then(user => {
-                store.$patch({ account: user });
-                
-                return user;
-            }).catch(e => {
-                // Whatever the error, we tell the user needs to login
-                console.warn("User needs to login");
-                store.needsToLogin = true;
+			return fetchFromUrl("/api/login/v1/user")
+				.then((user) => {
+					store.$patch({ account: user });
 
-                const user = { error: e };
-                return user;
-            });
+					return user;
+				})
+				.catch((e) => {
+					// Whatever the error, we tell the user needs to login
+					console.warn("User needs to login");
+					store.needsToLogin = true;
+
+					const user = { error: e };
+					return user;
+				});
 		},
 
-        // @throws UserNeedsToLoginError if not logged-in
+		// @throws UserNeedsToLoginError if not logged-in
 		async ensureUser() {
 			if (Object.keys(this.account?.user || {}).length !== 0) {
 				// We have loaded a user: we assume it does not need to login
@@ -164,11 +157,11 @@ export const useKumiteStore = defineStore("kumite", {
 				// It will enbale checking we are actually logged-in
 				return this.loadUser().then((user) => {
 					if (this.needsToLogin) {
-                        // We are still not logged-in
+						// We are still not logged-in
 						throw new Error("The user needs to login");
 					} else if (user.error) {
-                        throw new Error("Issue when loading the user: " + user.error);
-                    }
+						throw new Error("Issue when loading the user: " + user.error);
+					}
 
 					return user;
 				});
@@ -184,11 +177,7 @@ export const useKumiteStore = defineStore("kumite", {
 					// Rely on session for authentication
 					const response = await fetch(url);
 					if (!response.ok) {
-						throw new NetworkError(
-							"Rejected request for games url" + url,
-							url,
-							response,
-						);
+						throw new NetworkError("Rejected request for games url" + url, url, response);
 					}
 
 					const responseJson = await response.json();
@@ -205,9 +194,7 @@ export const useKumiteStore = defineStore("kumite", {
 						() => store.tokens.access_token_expired,
 						(access_token_expired) => {
 							if (access_token_expired) {
-								console.log(
-									"access_token is expired. Triggering loadUserTokens",
-								);
+								console.log("access_token is expired. Triggering loadUserTokens");
 								store.loadUserTokens();
 							}
 						},
@@ -215,7 +202,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 					return tokens;
 				} catch (e) {
-                    store.onSwallowedError(e);
+					store.onSwallowedError(e);
 					return { error: e };
 				} finally {
 					store.nbAccountLoading--;
@@ -224,18 +211,13 @@ export const useKumiteStore = defineStore("kumite", {
 
 			return this.ensureUser().then(() => {
 				console.log("We do have a User. Let's fetch tokens");
-				return fetchFromUrl(
-					`/api/login/v1/token?player_id=${this.playingPlayerId}`,
-				);
+				return fetchFromUrl(`/api/login/v1/token?player_id=${this.playingPlayerId}`);
 			});
 		},
 
 		async loadIfMissingUserTokens() {
 			if (this.tokens.access_token && !this.tokens.access_token_expired) {
-				console.debug(
-					"Authenticated and an access_tokenTokens is stored",
-					this.tokens.access_token,
-				);
+				console.debug("Authenticated and an access_tokenTokens is stored", this.tokens.access_token);
 			} else {
 				await this.loadUserTokens();
 			}
@@ -251,11 +233,7 @@ export const useKumiteStore = defineStore("kumite", {
 			fetchOptions = fetchOptions || {};
 
 			// https://stackoverflow.com/questions/171251/how-can-i-merge-properties-of-two-javascript-objects
-			const mergeHeaders = Object.assign(
-				{},
-				apiHeaders,
-				fetchOptions.headers || {},
-			);
+			const mergeHeaders = Object.assign({}, apiHeaders, fetchOptions.headers || {});
 
 			const mergedFetchOptions = Object.assign({ method: "GET" }, fetchOptions);
 			mergedFetchOptions.headers = mergeHeaders;
@@ -263,13 +241,7 @@ export const useKumiteStore = defineStore("kumite", {
 			console.debug("->", mergedFetchOptions.method, url, mergedFetchOptions);
 
 			return fetch(url, mergedFetchOptions).then((response) => {
-				console.debug(
-					"<-",
-					mergedFetchOptions.method,
-					url,
-					mergedFetchOptions,
-					response,
-				);
+				console.debug("<-", mergedFetchOptions.method, url, mergedFetchOptions, response);
 
 				if (response.status == 401) {
 					this.tokens.access_token_expired = true;
@@ -292,9 +264,7 @@ export const useKumiteStore = defineStore("kumite", {
 				try {
 					const response = await store.authenticatedFetch(url);
 					if (!response.ok) {
-						throw new Error(
-							"Rejected request for current account players" + url,
-						);
+						throw new Error("Rejected request for current account players" + url);
 					}
 
 					const responseJson = await response.json();
@@ -310,7 +280,7 @@ export const useKumiteStore = defineStore("kumite", {
 						});
 					});
 				} catch (e) {
-                    store.onSwallowedError(e);
+					store.onSwallowedError(e);
 				} finally {
 					store.nbAccountLoading--;
 				}
@@ -326,9 +296,7 @@ export const useKumiteStore = defineStore("kumite", {
 				try {
 					const response = await store.authenticatedFetch(url);
 					if (!response.ok) {
-						throw new Error(
-							"Rejected request for players of contest=" + contestId,
-						);
+						throw new Error("Rejected request for players of contest=" + contestId);
 					}
 
 					const responseJson = await response.json();
@@ -425,7 +393,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 						return game;
 					} catch (e) {
-                        store.onSwallowedError(e);
+						store.onSwallowedError(e);
 
 						const game = {
 							gameId: gameId,
@@ -465,7 +433,7 @@ export const useKumiteStore = defineStore("kumite", {
 						});
 					});
 				} catch (e) {
-                    store.onSwallowedError(e);
+					store.onSwallowedError(e);
 				} finally {
 					store.nbContestFetching--;
 				}
@@ -510,11 +478,7 @@ export const useKumiteStore = defineStore("kumite", {
 					try {
 						const response = await store.authenticatedFetch(url);
 						if (!response.ok) {
-							throw new NetworkError(
-								"Rejected request for contest: " + contestId,
-								url,
-								response,
-							);
+							throw new NetworkError("Rejected request for contest: " + contestId, url, response);
 						}
 
 						const responseJson = await response.json();
@@ -531,7 +495,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 						return contest;
 					} catch (e) {
-                        store.onSwallowedError(e);
+						store.onSwallowedError(e);
 
 						const contest = {
 							contestId: contestId,
@@ -544,9 +508,7 @@ export const useKumiteStore = defineStore("kumite", {
 						store.nbContestFetching--;
 					}
 				}
-				return fetchFromUrl(
-					`/api/contests?game_id=${gameId}&contest_id=${contestId}`,
-				).then((contest) => {
+				return fetchFromUrl(`/api/contests?game_id=${gameId}&contest_id=${contestId}`).then((contest) => {
 					return this.mergeContest(contest);
 				});
 			});
@@ -581,11 +543,7 @@ export const useKumiteStore = defineStore("kumite", {
 					try {
 						const response = await store.authenticatedFetch(url);
 						if (!response.ok) {
-							throw new NetworkError(
-								"Rejected request for board: " + contestId,
-								url,
-								response,
-							);
+							throw new NetworkError("Rejected request for board: " + contestId, url, response);
 						}
 
 						const responseJson = await response.json();
@@ -593,7 +551,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 						return contestWithBoard;
 					} catch (e) {
-                        store.onSwallowedError(e);
+						store.onSwallowedError(e);
 
 						return {
 							contestId: contestId,
@@ -605,9 +563,9 @@ export const useKumiteStore = defineStore("kumite", {
 					}
 				}
 
-				return fetchFromUrl(
-					`/api/board?game_id=${gameId}&contest_id=${contestId}&player_id=${playerId}`,
-				).then((contestWithBoard) => this.mergeContest(contestWithBoard));
+				return fetchFromUrl(`/api/board?game_id=${gameId}&contest_id=${contestId}&player_id=${playerId}`).then((contestWithBoard) =>
+					this.mergeContest(contestWithBoard),
+				);
 			});
 		},
 
@@ -619,11 +577,7 @@ export const useKumiteStore = defineStore("kumite", {
 				try {
 					const response = await store.authenticatedFetch(url);
 					if (!response.ok) {
-						throw new NetworkError(
-							"Rejected request for leaderboard: " + contestId,
-							url,
-							response,
-						);
+						throw new NetworkError("Rejected request for leaderboard: " + contestId, url, response);
 					}
 
 					const responseJson = await response.json();
@@ -645,7 +599,7 @@ export const useKumiteStore = defineStore("kumite", {
 						},
 					});
 				} catch (e) {
-                    store.onSwallowedError(e);
+					store.onSwallowedError(e);
 
 					const leaderboard = {
 						contestId: contestId,
@@ -665,9 +619,7 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			return this.loadContestIfMissing(gameId, contestId).then(() =>
-				fetchFromUrl("/api/leaderboards?contest_id=" + contestId),
-			);
+			return this.loadContestIfMissing(gameId, contestId).then(() => fetchFromUrl("/api/leaderboards?contest_id=" + contestId));
 		},
 	},
 });

@@ -17,4 +17,4 @@ https://playwright.dev/docs/intro
 
 https://playwright.dev/docs/codegen-intro
 
-    npx playwright codegen
+    npx playwright codegen http://localhost:8080/

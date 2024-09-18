@@ -26,12 +26,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, [
-			"nbGameFetching",
-			"nbContestFetching",
-			"nbBoardFetching",
-			"playingPlayerId",
-		]),
+		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "nbBoardFetching", "playingPlayerId"]),
 		...mapState(useKumiteStore, {
 			game(store) {
 				return store.games[this.gameId];
@@ -50,9 +45,7 @@ export default {
 		const contest = ref(store.contests[props.contestId]);
 
 		// https://github.com/vuejs/core/issues/5818
-		const requiringPlayers = computed(
-			() => contest.value.dynamicMetadata.requiringPlayers,
-		);
+		const requiringPlayers = computed(() => contest.value.dynamicMetadata.requiringPlayers);
 
 		const shortPollBoardInterval = ref(null);
 

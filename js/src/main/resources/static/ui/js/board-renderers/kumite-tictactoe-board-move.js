@@ -80,19 +80,13 @@ export default {
 					return;
 				}
 
-				const line = new Line(
-					width * from.x,
-					height * from.y,
-					width * to.x,
-					height * to.y,
-				);
+				const line = new Line(width * from.x, height * from.y, width * to.x, height * to.y);
 				group.add(line);
 			}
 
 			move.cities.forEach((city, index) => {
 				if (index == 0) {
-					const previousCity =
-						cityToPosition[move.cities[move.cities.length - 1]];
+					const previousCity = cityToPosition[move.cities[move.cities.length - 1]];
 					const currentCity = cityToPosition[city];
 					checkAndAddLine(previousCity, currentCity, renderer);
 				} else {

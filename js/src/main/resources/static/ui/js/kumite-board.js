@@ -33,21 +33,16 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, [
-			"nbGameFetching",
-			"nbContestFetching",
-			"nbBoardFetching",
-			"playingPlayerId",
-		]),
+		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "nbBoardFetching", "playingPlayerId"]),
 		...mapState(useKumiteStore, {
 			game(store) {
-				return store.games[this.gameId] || {error: 'not_loaded'};
+				return store.games[this.gameId] || { error: "not_loaded" };
 			},
 			contest(store) {
-				return store.contests[this.contestId] || {error: 'not_loaded'};
+				return store.contests[this.contestId] || { error: "not_loaded" };
 			},
 			board(store) {
-				return store.contests[this.contestId]?.board || {error: 'not_loaded'};
+				return store.contests[this.contestId]?.board || { error: "not_loaded" };
 			},
 		}),
 	},
@@ -58,11 +53,7 @@ export default {
 		store
 			.loadCurrentAccountPlayers()
 			.then(() => {
-				return store.loadBoard(
-					props.gameId,
-					props.contestId,
-					store.playingPlayerId,
-				);
+				return store.loadBoard(props.gameId, props.contestId, store.playingPlayerId);
 			})
 			.then((board) => {
 				console.log("We loaded board", board);

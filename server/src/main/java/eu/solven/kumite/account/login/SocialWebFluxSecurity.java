@@ -141,6 +141,13 @@ public class SocialWebFluxSecurity {
 			log.warn("We disabled CORS and CSRF in API, as the API has stateless auth");
 		}
 
+		boolean fakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_USER));
+		if (fakeUser) {
+			log.warn("{}=true", IKumiteSpringProfiles.P_FAKE_USER);
+		} else {
+			log.info("{}=false", IKumiteSpringProfiles.P_FAKE_USER);
+		}
+
 		// We can disable CSRF as these routes are stateless, does not rely on any cookie/session, but on some JWT
 		return http
 
@@ -171,6 +178,10 @@ public class SocialWebFluxSecurity {
 						.permitAll()
 						// Some Login APIs are public
 						.pathMatchers("/api/login/v1/providers")
+						.permitAll()
+
+						// If fakeUser==true, we allow the reset route (for integration tests)
+						.pathMatchers(fakeUser ? "/api/clear" : "nonono")
 						.permitAll()
 
 						// The rest needs to be authenticated

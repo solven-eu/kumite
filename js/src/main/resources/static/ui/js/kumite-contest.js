@@ -27,10 +27,10 @@ export default {
 			type: Boolean,
 			default: true,
 		},
-        showLeaderboard: {
-            type: Boolean,
-            default: true,
-        },
+		showLeaderboard: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	computed: {
 		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching"]),
@@ -61,7 +61,7 @@ export default {
                 <span>Issue loading contestId={{contestId}}</span>
             </div>
         </div>
-            <div v-else-if="game.error || contest.error">{{game.error || contest.error}}</div>
+        <div v-else-if="game.error || contest.error">{{game.error || contest.error}}</div>
         <div v-else>
             <KumiteContestHeader :gameId="gameId" :contestId="contestId" />
             <KumiteGameHeader :gameId="gameId" v-if="showGame" />

@@ -25,12 +25,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, [
-			"nbGameFetching",
-			"nbContestFetching",
-			"nbBoardFetching",
-			"playingPlayerId",
-		]),
+		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "nbBoardFetching", "playingPlayerId"]),
 		...mapState(useKumiteStore, {
 			game(store) {
 				return store.games[this.gameId] || { error: "not_loaded" };
@@ -47,14 +42,7 @@ export default {
 			},
 		}),
 		curlGetBoard() {
-			return (
-				"curl " +
-				window.location.protocol +
-				"//" +
-				window.location.host +
-				"/api/board?contest_id=" +
-				this.contestId
-			);
+			return "curl " + window.location.protocol + "//" + window.location.host + "/api/board?contest_id=" + this.contestId;
 		},
 	},
 	setup(props) {

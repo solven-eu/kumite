@@ -7,8 +7,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import eu.solven.kumite.board.IKumiteBoard;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @AllArgsConstructor
+@Slf4j
 public class InMemoryBoardRepository implements IBoardRepository {
 	final Map<UUID, IKumiteBoard> contestIdToBoard = new ConcurrentHashMap<>();
 
@@ -34,5 +36,11 @@ public class InMemoryBoardRepository implements IBoardRepository {
 		if (previousBoard == null) {
 			throw new IllegalStateException("The board was not already present");
 		}
+	}
+
+	public void clear() {
+		long size = contestIdToBoard.size();
+		log.info("We reset {} boards", size);
+		contestIdToBoard.clear();
 	}
 }

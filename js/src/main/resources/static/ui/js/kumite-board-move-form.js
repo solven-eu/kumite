@@ -41,12 +41,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, [
-			"nbGameFetching",
-			"nbContestFetching",
-			"nbBoardFetching",
-			"playingPlayerId",
-		]),
+		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "nbBoardFetching", "playingPlayerId"]),
 		...mapState(useKumiteStore, {
 			game(store) {
 				return store.games[this.gameId] || { error: "not_loaded" };
@@ -63,14 +58,7 @@ export default {
 			},
 		}),
 		curlPostBoard() {
-			return (
-				"curl " +
-				window.location.protocol +
-				"//" +
-				window.location.host +
-				"/api/board?contest_id=" +
-				this.contestId
-			);
+			return "curl " + window.location.protocol + "//" + window.location.host + "/api/board?contest_id=" + this.contestId;
 		},
 	},
 	setup(props) {
@@ -115,9 +103,7 @@ export default {
 			// const viewingPlayerId = "00000000-0000-0000-0000-000000000000";
 			// const playerId = viewingPlayerId;
 			const playerId = store.playingPlayerId;
-			fetchFromUrl(
-				`/api/board/moves?contest_id=${props.contestId}&player_id=${playerId}`,
-			);
+			fetchFromUrl(`/api/board/moves?contest_id=${props.contestId}&player_id=${playerId}`);
 		}
 		function fillMove(json) {
 			this.rawMove = JSON.stringify(json);
@@ -147,15 +133,7 @@ export default {
 					};
 					const response = await store.authenticatedFetch(url, fetchOptions);
 					if (!response.ok) {
-						throw new NetworkError(
-							"POST has failed (" +
-								response.statusText +
-								" - " +
-								response.status +
-								")",
-							url,
-							response,
-						);
+						throw new NetworkError("POST has failed (" + response.statusText + " - " + response.status + ")", url, response);
 					}
 
 					// debugger;
@@ -176,9 +154,7 @@ export default {
 			}
 
 			const playerId = store.playingPlayerId;
-			return postFromUrl(
-				`/api/board/move?contest_id=${contestId}&player_id=${playerId}`,
-			);
+			return postFromUrl(`/api/board/move?contest_id=${contestId}&player_id=${playerId}`);
 		}
 
 		// We load current accountPlayers to enable player registration
