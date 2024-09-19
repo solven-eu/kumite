@@ -26,8 +26,8 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
-    - name: Download dependencies
-      # This is useful not to clutter the package command with download logs
-      run: mvn dependency:resolve dependency:resolve-plugins --batch-mode
+    #- name: Download dependencies
+    #  # This is useful not to clutter the package command with download logs
+    #  run: mvn dependency:resolve dependency:resolve-plugins --batch-mode
     - name: Check with Spotless
       run: mvn spotless:check --file pom.xml --batch-mode
