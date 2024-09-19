@@ -28,7 +28,7 @@ spring:
 logging:
     level:
         org.springframework.security: INFO
-        org.springframework.web.reactive: DEBUG
+        org.springframework.web.reactive: INFO
         eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter: DEBUG
         eu.solven.kumite.app.webflux.KumiteWebExceptionHandler: DEBUG
 
