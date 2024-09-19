@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Kumite CI
+name: Kumite Java CI
 
 on:
   push:
@@ -30,10 +30,10 @@ jobs:
       run: mvn package --file pom.xml --batch-mode
 
     # https://stackoverflow.com/questions/57498605/github-actions-share-workspace-artifacts-between-jobs
-    - uses: actions/upload-artifact@master
-        with:
-          name: kumite-server
-          path: server/target/*-exec.jar
+    - uses: actions/upload-artifact@v4
+      with:
+        name: kumite-server
+        path: server/target/*-exec.jar
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
