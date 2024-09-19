@@ -9,12 +9,12 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class KumitePublicController {
 
-	@GetMapping("/api/public")
+	@GetMapping("/api/v1/public")
 	public String publicEndpoint() {
 		return "This is a public endpoint";
 	}
 
-	@GetMapping("/api/private")
+	@GetMapping("/api/v1/private")
 	public String privateEndpoint() {
 		return "This is a private endpoint";
 	}

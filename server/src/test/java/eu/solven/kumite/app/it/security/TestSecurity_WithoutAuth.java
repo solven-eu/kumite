@@ -22,6 +22,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import eu.solven.kumite.account.login.SocialWebFluxSecurity;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.controllers.KumiteLoginController;
+import eu.solven.kumite.app.controllers.KumitePublicController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,11 +41,12 @@ public class TestSecurity_WithoutAuth {
 	@Test
 	public void testApiPublic() {
 		log.debug("About {}", GreetingHandler.class);
+		log.debug("About {}", KumitePublicController.class);
 
 		webTestClient
 
 				.get()
-				.uri("/api/public")
+				.uri("/api/v1/public")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 

@@ -26,6 +26,7 @@ import eu.solven.kumite.account.login.KumiteOAuth2UserService;
 import eu.solven.kumite.account.login.SocialWebFluxSecurity;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.controllers.KumiteLoginController;
+import eu.solven.kumite.app.controllers.KumitePublicController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.scenario.TestTSPLifecycle;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +58,7 @@ public class TestSecurity_WithOAuth2User {
 	@Test
 	public void testApiPublic() {
 		log.debug("About {}", GreetingHandler.class);
+		log.debug("About {}", KumitePublicController.class);
 
 		webTestClient
 
