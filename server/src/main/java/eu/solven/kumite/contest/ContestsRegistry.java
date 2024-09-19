@@ -48,7 +48,7 @@ public class ContestsRegistry {
 		}
 
 		Optional<ContestCreationMetadata> optAlreadyIn = contestsRepository.putIfAbsent(contestId, contest);
-		if (optAlreadyIn.isEmpty()) {
+		if (optAlreadyIn.isPresent()) {
 			log.warn("Trying to initialize multiple times board for contestId={}", contestId);
 		}
 		return optAlreadyIn;

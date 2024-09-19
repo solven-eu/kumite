@@ -36,6 +36,9 @@ public interface IKumiteSpringProfiles {
 	// Checks there is not a single unsafe|fake configurations activated
 	String P_SECURED = "secured";
 
+	// Opposite to devmode. Should be activated in production
+	String P_PRODMODE = "prodmode";
+
 	// InMemory enables easy run but lack of persistence
 	String P_INMEMORY = "inmemory";
 	// Redis will use some Redis persistence storage

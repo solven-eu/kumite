@@ -9,12 +9,14 @@ spring:
                 # fake_user introduces a default fakeAccount with a default fakePlayer
                 - fake_user
                 - inmemory
+                - prodmode
             default_server:
                 - inject_default_games
             secured:
                 - default_server
             heroku:
                 - secured
+                - prodmode
             unsafe:
                 - default_server
                 # unsafe_server provides unsafe security (JWT signature, etc)

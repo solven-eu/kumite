@@ -1,11 +1,15 @@
 package eu.solven.kumite.app.webflux;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 import org.springdoc.webflux.core.fn.SpringdocRouteBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.RequestPredicates;
@@ -37,6 +41,8 @@ public class KumiteSpaRouter {
 			log.info("We should rely on PRD resources in `index.html`");
 		}
 
+		Resource filteredIndexHtml = filterIndexHTMl(env, indexHtml);
+
 		Mono<ServerResponse> responseIndexHtml =
 				ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml);
 
@@ -51,5 +57,53 @@ public class KumiteSpaRouter {
 						ops -> ops.operationId("spaToLogin"))
 
 				.build();
+	}
+
+	private Resource filterIndexHTMl(Environment env, Resource indexHtmlResource) {
+		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_PRODMODE))) {
+			String indexHtml;
+			try {
+				indexHtml = indexHtmlResource.getContentAsString(StandardCharsets.UTF_8);
+			} catch (IOException e) {
+				throw new IllegalStateException("Issue loading " + indexHtmlResource, e);
+			}
+
+			indexHtml = minifyHtml(indexHtml);
+
+			String fileName = indexHtmlResource.getFilename();
+			log.info("{} has been minified", fileName);
+
+			return new ByteArrayResource(indexHtml.getBytes(StandardCharsets.UTF_8),
+					"fileName <minified for %s>".formatted(IKumiteSpringProfiles.P_PRODMODE));
+		} else {
+			return indexHtmlResource;
+		}
+	}
+
+	/**
+	 * This minification consists essentially in referring to minified external dependencies.
+	 * 
+	 * @param indexHtml
+	 * @return a minified version of index.html
+	 */
+	private String minifyHtml(String indexHtml) {
+		String minified = indexHtml;
+
+		minified = minified.replace("/bootstrap.css", "/bootstrap.min.css");
+		minified = minified.replace("/bootstrap-icons.css", "/bootstrap-icons.min.css");
+
+		minified = minified.replace("/vue.esm-browser.js", "/vue.esm-browser.min.js");
+		minified = minified.replace("/vue-router.esm-browser.js", "/vue-router.esm-browser.min.js");
+		minified = minified.replace("/bootstrap.esm.js", "/bootstrap.esm.min.js");
+
+		// https://unpkg.com/@vue/devtools-api@6.2.1/lib/esm/index.js
+		minified = minified.replace("/lib/esm/index.js", "/lib/esm/index.js");
+		// https://unpkg.com/@popperjs/core@2.11.8/dist/esm/index.js"
+		minified = minified.replace("/dist/esm/index.js", "/dist/esm/index.js");
+		minified = minified.replace("/pinia.esm-browser.js", "/pinia.esm-browser.min.js");
+		minified = minified.replace("/vue-demi/lib/v3/index.mjs", "/vue-demi/lib/v3/index.min.mjs");
+		minified = minified.replace("/vue.esm-browser.js", "/vue.esm-browser.min.js");
+
+		return minified;
 	}
 }

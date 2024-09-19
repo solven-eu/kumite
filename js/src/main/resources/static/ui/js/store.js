@@ -423,7 +423,8 @@ export const useKumiteStore = defineStore("kumite", {
 
 					console.debug("responseJson", responseJson);
 
-					responseJson.forEach((contest) => {
+                    const contests = responseJson;
+					contests.forEach((contest) => {
 						console.log("Registering contestId", contest.contestId);
 						store.$patch({
 							contests: {
@@ -432,8 +433,10 @@ export const useKumiteStore = defineStore("kumite", {
 							},
 						});
 					});
+                    return contests;
 				} catch (e) {
 					store.onSwallowedError(e);
+                    return [];
 				} finally {
 					store.nbContestFetching--;
 				}

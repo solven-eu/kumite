@@ -138,7 +138,7 @@ public class SocialWebFluxSecurity {
 			ReactiveJwtDecoder jwtDecoder) {
 		if (DISABLE_CSRF_CORS) {
 			// i.e. authentication based on a JWT as header, not automated auth through cookie and session
-			log.warn("We disabled CORS and CSRF in API, as the API has stateless auth");
+			log.info("We disabled CORS and CSRF in API, as the API has stateless auth");
 		}
 
 		boolean fakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_USER));

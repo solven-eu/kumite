@@ -85,6 +85,8 @@ export default {
                 >
                 <RouterLink :to="{path:'/html/games/' + gameId}"><i class="bi bi-arrow-90deg-left"></i></RouterLink>
             </h2>
+
+                author: {{contest.constantMetadata.author}} created: {{contest.constantMetadata.created}}
         </span>
     `,
 };

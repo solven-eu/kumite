@@ -64,7 +64,8 @@ export default {
         <div v-else-if="game.error || contest.error">{{game.error || contest.error}}</div>
         <div v-else>
             <KumiteContestHeader :gameId="gameId" :contestId="contestId" />
-            <KumiteGameHeader :gameId="gameId" v-if="showGame" />
+        
+            <KumiteGameHeader :gameId="gameId" :withDescription="false" v-if="showGame" />
 
             <div v-if="contest.dynamicMetadata.acceptingPlayers">
                 <RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + contestId + '/board'}">

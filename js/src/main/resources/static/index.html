@@ -9,7 +9,7 @@
         <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.css" />
         <!-- https://icons.getbootstrap.com/ -->
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-        <title>Kumite</title>
+        <title>Kumite Contests</title>
     </head>
     <body>
         <!-- https://vuejs.org/guide/quick-start -->
@@ -47,7 +47,7 @@
             import KumiteGames from "./ui/js/kumite-games.js";
             import KumiteGame from "./ui/js/kumite-game.js";
             import KumiteContestForm from "./ui/js/kumite-contest-form.js";
-            import KumiteContests from "./ui/js/kumite-contests.js";
+            import KumiteSearchContests from "./ui/js/kumite-search-contests.js";
             import KumiteContest from "./ui/js/kumite-contest.js";
             import KumiteBoard from "./ui/js/kumite-board.js";
             import LoginChecker from "./ui/js/login-checker.js";
@@ -64,7 +64,16 @@
                     component: KumiteGame,
                     props: true,
                 },
-                { path: "/html/contests", component: KumiteContests },
+                {
+                    path: "/html/games/:gameId/contests",
+                    component: KumiteGame,
+                    // https://stackoverflow.com/questions/47869676/combine-parameters-from-url-with-props-object-in-vue-router-config
+                    props:                     route => ({
+                      gameId: route.params.gameId,
+                      showContests: true,
+                    }) 
+                },
+                { path: "/html/contests", component: KumiteSearchContests },
                 {
                     path: "/html/games/:gameId/contest-form",
                     component: KumiteContestForm,

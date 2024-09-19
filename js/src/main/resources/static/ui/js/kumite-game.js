@@ -1,3 +1,5 @@
+import { ref } from "vue";
+
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
@@ -16,10 +18,14 @@ export default {
 	},
 	// https://vuejs.org/guide/components/props.html
 	props: {
-		gameId: {
-			type: String,
-			required: true,
-		},
+        gameId: {
+            type: String,
+            required: true,
+        },
+        showContests: {
+            type: Boolean,
+            default: false,
+        },
 	},
 	computed: {
 		...mapState(useKumiteStore, ["nbGameFetching", "metadata"]),
@@ -35,19 +41,25 @@ export default {
 
 		const store = useKumiteStore();
 
-		store.loadMetadata();
+		//store.loadMetadata();
 		// const gameRef = ref(store.game);
 
 		// console.log("gameId", props.gameId);
 		// console.log("game", props.game);
 
-		store.loadGameIfMissing(props.gameId);
+        const nbContests = ref("...");
+        
+		store.loadGameIfMissing(props.gameId).then(() => {
+            store.loadContests(props.gameId).then(contests => {
+                nbContests.value = contests.length;
+            });
+        });
 
 		// https://getbootstrap.com/docs/5.3/components/tooltips/
 		// https://stackoverflow.com/questions/69053972/adding-bootstrap-5-tooltip-to-vue-3
 		new Tooltip(document.body, { selector: "[data-bs-toggle='tooltip']" });
 
-		return {};
+		return {nbContests};
 	},
 	template: /* HTML */ `
         <div v-if="!game && nbGameFetching > 0">Loading <RouterLink :to="{path:'/html/games/' + gameId}">game={{gameId}}</RouterLink></div>
@@ -62,9 +74,15 @@ export default {
             <ul v-for="ref in game.references">
                 <li><a :href="ref" target="_blank">{{ref}}</a></li>
             </ul>
+            
+            <span v-if="showContests">
+                <KumiteContests :gameId="gameId" :showGame="false" />
+            </span>
+            <span v-else>
+                <RouterLink :to="{path:'/html/games/' + game.gameId + '/contests'}"><i class="bi bi-trophy"></i> Join an existing contest ({{nbContests}})</RouterLink><br/>
+            </span>
 
-            <RouterLink :to="{path:'/html/games/' + game.gameId + '/contest-form'}"><i class="bi bi-trophy"></i> Create your own contest</RouterLink>
-            <KumiteContests :gameId="gameId" :showGame="false" />
+            <RouterLink :to="{path:'/html/games/' + game.gameId + '/contest-form'}"><i class="bi bi-node-plus"></i> Create your own contest</RouterLink><br/>
         </div>
     `,
 };
