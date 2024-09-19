@@ -28,6 +28,7 @@ import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.controllers.KumiteLoginController;
 import eu.solven.kumite.app.controllers.KumitePublicController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
+import eu.solven.kumite.app.webflux.AccessTokenHandler;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -65,7 +66,7 @@ public class TestSecurity_WithJwtUser {
 		webTestClient
 
 				.get()
-				.uri("/api/public")
+				.uri("/api/v1/public")
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
@@ -169,7 +170,7 @@ public class TestSecurity_WithJwtUser {
 
 		webTestClient.get()
 
-				.uri("/api/private")
+				.uri("/api/v1/private")
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
@@ -229,5 +230,19 @@ public class TestSecurity_WithJwtUser {
 		} else {
 			expectStatus.isForbidden();
 		}
+	}
+
+	@Test
+	public void testLongLivedJwt() {
+		log.debug("About {}", AccessTokenHandler.class);
+
+		StatusAssertions expectStatus = webTestClient.get()
+				.uri("/api/v1/token?player_id=11111111-1111-1111-1111-111111111111")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+				.expectStatus();
+
+		expectStatus.isNotFound();
 	}
 }

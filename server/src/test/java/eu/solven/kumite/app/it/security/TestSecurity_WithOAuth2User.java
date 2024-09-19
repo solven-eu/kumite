@@ -63,7 +63,7 @@ public class TestSecurity_WithOAuth2User {
 		webTestClient
 
 				.get()
-				.uri("/api/public")
+				.uri("/api/v1/public")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 

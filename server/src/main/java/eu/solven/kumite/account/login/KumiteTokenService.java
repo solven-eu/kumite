@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -25,6 +24,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 import eu.solven.kumite.account.KumiteUser;
+import eu.solven.kumite.login.AccessTokenHolder;
 import eu.solven.kumite.tools.IUuidGenerator;
 import eu.solven.kumite.tools.JdkUuidGenerator;
 import lombok.SneakyThrows;
@@ -122,7 +122,7 @@ public class KumiteTokenService {
 	 * @return The generated JWT access token.
 	 * @throws IllegalStateException
 	 */
-	public Map<String, ?> wrapInJwtToken(KumiteUser user, UUID playerId) {
+	public AccessTokenHolder wrapInJwtToken(KumiteUser user, UUID playerId) {
 		Duration accessTokenValidity = Duration.parse(env.getProperty(KEY_ACCESSTOKEN_EXP, "PT1H"));
 
 		if (accessTokenValidity.compareTo(Duration.parse("PT1H")) > 0) {
@@ -133,11 +133,13 @@ public class KumiteTokenService {
 		String accessToken = generateAccessToken(user, Set.of(playerId), accessTokenValidity);
 
 		// https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
-		return Map.ofEntries(Map.entry("access_token", accessToken),
-				Map.entry("player_id", playerId),
-				Map.entry("token_type", "Bearer"),
-				// https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
-				Map.entry("expires_in", accessTokenValidity.toSeconds()));
+		return AccessTokenHolder.builder()
+				.accessToken(accessToken)
+				.playerId(playerId)
+				.tokenType("Bearer")
+				.expiresIn(accessTokenValidity.toSeconds())
+				.build();
+
 	}
 
 }

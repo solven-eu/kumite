@@ -24,6 +24,7 @@ import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.webflux.LoginRouteButNotAuthenticatedException;
+import eu.solven.kumite.login.AccessTokenHolder;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -71,12 +72,24 @@ public class KumiteLoginController {
 		} else {
 			return oauth2User.map(o -> {
 				String providerId = guessProviderId(o);
-				String sub = o.getAttribute("id").toString();
+				String sub = getSub(providerId, o);
 				KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId(providerId).sub(sub).build();
 				KumiteUser user = usersRegistry.getUser(rawRaw);
 
 				return user;
 			}).switchIfEmpty(Mono.error(() -> new IllegalArgumentException("No user")));
+		}
+	}
+
+	private String getSub(String providerId, OAuth2User o) {
+		if ("github".equals(providerId)) {
+			Object sub = o.getAttribute("id");
+			if (sub == null) {
+				throw new IllegalStateException("Invalid sub: " + sub);
+			}
+			return sub.toString();
+		} else {
+			throw new IllegalStateException("Not managed providerId: " + providerId);
 		}
 	}
 
@@ -88,7 +101,7 @@ public class KumiteLoginController {
 	}
 
 	@GetMapping("/token")
-	public Mono<Map<String, ?>> token(@AuthenticationPrincipal Mono<OAuth2User> oauth2User,
+	public Mono<AccessTokenHolder> token(@AuthenticationPrincipal Mono<OAuth2User> oauth2User,
 			@RequestParam(name = "player_id", required = false) String rawPlayerId) {
 		return user(oauth2User).map(user -> {
 			UUID playerId = KumiteHandlerHelper.optUuid(Optional.ofNullable(rawPlayerId)).orElse(user.getPlayerId());

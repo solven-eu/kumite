@@ -21,6 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 		LeaderboardHandler.class,
 		WebhooksHandler.class,
 
+		KumiteLoginRouter.class,
+		AccessTokenHandler.class,
+
 })
 @Slf4j
 public class KumiteWebFluxConfiguration {

@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -29,7 +28,6 @@ import eu.solven.kumite.player.PlayerMovesHandler;
 import eu.solven.kumite.player.PlayersSearchHandler;
 import eu.solven.kumite.webhook.WebhooksHandler;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
 
 /**
  * Redirect each route (e.g. `/games/someGameId`) to the appropriate handler.
@@ -122,17 +120,15 @@ public class KumiteApiRouter {
 				.filter((request, next) -> {
 					Optional<UUID> optPlayerId = KumiteHandlerHelper.optUuid(request, "player_id");
 
-					return Mono.justOrEmpty(optPlayerId).map(queryPlayerId -> {
-						Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-						log.debug("1We need to check if playerId={} is valid given JWT={}", queryPlayerId, auth);
-
-						return ReactiveSecurityContextHolder.getContext().map(securityContext -> {
-							log.debug("2We need to check if playerId={} is valid given JWT={}",
+					return ReactiveSecurityContextHolder.getContext().map(securityContext -> {
+						Authentication authentication = securityContext.getAuthentication();
+						optPlayerId.ifPresent(queryPlayerId -> {
+							log.info("We need to check if playerId={} is valid given JWT={}",
 									queryPlayerId,
-									securityContext.getAuthentication());
-
-							return Mono.empty();
+									authentication);
 						});
+
+						return authentication;
 					}).then(next.handle(request));
 				}, ops -> {
 				})

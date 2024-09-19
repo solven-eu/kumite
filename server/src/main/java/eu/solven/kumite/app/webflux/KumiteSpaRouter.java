@@ -31,7 +31,7 @@ import reactor.core.publisher.Mono;
 public class KumiteSpaRouter {
 
 	@Value("classpath:/static/index.html")
-	private Resource indexHtml;
+	Resource indexHtml;
 
 	// https://github.com/springdoc/springdoc-openapi-demos/tree/2.x/springdoc-openapi-spring-boot-2-webflux-functional
 	// https://stackoverflow.com/questions/6845772/should-i-use-singular-or-plural-name-convention-for-rest-resources
@@ -41,10 +41,10 @@ public class KumiteSpaRouter {
 			log.info("We should rely on PRD resources in `index.html`");
 		}
 
-		Resource filteredIndexHtml = filterIndexHTMl(env, indexHtml);
+		Resource filteredIndexHtml = filterIndexHtmlMl(env, indexHtml);
 
 		Mono<ServerResponse> responseIndexHtml =
-				ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(indexHtml);
+				ServerResponse.ok().contentType(MediaType.TEXT_HTML).bodyValue(filteredIndexHtml);
 
 		return SpringdocRouteBuilder.route()
 
@@ -59,7 +59,7 @@ public class KumiteSpaRouter {
 				.build();
 	}
 
-	private Resource filterIndexHTMl(Environment env, Resource indexHtmlResource) {
+	private Resource filterIndexHtmlMl(Environment env, Resource indexHtmlResource) {
 		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_PRODMODE))) {
 			String indexHtml;
 			try {
@@ -86,23 +86,28 @@ public class KumiteSpaRouter {
 	 * @param indexHtml
 	 * @return a minified version of index.html
 	 */
-	private String minifyHtml(String indexHtml) {
+	String minifyHtml(String indexHtml) {
 		String minified = indexHtml;
 
 		minified = minified.replace("/bootstrap.css", "/bootstrap.min.css");
 		minified = minified.replace("/bootstrap-icons.css", "/bootstrap-icons.min.css");
 
-		minified = minified.replace("/vue.esm-browser.js", "/vue.esm-browser.min.js");
-		minified = minified.replace("/vue-router.esm-browser.js", "/vue-router.esm-browser.min.js");
+		minified = minified.replace("/vue.esm-browser.js", "/vue.esm-browser.prod.js");
+		// https://github.com/vuejs/router/issues/694
+		// minified = minified.replace("/vue-router.esm-browser.js", "/vue-router.esm-browser.???.js");
+
 		minified = minified.replace("/bootstrap.esm.js", "/bootstrap.esm.min.js");
 
 		// https://unpkg.com/@vue/devtools-api@6.2.1/lib/esm/index.js
 		minified = minified.replace("/lib/esm/index.js", "/lib/esm/index.js");
 		// https://unpkg.com/@popperjs/core@2.11.8/dist/esm/index.js"
 		minified = minified.replace("/dist/esm/index.js", "/dist/esm/index.js");
-		minified = minified.replace("/pinia.esm-browser.js", "/pinia.esm-browser.min.js");
+
+		// No minified Pinia ESM?
+		// minified = minified.replace("/pinia.esm-browser.js", "/pinia.esm-browser.min.js");
+
 		minified = minified.replace("/vue-demi/lib/v3/index.mjs", "/vue-demi/lib/v3/index.min.mjs");
-		minified = minified.replace("/vue.esm-browser.js", "/vue.esm-browser.min.js");
+		minified = minified.replace("/vue.esm-browser.js", "/vue.esm-browser.prod.js");
 
 		return minified;
 	}
