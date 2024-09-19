@@ -3,12 +3,13 @@ package eu.solven.kumite.player;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
-import eu.solven.kumite.player.PlayersSearchParameters.PlayersSearchParametersBuilder;
+import eu.solven.kumite.player.PlayerSearchParameters.PlayerSearchParametersBuilder;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -18,21 +19,32 @@ public class PlayersSearchHandler {
 	final IAccountPlayersRegistry accountPlayersRegistry;
 
 	public Mono<ServerResponse> listPlayers(ServerRequest request) {
-		PlayersSearchParametersBuilder parametersBuilder = PlayersSearchParameters.builder();
+		PlayerSearchParametersBuilder parametersBuilder = PlayerSearchParameters.builder();
 
-		Optional<String> optContestId = request.queryParam("contest_id");
-		optContestId.ifPresent(rawContestId -> parametersBuilder.contestId(Optional.of(UUID.fromString(rawContestId))));
+		Optional<UUID> optContestId = KumiteHandlerHelper.optUuid(request, "contest_id");
+		optContestId.ifPresent(contestId -> parametersBuilder.contestId(Optional.of(contestId)));
 
-		Optional<String> optAccountId = request.queryParam("account_id");
-		optAccountId.ifPresent(rawAccountId -> parametersBuilder.accountId(Optional.of(UUID.fromString(rawAccountId))));
+		Optional<UUID> optAccountId = KumiteHandlerHelper.optUuid(request, "account_id");
+		optAccountId.ifPresent(accountId -> parametersBuilder.accountId(Optional.of(accountId)));
 
-		PlayersSearchParameters search = parametersBuilder.build();
+		Optional<UUID> optPlayerId = KumiteHandlerHelper.optUuid(request, "player_id");
+		optPlayerId.ifPresent(playerId -> parametersBuilder.playerId(Optional.of(playerId)));
+
+		PlayerSearchParameters search = parametersBuilder.build();
 
 		List<KumitePlayer> players;
 		if (optContestId.isPresent()) {
 			players = contestsPlayersRegistry.makeDynamicHasPlayers(search.getContestId().get()).getPlayers();
 		} else if (optAccountId.isPresent()) {
 			players = accountPlayersRegistry.makeDynamicHasPlayers(search.getAccountId().get()).getPlayers();
+		} else if (optPlayerId.isPresent()) {
+			UUID playerId = search.getPlayerId().get();
+			UUID accountId = accountPlayersRegistry.getAccountId(playerId);
+			players = accountPlayersRegistry.makeDynamicHasPlayers(accountId)
+					.getPlayers()
+					.stream()
+					.filter(p -> p.getPlayerId().equals(playerId))
+					.collect(Collectors.toList());
 		} else {
 			throw new IllegalArgumentException("Need at least one filtering clause");
 		}

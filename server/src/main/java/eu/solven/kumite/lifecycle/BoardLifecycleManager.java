@@ -12,9 +12,9 @@ import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.contest.Contest;
+import eu.solven.kumite.move.PlayerMoveRaw;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.PlayerJoinRaw;
-import eu.solven.kumite.player.PlayerMoveRaw;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

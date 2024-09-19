@@ -15,6 +15,8 @@ import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.lifecycle.BoardLifecycleManager;
+import eu.solven.kumite.move.IKumiteMove;
+import eu.solven.kumite.move.PlayerMoveRaw;
 import eu.solven.kumite.player.PlayerJoinRaw.PlayerJoinRawBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

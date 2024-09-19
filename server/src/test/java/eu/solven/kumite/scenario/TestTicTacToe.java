@@ -20,8 +20,8 @@ import eu.solven.kumite.contest.IHasGameover;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToe;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToeBoard;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToeMove;
-import eu.solven.kumite.player.IKumiteMove;
-import eu.solven.kumite.player.PlayerMoveRaw;
+import eu.solven.kumite.move.IKumiteMove;
+import eu.solven.kumite.move.PlayerMoveRaw;
 
 public class TestTicTacToe {
 	ObjectMapper objectMapper = new ObjectMapper();

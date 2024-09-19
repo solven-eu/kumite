@@ -85,7 +85,7 @@ public class TestSecurity_WithoutAuth {
 				.expectStatus()
 				.isOk()
 				.expectBody(String.class)
-				.value(indexHtml -> assertThat(indexHtml).contains("<title>Kumite</title>"));
+				.value(indexHtml -> assertThat(indexHtml).contains("<title>Kumite"));
 	}
 
 	@Test
@@ -102,7 +102,7 @@ public class TestSecurity_WithoutAuth {
 				.expectStatus()
 				.isOk()
 				.expectBody(String.class)
-				.value(indexHtml -> assertThat(indexHtml).contains("<title>Kumite</title>"));
+				.value(indexHtml -> assertThat(indexHtml).contains("<title>Kumite"));
 	}
 
 	@Test

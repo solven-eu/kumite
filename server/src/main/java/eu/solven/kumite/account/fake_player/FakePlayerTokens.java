@@ -53,7 +53,7 @@ public class FakePlayerTokens {
 	}
 
 	public static KumitePlayer fakePlayer() {
-		return KumitePlayer.builder().playerId(FAKE_PLAYER_ID1).build();
+		return KumitePlayer.builder().playerId(FAKE_PLAYER_ID1).accountId(FAKE_ACCOUNT_ID).build();
 	}
 
 }

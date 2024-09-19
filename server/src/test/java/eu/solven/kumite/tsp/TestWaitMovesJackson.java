@@ -9,8 +9,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.solven.kumite.player.WaitForPlayersMove;
-import eu.solven.kumite.player.WaitForSignups;
+import eu.solven.kumite.move.WaitForPlayersMove;
+import eu.solven.kumite.move.WaitForSignups;
 
 public class TestWaitMovesJackson {
 	final ObjectMapper objectMapper = new ObjectMapper();

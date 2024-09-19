@@ -2,6 +2,7 @@ package eu.solven.kumite.player;
 
 import java.util.UUID;
 
+import eu.solven.kumite.move.PlayerMoveRaw;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;

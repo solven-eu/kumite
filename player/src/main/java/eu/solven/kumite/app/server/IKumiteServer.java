@@ -9,8 +9,10 @@ import eu.solven.kumite.contest.ContestView;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchParameters;
 import eu.solven.kumite.leaderboard.LeaderboardRaw;
+import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerContestStatus;
 import eu.solven.kumite.player.PlayerRawMovesHolder;
+import eu.solven.kumite.player.PlayerSearchParameters;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -24,6 +26,8 @@ public interface IKumiteServer {
 	Flux<GameMetadata> searchGames(GameSearchParameters search);
 
 	Flux<ContestMetadataRaw> searchContests(ContestSearchParameters contestSearchParameters);
+
+	Flux<KumitePlayer> searchPlayers(PlayerSearchParameters playerSearchParameters);
 
 	Mono<ContestView> loadBoard(UUID playerId, UUID contestId);
 

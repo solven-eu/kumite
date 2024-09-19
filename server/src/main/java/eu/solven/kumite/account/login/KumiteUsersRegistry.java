@@ -52,7 +52,8 @@ public class KumiteUsersRegistry {
 	}
 
 	public KumitePlayer getAccountMainPlayer(UUID accountId) {
-		return KumitePlayer.builder().playerId(getUser(accountId).getPlayerId()).build();
+		KumiteUser user = getUser(accountId);
+		return KumitePlayer.builder().playerId(user.getPlayerId()).accountId(accountId).build();
 	}
 
 }

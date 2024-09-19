@@ -68,6 +68,13 @@ public class InjectDefaultGamesConfig {
 
 	@Bean
 	public Void injectStaticContests(Environment env, ActiveContestGenerator activeContestGenerator) {
+		{
+			// This is useful for unitTests, to get contests right-away.
+			// it is OK for PRD as this generation is supposedly very fast
+			log.info("We generate contests synchronously");
+			activeContestGenerator.makeContestsIfNoneJoinable();
+		}
+
 		Duration periodEnsureActiveContests =
 				env.getProperty(KEY_INJECTDEFAULTCONTESTS_PERIOD, Duration.class, Duration.ofSeconds(15));
 		log.info("Contests for games without joinable contest will be generated every {}", periodEnsureActiveContests);
@@ -76,7 +83,7 @@ public class InjectDefaultGamesConfig {
 		Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(() -> {
 			log.debug("About to generate contests for games without joinable contest");
 			activeContestGenerator.makeContestsIfNoneJoinable();
-		}, 1, seconds, TimeUnit.SECONDS);
+		}, seconds, seconds, TimeUnit.SECONDS);
 
 		return null;
 	}

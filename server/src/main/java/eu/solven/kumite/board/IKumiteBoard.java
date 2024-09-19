@@ -5,8 +5,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.solven.kumite.player.KumitePlayer;
-import eu.solven.kumite.player.PlayerMoveRaw;
+import eu.solven.kumite.move.PlayerMoveRaw;
 
 /**
  * Needs to be serializable to {@link String} by {@link ObjectMapper}.
@@ -24,5 +23,5 @@ public interface IKumiteBoard {
 
 	IKumiteBoardView asView(UUID playerId);
 
-	List<KumitePlayer> snapshotPlayers();
+	List<UUID> snapshotPlayers();
 }

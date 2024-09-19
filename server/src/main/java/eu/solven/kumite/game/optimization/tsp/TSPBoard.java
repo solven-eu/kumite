@@ -8,8 +8,7 @@ import java.util.stream.Collectors;
 
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.IKumiteBoardView;
-import eu.solven.kumite.player.KumitePlayer;
-import eu.solven.kumite.player.PlayerMoveRaw;
+import eu.solven.kumite.move.PlayerMoveRaw;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -48,7 +47,7 @@ public class TSPBoard implements IKumiteBoard {
 	}
 
 	@Override
-	public List<KumitePlayer> snapshotPlayers() {
-		return playerToLatestSolution.keySet().stream().map(KumitePlayer::fromPlayerId).collect(Collectors.toList());
+	public List<UUID> snapshotPlayers() {
+		return playerToLatestSolution.keySet().stream().collect(Collectors.toList());
 	}
 }

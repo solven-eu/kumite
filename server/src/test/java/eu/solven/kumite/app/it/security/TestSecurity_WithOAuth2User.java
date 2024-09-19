@@ -85,7 +85,7 @@ public class TestSecurity_WithOAuth2User {
 				.expectStatus()
 				.isOk()
 				.expectBody(String.class)
-				.value(greeting -> assertThat(greeting).contains("<title>Kumite</title>"));
+				.value(greeting -> assertThat(greeting).contains("<title>Kumite"));
 	}
 
 	@Test

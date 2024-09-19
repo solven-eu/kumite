@@ -20,14 +20,14 @@ import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.lifecycle.BoardLifecycleManager;
+import eu.solven.kumite.move.IKumiteMove;
+import eu.solven.kumite.move.PlayerMoveRaw;
 import eu.solven.kumite.player.ContestPlayersFromBoard;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
-import eu.solven.kumite.player.IKumiteMove;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerJoinRaw;
-import eu.solven.kumite.player.PlayerMoveRaw;
 import eu.solven.kumite.player.persistence.BijectiveAccountPlayersRegistry;
 
 public class TestBoardLifecycleManager {
@@ -39,8 +39,9 @@ public class TestBoardLifecycleManager {
 	GamesRegistry gamesRegistry = new GamesRegistry();
 	IAccountPlayersRegistry accountPlayers = new BijectiveAccountPlayersRegistry();
 
-	ContestPlayersRegistry contestPlayersRegistry =
-			new ContestPlayersRegistry(gamesRegistry, accountPlayers, new ContestPlayersFromBoard(boardRepository));
+	ContestPlayersRegistry contestPlayersRegistry = new ContestPlayersRegistry(gamesRegistry,
+			accountPlayers,
+			new ContestPlayersFromBoard(accountPlayers, boardRepository));
 
 	BoardLifecycleManager boardLifecycleManager =
 			new BoardLifecycleManager(boardRegistry, contestPlayersRegistry, executor);
@@ -88,7 +89,7 @@ public class TestBoardLifecycleManager {
 
 	@Test
 	public void testPlayerMove_PlayerNotRegistered() {
-		accountPlayers.registerPlayer(accountId, KumitePlayer.builder().playerId(playerId).build());
+		accountPlayers.registerPlayer(KumitePlayer.builder().playerId(playerId).accountId(accountId).build());
 
 		// Skip `playersRegistry.registerPlayer`
 
@@ -106,7 +107,7 @@ public class TestBoardLifecycleManager {
 
 	@Test
 	public void testPlayerMove() {
-		accountPlayers.registerPlayer(accountId, KumitePlayer.builder().playerId(playerId).build());
+		accountPlayers.registerPlayer(KumitePlayer.builder().playerId(playerId).accountId(accountId).build());
 
 		boardLifecycleManager.registerPlayer(contest,
 				PlayerJoinRaw.builder().contestId(contestId).playerId(playerId).isViewer(false).build());
@@ -117,7 +118,7 @@ public class TestBoardLifecycleManager {
 
 	@Test
 	public void testViewerMove() {
-		accountPlayers.registerPlayer(accountId, KumitePlayer.builder().playerId(playerId).build());
+		accountPlayers.registerPlayer(KumitePlayer.builder().playerId(playerId).accountId(accountId).build());
 
 		boardLifecycleManager.registerPlayer(contest,
 				PlayerJoinRaw.builder().contestId(contestId).playerId(playerId).isViewer(true).build());

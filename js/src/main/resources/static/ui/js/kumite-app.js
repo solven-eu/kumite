@@ -55,9 +55,21 @@ export default {
                 </div>
             </div>
 
-            <p v-else>
-                <strong><i class="bi bi-person"></i>playerId:</strong> {{ playingPlayerId }}
-            </p>
+            <div v-else>
+<ul>
+<li>
+            <RouterLink :to="{path:'/html/me'}">
+                <i class="bi bi-person"></i>accountId: {{ account.accountId }}
+            </RouterLink>
+</li>
+<li>
+
+<RouterLink :to="{path:'/html/players/' + playingPlayerId}">
+    <i class="bi bi-android"></i>playerId: {{ playingPlayerId }}
+</RouterLink>
+</li>
+</ul>
+            </div>
         </div>
     `,
 };

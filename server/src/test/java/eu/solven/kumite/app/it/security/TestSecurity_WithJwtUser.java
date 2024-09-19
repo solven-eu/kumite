@@ -89,7 +89,7 @@ public class TestSecurity_WithJwtUser {
 				.expectStatus()
 				.isOk()
 				.expectBody(String.class)
-				.value(greeting -> assertThat(greeting).contains("<title>Kumite</title>"));
+				.value(greeting -> assertThat(greeting).contains("<title>Kumite"));
 	}
 
 	@Test

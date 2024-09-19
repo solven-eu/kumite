@@ -14,8 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.IKumiteBoardView;
-import eu.solven.kumite.player.KumitePlayer;
-import eu.solven.kumite.player.PlayerMoveRaw;
+import eu.solven.kumite.move.PlayerMoveRaw;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -179,7 +178,7 @@ public class TicTacToeBoard implements IKumiteBoard, IKumiteBoardView {
 	}
 
 	@Override
-	public List<KumitePlayer> snapshotPlayers() {
-		return playerIdToSymbol.keySet().stream().map(KumitePlayer::fromPlayerId).collect(Collectors.toList());
+	public List<UUID> snapshotPlayers() {
+		return playerIdToSymbol.keySet().stream().collect(Collectors.toList());
 	}
 }

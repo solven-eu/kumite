@@ -9,8 +9,7 @@ import java.util.stream.Collectors;
 
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.IKumiteBoardView;
-import eu.solven.kumite.player.KumitePlayer;
-import eu.solven.kumite.player.PlayerMoveRaw;
+import eu.solven.kumite.move.PlayerMoveRaw;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -48,10 +47,7 @@ public class LagBoard implements IKumiteBoard, IKumiteBoardView {
 	}
 
 	@Override
-	public List<KumitePlayer> snapshotPlayers() {
-		return playerToLatestLagMs.keySet()
-				.stream()
-				.map(playerId -> KumitePlayer.fromPlayerId(playerId))
-				.collect(Collectors.toList());
+	public List<UUID> snapshotPlayers() {
+		return playerToLatestLagMs.keySet().stream().collect(Collectors.toList());
 	}
 }

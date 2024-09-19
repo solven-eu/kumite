@@ -1,6 +1,6 @@
 package eu.solven.kumite.game.opposition.chess;
 
-import eu.solven.kumite.player.IKumiteMove;
+import eu.solven.kumite.move.IKumiteMove;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;

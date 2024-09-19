@@ -28,12 +28,14 @@ public final class InMemoryAccountPlayersRegistry implements IAccountPlayersRegi
 	public InMemoryAccountPlayersRegistry(IUuidGenerator uuidGenerator) {
 		this.uuidGenerator = uuidGenerator;
 
-		registerPlayer(FakePlayerTokens.FAKE_ACCOUNT_ID, FakePlayerTokens.fakePlayer());
-		registerPlayer(FakePlayerTokens.FAKE_ACCOUNT_ID, FakePlayerTokens.fakePlayer());
+		registerPlayer(FakePlayerTokens.fakePlayer());
+		registerPlayer(FakePlayerTokens.fakePlayer());
 	}
 
 	@Override
-	public void registerPlayer(UUID accountId, KumitePlayer player) {
+	public void registerPlayer(KumitePlayer player) {
+		UUID accountId = player.getAccountId();
+		
 		// Synchronized to make atomic changes to both `accountToPlayers` and `playerIdToAccountId`
 		synchronized (this) {
 			UUID accountIdAlreadyIn = playerIdToAccountId.putIfAbsent(player.getPlayerId(), accountId);

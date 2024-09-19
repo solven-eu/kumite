@@ -10,7 +10,7 @@ import java.util.UUID;
  */
 public interface IAccountPlayersRegistry {
 
-	void registerPlayer(UUID accountId, KumitePlayer player);
+	void registerPlayer(KumitePlayer player);
 
 	UUID getAccountId(UUID playerId);
 

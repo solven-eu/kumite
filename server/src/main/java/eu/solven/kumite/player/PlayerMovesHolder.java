@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.solven.kumite.move.IKumiteMove;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;

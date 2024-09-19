@@ -2,7 +2,7 @@ package eu.solven.kumite.board;
 
 import java.util.List;
 
-import eu.solven.kumite.player.PlayerMoveRaw;
+import eu.solven.kumite.move.PlayerMoveRaw;
 
 /**
  * A {@link IKumiteBoardView} is a (optionally partial) view of an {@link IKumiteBoard} for a given {@link KumitePlayer}

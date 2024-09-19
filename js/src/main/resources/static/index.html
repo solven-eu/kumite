@@ -44,6 +44,8 @@
 
             import KumiteApp from "./ui/js/kumite-app.js";
             import HelloView from "./ui/js/hello.js";
+            import KumiteMe from "./ui/js/kumite-me.js";
+            import KumitePlayer from "./ui/js/kumite-player.js";
             import KumiteGames from "./ui/js/kumite-games.js";
             import KumiteGame from "./ui/js/kumite-game.js";
             import KumiteContestForm from "./ui/js/kumite-contest-form.js";
@@ -58,6 +60,16 @@
             const routes = [
                 { path: "/", component: HelloView },
                 { path: "/html/games", component: KumiteGames },
+                {
+                    path: "/html/me",
+                    component: KumiteMe,
+                    props: true,
+                },
+                {
+                    path: "/html/players/:playerId",
+                    component: KumitePlayer,
+                    props: true,
+                },
                 // https://router.vuejs.org/guide/essentials/passing-props
                 {
                     path: "/html/games/:gameId",

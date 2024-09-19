@@ -2,7 +2,6 @@ package eu.solven.kumite.player;
 
 import java.util.UUID;
 
-import eu.solven.kumite.account.KumiteUser;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -32,11 +31,13 @@ public class KumitePlayer {
 	@NonNull
 	UUID playerId;
 
-	public static KumitePlayer fromPlayerId(UUID playerId) {
-		return KumitePlayer.builder().playerId(playerId).build();
-	}
+	@NonNull
+	UUID accountId;
 
-	// UUID accountId;
+	// public static KumitePlayer fromPlayerId(IAccountPlayersRegistry accountPlayersRegistry, UUID playerId) {
+	// UUID accountId = accountPlayersRegistry.getAccountId(playerId);
+	// return KumitePlayer.builder().playerId(playerId).accountId(accountId).build();
+	// }
 
 	// Nice-name, editable by the account
 	// String name;

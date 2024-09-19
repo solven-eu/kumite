@@ -12,7 +12,7 @@ import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.IHasGameover;
 import eu.solven.kumite.leaderboard.LeaderBoard;
-import eu.solven.kumite.player.IKumiteMove;
+import eu.solven.kumite.move.IKumiteMove;
 import eu.solven.kumite.player.KumitePlayer;
 
 public interface IGame {

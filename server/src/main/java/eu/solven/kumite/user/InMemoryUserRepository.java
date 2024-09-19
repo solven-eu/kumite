@@ -56,7 +56,8 @@ public class InMemoryUserRepository implements IKumiteUserRepository, IKumiteUse
 
 				// In case of race-conditions, we would register unused accountId and playerIds: such dangling IDs
 				// should be removed regularly
-				playersRegistry.registerPlayer(accountId, KumitePlayer.builder().playerId(playerId).build());
+				KumitePlayer player = KumitePlayer.builder().playerId(playerId).accountId(accountId).build();
+				playersRegistry.registerPlayer(player);
 				putIfAbsent(accountId, rawRaw);
 			} else {
 				kumiteUserBuilder.accountId(alreadyIn.getAccountId()).playerId(alreadyIn.getPlayerId());

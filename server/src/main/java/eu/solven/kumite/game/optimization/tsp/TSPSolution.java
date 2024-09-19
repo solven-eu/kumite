@@ -2,7 +2,7 @@ package eu.solven.kumite.game.optimization.tsp;
 
 import java.util.List;
 
-import eu.solven.kumite.player.IKumiteMove;
+import eu.solven.kumite.move.IKumiteMove;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;

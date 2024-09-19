@@ -10,7 +10,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import eu.solven.kumite.board.IKumiteBoardView;
-import eu.solven.kumite.player.PlayerMoveRaw;
+import eu.solven.kumite.move.PlayerMoveRaw;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;

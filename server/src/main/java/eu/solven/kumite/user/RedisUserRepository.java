@@ -63,7 +63,7 @@ public class RedisUserRepository implements IKumiteUserRawRawRepository, IKumite
 			putIfAbsent(accountId, rawRaw);
 			putIfAbsent(kumiteUserRaw, kumiteUser);
 
-			playersRegistry.registerPlayer(accountId, KumitePlayer.builder().playerId(playerId).build());
+			playersRegistry.registerPlayer(KumitePlayer.builder().playerId(playerId).accountId(accountId).build());
 		}
 
 		return getUser(kumiteUserRaw.getRawRaw())

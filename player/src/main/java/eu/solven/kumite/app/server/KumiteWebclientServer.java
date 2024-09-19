@@ -15,8 +15,10 @@ import eu.solven.kumite.contest.ContestView;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchParameters;
 import eu.solven.kumite.leaderboard.LeaderboardRaw;
+import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerContestStatus;
 import eu.solven.kumite.player.PlayerRawMovesHolder;
+import eu.solven.kumite.player.PlayerSearchParameters;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -75,6 +77,24 @@ public class KumiteWebclientServer implements IKumiteServer {
 			}
 			log.info("Search for games: {}", r.statusCode());
 			return r.bodyToFlux(GameMetadata.class);
+		});
+	}
+
+	@Override
+	public Flux<KumitePlayer> searchPlayers(PlayerSearchParameters search) {
+		RequestHeadersSpec<?> spec = webClient.get()
+				.uri(uriBuilder -> uriBuilder.path("/api/games")
+						.queryParamIfPresent("account_id", search.getAccountId())
+						.queryParamIfPresent("contest_id", search.getContestId())
+						.queryParamIfPresent("player_id", search.getPlayerId())
+						.build());
+
+		return spec.exchangeToFlux(r -> {
+			if (!r.statusCode().is2xxSuccessful()) {
+				throw new IllegalArgumentException("Request rejected: " + r.statusCode());
+			}
+			log.info("Search for players: {}", r.statusCode());
+			return r.bodyToFlux(KumitePlayer.class);
 		});
 	}
 

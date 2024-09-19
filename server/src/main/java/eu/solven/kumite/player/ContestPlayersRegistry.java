@@ -66,9 +66,11 @@ public class ContestPlayersRegistry {
 
 		IGame game = gamesRegistry.getGame(contest.getGameMetadata().getGameId());
 
+		KumitePlayer player = makePlayer(playerId);
+
 		// No need to synchronize as BoardLifecycleManager ensure single-threaded per contest
 		{
-			if (game.canAcceptPlayer(contest, KumitePlayer.builder().playerId(playerId).build())) {
+			if (game.canAcceptPlayer(contest, player)) {
 				boolean registeredInBoard = contestPlayersRepository.registerContender(contestId, playerId);
 				if (registeredInBoard) {
 					log.info(
@@ -98,6 +100,12 @@ public class ContestPlayersRegistry {
 				playerId,
 				contestId,
 				nbPlayingGames);
+	}
+
+	private KumitePlayer makePlayer(UUID playerId) {
+		UUID accountId = accountPlayersRegistry.getAccountId(playerId);
+		KumitePlayer player = KumitePlayer.builder().playerId(playerId).accountId(accountId).build();
+		return player;
 	}
 
 	public IHasPlayers makeDynamicHasPlayers(UUID contestId) {
@@ -143,8 +151,8 @@ public class ContestPlayersRegistry {
 				IGame game = gamesRegistry.getGame(contestMetadata.getGameMetadata().getGameId());
 
 				// BEWARE We need a mechanism to prevent one player to register to too many games
-				playerCanJoin =
-						game.canAcceptPlayer(contestMetadata, KumitePlayer.builder().playerId(playerId).build());
+				KumitePlayer player = makePlayer(playerId);
+				playerCanJoin = game.canAcceptPlayer(contestMetadata, player);
 			}
 		}
 

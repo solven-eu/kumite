@@ -25,11 +25,12 @@ public class TestBijectiveAccountPlayersRegistry {
 		UUID playerId = playersRegistry.generateMainPlayerId(accountId);
 		Assertions.assertThat(playerId).hasToString("3c151824-30d8-116b-f8d4-81f60477339b");
 
-		playersRegistry.registerPlayer(accountId, KumitePlayer.fromPlayerId(playerId));
+		KumitePlayer player = KumitePlayer.builder().playerId(playerId).accountId(accountId).build();
+		playersRegistry.registerPlayer(player);
 
 		Assertions.assertThat(playersRegistry.getAccountId(playerId)).isEqualTo(accountId);
 		Assertions.assertThat(playersRegistry.makeDynamicHasPlayers(accountId).getPlayers())
-				.contains(KumitePlayer.fromPlayerId(playerId))
+				.contains(player)
 				.hasSize(1);
 	}
 }

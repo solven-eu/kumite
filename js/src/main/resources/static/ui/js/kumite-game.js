@@ -11,12 +11,10 @@ import KumiteGameHeader from "./kumite-game-header.js";
 import KumiteContests from "./kumite-contests.js";
 
 export default {
-	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
 		KumiteGameHeader,
 		KumiteContests,
 	},
-	// https://vuejs.org/guide/components/props.html
 	props: {
         gameId: {
             type: String,

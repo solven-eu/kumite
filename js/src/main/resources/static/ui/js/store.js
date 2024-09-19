@@ -39,7 +39,7 @@ export const useKumiteStore = defineStore("kumite", {
 		// May be turned to true by 401 on `loadUser()`
 		needsToLogin: false,
 
-		// We loads information about various players (e.g. through leaderboards)
+		// We loads information about various players (e.g. current account, through contests and leaderboards)
 		// Playing players are stores in contests
 		players: {},
 		nbAccountLoading: 0,
@@ -149,9 +149,9 @@ export const useKumiteStore = defineStore("kumite", {
 
 		// @throws UserNeedsToLoginError if not logged-in
 		async ensureUser() {
-			if (Object.keys(this.account?.user || {}).length !== 0) {
+			if (Object.keys(this.account || {}).length !== 0) {
 				// We have loaded a user: we assume it does not need to login
-				return Promise.resolve(this.account.user);
+				return Promise.resolve(this.account);
 			} else {
 				// We need first to load current user
 				// It will enbale checking we are actually logged-in
@@ -288,6 +288,37 @@ export const useKumiteStore = defineStore("kumite", {
 
 			return fetchFromUrl(`/api/players?account_id=${store.account.accountId}`);
 		},
+        
+        async loadPlayer(playerId) {
+            const store = this;
+
+            async function fetchFromUrl(url) {
+                store.nbAccountLoading++;
+                try {
+                    const response = await store.authenticatedFetch(url);
+                    if (!response.ok) {
+                        throw new Error("Rejected request for players of playerId=" + playerId);
+                    }
+
+                    const responseJson = await response.json();
+                    const players = responseJson;
+
+                                        players.forEach((player) => {
+                                            console.log("Storing playerId", player.playerId);
+                                            store.$patch({
+                                                players: { ...store.players, [player.playerId]: player },
+                                            });
+                                        });
+                } catch (e) {
+                    store.onSwallowedError(e);
+                } finally {
+                    store.nbAccountLoading--;
+                }
+            }
+
+            return fetchFromUrl(`/api/players?player_id=${playerId}`);
+        },
+        
 		async loadContestPlayers(contestId) {
 			const store = this;
 
@@ -302,12 +333,12 @@ export const useKumiteStore = defineStore("kumite", {
 					const responseJson = await response.json();
 					const players = responseJson;
 
-					//					responseJson.forEach((player) => {
-					//						console.log("Registering playerId", player.playerId);
-					//						store.$patch({
-					//							players: { ...store.players, [player.playerId]: player },
-					//						});
-					//					});
+										players.forEach((player) => {
+											console.log("Storing playerId", player.playerId);
+											store.$patch({
+												players: { ...store.players, [player.playerId]: player },
+											});
+										});
 
 					console.log("Storing players for contestId", contestId, players);
 					const mutatedContest = {

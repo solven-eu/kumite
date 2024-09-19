@@ -1,6 +1,7 @@
 package eu.solven.kumite.player;
 
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.persistence.IBoardRepository;
@@ -14,6 +15,7 @@ import lombok.AllArgsConstructor;
  */
 @AllArgsConstructor
 public class ContestPlayersFromBoard implements IContendersRepository {
+	final IAccountPlayersRegistry accountPlayersRegistry;
 	final IBoardRepository boardRepository;
 
 	private IKumiteBoard requireBoard(UUID contestId) {
@@ -25,9 +27,9 @@ public class ContestPlayersFromBoard implements IContendersRepository {
 	public boolean registerContender(UUID contestId, UUID playerId) {
 		IKumiteBoard optBoard = requireBoard(contestId);
 
-//		if (optBoard.snapshotPlayers().stream().noneMatch(p -> p.getPlayerId().equals(playerId))) {
-//			throw new IllegalStateException("The board should have registered the player");
-//		}
+		// if (optBoard.snapshotPlayers().stream().noneMatch(p -> p.getPlayerId().equals(playerId))) {
+		// throw new IllegalStateException("The board should have registered the player");
+		// }
 		optBoard.registerContender(playerId);
 
 		return true;
@@ -35,7 +37,7 @@ public class ContestPlayersFromBoard implements IContendersRepository {
 
 	@Override
 	public boolean isContender(UUID contestId, UUID playerId) {
-		return requireBoard(contestId).snapshotPlayers().stream().anyMatch(p -> p.getPlayerId().equals(playerId));
+		return requireBoard(contestId).snapshotPlayers().stream().anyMatch(p -> p.equals(playerId));
 	}
 
 	@Override
@@ -43,7 +45,10 @@ public class ContestPlayersFromBoard implements IContendersRepository {
 		if (!boardRepository.containsKey(contestId)) {
 			throw new IllegalArgumentException("Unknown contestId=" + contestId);
 		}
-		return () -> requireBoard(contestId).snapshotPlayers();
+		return () -> requireBoard(contestId).snapshotPlayers().stream().map(playerId -> {
+			UUID accountId = accountPlayersRegistry.getAccountId(playerId);
+			return KumitePlayer.builder().playerId(playerId).accountId(accountId).build();
+		}).collect(Collectors.toList());
 	}
 
 }

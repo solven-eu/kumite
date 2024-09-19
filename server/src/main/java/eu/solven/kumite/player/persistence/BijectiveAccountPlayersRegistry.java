@@ -20,7 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 public final class BijectiveAccountPlayersRegistry implements IAccountPlayersRegistry {
 
 	@Override
-	public void registerPlayer(UUID accountId, KumitePlayer player) {
+	public void registerPlayer(KumitePlayer player) {
+		UUID accountId = player.getAccountId();
 		UUID playerId = player.getPlayerId();
 		if (accountId.equals(FakePlayerTokens.FAKE_ACCOUNT_ID) && FakePlayerTokens.isFakePlayer(playerId)) {
 			log.info("Registering the fakeUser");
@@ -44,7 +45,7 @@ public final class BijectiveAccountPlayersRegistry implements IAccountPlayersReg
 	public IHasPlayers makeDynamicHasPlayers(UUID accountId) {
 		UUID playerId = generateMainPlayerId(accountId);
 
-		return () -> Collections.singletonList(KumitePlayer.builder().playerId(playerId).build());
+		return () -> Collections.singletonList(KumitePlayer.builder().playerId(playerId).accountId(accountId).build());
 	}
 
 	@Override

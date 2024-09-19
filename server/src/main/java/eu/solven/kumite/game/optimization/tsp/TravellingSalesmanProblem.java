@@ -27,7 +27,7 @@ import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.leaderboard.IPlayerScore;
 import eu.solven.kumite.leaderboard.LeaderBoard;
 import eu.solven.kumite.leaderboard.PlayerDoubleScore;
-import eu.solven.kumite.player.IKumiteMove;
+import eu.solven.kumite.move.IKumiteMove;
 import lombok.Value;
 
 @Value

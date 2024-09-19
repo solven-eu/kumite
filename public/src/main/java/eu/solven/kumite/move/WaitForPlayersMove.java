@@ -1,4 +1,4 @@
-package eu.solven.kumite.player;
+package eu.solven.kumite.move;
 
 import java.util.Set;
 import java.util.UUID;

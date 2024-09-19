@@ -12,7 +12,7 @@ import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.leaderboard.LeaderBoard;
-import eu.solven.kumite.player.IKumiteMove;
+import eu.solven.kumite.move.IKumiteMove;
 
 // https://peterellisjones.com/posts/generating-legal-chess-moves-efficiently/
 // https://github.com/desht/chesspresso

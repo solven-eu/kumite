@@ -34,11 +34,11 @@ import eu.solven.kumite.leaderboard.LeaderboardRegistry;
 import eu.solven.kumite.leaderboard.LeaderboardSearchParameters;
 import eu.solven.kumite.lifecycle.BoardLifecycleManager;
 import eu.solven.kumite.lifecycle.ContestLifecycleManager;
+import eu.solven.kumite.move.IKumiteMove;
+import eu.solven.kumite.move.PlayerMoveRaw;
 import eu.solven.kumite.player.ContestPlayersRegistry;
-import eu.solven.kumite.player.IKumiteMove;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerJoinRaw;
-import eu.solven.kumite.player.PlayerMoveRaw;
 
 /**
  * 
