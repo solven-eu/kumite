@@ -58,6 +58,7 @@ public class SocialWebFluxSecurity {
 
 		return http
 				// We restrict the scope of this UI securityFilterChain to UI routes
+				// Not matching routes will be handled by the API securityFilterChain
 				.securityMatcher(ServerWebExchangeMatchers.pathMatchers(
 						// These 2 login routes are authenticated through browser session, build from OAuth2 provider
 						"/api/login/v1/user",
@@ -96,7 +97,8 @@ public class SocialWebFluxSecurity {
 						.pathMatchers("/ui/js/**", "/ui/img/**", "/webjars/**", "/favicon.ico")
 						.permitAll()
 
-						// If there is no logged-in user, we return a 401
+						// If there is no logged-in user, we return a 401.
+						// `permitAll` is useful to return a 401 manually, else `.oauth2Login` would return a 302
 						.pathMatchers("/api/login/v1/user")
 						.permitAll()
 
@@ -109,6 +111,7 @@ public class SocialWebFluxSecurity {
 						.anyExchange()
 						.authenticated())
 
+				// `/html/login` has to be synced with the SPA login route
 				.formLogin(login -> login.loginPage("http%s://localhost:8080/html/login".formatted(isSsl ? "s" : ""))
 						// Required not to get an NPE at `.build()`
 						.authenticationManager(ram))
@@ -174,14 +177,14 @@ public class SocialWebFluxSecurity {
 						.pathMatchers("/v3/api-docs/**")
 						.permitAll()
 						// public API is public
-						.pathMatchers("/api/public/**")
+						.pathMatchers("/api/v1/public/**")
 						.permitAll()
 						// Some Login APIs are public
 						.pathMatchers("/api/login/v1/providers")
 						.permitAll()
 
 						// If fakeUser==true, we allow the reset route (for integration tests)
-						.pathMatchers(fakeUser ? "/api/clear" : "nonono")
+						.pathMatchers(fakeUser ? "/api/v1/clear" : "nonono")
 						.permitAll()
 
 						// The rest needs to be authenticated

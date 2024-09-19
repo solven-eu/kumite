@@ -3,7 +3,6 @@ import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
 export default {
-	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
 		KumiteGame,
 	},

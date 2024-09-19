@@ -80,10 +80,10 @@
                     path: "/html/games/:gameId/contests",
                     component: KumiteGame,
                     // https://stackoverflow.com/questions/47869676/combine-parameters-from-url-with-props-object-in-vue-router-config
-                    props:                     route => ({
-                      gameId: route.params.gameId,
-                      showContests: true,
-                    }) 
+                    props: (route) => ({
+                        gameId: route.params.gameId,
+                        showContests: true,
+                    }),
                 },
                 { path: "/html/contests", component: KumiteSearchContests },
                 {

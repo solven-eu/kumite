@@ -4,14 +4,14 @@ import { useKumiteStore } from "./store.js";
 export default {
 	// https://vuejs.org/guide/components/props.html
 	props: {
-        gameId: {
-            type: String,
-            required: true,
-        },
-        withDescription: {
-            type: Boolean,
-            default: true,
-        },
+		gameId: {
+			type: String,
+			required: true,
+		},
+		withDescription: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	computed: {
 		...mapState(useKumiteStore, ["nbGameFetching"]),
@@ -45,10 +45,10 @@ export default {
                     Game-Description: {{game.shortDescription}}
                 </span>
                 <span v-else>
-                <h5>
-                    <RouterLink :to="{path:'/html/games/' + game.gameId}"><i class="bi bi-puzzle"></i> {{game.title}}</RouterLink>
-                    <RouterLink :to="{path:'/html/games'}"><i class="bi bi-arrow-90deg-left"></i></RouterLink>
-                </h5>
+                    <h5>
+                        <RouterLink :to="{path:'/html/games/' + game.gameId}"><i class="bi bi-puzzle"></i> {{game.title}}</RouterLink>
+                        <RouterLink :to="{path:'/html/games'}"><i class="bi bi-arrow-90deg-left"></i></RouterLink>
+                    </h5>
                 </span>
             </span>
         </div>

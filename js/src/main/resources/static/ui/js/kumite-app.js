@@ -5,9 +5,14 @@ import { useKumiteStore } from "./store.js";
 
 import KumiteNavbar from "./kumite-navbar.js";
 
+import KumiteAccountRef from "./kumite-account-ref.js";
+import KumitePlayerRef from "./kumite-player-ref.js";
+
 export default {
 	components: {
 		KumiteNavbar,
+		KumiteAccountRef,
+		KumitePlayerRef,
 	},
 	computed: {
 		...mapState(useKumiteStore, ["needsToLogin", "account", "tokens", "nbAccountFetching", "playingPlayerId"]),
@@ -56,19 +61,10 @@ export default {
             </div>
 
             <div v-else>
-<ul>
-<li>
-            <RouterLink :to="{path:'/html/me'}">
-                <i class="bi bi-person"></i>accountId: {{ account.accountId }}
-            </RouterLink>
-</li>
-<li>
-
-<RouterLink :to="{path:'/html/players/' + playingPlayerId}">
-    <i class="bi bi-android"></i>playerId: {{ playingPlayerId }}
-</RouterLink>
-</li>
-</ul>
+                <ul>
+                    <li v-if="account.accountId"><KumiteAccountRef :accountId="account.accountId" /></li>
+                    <li v-if="!!playingPlayerId"><KumitePlayerRef :playerId="playingPlayerId" /></li>
+                </ul>
             </div>
         </div>
     `,

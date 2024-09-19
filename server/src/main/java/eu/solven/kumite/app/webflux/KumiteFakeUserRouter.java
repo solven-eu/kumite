@@ -37,12 +37,12 @@ public class KumiteFakeUserRouter {
 		RequestPredicate json = RequestPredicates.accept(MediaType.APPLICATION_JSON);
 
 		return SpringdocRouteBuilder.route()
-				.POST(RequestPredicates.POST("/api/clear").and(json),
+				.POST(RequestPredicates.path("/api/v1/clear").and(json),
 						kumiteResetHandler::clear,
 						ops -> ops.operationId("clear")
 								.response(responseBuilder().responseCode("200").description("Cleared")))
 				// One can clear with GET to make it easier for a human
-				.GET(RequestPredicates.GET("/api/clear").and(json),
+				.GET(RequestPredicates.path("/api/v1/clear").and(json),
 						kumiteResetHandler::clear,
 						ops -> ops.operationId("clear")
 								.response(responseBuilder().responseCode("200").description("Cleared")))

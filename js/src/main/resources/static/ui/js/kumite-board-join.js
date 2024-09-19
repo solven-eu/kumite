@@ -41,7 +41,7 @@ export default {
 			},
 		}),
 		curlGetBoard() {
-			return "curl " + window.location.protocol + "//" + window.location.host + "/api/board?contest_id=" + this.contestId;
+			return "curl " + window.location.protocol + "//" + window.location.host + "/api/v1" + "/board?contest_id=" + this.contestId;
 		},
 	},
 	setup(props) {
@@ -89,7 +89,7 @@ export default {
 				}
 			}
 
-			return fetchFromUrl(`/api/board/player?player_id=${playerId}&contest_id=${contestId}&viewer=false`).then((playingPlayer) => {
+			return fetchFromUrl(`/board/player?player_id=${playerId}&contest_id=${contestId}&viewer=false`).then((playingPlayer) => {
 				console.debug("playingPlayer", playingPlayer);
 				isJoiningAsPlayer.value = false;
 				hasJoinedAsPlayer.value = true;

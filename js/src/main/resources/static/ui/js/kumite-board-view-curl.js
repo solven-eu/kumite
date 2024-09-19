@@ -12,7 +12,7 @@ export default {
 	},
 	computed: {
 		curlGetBoard() {
-			return "curl " + window.location.protocol + "//" + window.location.host + "/api/board?contest_id=" + this.contestId;
+			return "curl " + window.location.protocol + "//" + window.location.host + "/api/v1" + "/board?contest_id=" + this.contestId;
 		},
 	},
 	setup() {

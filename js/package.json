@@ -22,7 +22,8 @@
         "lint": "eslint --fix src/main/resources/static",
         "lint_debug": "eslint --fix src/main/resources/static --debug",
         "preview": "vite preview",
-        "pw_localhost8080": "npx playwright test localhost8080  --project=chromium"
+        "pw_localhost8080": "npx playwright test localhost8080  --project=chromium",
+        "pw_localhost8080_ui": "npx playwright test localhost8080  --project=chromium --ui"
     },
     "type": "module",
     "version": "0.0.0"

@@ -6,10 +6,6 @@ import eslintPluginVue from "eslint-plugin-vue";
 import vueEslintParser from "vue-eslint-parser";
 
 // https://github.com/prettier/eslint-config-prettier
-// Turns off all rules that are unnecessary or might conflict with Prettier.
-// Disabled as included by `eslintPluginPrettierRecommended`
-// import eslintConfigPrettier from "eslint-config-prettier";
-
 // `eslint-plugin-prettier` will apply Prettier through ESLint
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 
@@ -32,6 +28,4 @@ export default [
     },
     // `eslintPluginPrettierRecommended` is last to override previous config, and it includes eslintConfigPrettier
     eslintPluginPrettierRecommended,
-    // `eslintConfigPrettier` is last to override previous config
-    // eslintConfigPrettier,
 ];

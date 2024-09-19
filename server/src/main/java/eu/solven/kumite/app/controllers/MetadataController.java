@@ -15,7 +15,7 @@ import eu.solven.kumite.game.IGameMetadataConstants;
 @RestController
 public class MetadataController {
 
-	@GetMapping("/api/public/v1/metadata")
+	@GetMapping("/api/v1/public/metadata")
 	@Bean
 	public Map<String, ?> getMetadata() {
 		Map<String, Object> metadata = new LinkedHashMap<>();

@@ -1,6 +1,8 @@
 package eu.solven.kumite.player.persistence;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import eu.solven.kumite.account.fake_player.FakePlayerTokens;
@@ -23,7 +25,7 @@ public final class BijectiveAccountPlayersRegistry implements IAccountPlayersReg
 	public void registerPlayer(KumitePlayer player) {
 		UUID accountId = player.getAccountId();
 		UUID playerId = player.getPlayerId();
-		if (accountId.equals(FakePlayerTokens.FAKE_ACCOUNT_ID) && FakePlayerTokens.isFakePlayer(playerId)) {
+		if (FakePlayerTokens.FAKE_ACCOUNT_ID.equals(accountId) && FakePlayerTokens.isFakePlayer(playerId)) {
 			log.info("Registering the fakeUser");
 		} else if (playerId.equals(generateMainPlayerId(accountId))) {
 			log.info("Registering accountId={} playerId={}", accountId, playerId);
@@ -43,6 +45,12 @@ public final class BijectiveAccountPlayersRegistry implements IAccountPlayersReg
 
 	@Override
 	public IHasPlayers makeDynamicHasPlayers(UUID accountId) {
+		if (FakePlayerTokens.FAKE_ACCOUNT_ID.equals(accountId)) {
+			List<KumitePlayer> players = Arrays.asList(FakePlayerTokens.fakePlayer(0), FakePlayerTokens.fakePlayer(1));
+			return () -> players;
+		}
+
+		// The playerId can not change as it is derived from the accountId only
 		UUID playerId = generateMainPlayerId(accountId);
 
 		return () -> Collections.singletonList(KumitePlayer.builder().playerId(playerId).accountId(accountId).build());
@@ -50,7 +58,7 @@ public final class BijectiveAccountPlayersRegistry implements IAccountPlayersReg
 
 	@Override
 	public UUID generateMainPlayerId(UUID accountId) {
-		if (accountId.equals(FakePlayerTokens.FAKE_ACCOUNT_ID)) {
+		if (FakePlayerTokens.FAKE_ACCOUNT_ID.equals(accountId)) {
 			return FakePlayerTokens.FAKE_PLAYER_ID1;
 		}
 

@@ -19,6 +19,8 @@ class UserNeedsToLoginError extends Error {
 	}
 }
 
+const prefix = "/api/v1"
+
 export const useKumiteStore = defineStore("kumite", {
 	state: () => ({
 		// Various metadata to enrich the UX
@@ -91,7 +93,7 @@ export const useKumiteStore = defineStore("kumite", {
 				store.$patch({ metadata: metadata });
 			}
 
-			return fetchFromUrl("/api/public/v1/metadata");
+			return fetchFromUrl(prefix + "/public/metadata");
 		},
 
 		// This would not fail if the User needs to login.
@@ -225,6 +227,10 @@ export const useKumiteStore = defineStore("kumite", {
 			return this.tokens;
 		},
 		async authenticatedFetch(url, fetchOptions) {
+            if (url.startsWith("/api")) {
+                throw new Error("Invalid URL as '/api' is added automatically");
+            }
+            
 			await this.loadIfMissingUserTokens();
 
 			const apiHeaders = this.apiHeaders;
@@ -240,7 +246,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 			console.debug("->", mergedFetchOptions.method, url, mergedFetchOptions);
 
-			return fetch(url, mergedFetchOptions).then((response) => {
+			return fetch(prefix + url, mergedFetchOptions).then((response) => {
 				console.debug("<-", mergedFetchOptions.method, url, mergedFetchOptions, response);
 
 				if (response.status == 401) {
@@ -286,39 +292,39 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			return fetchFromUrl(`/api/players?account_id=${store.account.accountId}`);
+			return fetchFromUrl(`/players?account_id=${store.account.accountId}`);
 		},
-        
-        async loadPlayer(playerId) {
-            const store = this;
 
-            async function fetchFromUrl(url) {
-                store.nbAccountLoading++;
-                try {
-                    const response = await store.authenticatedFetch(url);
-                    if (!response.ok) {
-                        throw new Error("Rejected request for players of playerId=" + playerId);
-                    }
+		async loadPlayer(playerId) {
+			const store = this;
 
-                    const responseJson = await response.json();
-                    const players = responseJson;
+			async function fetchFromUrl(url) {
+				store.nbAccountLoading++;
+				try {
+					const response = await store.authenticatedFetch(url);
+					if (!response.ok) {
+						throw new Error("Rejected request for players of playerId=" + playerId);
+					}
 
-                                        players.forEach((player) => {
-                                            console.log("Storing playerId", player.playerId);
-                                            store.$patch({
-                                                players: { ...store.players, [player.playerId]: player },
-                                            });
-                                        });
-                } catch (e) {
-                    store.onSwallowedError(e);
-                } finally {
-                    store.nbAccountLoading--;
-                }
-            }
+					const responseJson = await response.json();
+					const players = responseJson;
 
-            return fetchFromUrl(`/api/players?player_id=${playerId}`);
-        },
-        
+					players.forEach((player) => {
+						console.log("Storing playerId", player.playerId);
+						store.$patch({
+							players: { ...store.players, [player.playerId]: player },
+						});
+					});
+				} catch (e) {
+					store.onSwallowedError(e);
+				} finally {
+					store.nbAccountLoading--;
+				}
+			}
+
+			return fetchFromUrl(`/players?player_id=${playerId}`);
+		},
+
 		async loadContestPlayers(contestId) {
 			const store = this;
 
@@ -333,12 +339,12 @@ export const useKumiteStore = defineStore("kumite", {
 					const responseJson = await response.json();
 					const players = responseJson;
 
-										players.forEach((player) => {
-											console.log("Storing playerId", player.playerId);
-											store.$patch({
-												players: { ...store.players, [player.playerId]: player },
-											});
-										});
+					players.forEach((player) => {
+						console.log("Storing playerId", player.playerId);
+						store.$patch({
+							players: { ...store.players, [player.playerId]: player },
+						});
+					});
 
 					console.log("Storing players for contestId", contestId, players);
 					const mutatedContest = {
@@ -358,7 +364,7 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			return fetchFromUrl(`/api/players?contest_id=${contestId}`);
+			return fetchFromUrl(`/players?contest_id=${contestId}`);
 		},
 
 		async loadGames() {
@@ -388,7 +394,7 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			return fetchFromUrl("/api/games");
+			return fetchFromUrl("/games");
 		},
 		async loadGameIfMissing(gameId) {
 			if (this.games[gameId]) {
@@ -440,7 +446,7 @@ export const useKumiteStore = defineStore("kumite", {
 						store.nbGameFetching--;
 					}
 				}
-				return fetchFromUrl("/api/games?game_id=" + gameId);
+				return fetchFromUrl("/games?game_id=" + gameId);
 			}
 		},
 
@@ -454,7 +460,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 					console.debug("responseJson", responseJson);
 
-                    const contests = responseJson;
+					const contests = responseJson;
 					contests.forEach((contest) => {
 						console.log("Registering contestId", contest.contestId);
 						store.$patch({
@@ -464,16 +470,16 @@ export const useKumiteStore = defineStore("kumite", {
 							},
 						});
 					});
-                    return contests;
+					return contests;
 				} catch (e) {
 					store.onSwallowedError(e);
-                    return [];
+					return [];
 				} finally {
 					store.nbContestFetching--;
 				}
 			}
 
-			let url = "/api/contests";
+			let url = "/contests";
 			if (gameId) {
 				// The contests of a specific game
 				url += "?game_id=" + gameId;
@@ -542,7 +548,7 @@ export const useKumiteStore = defineStore("kumite", {
 						store.nbContestFetching--;
 					}
 				}
-				return fetchFromUrl(`/api/contests?game_id=${gameId}&contest_id=${contestId}`).then((contest) => {
+				return fetchFromUrl(`/contests?game_id=${gameId}&contest_id=${contestId}`).then((contest) => {
 					return this.mergeContest(contest);
 				});
 			});
@@ -597,7 +603,7 @@ export const useKumiteStore = defineStore("kumite", {
 					}
 				}
 
-				return fetchFromUrl(`/api/board?game_id=${gameId}&contest_id=${contestId}&player_id=${playerId}`).then((contestWithBoard) =>
+				return fetchFromUrl(`/board?game_id=${gameId}&contest_id=${contestId}&player_id=${playerId}`).then((contestWithBoard) =>
 					this.mergeContest(contestWithBoard),
 				);
 			});
@@ -653,7 +659,7 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			return this.loadContestIfMissing(gameId, contestId).then(() => fetchFromUrl("/api/leaderboards?contest_id=" + contestId));
+			return this.loadContestIfMissing(gameId, contestId).then(() => fetchFromUrl("/leaderboards?contest_id=" + contestId));
 		},
 	},
 });

@@ -1,5 +1,6 @@
 package eu.solven.kumite.player;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
@@ -32,5 +33,22 @@ public class TestBijectiveAccountPlayersRegistry {
 		Assertions.assertThat(playersRegistry.makeDynamicHasPlayers(accountId).getPlayers())
 				.contains(player)
 				.hasSize(1);
+	}
+
+	@Test
+	public void testHasPlayers_FakePlayers() {
+		List<KumitePlayer> players =
+				playersRegistry.makeDynamicHasPlayers(FakePlayerTokens.FAKE_ACCOUNT_ID).getPlayers();
+
+		Assertions.assertThat(players)
+				.contains(KumitePlayer.builder()
+						.playerId(FakePlayerTokens.FAKE_PLAYER_ID1)
+						.accountId(FakePlayerTokens.FAKE_ACCOUNT_ID)
+						.build())
+				.contains(KumitePlayer.builder()
+						.playerId(FakePlayerTokens.FAKE_PLAYER_ID2)
+						.accountId(FakePlayerTokens.FAKE_ACCOUNT_ID)
+						.build())
+				.hasSize(2);
 	}
 }

@@ -22,7 +22,7 @@ export default {
 			}
 		}
 
-		theData("/api/login/v1/providers");
+		theData("/api/v1/login/v1/providers");
 
 		return { isLoading, loginProviders };
 	},

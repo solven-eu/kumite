@@ -41,6 +41,11 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class KumiteApiRouter {
 
+	private static final RequestPredicate json(String path) {
+		final RequestPredicate json = RequestPredicates.accept(MediaType.APPLICATION_JSON);
+		return RequestPredicates.path("/api/v1" + path).and(json);
+	}
+
 	// https://github.com/springdoc/springdoc-openapi-demos/tree/2.x/springdoc-openapi-spring-boot-2-webflux-functional
 	// https://stackoverflow.com/questions/6845772/should-i-use-singular-or-plural-name-convention-for-rest-resources
 	@Bean
@@ -52,18 +57,15 @@ public class KumiteApiRouter {
 			PlayerMovesHandler playerMovesHandler,
 			LeaderboardHandler leaderboardHandler,
 			WebhooksHandler webhooksHandler) {
-		RequestPredicate json = RequestPredicates.accept(MediaType.APPLICATION_JSON);
 
 		Builder gameId = parameterBuilder().name("game_id").description("Search for a specific contestId");
 		Builder playerId = parameterBuilder().name("player_id").description("Search for a specific playerId");
 		Builder contestId = parameterBuilder().name("contest_id").description("Search for a specific contestId");
 
 		return SpringdocRouteBuilder.route()
-				.GET(RequestPredicates.GET("/api/hello").and(json),
-						greetingHandler::hello,
-						ops -> ops.operationId("hello"))
+				.GET(json("/hello"), greetingHandler::hello, ops -> ops.operationId("hello"))
 
-				.GET(RequestPredicates.GET("/api/games").and(json),
+				.GET(json("/games"),
 						gamesSearchHandler::listGames,
 						ops -> ops.operationId("searchGames")
 								.parameter(gameId)
@@ -75,21 +77,19 @@ public class KumiteApiRouter {
 										.description("Search games with a title matching given Regex"))
 								.response(responseBuilder().responseCode("200").description("Hello")))
 
-				.GET(RequestPredicates.GET("/api/players").and(json),
-						playersSearchHandler::listPlayers,
-						ops -> ops.operationId("searchPlayers"))
+				.GET(json("/players"), playersSearchHandler::listPlayers, ops -> ops.operationId("searchPlayers"))
 
-				.GET(RequestPredicates.GET("/api/contests").and(json),
+				.GET(json("/contests"),
 						contestSearchHandler::listContests,
 						ops -> ops.operationId("searchContest").parameter(gameId))
-				.POST(RequestPredicates.POST("/api/contests").and(json),
+				.POST(json("/contests"),
 						contestSearchHandler::generateContest,
 						ops -> ops.operationId("publishContest"))
 
-				.GET(RequestPredicates.GET("/api/board").and(json),
+				.GET(json("/board"),
 						boardHandler::getBoard,
 						ops -> ops.operationId("fetchBoard").parameter(playerId).parameter(contestId))
-				.POST(RequestPredicates.POST("/api/board/player").and(json),
+				.POST(json("/board/player"),
 						playerMovesHandler::registerPlayer,
 						ops -> ops.operationId("registerPlayer")
 								.parameter(playerId)
@@ -97,25 +97,25 @@ public class KumiteApiRouter {
 								.parameter(parameterBuilder().name("viewer")
 										.description("`true` if you want to spectate the contest")
 										.implementation(Boolean.class)))
-				.GET(RequestPredicates.GET("/api/board/moves").and(json),
+				.GET(json("/board/moves"),
 						playerMovesHandler::listPlayerMoves,
 						ops -> ops.operationId("fetchMoves").parameter(playerId).parameter(contestId))
-				.POST(RequestPredicates.POST("/api/board/move").and(json),
+				.POST(json("/board/move"),
 						playerMovesHandler::playMove,
 						ops -> ops.operationId("playMove").parameter(playerId).parameter(contestId))
 
-				.GET(RequestPredicates.GET("/api/leaderboards").and(json),
+				.GET(json("/leaderboards"),
 						leaderboardHandler::listScores,
 						ops -> ops.operationId("fetchLeaderboard").parameter(contestId))
 
 				// Activate webhooks later. For now, we focus on long-polling
-				// .GET(RequestPredicates.GET("/api/webhooks").and(json),
+				// .GET(json("/webhooks"),
 				// webhooksHandler::listWebhooks,
 				// ops -> ops.operationId("listWebhooks"))
-				// .PUT(RequestPredicates.PUT("/api/webhooks").and(json),
+				// .PUT(RequestPredicates.PUT("/webhooks"),
 				// webhooksHandler::registerWebhook,
 				// ops -> ops.operationId("publishWebhook"))
-				// .DELETE(RequestPredicates.DELETE("/api/webhooks").and(json),
+				// .DELETE(RequestPredicates.DELETE("/webhooks"),
 				// webhooksHandler::dropWebhooks,
 				// ops -> ops.operationId("deleteWebhook"))
 

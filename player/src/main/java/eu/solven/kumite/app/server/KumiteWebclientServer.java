@@ -32,6 +32,8 @@ import reactor.core.publisher.Mono;
 // https://www.baeldung.com/spring-5-webclient
 @Slf4j
 public class KumiteWebclientServer implements IKumiteServer {
+	final String PREFIX = "/api/v1";
+
 	WebClient webClient;
 
 	public KumiteWebclientServer(Environment env) {
@@ -60,7 +62,7 @@ public class KumiteWebclientServer implements IKumiteServer {
 	@Override
 	public Flux<GameMetadata> searchGames(GameSearchParameters search) {
 		RequestHeadersSpec<?> spec = webClient.get()
-				.uri(uriBuilder -> uriBuilder.path("/api/games")
+				.uri(uriBuilder -> uriBuilder.path(PREFIX + "/games")
 						.queryParamIfPresent("game_id", search.getGameId())
 						.queryParamIfPresent("title_regex", search.getTitleRegex())
 						.queryParam("tag", search.getRequiredTags())
@@ -83,7 +85,7 @@ public class KumiteWebclientServer implements IKumiteServer {
 	@Override
 	public Flux<KumitePlayer> searchPlayers(PlayerSearchParameters search) {
 		RequestHeadersSpec<?> spec = webClient.get()
-				.uri(uriBuilder -> uriBuilder.path("/api/games")
+				.uri(uriBuilder -> uriBuilder.path(PREFIX + "/games")
 						.queryParamIfPresent("account_id", search.getAccountId())
 						.queryParamIfPresent("contest_id", search.getContestId())
 						.queryParamIfPresent("player_id", search.getPlayerId())
@@ -101,7 +103,7 @@ public class KumiteWebclientServer implements IKumiteServer {
 	@Override
 	public Flux<ContestMetadataRaw> searchContests(ContestSearchParameters search) {
 		RequestHeadersSpec<?> spec = webClient.get()
-				.uri(uriBuilder -> uriBuilder.path("/api/contests")
+				.uri(uriBuilder -> uriBuilder.path(PREFIX + "/contests")
 						.queryParamIfPresent("game_id", search.getGameId())
 						.queryParamIfPresent("contest_id", search.getContestId())
 						.build());
@@ -118,7 +120,7 @@ public class KumiteWebclientServer implements IKumiteServer {
 	@Override
 	public Mono<ContestView> loadBoard(UUID playerId, UUID contestId) {
 		RequestHeadersSpec<?> spec = webClient.get()
-				.uri(uriBuilder -> uriBuilder.path("/api/board")
+				.uri(uriBuilder -> uriBuilder.path(PREFIX + "/board")
 						.queryParam("player_id", playerId)
 						.queryParam("contest_id", contestId)
 						.build());
@@ -134,7 +136,7 @@ public class KumiteWebclientServer implements IKumiteServer {
 	@Override
 	public Mono<PlayerContestStatus> joinContest(UUID playerId, UUID contestId) {
 		RequestBodySpec spec = webClient.post()
-				.uri(uriBuilder -> uriBuilder.path("/api/board/player")
+				.uri(uriBuilder -> uriBuilder.path(PREFIX + "/board/player")
 						.queryParam("player_id", playerId)
 						.queryParam("contest_id", contestId)
 						.build());
@@ -150,7 +152,7 @@ public class KumiteWebclientServer implements IKumiteServer {
 	@Override
 	public Mono<PlayerRawMovesHolder> getExampleMoves(UUID playerId, UUID contestId) {
 		RequestHeadersSpec<?> spec = webClient.get()
-				.uri(uriBuilder -> uriBuilder.path("/api/board/moves")
+				.uri(uriBuilder -> uriBuilder.path(PREFIX + "/board/moves")
 						.queryParam("player_id", playerId)
 						.queryParam("contest_id", contestId)
 						.build());
@@ -167,7 +169,7 @@ public class KumiteWebclientServer implements IKumiteServer {
 	@Override
 	public Mono<ContestView> playMove(UUID playerId, UUID contestId, Map<String, ?> move) {
 		RequestBodySpec spec = webClient.post()
-				.uri(uriBuilder -> uriBuilder.path("/api/board/move")
+				.uri(uriBuilder -> uriBuilder.path(PREFIX + "/board/move")
 						.queryParam("player_id", playerId)
 						.queryParam("contest_id", contestId)
 						.build());
@@ -183,7 +185,7 @@ public class KumiteWebclientServer implements IKumiteServer {
 	@Override
 	public Mono<LeaderboardRaw> loadLeaderboard(UUID contestId) {
 		RequestHeadersSpec<?> spec = webClient.get()
-				.uri(uriBuilder -> uriBuilder.path("/api/leaderboards")
+				.uri(uriBuilder -> uriBuilder.path(PREFIX + "/leaderboards")
 						// .queryParam("player_id", playerId)
 						.queryParam("contest_id", contestId)
 						.build());

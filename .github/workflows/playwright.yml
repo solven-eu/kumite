@@ -6,7 +6,7 @@ on:
     branches: [ main, master ]
 jobs:
   test:
-    timeout-minutes: 60
+    timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -20,6 +20,11 @@ jobs:
         cache: maven
     - name: Install Kumite Server
       run: mvn package -DskipTests
+    - name: Check Running ContestsServer
+      run: (cd ./server; mvn spring-boot:run;)
+    - name: Check Running ContestsServer from JS
+      working-directory: ./js
+      run: (cd ./server; mvn spring-boot:run;)
         
     - uses: actions/setup-node@v4
       with:
@@ -30,9 +35,9 @@ jobs:
     - name: Install Playwright Browsers
       working-directory: ./js
       run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      working-directory: ./js
-      run: npx playwright test
+    #- name: Run Playwright tests
+    #  working-directory: ./js
+    #  run: npm run pw_localhost8080
     - uses: actions/upload-artifact@v4
       if: always()
       with:

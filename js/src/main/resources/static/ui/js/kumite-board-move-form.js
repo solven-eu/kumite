@@ -58,7 +58,7 @@ export default {
 			},
 		}),
 		curlPostBoard() {
-			return "curl " + window.location.protocol + "//" + window.location.host + "/api/board?contest_id=" + this.contestId;
+			return "curl " + window.location.protocol + "//" + window.location.host + "/api/v1" + "/board?contest_id=" + this.contestId;
 		},
 	},
 	setup(props) {
@@ -103,7 +103,7 @@ export default {
 			// const viewingPlayerId = "00000000-0000-0000-0000-000000000000";
 			// const playerId = viewingPlayerId;
 			const playerId = store.playingPlayerId;
-			fetchFromUrl(`/api/board/moves?contest_id=${props.contestId}&player_id=${playerId}`);
+			fetchFromUrl(`/board/moves?contest_id=${props.contestId}&player_id=${playerId}`);
 		}
 		function fillMove(json) {
 			this.rawMove = JSON.stringify(json);
@@ -154,7 +154,7 @@ export default {
 			}
 
 			const playerId = store.playingPlayerId;
-			return postFromUrl(`/api/board/move?contest_id=${contestId}&player_id=${playerId}`);
+			return postFromUrl(`/board/move?contest_id=${contestId}&player_id=${playerId}`);
 		}
 
 		// We load current accountPlayers to enable player registration

@@ -1,18 +1,13 @@
-
 import KumiteContests from "./kumite-contests.js";
 
 export default {
 	components: {
 		KumiteContests,
 	},
-	props: {
-	},
-	computed: {
-	},
+	props: {},
+	computed: {},
 	setup(props) {
 		return {};
 	},
-	template: /* HTML */ `
-            <KumiteContests :showGame="true" />
-    `,
+	template: /* HTML */ ` <KumiteContests :showGame="true" /> `,
 };

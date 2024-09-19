@@ -33,6 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TestKumiteApiRouter {
 
+	String v1 = "/api/v1";
+
 	@Autowired
 	private WebTestClient webTestClient;
 
@@ -52,7 +54,7 @@ public class TestKumiteApiRouter {
 		webTestClient
 
 				.get()
-				.uri("/api/hello")
+				.uri(v1 + "/hello")
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
@@ -72,7 +74,7 @@ public class TestKumiteApiRouter {
 		webTestClient
 
 				.get()
-				.uri("/api/games")
+				.uri(v1 + "/games")
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
@@ -105,7 +107,7 @@ public class TestKumiteApiRouter {
 
 		webTestClient.get()
 
-				.uri("/api/games?game_id=undefined")
+				.uri(v1 + "/games?game_id=undefined")
 				.accept(MediaType.APPLICATION_JSON)
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.exchange()
@@ -120,7 +122,7 @@ public class TestKumiteApiRouter {
 
 		webTestClient.get()
 
-				.uri("/api/games?game_id=" + new TravellingSalesmanProblem().getGameMetadata().getGameId())
+				.uri(v1 + "/games?game_id=" + new TravellingSalesmanProblem().getGameMetadata().getGameId())
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
@@ -134,7 +136,7 @@ public class TestKumiteApiRouter {
 		log.debug("About {}", ContestSearchHandler.class);
 
 		webTestClient.get()
-				.uri("/api/contests")
+				.uri(v1 + "/contests")
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()

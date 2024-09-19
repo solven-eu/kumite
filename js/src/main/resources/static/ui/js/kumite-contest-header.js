@@ -3,8 +3,12 @@ import { ref, onMounted, onUnmounted } from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
+import KumiteAccountRef from "./kumite-account-ref.js";
+
 export default {
-	// https://vuejs.org/guide/components/props.html
+components: {
+    KumiteAccountRef,
+},
 	props: {
 		contestId: {
 			type: String,
@@ -86,7 +90,10 @@ export default {
                 <RouterLink :to="{path:'/html/games/' + gameId}"><i class="bi bi-arrow-90deg-left"></i></RouterLink>
             </h2>
 
-                author: {{contest.constantMetadata.author}} created: {{contest.constantMetadata.created}}
+            <ul>
+            <li>author: <KumiteAccountRef :accountId="contest.constantMetadata.author" /></li>
+            <li>created: {{contest.constantMetadata.created}}</li>
+            </ul>
         </span>
     `,
 };

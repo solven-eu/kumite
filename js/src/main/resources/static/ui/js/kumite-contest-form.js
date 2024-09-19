@@ -75,7 +75,7 @@ export default {
 				}
 			}
 
-			return postFromUrl(`/api/contests?game_id=${props.gameId}`);
+			return postFromUrl(`/contests?game_id=${props.gameId}`);
 		};
 
 		return { contestName, submitContestForm, createdContest };

@@ -16,14 +16,14 @@ export default {
 		KumiteContests,
 	},
 	props: {
-        gameId: {
-            type: String,
-            required: true,
-        },
-        showContests: {
-            type: Boolean,
-            default: false,
-        },
+		gameId: {
+			type: String,
+			required: true,
+		},
+		showContests: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	computed: {
 		...mapState(useKumiteStore, ["nbGameFetching", "metadata"]),
@@ -45,19 +45,19 @@ export default {
 		// console.log("gameId", props.gameId);
 		// console.log("game", props.game);
 
-        const nbContests = ref("...");
-        
+		const nbContests = ref("...");
+
 		store.loadGameIfMissing(props.gameId).then(() => {
-            store.loadContests(props.gameId).then(contests => {
-                nbContests.value = contests.length;
-            });
-        });
+			store.loadContests(props.gameId).then((contests) => {
+				nbContests.value = contests.length;
+			});
+		});
 
 		// https://getbootstrap.com/docs/5.3/components/tooltips/
 		// https://stackoverflow.com/questions/69053972/adding-bootstrap-5-tooltip-to-vue-3
 		new Tooltip(document.body, { selector: "[data-bs-toggle='tooltip']" });
 
-		return {nbContests};
+		return { nbContests };
 	},
 	template: /* HTML */ `
         <div v-if="!game && nbGameFetching > 0">Loading <RouterLink :to="{path:'/html/games/' + gameId}">game={{gameId}}</RouterLink></div>
@@ -72,15 +72,17 @@ export default {
             <ul v-for="ref in game.references">
                 <li><a :href="ref" target="_blank">{{ref}}</a></li>
             </ul>
-            
+
             <span v-if="showContests">
                 <KumiteContests :gameId="gameId" :showGame="false" />
             </span>
             <span v-else>
-                <RouterLink :to="{path:'/html/games/' + game.gameId + '/contests'}"><i class="bi bi-trophy"></i> Join an existing contest ({{nbContests}})</RouterLink><br/>
+                <RouterLink :to="{path:'/html/games/' + game.gameId + '/contests'}"
+                    ><i class="bi bi-trophy"></i> Join an existing contest ({{nbContests}})</RouterLink
+                ><br />
             </span>
 
-            <RouterLink :to="{path:'/html/games/' + game.gameId + '/contest-form'}"><i class="bi bi-node-plus"></i> Create your own contest</RouterLink><br/>
+            <RouterLink :to="{path:'/html/games/' + game.gameId + '/contest-form'}"><i class="bi bi-node-plus"></i> Create your own contest</RouterLink><br />
         </div>
     `,
 };
