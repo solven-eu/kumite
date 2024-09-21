@@ -2,6 +2,7 @@ package eu.solven.kumite.app.webflux;
 
 import org.springframework.context.annotation.Import;
 
+import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameSearchHandler;
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 		KumiteLoginRouter.class,
 		AccessTokenHandler.class,
+		KumiteTokenService.class,
 
 })
 @Slf4j

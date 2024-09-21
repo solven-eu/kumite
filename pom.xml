@@ -23,6 +23,8 @@
 		<module>public</module>
 		<!-- The Javascript resource of the Contest server -->
 		<module>js</module>
+        <!-- What's refer to access_token and refresh_token -->
+        <module>authorization</module>
 		<!-- Host the contests, and serves the API -->
 		<module>server</module>
 		<!-- Demonstrate how to list and play contest -->

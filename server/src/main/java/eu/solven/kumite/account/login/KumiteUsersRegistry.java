@@ -11,16 +11,14 @@ import eu.solven.kumite.user.IKumiteUserRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class KumiteUsersRegistry {
+public final class KumiteUsersRegistry {
 
 	// This is a cache of the external information about a user
 	// This is useful to enrich some data about other players (e.g. a Leaderboard)
-	// final Map<KumiteUserRawRaw, KumiteUser> userIdToUser = new ConcurrentHashMap<>();
 	final IKumiteUserRepository userRepository;
 
 	// We may have multiple users for a single account
 	// This maps to the latest/main one
-	// final Map<UUID, KumiteUserRawRaw> accountIdToUser = new ConcurrentHashMap<>();
 	final IKumiteUserRawRawRepository userRawRawRepository;
 
 	public KumiteUser getUser(UUID accountId) {
@@ -41,12 +39,7 @@ public class KumiteUsersRegistry {
 	 *         update the oauth2 details and return an existing accountId
 	 */
 	public KumiteUser registerOrUpdate(KumiteUserRaw kumiteUserRaw) {
-		KumiteUser kumiteUser;
-
-		// `synchronized` to pack write on userIdToUser and accountIdToUser
-		synchronized (this) {
-			kumiteUser = userRepository.registerOrUpdate(kumiteUserRaw);
-		}
+		KumiteUser kumiteUser = userRepository.registerOrUpdate(kumiteUserRaw);
 
 		return kumiteUser;
 	}

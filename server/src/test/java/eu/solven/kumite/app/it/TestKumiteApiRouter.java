@@ -44,7 +44,8 @@ public class TestKumiteApiRouter {
 	protected String generateAccessToken() {
 		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser(),
 				Set.of(FakePlayerTokens.FAKE_PLAYER_ID1),
-				Duration.ofMinutes(1));
+				Duration.ofMinutes(1),
+				false);
 	}
 
 	@Test

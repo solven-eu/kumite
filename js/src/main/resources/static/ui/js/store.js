@@ -213,7 +213,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 			return this.ensureUser().then(() => {
 				console.log("We do have a User. Let's fetch tokens");
-				return fetchFromUrl(`/api/login/v1/token?player_id=${this.playingPlayerId}`);
+				return fetchFromUrl(`/api/login/v1/oauth2/token?player_id=${this.playingPlayerId}`);
 			});
 		},
 

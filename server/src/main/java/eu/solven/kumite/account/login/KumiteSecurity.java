@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class KumiteSecurity {
 
-	@Profile(IKumiteSpringProfiles.P_SECURED)
+	@Profile(IKumiteSpringProfiles.P_PRODMODE)
 	@Bean
 	public Void checkSecured(Environment env) {
 		boolean acceptUnsafe = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_UNSAFE,

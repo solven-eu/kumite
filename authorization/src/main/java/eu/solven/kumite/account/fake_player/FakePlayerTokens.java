@@ -1,5 +1,6 @@
 package eu.solven.kumite.account.fake_player;
 
+import java.util.Set;
 import java.util.UUID;
 
 import eu.solven.kumite.account.KumiteUser;
@@ -58,6 +59,10 @@ public class FakePlayerTokens {
 
 	public static KumitePlayer fakePlayer(int i) {
 		return KumitePlayer.builder().playerId(fakePlayerId(i)).accountId(FAKE_ACCOUNT_ID).build();
+	}
+
+	public static Set<UUID> fakePlayers() {
+		return Set.of(FakePlayerTokens.FAKE_PLAYER_ID1, FakePlayerTokens.FAKE_PLAYER_ID2);
 	}
 
 }

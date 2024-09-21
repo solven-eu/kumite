@@ -17,7 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { KumitePlayerApplication.class }, webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@ActiveProfiles({ IKumiteSpringProfiles.P_FAKE_USER })
+@ActiveProfiles({
+		// Enables generation on-the-fly on refreshToken
+		IKumiteSpringProfiles.P_UNSAFE_OAUTH2,
+		// Enables playing as fakeUser
+		IKumiteSpringProfiles.P_FAKE_USER,
+		IKumiteSpringProfiles.P_UNSAFE_PLAYER })
 @TestPropertySource(properties = "kumite.server.base-url" + "=someUrl")
 @Slf4j
 public class TestParseFakePlayer implements IKumiteSpringProfiles {
@@ -28,9 +33,12 @@ public class TestParseFakePlayer implements IKumiteSpringProfiles {
 	@Autowired
 	KumitePlayerComponentsConfiguration conf;
 
+	@Autowired
+	KumiteWebclientServerProperties kumiteWebclientServerProperties;
+
 	@Test
 	public void testPlayerIdFromAccessToken() {
-		Set<UUID> playerIds = conf.playerIdFromAccessToken(env);
+		Set<UUID> playerIds = conf.playerIdFromRefreshToken(kumiteWebclientServerProperties);
 
 		Assertions.assertThat(playerIds)
 				.contains(UUID.fromString("11111111-1111-1111-1111-111111111111"))

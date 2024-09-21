@@ -33,12 +33,13 @@ public class TestKumiteTokenService {
 	public void testJwt_randomSecret() throws JOSEException, ParseException {
 		JWK signatureSecret = tokenService.generateSignatureSecret();
 		env.setProperty(KumiteTokenService.KEY_JWT_SIGNINGKEY, signatureSecret.toJSONString());
+		env.setProperty(KumiteTokenService.ENV_OAUTH2_ISSUER, "https://some.issuer.domain");
 
 		UUID accountId = UUID.randomUUID();
 		UUID playerId = UUID.randomUUID();
 		KumiteUser user =
 				KumiteUser.builder().accountId(accountId).playerId(playerId).raw(TestTSPLifecycle.userRaw()).build();
-		String accessToken = tokenService.generateAccessToken(user, Set.of(playerId), Duration.ofMinutes(1));
+		String accessToken = tokenService.generateAccessToken(user, Set.of(playerId), Duration.ofMinutes(1), false);
 
 		{
 			JWSVerifier verifier = new MACVerifier((OctetSequenceKey) signatureSecret);

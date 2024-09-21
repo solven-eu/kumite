@@ -7,6 +7,7 @@ import lombok.Builder.Default;
 import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * User details, typically from an oauth2 provider
@@ -17,6 +18,7 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
+@Slf4j
 public class KumiteUser {
 	// Used to create contests
 	public static final UUID SERVER_ACCOUNTID = UUID.fromString("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF");
@@ -34,4 +36,5 @@ public class KumiteUser {
 	// Each account has a default playerId.
 	@NonNull
 	UUID playerId;
+
 }

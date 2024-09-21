@@ -3,15 +3,19 @@ package eu.solven.kumite.app.webflux;
 import java.util.UUID;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.login.KumiteTokenService;
+import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
-import eu.solven.kumite.login.AccessTokenHolder;
+import eu.solven.kumite.login.AccessTokenWrapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -21,25 +25,44 @@ import reactor.core.publisher.Mono;
 public class AccessTokenHandler {
 
 	final KumiteTokenService kumiteTokenService;
+	final KumiteUsersRegistry usersRegistry;
 
+	// This route has to be authenticated with a refresh_token as access_token. This is not standard following OAuth2,
+	// but to do it clean, we would need any way to provide a separate Authentication Server.
 	public Mono<ServerResponse> getAccessToken(ServerRequest request) {
-		KumiteUser user = null;
+		// The playerId authenticated by the accessToken
 		UUID queryPlayerId = KumiteHandlerHelper.uuid(request, "player_id");
 
 		return ReactiveSecurityContextHolder.getContext().map(securityContext -> {
-			log.info("2We need to check if playerId={} is valid given JWT={}",
-					queryPlayerId,
-					securityContext.getAuthentication());
+			Authentication authentication = securityContext.getAuthentication();
 
-			return securityContext.getAuthentication();
-		}).flatMap(auth2 -> {
-			AccessTokenHolder tokenWrapper = kumiteTokenService.wrapInJwtToken(user, queryPlayerId);
+			// TODO Check `authentication` is a refreshToken
+			KumiteUser user = userFromRefreshTokenJwt(authentication);
+
+			return user;
+		}).flatMap(user -> {
+			AccessTokenWrapper tokenWrapper = kumiteTokenService.wrapInJwtAccessToken(user, queryPlayerId);
 
 			return ServerResponse.ok()
 					.contentType(MediaType.APPLICATION_JSON)
 					.body(BodyInserters.fromValue(tokenWrapper));
 		});
+	}
 
+	private KumiteUser userFromRefreshTokenJwt(Authentication authentication) {
+		JwtAuthenticationToken jwtAuthentication = (JwtAuthenticationToken) authentication;
+
+		Jwt jwt = jwtAuthentication.getToken();
+
+		if (!jwt.getClaimAsBoolean("refresh_token")) {
+			throw new IllegalArgumentException("The caller needs to provide a refresh_token");
+		}
+
+		UUID accountId = UUID.fromString(jwt.getSubject());
+
+		KumiteUser user = usersRegistry.getUser(accountId);
+		log.debug("We loaded {} from jti={}", user, jwt.getId());
+		return user;
 	}
 
 }

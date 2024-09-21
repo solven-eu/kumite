@@ -23,11 +23,14 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRaw;
 import eu.solven.kumite.account.login.KumiteOAuth2UserService;
-import eu.solven.kumite.account.login.SocialWebFluxSecurity;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
+import eu.solven.kumite.app.KumiteJackson;
 import eu.solven.kumite.app.controllers.KumiteLoginController;
 import eu.solven.kumite.app.controllers.KumitePublicController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
+import eu.solven.kumite.app.webflux.AccessTokenHandler;
+import eu.solven.kumite.login.AccessTokenWrapper;
+import eu.solven.kumite.login.RefreshTokenWrapper;
 import eu.solven.kumite.scenario.TestTSPLifecycle;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = KumiteServerSecurityApplication.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE_SERVER, })
+@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, })
 @Slf4j
 // https://stackoverflow.com/questions/73881370/mocking-oauth2-client-with-webtestclient-for-servlet-applications-results-in-nul
 @AutoConfigureWebTestClient
@@ -156,7 +159,7 @@ public class TestSecurity_WithOAuth2User {
 	}
 
 	@Test
-	public void testLoginToken() {
+	public void testLoginAccessToken() {
 		log.debug("About {}", KumiteLoginController.class);
 
 		KumiteUser kumiteUser;
@@ -178,28 +181,67 @@ public class TestSecurity_WithOAuth2User {
 				.mutateWith(oauth2Login)
 
 				.get()
-				.uri("/api/login/v1/token")
+				.uri("/api/login/v1/oauth2/token")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 
 				.expectStatus()
 				.isOk()
-				.expectBody(Map.class)
-				.value(tokens -> {
-					Assertions.assertThat(tokens)
+				.expectBody(AccessTokenWrapper.class)
+				.value(token -> {
+					Map asMap = KumiteJackson.objectMapper().convertValue(token, Map.class);
+
+					Assertions.assertThat(asMap)
 							.containsKey("access_token")
 							.containsEntry("token_type", "Bearer")
 							.containsEntry("player_id", kumiteUser.getPlayerId().toString())
-							.containsEntry("expires_in", 3600)
+							.containsEntry("expires_in", 3600L)
 							.hasSize(4);
 				});
+	}
+
+	@Test
+	public void testLoginPage() {
+		log.debug("About {}", KumiteLoginController.class);
+
+		// Beware `.mutateWith(oauth2Login)` skips KumiteOAuth2UserService, hence automated registration on first OAuth2
+		// login
+		OAuth2LoginMutator oauth2Login;
+		{
+			KumiteUserRaw userRaw = TestTSPLifecycle.userRaw();
+			oauth2Login = SecurityMockServerConfigurers.mockOAuth2Login().attributes(attributes -> {
+				attributes.put("id", userRaw.getRawRaw().getSub());
+				attributes.put("providerId", userRaw.getRawRaw().getProviderId());
+			});
+			oauth2UserService.onKumiteUserRaw(userRaw);
+		}	
+
+		webTestClient
+
+				.mutateWith(oauth2Login)
+
+				.get()
+				.uri("/api/login/v1/html")
+				// .accept(MediaType.APPLICATION_JSON)
+				.exchange()
+
+				.expectStatus()
+				.isFound()
+				.expectHeader()
+				.location("login?success");
 	}
 
 	@Test
 	public void testApiPrivate() {
 		log.debug("About {}", GreetingHandler.class);
 
-		webTestClient.get().uri("/api/private").accept(MediaType.APPLICATION_JSON).exchange().expectStatus().isOk();
+		webTestClient.get()
+				.uri("/api/v1/private")
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+
+				.expectStatus()
+				.isOk();
 	}
 
 	@Test
@@ -207,7 +249,7 @@ public class TestSecurity_WithOAuth2User {
 		log.debug("About {}", GreetingHandler.class);
 
 		webTestClient.get()
-				.uri("/api/private/unknown")
+				.uri("/api/v1/private/unknown")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				.expectStatus()
@@ -242,10 +284,66 @@ public class TestSecurity_WithOAuth2User {
 				.exchange()
 				.expectStatus();
 
-		if (SocialWebFluxSecurity.DISABLE_CSRF_CORS) {
-			expectStatus.isNotFound();
-		} else {
-			expectStatus.isForbidden();
+		expectStatus.isNotFound();
+	}
+
+	@Test
+	public void testMakeRefreshToken() {
+		log.debug("About {}", KumiteLoginController.class);
+
+		// Beware `.mutateWith(oauth2Login)` skips KumiteOAuth2UserService, hence automated registration on first OAuth2
+		// login
+		OAuth2LoginMutator oauth2Login;
+		{
+			KumiteUserRaw userRaw = TestTSPLifecycle.userRaw();
+			oauth2Login = SecurityMockServerConfigurers.mockOAuth2Login().attributes(attributes -> {
+				attributes.put("id", userRaw.getRawRaw().getSub());
+				attributes.put("providerId", userRaw.getRawRaw().getProviderId());
+			});
+			oauth2UserService.onKumiteUserRaw(userRaw);
 		}
+
+		StatusAssertions expectStatus = webTestClient
+
+				.mutateWith(oauth2Login)
+
+				.get()
+				.uri("/api/login/v1/oauth2/token?refresh_token=true")
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+				.expectStatus();
+
+		expectStatus.isOk().expectBody(RefreshTokenWrapper.class).value(accessTokenHolder -> {
+			Assertions.assertThat(accessTokenHolder.getRefreshToken()).isNotEmpty();
+		});
+	}
+
+	@Test
+	public void testRefreshTokenToAccessToken() {
+		log.debug("About {}", AccessTokenHandler.class);
+
+		// Beware `.mutateWith(oauth2Login)` skips KumiteOAuth2UserService, hence automated registration on first OAuth2
+		// login
+		OAuth2LoginMutator oauth2Login;
+		{
+			KumiteUserRaw userRaw = TestTSPLifecycle.userRaw();
+			oauth2Login = SecurityMockServerConfigurers.mockOAuth2Login().attributes(attributes -> {
+				attributes.put("id", userRaw.getRawRaw().getSub());
+				attributes.put("providerId", userRaw.getRawRaw().getProviderId());
+			});
+			oauth2UserService.onKumiteUserRaw(userRaw);
+		}
+
+		StatusAssertions expectStatus = webTestClient
+
+				.mutateWith(oauth2Login)
+
+				.get()
+				.uri("/api/v1/oauth2/token?player_id=11111111-1111-1111-1111-111111111111")
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+				.expectStatus();
+
+		expectStatus.isUnauthorized();
 	}
 }

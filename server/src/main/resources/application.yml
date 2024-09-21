@@ -1,18 +1,17 @@
 spring:
     profiles:
-        # Do not add any default `include`, else `default would never kicks in`
+        # Do not add any default `include`, else `default` would never kicks in
         group:
             # `default` is used for quick-start: we enable unsafe and fake
             default:
-                - default_server
+                # unsafe provides various unsafe default parameters (like an unsafe signingKey)
                 - unsafe
-                # fake_user introduces a default fakeAccount with a default fakePlayer
-                - fake_user
+                # fakeuser introduces a default fakeAccount with a default fakePlayer
+                - fakeuser
                 - inmemory
-                - prodmode
             default_server:
                 - inject_default_games
-            secured:
+            prodmode:
                 - default_server
             heroku:
                 - secured
@@ -21,6 +20,7 @@ spring:
                 - default_server
                 # unsafe_server provides unsafe security (JWT signature, etc)
                 - unsafe_server
+                - unsafe_oauth2
                 - unsafe_external_oauth2
             unsafe_server:
                 - default_server
@@ -34,9 +34,10 @@ logging:
         eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter: DEBUG
         eu.solven.kumite.app.webflux.KumiteWebExceptionHandler: DEBUG
 
-kumite.login:
+kumite.oauth2:
     # Used to sign the JWT, which are used to interact withthe API
     signing-key: NEEDS_TO_BE_DEFINED
+    issuer-base-url: NEEDS_TO_BE_DEFINED
 
 # https://stackoverflow.com/questions/30571319/spring-boot-logging-pattern
 # https://github.com/spring-projects/spring-boot/blob/main/spring-boot-project/spring-boot/src/main/resources/org/springframework/boot/logging/logback/defaults.xml#L15C48-L15C67

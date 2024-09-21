@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 		"rediscloud.url" + "=redis://localhost:6379",
 		"spring.data.redis.host" + "=localhost",
 		"spring.data.redis.port" + "=6379",
-		"kumite.login.signing-key" + "=GENERATE" })
+		"kumite.oauth2.signing-key" + "=GENERATE" })
 @Import({ RedisTestConfiguration.class })
 @Slf4j
 public class TestSpringAutonomyHerokuRedis implements IKumiteSpringProfiles {

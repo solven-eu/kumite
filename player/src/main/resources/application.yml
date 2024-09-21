@@ -3,25 +3,28 @@ spring:
     # https://stackoverflow.com/questions/26105061/spring-boot-without-the-web-server
     main.web-application-type: NONE
     profiles:
-        include:
-          # Do not include `default`, as by `default` we include `fake_player` 
-        - default_server
+        #include:
+        #  # Do not include `default`, as by `default` we include `fake_player` 
+        #- default_server
         group:
             # `default` is used for quick-start: we enable fake security
             default:
-            - fake_user
-            default_server:
-            - inject_default_games 
+            - unsafe
+            unsafe:
+            - fakeuser
+            - unsafe_player
+            - unsafe_server
+            - unsafe_oauth2
 
 logging:
     level:
         org.springframework.security: INFO
         eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter: DEBUG
 
-kumite.playerId: "NEEDS_A_PROPER_VALUE"
+# kumite.playerId: "NEEDS_A_PROPER_VALUE"
 
 kumite.server:
-    # A default token, valid if the server is started with `???`
-    access_token: "NEEDS_A_PROPER_VALUE"
+    # One need to generate a refresh tken from the `js` app, on route `/html/me`
+    refresh_token: "NEEDS_A_PROPER_VALUE"
 
 

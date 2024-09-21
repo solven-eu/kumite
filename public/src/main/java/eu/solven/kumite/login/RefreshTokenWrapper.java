@@ -1,5 +1,6 @@
 package eu.solven.kumite.login;
 
+import java.util.Set;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -13,9 +14,9 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class AccessTokenHolder {
-	String accessToken;
-	UUID playerId;
+public class RefreshTokenWrapper implements ITokenHolder {
+	String refreshToken;
+	Set<UUID> playerIds;
 	String tokenType;
 	// https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
 	// in seconds

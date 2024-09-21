@@ -23,12 +23,12 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import eu.solven.kumite.account.fake_player.FakePlayerTokens;
 import eu.solven.kumite.account.login.KumiteTokenService;
-import eu.solven.kumite.account.login.SocialWebFluxSecurity;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.controllers.KumiteLoginController;
 import eu.solven.kumite.app.controllers.KumitePublicController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.app.webflux.AccessTokenHandler;
+import eu.solven.kumite.login.AccessTokenWrapper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = KumiteServerSecurityApplication.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE_SERVER })
+@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE })
 @Slf4j
 // https://stackoverflow.com/questions/73881370/mocking-oauth2-client-with-webtestclient-for-servlet-applications-results-in-nul
 @AutoConfigureWebTestClient
@@ -55,7 +55,15 @@ public class TestSecurity_WithJwtUser {
 	protected String generateAccessToken() {
 		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser(),
 				Set.of(FakePlayerTokens.FAKE_PLAYER_ID1),
-				Duration.ofMinutes(1));
+				Duration.ofMinutes(1),
+				false);
+	}
+
+	protected String generateRefreshToken() {
+		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser(),
+				Set.of(FakePlayerTokens.FAKE_PLAYER_ID1),
+				Duration.ofMinutes(1),
+				true);
 	}
 
 	@Test
@@ -152,7 +160,24 @@ public class TestSecurity_WithJwtUser {
 		webTestClient
 
 				.get()
-				.uri("/api/login/v1/token")
+				.uri("/api/login/v1/oauth2/token")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+
+				.expectStatus()
+				// This routes requires OAuth2 authentication
+				.isUnauthorized();
+	}
+
+	@Test
+	public void testLoginPage() {
+		log.debug("About {}", KumiteLoginController.class);
+
+		webTestClient
+
+				.get()
+				.uri("/api/login/v1/html")
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
@@ -161,7 +186,7 @@ public class TestSecurity_WithJwtUser {
 				// This routes requires OAuth2 authentication
 				.isFound()
 				.expectHeader()
-				.location("/login");
+				.location("login");
 	}
 
 	@Test
@@ -195,7 +220,7 @@ public class TestSecurity_WithJwtUser {
 	}
 
 	@Test
-	public void testApiPrivatePostMoveWithCsrf() {
+	public void testApiPOSTWithCsrf() {
 		log.debug("About {}", GreetingHandler.class);
 
 		webTestClient
@@ -203,46 +228,59 @@ public class TestSecurity_WithJwtUser {
 				.mutateWith(SecurityMockServerConfigurers.csrf())
 
 				.post()
-				.uri("/api/board/move?contest_id=7ffcb8e6-bf71-4817-9f72-077c22172643&player_id=11111111-1111-1111-1111-111111111111")
+				.uri("/api/v1/hello")
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.bodyValue("{}")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 
 				.expectStatus()
-				.isNotFound();
+				.isOk();
 	}
 
 	@Test
-	public void testApiPrivatePostMoveWithoutCsrf() {
+	public void testApiPOSTWithoutCsrf() {
 		log.debug("About {}", GreetingHandler.class);
 
 		StatusAssertions expectStatus = webTestClient.post()
-				.uri("/api/board/move?contest_id=7ffcb8e6-bf71-4817-9f72-077c22172643&player_id=11111111-1111-1111-1111-111111111111")
+				.uri("/api/v1/hello")
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.bodyValue("{}")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				.expectStatus();
 
-		if (SocialWebFluxSecurity.DISABLE_CSRF_CORS) {
-			expectStatus.isNotFound();
-		} else {
-			expectStatus.isForbidden();
-		}
+		expectStatus.isOk();
 	}
 
 	@Test
-	public void testLongLivedJwt() {
-		log.debug("About {}", AccessTokenHandler.class);
+	public void testMakeRefreshToken() {
+		log.debug("About {}", KumiteLoginController.class);
 
 		StatusAssertions expectStatus = webTestClient.get()
-				.uri("/api/v1/token?player_id=11111111-1111-1111-1111-111111111111")
+				.uri("/api/login/v1/oauth2/token?refresh_token=true")
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				.expectStatus();
 
-		expectStatus.isNotFound();
+		// We need an oauth2 user, not a jwt user
+		expectStatus.isUnauthorized();
+	}
+
+	@Test
+	public void testRefreshTokenToAccessToken() {
+		log.debug("About {}", AccessTokenHandler.class);
+
+		StatusAssertions expectStatus = webTestClient.get()
+				.uri("/api/v1/oauth2/token?player_id=11111111-1111-1111-1111-111111111111")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateRefreshToken())
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+				.expectStatus();
+
+		expectStatus.isOk().expectBody(AccessTokenWrapper.class).value(accessTokenHolder -> {
+			Assertions.assertThat(accessTokenHolder.getAccessToken()).isNotEmpty();
+		});
 	}
 }

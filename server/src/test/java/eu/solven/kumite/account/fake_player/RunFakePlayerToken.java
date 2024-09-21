@@ -19,7 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Various tools specific to the FakePlayer. This player is useful for local development, circumventing the need for an
- * actual login flow, with an external login provider.
+ * actual login flow, with an external login provider. It is generally not useful as we rely on `GENERATE_FAKEUSER`
+ * placeholder to generate a token on the fly.
  * 
  * @author Benoit Lacelle
  *
@@ -33,13 +34,13 @@ public class RunFakePlayerToken {
 		SpringApplication springApplication = new SpringApplication(RunFakePlayerToken.class);
 
 		springApplication.setWebApplicationType(WebApplicationType.NONE);
-		springApplication.setAdditionalProfiles(IKumiteSpringProfiles.P_UNSAFE_SERVER,
+		springApplication.setAdditionalProfiles(
+				// unsafe-server provide a signingKey
+				IKumiteSpringProfiles.P_UNSAFE_SERVER,
+				// fake_user tells the fakeUser is usable
 				IKumiteSpringProfiles.P_FAKE_USER);
 
 		Map<String, Object> defaultProperties = new LinkedHashMap<>();
-		// We set a quite long expiry as this is typically injected as default token in application-fake_player.yml
-		// defaultProperties.put(KumiteTokenService.KEY_ACCESSTOKEN_EXP, );
-
 		springApplication.setDefaultProperties(defaultProperties);
 
 		springApplication.run().close();
@@ -49,7 +50,8 @@ public class RunFakePlayerToken {
 	public Void generateFakePlayerToken(KumiteTokenService tokenService) {
 		String accessToken = tokenService.generateAccessToken(FakePlayerTokens.fakeUser(),
 				Set.of(FakePlayerTokens.FAKE_PLAYER_ID1, FakePlayerTokens.FAKE_PLAYER_ID2),
-				Duration.ofDays(365));
+				Duration.ofDays(365),
+				false);
 
 		log.info("access_token for fakeUser: {}", accessToken);
 

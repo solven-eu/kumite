@@ -1,17 +1,25 @@
 package eu.solven.kumite.app.controllers;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,15 +32,24 @@ import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.webflux.LoginRouteButNotAuthenticatedException;
-import eu.solven.kumite.login.AccessTokenHolder;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
+import eu.solven.kumite.player.KumitePlayer;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
 
+/**
+ * This {@link Controller} is dedicated to `js` usage. It bridges with the API by providing `refresh_token`s.
+ * 
+ * @author Benoit Lacelle
+ *
+ */
 @RestController
 @RequestMapping("/api/login/v1")
 @AllArgsConstructor
 public class KumiteLoginController {
+	public static final String PROVIDERID_GITHUB = "github";
+	public static final String PROVIDERID_TEST = "test";
+
 	final InMemoryReactiveClientRegistrationRepository clientRegistrationRepository;
 
 	final KumiteUsersRegistry usersRegistry;
@@ -59,30 +76,60 @@ public class KumiteLoginController {
 		return Map.of("map", registrationIdToDetails, "list", registrationIdToDetails.values());
 	}
 
+	/**
+	 * 
+	 * @param oauth2User
+	 * @return a REDIRECT to the relevant route to be rendered as HTML, given current user authentication status.
+	 */
+	@GetMapping("/html")
+	public ResponseEntity<?> loginpage(@AuthenticationPrincipal OAuth2User oauth2User) {
+		String url;
+		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_USER))) {
+			url = "login?fakeuser";
+		} else if (oauth2User == null) {
+			url = "login";
+		} else {
+			url = "login?success";
+		}
+
+		// Spring-OAuth2-Login returns FOUND in case current user is not authenticated: let's follow this choice is=n
+		// this route dedicated in proper direction.
+		return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, url).build();
+	}
+
 	// @PreAuthorize("isAuthenticated()")
 	@GetMapping("/user")
 	public Mono<KumiteUser> user(@AuthenticationPrincipal Mono<OAuth2User> oauth2User) {
 		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_USER))) {
-
-			KumiteUser fakeUser = FakePlayerTokens.fakeUser();
-			return Mono.just(fakeUser);
+			return Mono.just(usersRegistry.getUser(FakePlayerTokens.FAKE_ACCOUNT_ID));
 		} else if (oauth2User == null) {
 			// Happens if this route is called without authentication
-			return Mono.error(() -> new LoginRouteButNotAuthenticatedException());
+			return Mono.error(() -> new LoginRouteButNotAuthenticatedException("Lack of OAuth2 user"));
 		} else {
 			return oauth2User.map(o -> {
-				String providerId = guessProviderId(o);
-				String sub = getSub(providerId, o);
-				KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId(providerId).sub(sub).build();
-				KumiteUser user = usersRegistry.getUser(rawRaw);
+				KumiteUser user = userFromOAuth2(o);
 
 				return user;
-			}).switchIfEmpty(Mono.error(() -> new IllegalArgumentException("No user")));
+			}).switchIfEmpty(Mono.error(() -> new LoginRouteButNotAuthenticatedException("No user")));
 		}
 	}
 
+	private KumiteUser userFromOAuth2(OAuth2User o) {
+		String providerId = guessProviderId(o);
+		String sub = getSub(providerId, o);
+		KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId(providerId).sub(sub).build();
+		KumiteUser user = usersRegistry.getUser(rawRaw);
+		return user;
+	}
+
 	private String getSub(String providerId, OAuth2User o) {
-		if ("github".equals(providerId)) {
+		if (PROVIDERID_GITHUB.equals(providerId)) {
+			Object sub = o.getAttribute("id");
+			if (sub == null) {
+				throw new IllegalStateException("Invalid sub: " + sub);
+			}
+			return sub.toString();
+		} else if (PROVIDERID_TEST.equals(providerId)) {
 			Object sub = o.getAttribute("id");
 			if (sub == null) {
 				throw new IllegalStateException("Invalid sub: " + sub);
@@ -94,21 +141,32 @@ public class KumiteLoginController {
 	}
 
 	private String guessProviderId(OAuth2User o) {
-		if ("testProviderId".equals(o.getAttribute("providerId"))) {
-			return "testProviderId";
+		if (PROVIDERID_TEST.equals(o.getAttribute("providerId"))) {
+			return PROVIDERID_TEST;
 		}
-		return "github";
+		return PROVIDERID_GITHUB;
 	}
 
-	@GetMapping("/token")
-	public Mono<AccessTokenHolder> token(@AuthenticationPrincipal Mono<OAuth2User> oauth2User,
-			@RequestParam(name = "player_id", required = false) String rawPlayerId) {
+	@GetMapping("/oauth2/token")
+	public Mono<?> token(@AuthenticationPrincipal Mono<OAuth2User> oauth2User,
+			@RequestParam(name = "player_id", required = false) String rawPlayerId,
+			@RequestParam(name = "refresh_token", defaultValue = "false") boolean requestRefreshToken) {
 		return user(oauth2User).map(user -> {
-			UUID playerId = KumiteHandlerHelper.optUuid(Optional.ofNullable(rawPlayerId)).orElse(user.getPlayerId());
-
-			checkValidPlayerId(user, playerId);
-
-			return kumiteTokenService.wrapInJwtToken(user, playerId);
+			if (requestRefreshToken) {
+				// TODO Restrict if `rawPlayerId` is provided.
+				if (!StringUtils.isEmpty(rawPlayerId)) {
+					throw new IllegalArgumentException("`player_id` is not hanlded yet for `refresh_token=true`");
+				}
+				List<KumitePlayer> players = playersRegistry.makeDynamicHasPlayers(user.getAccountId()).getPlayers();
+				// Beware this would not allow playerIds generated after the refresh_token creation
+				Set<UUID> playerIds = players.stream().map(KumitePlayer::getPlayerId).collect(Collectors.toSet());
+				return kumiteTokenService.wrapInJwtRefreshToken(user, playerIds);
+			} else {
+				UUID playerId =
+						KumiteHandlerHelper.optUuid(Optional.ofNullable(rawPlayerId)).orElse(user.getPlayerId());
+				checkValidPlayerId(user, playerId);
+				return kumiteTokenService.wrapInJwtAccessToken(user, playerId);
+			}
 		});
 	}
 

@@ -32,8 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class SocialWebFluxSecurity {
-	// https://www.baeldung.com/spring-security-csrf
-	public static final boolean DISABLE_CSRF_CORS = true;
 
 	// https://github.com/ch4mpy/spring-addons/tree/master/samples/tutorials/resource-server_with_ui
 	// https://stackoverflow.com/questions/74744901/default-401-instead-of-redirecting-for-oauth2-login-spring-security
@@ -49,20 +47,13 @@ public class SocialWebFluxSecurity {
 			throw new IllegalStateException();
 		};
 
-		boolean fakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_USER));
-		if (fakeUser) {
-			log.warn("{}=true", IKumiteSpringProfiles.P_FAKE_USER);
-		} else {
-			log.info("{}=false", IKumiteSpringProfiles.P_FAKE_USER);
-		}
-
 		return http
 				// We restrict the scope of this UI securityFilterChain to UI routes
 				// Not matching routes will be handled by the API securityFilterChain
 				.securityMatcher(ServerWebExchangeMatchers.pathMatchers(
-						// These 2 login routes are authenticated through browser session, build from OAuth2 provider
-						"/api/login/v1/user",
-						"/api/login/v1/token",
+						// The `/api/login/v1/**` routes are authenticated through browser session, build from OAuth2
+						// provider
+						"/api/login/v1/**",
 						"/oauth2/**",
 						// Holds static resources (e.g. `/ui/js/store.js`)
 						"/ui/js/**",
@@ -70,7 +61,6 @@ public class SocialWebFluxSecurity {
 						// The routes used by the spa
 						"/",
 						"/favicon.ico",
-						// "/login",
 						"/html/**",
 
 						"/login/oauth2/code/*",
@@ -81,17 +71,14 @@ public class SocialWebFluxSecurity {
 				.authorizeExchange(auth -> auth
 
 						// Login does not requires being loggged-in yet
-						.pathMatchers(
-								// "/login",
-								"/login/oauth2/code/**")
+						.pathMatchers("/login/oauth2/code/**")
 						.permitAll()
+
 						// Swagger UI
 						.pathMatchers("/swagger-ui.html", "/swagger-ui/**")
 						.permitAll()
 						// The route used by the SPA
-						.pathMatchers("/", "/html/**"
-						// ,"/login"
-						)
+						.pathMatchers("/", "/html/**")
 						.permitAll()
 						// Webjars and static resources
 						.pathMatchers("/ui/js/**", "/ui/img/**", "/webjars/**", "/favicon.ico")
@@ -99,12 +86,10 @@ public class SocialWebFluxSecurity {
 
 						// If there is no logged-in user, we return a 401.
 						// `permitAll` is useful to return a 401 manually, else `.oauth2Login` would return a 302
-						.pathMatchers("/api/login/v1/user")
-						.permitAll()
-
-						// If `fakeUser`, we give free-access to all resources. Else this rule is a no-op, and these
-						// routes needs authentication
-						.pathMatchers(fakeUser ? "/api/login/v1/token" : "/none")
+						.pathMatchers("/api/login/v1/user",
+								"/api/login/v1/oauth2/token",
+								"/api/login/v1/html",
+								"/api/login/v1/providers")
 						.permitAll()
 
 						// The rest needs to be authenticated
@@ -112,15 +97,20 @@ public class SocialWebFluxSecurity {
 						.authenticated())
 
 				// `/html/login` has to be synced with the SPA login route
-				.formLogin(login -> login.loginPage("http%s://localhost:8080/html/login".formatted(isSsl ? "s" : ""))
-						// Required not to get an NPE at `.build()`
-						.authenticationManager(ram))
+				.formLogin(login -> {
+					String loginPage = ("http%s://localhost:8080" + "/html/login").formatted(isSsl ? "s" : "");
+					login.loginPage(loginPage)
+							// Required not to get an NPE at `.build()`
+							.authenticationManager(ram);
+				})
 				// How to request prompt=consent for Github?
 				// https://docs.spring.io/spring-security/reference/servlet/oauth2/client/authorization-grants.html
 				// https://stackoverflow.com/questions/74242738/how-to-logout-from-oauth-signed-in-web-app-with-github
-				.oauth2Login(
-						oauth2 -> oauth2.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler(
-								"http%s://localhost:8080/html/login?success".formatted(isSsl ? "s" : ""))))
+				.oauth2Login(oauth2 -> {
+					String loginSuccess =
+							("http%s://localhost:8080" + "/html/login?success").formatted(isSsl ? "s" : "");
+					oauth2.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler(loginSuccess));
+				})
 
 				.build();
 	}
@@ -139,10 +129,6 @@ public class SocialWebFluxSecurity {
 	public SecurityWebFilterChain configureApi(ServerHttpSecurity http,
 			Environment env,
 			ReactiveJwtDecoder jwtDecoder) {
-		if (DISABLE_CSRF_CORS) {
-			// i.e. authentication based on a JWT as header, not automated auth through cookie and session
-			log.info("We disabled CORS and CSRF in API, as the API has stateless auth");
-		}
 
 		boolean fakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_USER));
 		if (fakeUser) {
@@ -154,17 +140,14 @@ public class SocialWebFluxSecurity {
 		// We can disable CSRF as these routes are stateless, does not rely on any cookie/session, but on some JWT
 		return http
 
-				// Store CSRF token in a cookie
-				// .csrf(csrf -> csrf.csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse()))
+				// https://www.baeldung.com/spring-security-csrf
 				.csrf(csrf -> {
-					if (DISABLE_CSRF_CORS) {
-						csrf.disable();
-					}
+					log.info("CSRF is disbled in API as API has stateless auth");
+					csrf.disable();
 				})
 				.cors(cors -> {
-					if (DISABLE_CSRF_CORS) {
-						cors.disable();
-					}
+					log.info("CORS is disbled in API as API has stateless auth");
+					cors.disable();
 				})
 
 				.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtDecoder(jwtDecoder)))
@@ -178,9 +161,6 @@ public class SocialWebFluxSecurity {
 						.permitAll()
 						// public API is public
 						.pathMatchers("/api/v1/public/**")
-						.permitAll()
-						// Some Login APIs are public
-						.pathMatchers("/api/login/v1/providers")
 						.permitAll()
 
 						// If fakeUser==true, we allow the reset route (for integration tests)

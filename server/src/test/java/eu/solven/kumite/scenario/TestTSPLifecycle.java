@@ -20,6 +20,7 @@ import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerComponentsConfiguration;
+import eu.solven.kumite.app.controllers.KumiteLoginController;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestsRegistry;
@@ -73,7 +74,8 @@ public class TestTSPLifecycle {
 	BoardLifecycleManager boardLifecycleManager;
 
 	public static final KumiteUserRaw userRaw() {
-		KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId("testProviderId").sub("test").build();
+		KumiteUserRawRaw rawRaw =
+				KumiteUserRawRaw.builder().providerId(KumiteLoginController.PROVIDERID_TEST).sub("test").build();
 		return KumiteUserRaw.builder().rawRaw(rawRaw).email("test@test").username("fakeUsername").build();
 	}
 

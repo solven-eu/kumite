@@ -39,11 +39,9 @@ import reactor.core.publisher.Mono;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = KumiteServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE_SERVER,
-		IKumiteSpringProfiles.P_FAKE_USER,
-		IKumiteSpringProfiles.P_INMEMORY })
+@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, IKumiteSpringProfiles.P_INMEMORY })
 @TestPropertySource(properties = { "kumite.random.seed=123",
-		"kumite.playerId=11111111-1111-1111-1111-111111111111",
+		// "kumite.playerId=11111111-1111-1111-1111-111111111111",
 		"kumite.server.base-url=http://localhost:LocalServerPort" })
 @Slf4j
 public class TestTSPLifecycleThroughRouter {
@@ -60,7 +58,7 @@ public class TestTSPLifecycleThroughRouter {
 		UUID playerId = FakePlayerTokens.FAKE_PLAYER_ID1;
 		KumiteTokenService kumiteTokenService = new KumiteTokenService(env, new JdkUuidGenerator());
 		String accessToken = kumiteTokenService
-				.generateAccessToken(FakePlayerTokens.fakeUser(), Set.of(playerId), Duration.ofMinutes(1));
+				.generateAccessToken(FakePlayerTokens.fakeUser(), Set.of(playerId), Duration.ofMinutes(1), false);
 
 		IKumiteServer kumiteServer = new KumiteWebclientServer(env, randomServerPort, accessToken);
 

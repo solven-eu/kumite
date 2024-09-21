@@ -19,11 +19,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import eu.solven.kumite.account.login.SocialWebFluxSecurity;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.controllers.KumiteLoginController;
 import eu.solven.kumite.app.controllers.KumitePublicController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
+import eu.solven.kumite.app.webflux.AccessTokenHandler;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
 // https://stackoverflow.com/questions/73881370/mocking-oauth2-client-with-webtestclient-for-servlet-applications-results-in-nul
-@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE_SERVER })
+@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE })
 @AutoConfigureWebTestClient
 public class TestSecurity_WithoutAuth {
 
@@ -160,7 +160,40 @@ public class TestSecurity_WithoutAuth {
 		webTestClient
 
 				.get()
-				.uri("/api/login/v1/token")
+				.uri("/api/login/v1/oauth2/token")
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+
+				// By default, oauth2 returns a 302 if not logged-in
+				.expectStatus()
+				.isUnauthorized();
+	}
+
+	@Test
+	public void testLoginPage() {
+		log.debug("About {}", KumiteLoginController.class);
+
+		webTestClient
+
+				.get()
+				.uri("/api/login/v1/html")
+				// .accept(MediaType.APPLICATION_JSON)
+				.exchange()
+
+				.expectStatus()
+				.isFound()
+				.expectHeader()
+				.location("login");
+	}
+
+	@Test
+	public void testLoginUnknown() {
+		log.debug("About {}", GreetingHandler.class);
+
+		webTestClient
+
+				.get()
+				.uri("/api/login/v1/unknown")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 
@@ -201,38 +234,64 @@ public class TestSecurity_WithoutAuth {
 				.isUnauthorized();
 	}
 
+	// TODO Change the route to make sure CSRF and CORS are OK on the first securityFilterChain
 	@Test
-	public void testApiPrivatePostMoveWithCsrf() {
-		log.debug("About {}", GreetingHandler.class);
+	public void testApiPOSTWithCsrf() {
+		log.debug("About {}", KumitePublicController.class);
 
 		webTestClient
-				// CSRF
+				// https://www.baeldung.com/spring-security-csrf
 				.mutateWith(SecurityMockServerConfigurers.csrf())
 
 				.post()
-				.uri("/api/board/move?contest_id=7ffcb8e6-bf71-4817-9f72-077c22172643&player_id=11111111-1111-1111-1111-111111111111")
+				.uri("/api/v1/hello")
 				.bodyValue("{}")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
+
 				.expectStatus()
 				.isUnauthorized();
 	}
 
+	// TODO Change the route to make sure CSRF and CORS are OK on the first securityFilterChain
 	@Test
-	public void testApiPrivatePostMoveWithoutCsrf() {
-		log.debug("About {}", GreetingHandler.class);
+	public void testApiPOSTWithoutCsrf() {
+		log.debug("About {}", KumitePublicController.class);
 
 		StatusAssertions expectStatus = webTestClient.post()
-				.uri("/api/board/move?contest_id=7ffcb8e6-bf71-4817-9f72-077c22172643&player_id=11111111-1111-1111-1111-111111111111")
+				.uri("/api/v1/hello")
 				.bodyValue("{}")
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()
 				.expectStatus();
 
-		if (SocialWebFluxSecurity.DISABLE_CSRF_CORS) {
-			expectStatus.isUnauthorized();
-		} else {
-			expectStatus.isForbidden();
-		}
+		expectStatus.isUnauthorized();
+	}
+
+	@Test
+	public void testMakeRefreshToken() {
+		log.debug("About {}", KumiteLoginController.class);
+
+		StatusAssertions expectStatus = webTestClient.get()
+				.uri("/api/login/v1/oauth2/token?refresh_token=true")
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+				.expectStatus();
+
+		// We need an oauth2 user, not a jwt user
+		expectStatus.isUnauthorized();
+	}
+
+	@Test
+	public void testRefreshTokenToAccessToken() {
+		log.debug("About {}", AccessTokenHandler.class);
+
+		StatusAssertions expectStatus = webTestClient.get()
+				.uri("/api/v1/oauth2/token?player_id=11111111-1111-1111-1111-111111111111")
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+				.expectStatus();
+
+		expectStatus.isUnauthorized();
 	}
 }

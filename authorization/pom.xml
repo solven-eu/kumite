@@ -7,33 +7,14 @@
         <artifactId>aggregator</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>player</artifactId>
-    <description>Demo player, based on polling</description>
+    <artifactId>authorization</artifactId>
+    <description>Manage access_token and refresh_token</description>
 
     <dependencies>
         <dependency>
             <groupId>eu.solven.kumite</groupId>
             <artifactId>public</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <!-- Used to generate fakePlayer refreshToken on the fly -->
-            <groupId>eu.solven.kumite</groupId>
-            <artifactId>authorization</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <!-- WebClient-->
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-            <exclusions>
-                <!-- Do not expore any API -->
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-reactor-netty</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -42,6 +23,11 @@
             <artifactId>nimbus-jose-jwt</artifactId>
             <version>9.41.1</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-jose</artifactId>
+        </dependency>
 
         <!-- https://github.com/cowtowncoder/java-uuid-generator -->
         <!-- Useful for deterministic UUID generation, e.g. in development environments-->
@@ -49,14 +35,6 @@
             <groupId>com.fasterxml.uuid</groupId>
             <artifactId>java-uuid-generator</artifactId>
             <version>5.1.0</version>
-        </dependency>
-
-        <!-- tools -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
         </dependency>
 
         <dependency>

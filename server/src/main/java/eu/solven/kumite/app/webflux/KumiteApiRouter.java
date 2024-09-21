@@ -3,23 +3,16 @@ package eu.solven.kumite.app.webflux;
 import static org.springdoc.core.fn.builders.apiresponse.Builder.responseBuilder;
 import static org.springdoc.core.fn.builders.parameter.Builder.parameterBuilder;
 
-import java.util.Optional;
-import java.util.UUID;
-
 import org.springdoc.core.fn.builders.parameter.Builder;
 import org.springdoc.webflux.core.fn.SpringdocRouteBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
-import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.board.BoardHandler;
 import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameSearchHandler;
@@ -44,10 +37,15 @@ public class KumiteApiRouter {
 		return RequestPredicates.path("/api/v1" + path).and(json);
 	}
 
+	@Bean
+	PlayerVerifierFilterFunction playerVerifierFilterFunction() {
+		return new PlayerVerifierFilterFunction();
+	}
+
 	// https://github.com/springdoc/springdoc-openapi-demos/tree/2.x/springdoc-openapi-spring-boot-2-webflux-functional
 	// https://stackoverflow.com/questions/6845772/should-i-use-singular-or-plural-name-convention-for-rest-resources
 	@Bean
-	public RouterFunction<ServerResponse> apiRoutes(GreetingHandler greetingHandler,
+	public RouterFunction<ServerResponse> apiRoutes(PlayerVerifierFilterFunction playerVerifierFilterFunction,
 			GameSearchHandler gamesSearchHandler,
 			PlayersSearchHandler playersSearchHandler,
 			ContestSearchHandler contestSearchHandler,
@@ -61,8 +59,6 @@ public class KumiteApiRouter {
 		Builder contestId = parameterBuilder().name("contest_id").description("Search for a specific contestId");
 
 		return SpringdocRouteBuilder.route()
-				.GET(json("/hello"), greetingHandler::hello, ops -> ops.operationId("hello"))
-
 				.GET(json("/games"),
 						gamesSearchHandler::listGames,
 						ops -> ops.operationId("searchGames")
@@ -117,20 +113,7 @@ public class KumiteApiRouter {
 				// webhooksHandler::dropWebhooks,
 				// ops -> ops.operationId("deleteWebhook"))
 
-				.filter((request, next) -> {
-					Optional<UUID> optPlayerId = KumiteHandlerHelper.optUuid(request, "player_id");
-
-					return ReactiveSecurityContextHolder.getContext().map(securityContext -> {
-						Authentication authentication = securityContext.getAuthentication();
-						optPlayerId.ifPresent(queryPlayerId -> {
-							log.info("We need to check if playerId={} is valid given JWT={}",
-									queryPlayerId,
-									authentication);
-						});
-
-						return authentication;
-					}).then(next.handle(request));
-				}, ops -> {
+				.filter(playerVerifierFilterFunction, ops -> {
 				})
 				.build();
 

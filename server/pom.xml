@@ -10,11 +10,16 @@
 	<description>Contests Server</description>
 
 	<dependencies>
-		<dependency>
-			<groupId>eu.solven.kumite</groupId>
-			<artifactId>public</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>eu.solven.kumite</groupId>
+            <artifactId>public</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.solven.kumite</groupId>
+            <artifactId>authorization</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
 		<dependency>
 			<groupId>eu.solven.kumite</groupId>
@@ -46,14 +51,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-		</dependency>
-
-		<!-- https://github.com/cowtowncoder/java-uuid-generator -->
-		<!-- Useful for deterministic UUID generation, e.g. in development environments-->
-		<dependency>
-			<groupId>com.fasterxml.uuid</groupId>
-			<artifactId>java-uuid-generator</artifactId>
-			<version>5.1.0</version>
 		</dependency>
 
 		<!-- tools -->
