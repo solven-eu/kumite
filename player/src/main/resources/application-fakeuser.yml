@@ -1,5 +1,5 @@
 # fake_user: This is compatible with a contest-server having also fake_user profile
 
-kumite.server:
+kumite.player:
     # This will generate a refreshToken st startup
     refresh_token: 'GENERATE_FAKEUSER'

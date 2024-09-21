@@ -19,7 +19,7 @@ class UserNeedsToLoginError extends Error {
 	}
 }
 
-const prefix = "/api/v1"
+const prefix = "/api/v1";
 
 export const useKumiteStore = defineStore("kumite", {
 	state: () => ({
@@ -227,10 +227,10 @@ export const useKumiteStore = defineStore("kumite", {
 			return this.tokens;
 		},
 		async authenticatedFetch(url, fetchOptions) {
-            if (url.startsWith("/api")) {
-                throw new Error("Invalid URL as '/api' is added automatically");
-            }
-            
+			if (url.startsWith("/api")) {
+				throw new Error("Invalid URL as '/api' is added automatically");
+			}
+
 			await this.loadIfMissingUserTokens();
 
 			const apiHeaders = this.apiHeaders;

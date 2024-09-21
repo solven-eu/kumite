@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -22,24 +23,28 @@ import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jwt.SignedJWT;
 
 import eu.solven.kumite.account.KumiteUser;
+import eu.solven.kumite.oauth2.IKumiteOAuth2Constants;
+import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
+import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
 import eu.solven.kumite.scenario.TestTSPLifecycle;
 import eu.solven.kumite.tools.JdkUuidGenerator;
 
 public class TestKumiteTokenService {
 	MockEnvironment env = new MockEnvironment();
-	KumiteTokenService tokenService = new KumiteTokenService(env, JdkUuidGenerator.INSTANCE);
+	Supplier<KumiteTokenService> tokenService = () -> new KumiteTokenService(env, JdkUuidGenerator.INSTANCE);
 
 	@Test
 	public void testJwt_randomSecret() throws JOSEException, ParseException {
-		JWK signatureSecret = tokenService.generateSignatureSecret();
-		env.setProperty(KumiteTokenService.KEY_JWT_SIGNINGKEY, signatureSecret.toJSONString());
-		env.setProperty(KumiteTokenService.ENV_OAUTH2_ISSUER, "https://some.issuer.domain");
+		JWK signatureSecret = KumiteTokenService.generateSignatureSecret(JdkUuidGenerator.INSTANCE);
+		env.setProperty(IKumiteOAuth2Constants.KEY_OAUTH2_ISSUER, "https://some.issuer.domain");
+		env.setProperty(IKumiteOAuth2Constants.KEY_JWT_SIGNINGKEY, signatureSecret.toJSONString());
 
 		UUID accountId = UUID.randomUUID();
 		UUID playerId = UUID.randomUUID();
 		KumiteUser user =
 				KumiteUser.builder().accountId(accountId).playerId(playerId).raw(TestTSPLifecycle.userRaw()).build();
-		String accessToken = tokenService.generateAccessToken(user, Set.of(playerId), Duration.ofMinutes(1), false);
+		String accessToken =
+				tokenService.get().generateAccessToken(user, Set.of(playerId), Duration.ofMinutes(1), false);
 
 		{
 			JWSVerifier verifier = new MACVerifier((OctetSequenceKey) signatureSecret);
@@ -48,8 +53,8 @@ public class TestKumiteTokenService {
 			Assertions.assertThat(signedJWT.verify(verifier)).isTrue();
 		}
 
-		JwtReactiveAuthenticationManager authManager =
-				new JwtReactiveAuthenticationManager(new KumiteJwtSigningConfiguration().jwtDecoder(env, tokenService));
+		JwtReactiveAuthenticationManager authManager = new JwtReactiveAuthenticationManager(
+				new KumiteResourceServerConfiguration().jwtDecoder(env, JdkUuidGenerator.INSTANCE));
 
 		Authentication auth = authManager.authenticate(new BearerTokenAuthenticationToken(accessToken)).block();
 

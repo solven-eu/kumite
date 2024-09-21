@@ -20,6 +20,7 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import com.nimbusds.jwt.JWT;
 
 import eu.solven.kumite.app.IKumiteSpringProfiles;
+import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -121,7 +122,7 @@ public class SocialWebFluxSecurity {
 	 * @param env
 	 * @param jwtDecoder
 	 *            Knows how to check a {@link JWT}, and convert it into a {@link Jwt}. Typically provided from
-	 *            {@link KumiteJwtSigningConfiguration}
+	 *            {@link KumiteResourceServerConfiguration}
 	 * @return
 	 */
 	@Order(Ordered.LOWEST_PRECEDENCE)
@@ -130,11 +131,11 @@ public class SocialWebFluxSecurity {
 			Environment env,
 			ReactiveJwtDecoder jwtDecoder) {
 
-		boolean fakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_USER));
+		boolean fakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKEUSER));
 		if (fakeUser) {
-			log.warn("{}=true", IKumiteSpringProfiles.P_FAKE_USER);
+			log.warn("{}=true", IKumiteSpringProfiles.P_FAKEUSER);
 		} else {
-			log.info("{}=false", IKumiteSpringProfiles.P_FAKE_USER);
+			log.info("{}=false", IKumiteSpringProfiles.P_FAKEUSER);
 		}
 
 		// We can disable CSRF as these routes are stateless, does not rely on any cookie/session, but on some JWT

@@ -23,7 +23,9 @@ logging:
 
 # kumite.playerId: "NEEDS_A_PROPER_VALUE"
 
-kumite.server:
+kumite.player:
+    # The baseUrl of the contest-server
+    contest-base-url: "NEEDS_A_PROPER_VALUE"
     # One need to generate a refresh tken from the `js` app, on route `/html/me`
     refresh_token: "NEEDS_A_PROPER_VALUE"
 

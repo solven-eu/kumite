@@ -21,7 +21,7 @@ public interface IKumiteSpringProfiles {
 	String P_UNSAFE = "unsafe";
 	// If true, we bypass the User login in the UI (i.e. the external-OAuth2 step required to produce account+player
 	// tokens)
-	String P_FAKE_USER = "fakeuser";
+	String P_FAKEUSER = "fakeuser";
 	// `fake_player` will enable relying on the fakePlayer but it will not tweat security related to
 	// String P_FAKE_PLAYER = "fake_player";
 

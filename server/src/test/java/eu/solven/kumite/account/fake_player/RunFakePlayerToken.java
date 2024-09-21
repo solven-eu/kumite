@@ -11,10 +11,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
-import eu.solven.kumite.account.login.KumiteJwtSigningConfiguration;
-import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteRandomConfiguration;
+import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
+import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @SpringBootApplication(scanBasePackages = "none")
-@Import({ KumiteJwtSigningConfiguration.class, KumiteRandomConfiguration.class })
+@Import({ KumiteResourceServerConfiguration.class, KumiteRandomConfiguration.class })
 @Slf4j
 public class RunFakePlayerToken {
 
@@ -38,7 +38,7 @@ public class RunFakePlayerToken {
 				// unsafe-server provide a signingKey
 				IKumiteSpringProfiles.P_UNSAFE_SERVER,
 				// fake_user tells the fakeUser is usable
-				IKumiteSpringProfiles.P_FAKE_USER);
+				IKumiteSpringProfiles.P_FAKEUSER);
 
 		Map<String, Object> defaultProperties = new LinkedHashMap<>();
 		springApplication.setDefaultProperties(defaultProperties);

@@ -12,10 +12,10 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
 import eu.solven.kumite.login.AccessTokenWrapper;
+import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;

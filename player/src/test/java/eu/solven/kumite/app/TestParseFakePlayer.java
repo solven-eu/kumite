@@ -21,9 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 		// Enables generation on-the-fly on refreshToken
 		IKumiteSpringProfiles.P_UNSAFE_OAUTH2,
 		// Enables playing as fakeUser
-		IKumiteSpringProfiles.P_FAKE_USER,
+		IKumiteSpringProfiles.P_FAKEUSER,
 		IKumiteSpringProfiles.P_UNSAFE_PLAYER })
-@TestPropertySource(properties = "kumite.server.base-url" + "=someUrl")
+@TestPropertySource(properties = { KumiteWebclientServerProperties.KEY_PLAYER_CONTESTBASEURL + "=someUrl",
+		KumiteWebclientServerProperties.ENV_REFRESH_TOKEN + "="
+				+ KumiteWebclientServerProperties.PLACEHOLDER_GENERATEFAKEPLAYER })
 @Slf4j
 public class TestParseFakePlayer implements IKumiteSpringProfiles {
 

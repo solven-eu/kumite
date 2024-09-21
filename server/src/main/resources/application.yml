@@ -14,8 +14,7 @@ spring:
             prodmode:
                 - default_server
             heroku:
-                - secured
-                - prodmode
+                - default_server
             unsafe:
                 - default_server
                 # unsafe_server provides unsafe security (JWT signature, etc)

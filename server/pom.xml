@@ -10,16 +10,16 @@
 	<description>Contests Server</description>
 
 	<dependencies>
-        <dependency>
-            <groupId>eu.solven.kumite</groupId>
-            <artifactId>public</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>eu.solven.kumite</groupId>
-            <artifactId>authorization</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>eu.solven.kumite</groupId>
+			<artifactId>public</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>eu.solven.kumite</groupId>
+			<artifactId>authorization</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>eu.solven.kumite</groupId>
@@ -166,7 +166,7 @@
 				<configuration>
 					<classifier>exec</classifier>
 
-					<mainClass>eu.solven.kumite.app.KumiteServerApplication</mainClass>
+					<mainClass>eu.solven.kumite.app.KumiteContestServerApplication</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>

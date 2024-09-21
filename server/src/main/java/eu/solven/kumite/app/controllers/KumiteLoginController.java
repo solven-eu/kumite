@@ -28,10 +28,10 @@ import org.springframework.web.bind.annotation.RestController;
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.account.fake_player.FakePlayerTokens;
-import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.webflux.LoginRouteButNotAuthenticatedException;
+import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.KumitePlayer;
 import lombok.AllArgsConstructor;
@@ -84,8 +84,8 @@ public class KumiteLoginController {
 	@GetMapping("/html")
 	public ResponseEntity<?> loginpage(@AuthenticationPrincipal OAuth2User oauth2User) {
 		String url;
-		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_USER))) {
-			url = "login?fakeuser";
+		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKEUSER))) {
+			url = "login?" + IKumiteSpringProfiles.P_FAKEUSER;
 		} else if (oauth2User == null) {
 			url = "login";
 		} else {
@@ -100,7 +100,7 @@ public class KumiteLoginController {
 	// @PreAuthorize("isAuthenticated()")
 	@GetMapping("/user")
 	public Mono<KumiteUser> user(@AuthenticationPrincipal Mono<OAuth2User> oauth2User) {
-		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKE_USER))) {
+		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKEUSER))) {
 			return Mono.just(usersRegistry.getUser(FakePlayerTokens.FAKE_ACCOUNT_ID));
 		} else if (oauth2User == null) {
 			// Happens if this route is called without authentication

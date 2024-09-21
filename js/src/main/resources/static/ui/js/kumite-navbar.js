@@ -53,16 +53,19 @@ export default {
                         </li>
 
                         <li class="nav-item" v-if="account.raw">
-                            Current user: {{account.raw.name}}<img
-                                :src="account.raw.picture"
-                                class="img-thumbnail"
-                                alt="You're looking nice"
-                                width="128"
-                                height="128"
-                                v-if="account.raw.picture"
-                            />
+                            <RouterLink class="nav-link" to="/html/me">Account Settings</RouterLink>
                         </li>
                     </ul>
+                    <span v-if="account.raw">
+                        Current user: {{account.raw.name}}<img
+                            :src="account.raw.picture"
+                            class="img-thumbnail"
+                            alt="You're looking nice"
+                            width="128"
+                            height="128"
+                            v-if="account.raw.picture"
+                        />
+                    </span>
                 </div>
             </div>
         </nav>

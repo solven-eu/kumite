@@ -1,4 +1,4 @@
-package eu.solven.kumite.account.login;
+package eu.solven.kumite.oauth2.authorizationserver;
 
 import java.text.ParseException;
 import java.time.Duration;
@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.springframework.core.env.Environment;
-import org.springframework.core.env.StandardEnvironment;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
@@ -26,6 +25,8 @@ import com.nimbusds.jwt.SignedJWT;
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.login.AccessTokenWrapper;
 import eu.solven.kumite.login.RefreshTokenWrapper;
+import eu.solven.kumite.oauth2.IKumiteOAuth2Constants;
+import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
 import eu.solven.kumite.tools.IUuidGenerator;
 import eu.solven.kumite.tools.JdkUuidGenerator;
 import lombok.SneakyThrows;
@@ -33,14 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class KumiteTokenService {
-	// https://connect2id.com/products/server/docs/api/token#url
-	public static final String ENV_OAUTH2_ISSUER = "kumite.oauth2.issuer-base-url";
-
-	public static final String KEY_JWT_SIGNINGKEY = "kumite.oauth2.signing-key";
-	// Expect a value parsable by `Duration.parse`
-	// public static final String KEY_ACCESSTOKEN_EXP = "kumite.login.oauth2_exp";
-	// Expect a value parsable by `Duration.parse`
-	// public static final String KEY_REFRESHTOKEN_EXP = "kumite.login.oauth2_exp";
 
 	final Environment env;
 	final IUuidGenerator uuidGenerator;
@@ -51,30 +44,32 @@ public class KumiteTokenService {
 		this.env = env;
 		this.uuidGenerator = uuidgenerator;
 		this.supplierSymetricKey = () -> loadSigningJwk();
+
+		log.info("iss={}", getIssuer());
+		log.info("{}.kid={}", IKumiteOAuth2Constants.KEY_JWT_SIGNINGKEY, loadSigningJwk().getKeyID());
 	}
 
 	@SneakyThrows({ IllegalStateException.class, ParseException.class })
 	private OctetSequenceKey loadSigningJwk() {
-		return OctetSequenceKey.parse(env.getRequiredProperty(KEY_JWT_SIGNINGKEY));
+		return KumiteResourceServerConfiguration.loadOAuth2SigningKey(env, uuidGenerator);
 	}
 
 	public static void main(String[] args) {
-		Environment env = new StandardEnvironment();
-		JWK secretKey = new KumiteTokenService(env, new JdkUuidGenerator()).generateSignatureSecret();
+		JWK secretKey = KumiteTokenService.generateSignatureSecret(new JdkUuidGenerator());
 		System.out.println("Secret key for JWT signing: " + secretKey.toJSONString());
 	}
 
 	@SneakyThrows(JOSEException.class)
-	JWK generateSignatureSecret() {
+	public static JWK generateSignatureSecret(IUuidGenerator uuidGenerator) {
 		// https://connect2id.com/products/nimbus-jose-jwt/examples/jws-with-hmac
 		// Generate random 256-bit (32-byte) shared secret
 		// SecureRandom random = new SecureRandom();
 		//
-		String rawNbBits = KumiteJwtSigningConfiguration.MAC_ALGORITHM.getName().substring("HS".length());
+		String rawNbBits = KumiteResourceServerConfiguration.MAC_ALGORITHM.getName().substring("HS".length());
 		int nbBits = Integer.parseInt(rawNbBits);
 
 		OctetSequenceKey jwk = new OctetSequenceKeyGenerator(nbBits).keyID(uuidGenerator.randomUUID().toString())
-				.algorithm(JWSAlgorithm.parse(KumiteJwtSigningConfiguration.MAC_ALGORITHM.getName()))
+				.algorithm(JWSAlgorithm.parse(KumiteResourceServerConfiguration.MAC_ALGORITHM.getName()))
 				.issueTime(new Date())
 				.generate();
 
@@ -90,7 +85,7 @@ public class KumiteTokenService {
 		// https://security.stackexchange.com/questions/194830/recommended-asymmetric-algorithms-for-jwt
 		// https://curity.io/resources/learn/jwt-best-practices/
 		JWSHeader.Builder headerBuilder =
-				new JWSHeader.Builder(JWSAlgorithm.parse(KumiteJwtSigningConfiguration.MAC_ALGORITHM.getName()))
+				new JWSHeader.Builder(JWSAlgorithm.parse(KumiteResourceServerConfiguration.MAC_ALGORITHM.getName()))
 						.type(JOSEObjectType.JWT);
 
 		Instant now = Instant.now();
@@ -123,9 +118,9 @@ public class KumiteTokenService {
 	}
 
 	private String getIssuer() {
-		String issuerBaseUrl = env.getRequiredProperty(ENV_OAUTH2_ISSUER);
+		String issuerBaseUrl = env.getRequiredProperty(IKumiteOAuth2Constants.KEY_OAUTH2_ISSUER);
 		if ("NEEDS_TO_BE_DEFINED".equals(issuerBaseUrl)) {
-			throw new IllegalStateException("Need to setup %s".formatted(ENV_OAUTH2_ISSUER));
+			throw new IllegalStateException("Need to setup %s".formatted(IKumiteOAuth2Constants.KEY_OAUTH2_ISSUER));
 		}
 		// This matches `/api/v1/oauth2/token` as route for token generation
 		return issuerBaseUrl + "/api/v1/oauth2";

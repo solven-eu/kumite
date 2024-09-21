@@ -4,12 +4,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 
+import eu.solven.kumite.app.KumiteWebclientServerProperties;
 import eu.solven.kumite.contest.ContestMetadataRaw;
 import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestView;
@@ -41,10 +41,14 @@ public class KumiteWebclientServer implements IKumiteServer {
 	final AtomicReference<WebClient> webClientRef = new AtomicReference<>();
 
 	// https://github.com/spring-projects/spring-boot/issues/5077
-	public KumiteWebclientServer(Environment env, int randomServerPort, String defaultAccessToken) {
-		baseUrl = env.getRequiredProperty("kumite.server.base-url")
-				.replaceFirst("LocalServerPort", Integer.toString(randomServerPort));
-		refreshToken = env.getProperty("kumite.server.refresh_token", defaultAccessToken);
+	// public KumiteWebclientServer(Environment env, int randomServerPort, String defaultAccessToken) {
+	// baseUrl = env.getRequiredProperty("kumite.server.base-url")
+	// .replaceFirst("LocalServerPort", Integer.toString(randomServerPort));
+	// refreshToken = env.getProperty("kumite.server.refresh_token", defaultAccessToken);
+	// }
+
+	public static KumiteWebclientServer fromProperties(KumiteWebclientServerProperties properties) {
+		return new KumiteWebclientServer(properties.getBaseUrl(), properties.getRefreshToken());
 	}
 
 	public KumiteWebclientServer(String baseUrl, String refreshToken) {

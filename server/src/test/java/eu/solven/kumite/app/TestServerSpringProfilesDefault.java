@@ -35,7 +35,7 @@ public class TestServerSpringProfilesDefault implements IKumiteSpringProfiles {
 
 		// By default, we include unsafe parameters
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_UNSAFE_SERVER))).isTrue();
-		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_FAKE_USER))).isTrue();
+		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_FAKEUSER))).isTrue();
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_UNSAFE_EXTERNAL_OAUTH2))).isTrue();
 
 		// `.getActiveProfiles` does not include implicit default profile

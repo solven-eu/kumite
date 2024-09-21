@@ -15,9 +15,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import eu.solven.kumite.account.fake_player.FakePlayerTokens;
-import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
-import eu.solven.kumite.app.KumiteServerApplication;
+import eu.solven.kumite.app.KumiteContestServerApplication;
 import eu.solven.kumite.app.greeting.Greeting;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.contest.ContestMetadataRaw;
@@ -25,10 +24,12 @@ import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchHandler;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
+import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = KumiteServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = KumiteContestServerApplication.class,
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, IKumiteSpringProfiles.P_INMEMORY })
 @Slf4j
 public class TestKumiteApiRouter {

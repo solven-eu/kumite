@@ -2,11 +2,11 @@ package eu.solven.kumite.app.webflux;
 
 import org.springframework.context.annotation.Import;
 
-import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameSearchHandler;
 import eu.solven.kumite.leaderboard.LeaderboardHandler;
+import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.webhook.WebhooksHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,6 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 
 		KumiteLoginRouter.class,
 		AccessTokenHandler.class,
+
+		// The contest-server generate its own RefreshTokens and AccessTokens (hence it acts as its own
+		// AuthroizationServer)
 		KumiteTokenService.class,
 
 })

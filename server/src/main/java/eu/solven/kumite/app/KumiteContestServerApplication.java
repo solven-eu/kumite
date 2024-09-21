@@ -20,10 +20,10 @@ import eu.solven.kumite.app.webflux.KumiteWebFluxConfiguration;
 		GitPropertySourceConfig.class,
 
 })
-public class KumiteServerApplication {
+public class KumiteContestServerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(KumiteServerApplication.class, args);
+		SpringApplication.run(KumiteContestServerApplication.class, args);
 	}
 
 	@Bean

@@ -1,6 +1,5 @@
 package eu.solven.kumite.app.it;
 
-import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -22,15 +21,14 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import eu.solven.kumite.account.fake_player.FakePlayerTokens;
-import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
-import eu.solven.kumite.app.KumiteServerApplication;
+import eu.solven.kumite.app.KumiteContestServerApplication;
+import eu.solven.kumite.app.KumiteWebclientServerProperties;
 import eu.solven.kumite.app.player.IGamingLogic;
 import eu.solven.kumite.app.player.RandomGamingLogic;
 import eu.solven.kumite.app.server.IKumiteServer;
 import eu.solven.kumite.app.server.KumiteWebclientServer;
 import eu.solven.kumite.contest.ContestView;
-import eu.solven.kumite.tools.JdkUuidGenerator;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -42,11 +40,11 @@ import lombok.extern.slf4j.Slf4j;
  * @see 'TestTSPLifecycle'
  */
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = KumiteServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, IKumiteSpringProfiles.P_INMEMORY })
+@SpringBootTest(classes = KumiteContestServerApplication.class,
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, IKumiteSpringProfiles.P_INMEMORY, IKumiteSpringProfiles.P_FAKEUSER })
 @TestPropertySource(properties = { "kumite.random.seed=123",
-		// "kumite.playerId=11111111-1111-1111-1111-111111111111",
-		"kumite.server.base-url=http://localhost:LocalServerPort" })
+		KumiteWebclientServerProperties.KEY_PLAYER_CONTESTBASEURL + "=http://localhost:LocalServerPort" })
 @Slf4j
 public class TestRandomGamingLogic {
 
@@ -60,11 +58,9 @@ public class TestRandomGamingLogic {
 	@Test
 	public void testOptimization() {
 		UUID playerId = FakePlayerTokens.FAKE_PLAYER_ID1;
-		KumiteTokenService kumiteTokenService = new KumiteTokenService(env, new JdkUuidGenerator());
-		String accessToken = kumiteTokenService
-				.generateAccessToken(FakePlayerTokens.fakeUser(), Set.of(playerId), Duration.ofMinutes(1), false);
 
-		IKumiteServer kumiteServer = new KumiteWebclientServer(env, randomServerPort, accessToken);
+		KumiteWebclientServerProperties properties = KumiteWebclientServerProperties.forTests(env, randomServerPort);
+		IKumiteServer kumiteServer = KumiteWebclientServer.fromProperties(properties);
 
 		IGamingLogic kumitePlayer = new RandomGamingLogic(kumiteServer);
 
@@ -81,21 +77,18 @@ public class TestRandomGamingLogic {
 		// We will play 2 players concurrently
 		ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-		KumiteTokenService kumiteTokenService = new KumiteTokenService(env, new JdkUuidGenerator());
-
 		AtomicReference<Throwable> asyncThrowable = new AtomicReference<>();
 
 		CountDownLatch cdl = new CountDownLatch(nbPlayers);
 
 		Set<UUID> contestIds = new ConcurrentSkipListSet<>();
 
+		KumiteWebclientServerProperties properties = KumiteWebclientServerProperties.forTests(env, randomServerPort);
+		IKumiteServer kumiteServer = KumiteWebclientServer.fromProperties(properties);
+		IGamingLogic kumitePlayer = new RandomGamingLogic(kumiteServer);
+
 		for (int iPlayer = 0; iPlayer < nbPlayers; iPlayer++) {
 			UUID playerId = FakePlayerTokens.fakePlayerId(iPlayer);
-			String accessToken = kumiteTokenService
-					.generateAccessToken(FakePlayerTokens.fakeUser(), Set.of(playerId), Duration.ofMinutes(1), false);
-
-			IKumiteServer kumiteServer = new KumiteWebclientServer(env, randomServerPort, accessToken);
-			IGamingLogic kumitePlayer = new RandomGamingLogic(kumiteServer);
 
 			executorService.execute(() -> {
 				try {

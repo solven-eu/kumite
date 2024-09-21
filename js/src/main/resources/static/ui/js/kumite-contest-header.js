@@ -6,9 +6,9 @@ import { useKumiteStore } from "./store.js";
 import KumiteAccountRef from "./kumite-account-ref.js";
 
 export default {
-components: {
-    KumiteAccountRef,
-},
+	components: {
+		KumiteAccountRef,
+	},
 	props: {
 		contestId: {
 			type: String,
@@ -91,8 +91,8 @@ components: {
             </h2>
 
             <ul>
-            <li>author: <KumiteAccountRef :accountId="contest.constantMetadata.author" /></li>
-            <li>created: {{contest.constantMetadata.created}}</li>
+                <li>author: <KumiteAccountRef :accountId="contest.constantMetadata.author" /></li>
+                <li>created: {{contest.constantMetadata.created}}</li>
             </ul>
         </span>
     `,

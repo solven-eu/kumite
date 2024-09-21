@@ -10,7 +10,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = { KumiteServerApplication.class }, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SpringBootTest(classes = { KumiteContestServerApplication.class }, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @Slf4j
 public class TestSpringAutonomyDefault implements IKumiteSpringProfiles {
 

@@ -13,16 +13,16 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * This relies on a weak local-security, while enabling external OAuth2 providers.
+ * This tests the default configuration: we rely on multiple mechanisms circumventing security.
  * 
  * @author Benoit Lacelle
  *
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { EmptySpringBootApplication.class }, webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE_EXTERNAL_OAUTH2, IKumiteSpringProfiles.P_UNSAFE_SERVER })
+@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, IKumiteSpringProfiles.P_INMEMORY })
 @Slf4j
-public class TestServerSpringProfilesDefaultNoFakeUser implements IKumiteSpringProfiles {
+public class TestServerSpringProfilesUnsafe implements IKumiteSpringProfiles {
 
 	@Autowired
 	Environment env;
@@ -33,11 +33,13 @@ public class TestServerSpringProfilesDefaultNoFakeUser implements IKumiteSpringP
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_INJECT_DEFAULT_GAMES))).isTrue();
 
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_REDIS))).isFalse();
-		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_INMEMORY))).isFalse();
+		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_INMEMORY))).isTrue();
 
-		// By default, we include unsafe parameters
+		// By default, we include `unsafe` parameters
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_UNSAFE_SERVER))).isTrue();
-		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_FAKEUSER))).isFalse();
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_UNSAFE_EXTERNAL_OAUTH2))).isTrue();
+		// But `unsafe` should not include `fakeuser`. Either one relies on `default`, or should ask explicitly
+		// `unsafe+fakeuser`.
+		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_FAKEUSER))).isFalse();
 	}
 }

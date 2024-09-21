@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Configuration(proxyBeanMethods = false)
 @Slf4j
-@Profile(IKumiteSpringProfiles.P_FAKE_USER + " & " + IKumiteSpringProfiles.P_INMEMORY)
+@Profile(IKumiteSpringProfiles.P_FAKEUSER + " & " + IKumiteSpringProfiles.P_INMEMORY)
 @Import({
 
 		KumiteClearHandler.class

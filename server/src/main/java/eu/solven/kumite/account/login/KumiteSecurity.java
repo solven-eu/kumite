@@ -15,6 +15,8 @@ import eu.solven.kumite.app.controllers.KumitePublicController;
 import eu.solven.kumite.app.controllers.MetadataController;
 import eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter;
 import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
+import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
+import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 // https://docs.spring.io/spring-security/reference/reactive/oauth2/login/advanced.html#webflux-oauth2-login-advanced-userinfo-endpoint
@@ -27,7 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 		KumiteLoginController.class,
 		MetadataController.class,
 
-		KumiteJwtSigningConfiguration.class,
+		KumiteResourceServerConfiguration.class,
+		KumiteTokenService.class,
 
 })
 @Slf4j
@@ -38,7 +41,7 @@ public class KumiteSecurity {
 	public Void checkSecured(Environment env) {
 		boolean acceptUnsafe = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_UNSAFE,
 				IKumiteSpringProfiles.P_UNSAFE_SERVER,
-				IKumiteSpringProfiles.P_FAKE_USER,
+				IKumiteSpringProfiles.P_FAKEUSER,
 				IKumiteSpringProfiles.P_UNSAFE_EXTERNAL_OAUTH2));
 
 		if (acceptUnsafe) {

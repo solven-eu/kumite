@@ -21,11 +21,12 @@ import com.microsoft.playwright.assertions.PlaywrightAssertions;
 import com.microsoft.playwright.options.AriaRole;
 
 import eu.solven.kumite.app.IKumiteSpringProfiles;
-import eu.solven.kumite.app.KumiteServerApplication;
+import eu.solven.kumite.app.KumiteContestServerApplication;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = { KumiteServerApplication.class }, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = { KumiteContestServerApplication.class },
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
 public class TestSpaScenario implements IKumiteSpringProfiles {
 
@@ -42,7 +43,7 @@ public class TestSpaScenario implements IKumiteSpringProfiles {
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_INJECT_DEFAULT_GAMES))).isTrue();
 
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_UNSAFE_SERVER))).isTrue();
-		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_FAKE_USER))).isTrue();
+		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_FAKEUSER))).isTrue();
 		Assertions.assertThat(env.acceptsProfiles(Profiles.of(P_UNSAFE_EXTERNAL_OAUTH2))).isTrue();
 	}
 

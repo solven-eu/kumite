@@ -22,13 +22,16 @@ import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import eu.solven.kumite.account.fake_player.FakePlayerTokens;
-import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.controllers.KumiteLoginController;
 import eu.solven.kumite.app.controllers.KumitePublicController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.app.webflux.AccessTokenHandler;
+import eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter;
 import eu.solven.kumite.login.AccessTokenWrapper;
+import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
+import eu.solven.pepper.unittest.ILogDisabler;
+import eu.solven.pepper.unittest.PepperTestHelper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -257,15 +260,17 @@ public class TestSecurity_WithJwtUser {
 	public void testMakeRefreshToken() {
 		log.debug("About {}", KumiteLoginController.class);
 
-		StatusAssertions expectStatus = webTestClient.get()
-				.uri("/api/login/v1/oauth2/token?refresh_token=true")
-				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
-				.accept(MediaType.APPLICATION_JSON)
-				.exchange()
-				.expectStatus();
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+			StatusAssertions expectStatus = webTestClient.get()
+					.uri("/api/login/v1/oauth2/token?refresh_token=true")
+					.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
+					.accept(MediaType.APPLICATION_JSON)
+					.exchange()
+					.expectStatus();
 
-		// We need an oauth2 user, not a jwt user
-		expectStatus.isUnauthorized();
+			// We need an oauth2 user, not a jwt user
+			expectStatus.isUnauthorized();
+		}
 	}
 
 	@Test

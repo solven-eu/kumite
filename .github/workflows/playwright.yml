@@ -36,9 +36,9 @@ jobs:
     - name: Install Playwright Browsers
       working-directory: ./js
       run: npx playwright install --with-deps
-    #- name: Run Playwright tests
-    #  working-directory: ./js
-    #  run: npm run pw_localhost8080
+    - name: Run Playwright tests
+      working-directory: ./js
+      run: npm run pw_localhost8080
     - uses: actions/upload-artifact@v4
       if: always()
       with:

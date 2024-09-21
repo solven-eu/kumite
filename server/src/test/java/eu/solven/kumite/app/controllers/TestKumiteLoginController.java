@@ -9,8 +9,9 @@ import org.springframework.security.oauth2.client.registration.InMemoryReactiveC
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
 import eu.solven.kumite.account.fake_player.FakePlayerTokens;
-import eu.solven.kumite.account.login.KumiteTokenService;
 import eu.solven.kumite.account.login.KumiteUsersRegistry;
+import eu.solven.kumite.oauth2.IKumiteOAuth2Constants;
+import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.persistence.BijectiveAccountPlayersRegistry;
 import eu.solven.kumite.tools.IUuidGenerator;
@@ -33,7 +34,13 @@ public class TestKumiteLoginController {
 	final InMemoryUserRepository userRepository = new InMemoryUserRepository(uuidGenerator, playersRegistry);
 
 	final KumiteUsersRegistry usersRegistry = new KumiteUsersRegistry(userRepository, userRepository);
-	final Environment env = new MockEnvironment();
+	final Environment env = new MockEnvironment() {
+		{
+			setProperty(IKumiteOAuth2Constants.KEY_OAUTH2_ISSUER, "https://unit.test.kumite");
+			setProperty(IKumiteOAuth2Constants.KEY_JWT_SIGNINGKEY,
+					KumiteTokenService.generateSignatureSecret(JdkUuidGenerator.INSTANCE).toJSONString());
+		}
+	};
 
 	final KumiteTokenService kumiteTokenService = new KumiteTokenService(env, uuidGenerator);
 
