@@ -8,6 +8,9 @@ import { defineConfig, devices } from "@playwright/test";
  */
 // require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
+const commandSpringBoot = `(mvn install; cd ../server; mvn spring-boot:run -Dspring-boot.run.profiles=${process.env.SPRING_ACTIVE_PROFILES};)`;
+console.log("commandSpringBoot", commandSpringBoot);
+
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
@@ -92,7 +95,7 @@ const config = defineConfig({
         // `mvn install` to ensure `js` is fresh (especially important in local dev)
         // `cd ../server` to relocate in the backend folder
         // `mvn spring-boot:run` to effectively starts a server
-        command: "(mvn install; cd ../server; mvn spring-boot:run;)",
+        command: commandSpringBoot,
         //   url: 'http://127.0.0.1:3000',
         url: "http://127.0.0.1:8080",
         reuseExistingServer: !process.env.CI,

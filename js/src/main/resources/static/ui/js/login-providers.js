@@ -8,7 +8,7 @@ export default {
 			loginProviders: [],
 		});
 
-		async function theData(url) {
+		async function fetchTheUrl(url) {
 			try {
 				isLoading.value = true;
 				const response = await fetch(url);
@@ -22,7 +22,7 @@ export default {
 			}
 		}
 
-		theData("/api/v1/login/v1/providers");
+		fetchTheUrl("/api/login/v1/providers");
 
 		return { isLoading, loginProviders };
 	},

@@ -7,9 +7,15 @@ export default {
 
         return response;
     },
+    
+    async showLoginOptions(page) {
+        await page.getByRole("link", { name: /You need to login/ }).click();
+    },
 
     async login(page) {
-        await page.getByRole("link", { name: /You need to login/ }).click();
+        await this.showLoginOptions(page);
+        await page.getByRole("link", { name: /github/ }).click();
+        // How can we login automatically?
     },
 
     async playOptimization(page) {

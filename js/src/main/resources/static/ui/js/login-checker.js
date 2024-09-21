@@ -9,15 +9,17 @@ export default {
 		LoginOptions,
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbAccountFetching"]),
+		...mapState(useKumiteStore, ["nbAccountFetching", "account", "needsToLogin"]),
 		...mapState(useKumiteStore, {
 			user(store) {
-				return store.account || { error: "not_loaded" };
+				return store.account || { error: "not_loaded", raw: {error: "not_loaded"} };
 			},
 		}),
 	},
 	setup() {
 		const store = useKumiteStore();
+        
+        console.log("user", store.account || { error: "not_loaded", raw: {error: "not_loaded"} });
 
 		store.loadUser();
 
@@ -30,6 +32,6 @@ export default {
                 <LoginOptions />
             </div>
         </div>
-        <div>Welcome {{user.raw.name}}. ?Logout?</div>
+        <div v-else>Welcome {{user.raw.name}}. ?Logout?</div>
     `,
 };
