@@ -7,7 +7,7 @@ export default {
 
         return response;
     },
-    
+
     async showLoginOptions(page) {
         await page.getByRole("link", { name: /You need to login/ }).click();
     },

@@ -1,5 +1,7 @@
 package eu.solven.kumite.account.login;
 
+import java.net.URI;
+
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -15,6 +17,8 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
+import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
 import com.nimbusds.jwt.JWT;
@@ -56,6 +60,10 @@ public class SocialWebFluxSecurity {
 						// provider
 						"/api/login/v1/**",
 						"/oauth2/**",
+
+						// The logout route (do a POST to logout, i.e. clear the session)
+						"/logout",
+
 						// Holds static resources (e.g. `/ui/js/store.js`)
 						"/ui/js/**",
 						"/ui/img/**",
@@ -69,6 +77,17 @@ public class SocialWebFluxSecurity {
 						"/swagger-ui.html",
 						"/swagger-ui/**",
 						"/webjars/**"))
+
+				.csrf(csrf -> {
+					csrf
+							// https://docs.spring.io/spring-security/reference/reactive/exploits/csrf.html#webflux-csrf-configure-custom-repository
+							// .csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse())
+
+							// This will NOT provide the CSRF as a header: `X-CSRF-TOKEN`
+							// But it wlll help making it available on `/api/login/v1/csrf`
+							.csrfTokenRepository(new WebSessionServerCsrfTokenRepository());
+				})
+
 				.authorizeExchange(auth -> auth
 
 						// Login does not requires being loggged-in yet
@@ -78,9 +97,11 @@ public class SocialWebFluxSecurity {
 						// Swagger UI
 						.pathMatchers("/swagger-ui.html", "/swagger-ui/**")
 						.permitAll()
-						// The route used by the SPA
+
+						// The route used by the SPA: they all serve index.html
 						.pathMatchers("/", "/html/**")
 						.permitAll()
+
 						// Webjars and static resources
 						.pathMatchers("/ui/js/**", "/ui/img/**", "/webjars/**", "/favicon.ico")
 						.permitAll()
@@ -90,7 +111,9 @@ public class SocialWebFluxSecurity {
 						.pathMatchers("/api/login/v1/user",
 								"/api/login/v1/oauth2/token",
 								"/api/login/v1/html",
-								"/api/login/v1/providers")
+								"/api/login/v1/providers",
+								"/api/login/v1/csrf",
+								"/api/login/v1/logout")
 						.permitAll()
 
 						// The rest needs to be authenticated
@@ -99,7 +122,7 @@ public class SocialWebFluxSecurity {
 
 				// `/html/login` has to be synced with the SPA login route
 				.formLogin(login -> {
-					String loginPage = ("http%s://localhost:8080" + "/html/login").formatted(isSsl ? "s" : "");
+					String loginPage = "/html/login".formatted(isSsl ? "s" : "");
 					login.loginPage(loginPage)
 							// Required not to get an NPE at `.build()`
 							.authenticationManager(ram);
@@ -108,9 +131,15 @@ public class SocialWebFluxSecurity {
 				// https://docs.spring.io/spring-security/reference/servlet/oauth2/client/authorization-grants.html
 				// https://stackoverflow.com/questions/74242738/how-to-logout-from-oauth-signed-in-web-app-with-github
 				.oauth2Login(oauth2 -> {
-					String loginSuccess =
-							("http%s://localhost:8080" + "/html/login?success").formatted(isSsl ? "s" : "");
+					String loginSuccess = "/html/login?success".formatted(isSsl ? "s" : "");
 					oauth2.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler(loginSuccess));
+				})
+
+				.logout(logout -> {
+					RedirectServerLogoutSuccessHandler logoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
+					// We need to redirect to a 2XX URL, and not a 3XX URL, as Fetch API can not intercept redirections.
+					logoutSuccessHandler.setLogoutSuccessUrl(URI.create("/api/login/v1/logout"));
+					logout.logoutSuccessHandler(logoutSuccessHandler);
 				})
 
 				.build();

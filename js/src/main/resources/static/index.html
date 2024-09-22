@@ -101,7 +101,12 @@
                     component: KumiteBoard,
                     props: true,
                 },
-                { path: "/html/login", component: LoginChecker },
+                {
+                    path: "/html/login",
+                    component: LoginChecker,
+                    // https://stackoverflow.com/questions/44783787/bind-query-to-props-with-vue-router
+                    // props: route => Object.assign({}, route.query, route.params)
+                },
                 { path: "/html/about", component: AboutView },
             ];
 

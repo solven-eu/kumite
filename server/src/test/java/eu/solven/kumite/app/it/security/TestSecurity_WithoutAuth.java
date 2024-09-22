@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
@@ -73,7 +74,7 @@ public class TestSecurity_WithoutAuth {
 				.expectStatus()
 				.isOk()
 				.expectBody(byte[].class)
-				.value(byteArray -> assertThat(byteArray).hasSize(15406));
+				.value(byteArray -> assertThat(byteArray).hasSize(15_406));
 	}
 
 	@Test
@@ -156,6 +157,75 @@ public class TestSecurity_WithoutAuth {
 					.expectStatus()
 					.isUnauthorized();
 		}
+	}
+
+	@Test
+	public void testLogout() {
+		log.debug("About {}", KumiteLoginController.class);
+
+		// SPA does a first call triggering the Logout: it must returns a 2XX response, as Fetch can not intercept 3XX.
+		webTestClient
+
+				// https://www.baeldung.com/spring-security-csrf
+				.mutateWith(SecurityMockServerConfigurers.csrf())
+
+				.post()
+				.uri("/logout")
+				// .accept(MediaType.APPLICATION_JSON)
+				.exchange()
+
+				.expectStatus()
+				.isFound()
+				.expectHeader()
+				.location("/api/login/v1/logout");
+
+		// SPA will then redirect the browser to URL provided in 2XX
+		webTestClient
+
+				.get()
+				.uri("/api/login/v1/logout")
+				// .accept(MediaType.APPLICATION_JSON)
+				.exchange()
+
+				.expectStatus()
+				.isOk()
+				.expectBody(Map.class)
+				.value(bodyAsMap -> {
+					// Ensure the csrfToken is not in the body, as it would make it easier to leak
+					Assertions.assertThat(bodyAsMap).containsEntry("Location", "/html/login?logout").hasSize(1);
+				});
+	}
+
+	@Test
+	public void testGetCsrf() {
+		log.debug("About {}", KumiteLoginController.class);
+
+		AtomicReference<String> refCsrfToken = new AtomicReference<>();
+
+		webTestClient
+
+				.get()
+				.uri("/api/login/v1/csrf")
+				.exchange()
+
+				.expectStatus()
+				.isOk()
+
+				.expectHeader()
+				.value("X-CSRF-TOKEN", csrfToken -> {
+					Assertions.assertThat(csrfToken).hasSizeGreaterThan(16);
+
+					refCsrfToken.set(csrfToken);
+				})
+
+				.expectBody(Map.class)
+				.value(bodyAsMap -> {
+					// Ensure the csrfToken is not in the body, as it would make it easier to leak
+					Assertions.assertThat(bodyAsMap).containsEntry("header", "X-CSRF-TOKEN").hasSize(1);
+				});
+
+		// TODO Could we check the csrfToken by doing a `POST /logout` with it? We would also need the Cookie SESSION
+		// for this scenario to work
 	}
 
 	@Test

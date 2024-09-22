@@ -162,6 +162,57 @@ public class TestSecurity_WithOAuth2User {
 	}
 
 	@Test
+	public void testLogout() {
+		log.debug("About {}", KumiteLoginController.class);
+
+		// Beware `.mutateWith(oauth2Login)` skips KumiteOAuth2UserService, hence automated registration on first OAuth2
+		// login
+		OAuth2LoginMutator oauth2Login;
+		{
+			KumiteUserRaw userRaw = TestTSPLifecycle.userRaw();
+			oauth2Login = SecurityMockServerConfigurers.mockOAuth2Login().attributes(attributes -> {
+				attributes.put("id", userRaw.getRawRaw().getSub());
+				attributes.put("providerId", userRaw.getRawRaw().getProviderId());
+			});
+			oauth2UserService.onKumiteUserRaw(userRaw);
+		}
+
+		// SPA does a first call triggering the Logout: it must returns a 2XX response, as Fetch can not intercept 3XX.
+		webTestClient
+
+				.mutateWith(oauth2Login)
+
+				// https://www.baeldung.com/spring-security-csrf
+				.mutateWith(SecurityMockServerConfigurers.csrf())
+
+				.post()
+				.uri("/logout")
+				// .accept(MediaType.APPLICATION_JSON)
+				.exchange()
+
+				.expectStatus()
+				.isFound()
+				.expectHeader()
+				.location("/api/login/v1/logout");
+
+		// SPA will then redirect the browser to URL provided in 2XX
+		webTestClient
+
+				.get()
+				.uri("/api/login/v1/logout")
+				// .accept(MediaType.APPLICATION_JSON)
+				.exchange()
+
+				.expectStatus()
+				.isOk()
+				.expectBody(Map.class)
+				.value(bodyAsMap -> {
+					// Ensure the csrfToken is not in the body, as it would make it easier to leak
+					Assertions.assertThat(bodyAsMap).containsEntry("Location", "/html/login?logout").hasSize(1);
+				});
+	}
+
+	@Test
 	public void testLoginAccessToken() {
 		log.debug("About {}", KumiteLoginController.class);
 

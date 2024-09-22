@@ -19,11 +19,13 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRawRaw;
@@ -175,6 +177,30 @@ public class KumiteLoginController {
 		if (!playersRegistry.makeDynamicHasPlayers(accountId).hasPlayerId(playerId)) {
 			throw new IllegalArgumentException("player_id=" + playerId + " is not managed by accountId=" + accountId);
 		}
+	}
+
+	// It seems much easier to return the CSRF through a dedicated API, than through Cookies and Headers, as SpringBoot
+	// seems to require advanced tweaking to get it populated automatically
+	// https://docs.spring.io/spring-security/reference/reactive/exploits/csrf.html#webflux-csrf-configure-custom-repository
+	@GetMapping("/csrf")
+	public Mono<ResponseEntity<?>> csrf(ServerWebExchange exchange) {
+		Mono<CsrfToken> csrfToken = exchange.getAttribute(CsrfToken.class.getName());
+		if (csrfToken == null) {
+			throw new IllegalStateException("No csrfToken is available");
+		}
+
+		return csrfToken.map(csrf -> ResponseEntity.ok()
+				.header(csrf.getHeaderName(), csrf.getToken())
+				.body(Map.of("header", csrf.getHeaderName())));
+	}
+
+	/**
+	 * @return the logout URL as a 2XX code, as 3XX can not be intercepted with Fetch API.
+	 * @see https://github.com/whatwg/fetch/issues/601#issuecomment-502667208
+	 */
+	@GetMapping("/logout")
+	public Map<String, String> loginpage() {
+		return Map.of(HttpHeaders.LOCATION, "/html/login?logout");
 	}
 
 }

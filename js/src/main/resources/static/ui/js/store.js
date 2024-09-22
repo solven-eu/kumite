@@ -35,7 +35,7 @@ export const useKumiteStore = defineStore("kumite", {
 		nbBoardFetching: 0,
 
 		// Currently connected account
-		account: { raw: {}},
+		account: { raw: {} },
 		tokens: {},
 		// Initially, we assume we are logged-in as we may have a session cookie
 		// May be turned to true by 401 on `loadUser()`
@@ -54,7 +54,7 @@ export const useKumiteStore = defineStore("kumite", {
 		nbBoardOperating: 0,
 	}),
 	getters: {
-        isLoggedIn: (store) => Object.keys(store.account.raw).length > 0,
+		isLoggedIn: (store) => Object.keys(store.account.raw).length > 0,
 		// There will be a way to choose a different playerId amongst the account playerIds
 		playingPlayerId: (store) => store.account.playerId,
 		// Default headers: we authenticate ourselves
@@ -212,7 +212,7 @@ export const useKumiteStore = defineStore("kumite", {
 				}
 			}
 
-			return this.ensureUser().then(user => {
+			return this.ensureUser().then((user) => {
 				console.log("We do have a User. Let's fetch tokens", user);
 				return fetchFromUrl(`/api/login/v1/oauth2/token?player_id=${this.playingPlayerId}`);
 			});

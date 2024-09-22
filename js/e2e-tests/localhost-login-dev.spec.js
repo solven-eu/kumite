@@ -11,12 +11,12 @@ const url = "http://localhost:8080";
 //});
 
 // We just check the login page is working OK
-test('showLoginOptions', async ({ page }) => {
+test("showLoginOptions", async ({ page }) => {
     await page.goto(url);
     await fakePlayer.showLoginOptions(page);
 });
 
-test('login', async ({ page }) => {
+test("login", async ({ page }) => {
     await page.goto(url);
     await fakePlayer.login(page);
 });

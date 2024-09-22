@@ -1,4 +1,7 @@
 spring:
+    application.name: kumite-contests
+    main:
+        banner-mode: "off"
     profiles:
         # Do not add any default `include`, else `default` would never kicks in
         group:
@@ -25,8 +28,6 @@ spring:
                 - default_server
             unsafe_external_oauth2:
                 - default_server
-    main:
-        banner-mode: "off"
 
 logging:
     level:
