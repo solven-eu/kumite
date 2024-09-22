@@ -33,8 +33,9 @@ export default {
 	method: {},
 	setup(props) {
 		const store = useKumiteStore();
-
-		const contestName = ref("A nice name for a contest");
+        
+        
+		const contestName = ref('');
 		const createdContest = ref({});
 
 		const submitContestForm = function () {
@@ -94,7 +95,7 @@ export default {
 
             <form>
                 <div class="mb-3">
-                    <label for="contestName" class="form-label">Email address</label>
+                    <label for="contestName" class="form-label">Contest name</label>
                     <input type="text" class="form-control" id="contestName" v-model="contestName" aria-describedby="emailHelp" />
                     <div id="emailHelp" class="form-text">Pick a name so your friends can find your contest.</div>
                 </div>

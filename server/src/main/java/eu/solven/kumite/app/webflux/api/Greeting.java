@@ -1,4 +1,4 @@
-package eu.solven.kumite.app.greeting;
+package eu.solven.kumite.app.webflux.api;
 
 import lombok.Builder;
 import lombok.Value;

@@ -1,4 +1,4 @@
-package eu.solven.kumite.app.webflux;
+package eu.solven.kumite.app.webflux.api;
 
 import static org.springdoc.core.fn.builders.apiresponse.Builder.responseBuilder;
 import static org.springdoc.core.fn.builders.parameter.Builder.parameterBuilder;
@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import eu.solven.kumite.app.webflux.PlayerVerifierFilterFunction;
 import eu.solven.kumite.board.BoardHandler;
 import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameSearchHandler;

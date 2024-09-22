@@ -9,6 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import eu.solven.kumite.app.EmptySpringBootApplication;
+import eu.solven.kumite.tools.GitPropertySourceConfig;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)

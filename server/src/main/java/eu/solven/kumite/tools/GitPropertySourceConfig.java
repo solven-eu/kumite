@@ -1,4 +1,4 @@
-package eu.solven.kumite.app.properties;
+package eu.solven.kumite.tools;
 
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;

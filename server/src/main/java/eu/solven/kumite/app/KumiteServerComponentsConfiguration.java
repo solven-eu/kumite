@@ -7,21 +7,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import eu.solven.kumite.account.login.KumiteUsersRegistry;
+import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.app.persistence.InMemoryKumiteConfiguration;
 import eu.solven.kumite.app.persistence.RedisKumiteConfiguration;
 import eu.solven.kumite.board.BoardHandler;
+import eu.solven.kumite.board.BoardLifecycleManager;
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.leaderboard.LeaderboardRegistry;
-import eu.solven.kumite.lifecycle.BoardLifecycleManager;
-import eu.solven.kumite.lifecycle.ContestLifecycleManager;
 import eu.solven.kumite.player.ContestPlayersFromBoard;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.PlayerMovesHandler;
 import eu.solven.kumite.player.PlayersSearchHandler;
 import eu.solven.kumite.redis.KumiteRedisConfiguration;
+import eu.solven.kumite.tools.KumiteRandomConfiguration;
 import eu.solven.kumite.webhook.WebhooksRegistry;
 
 @Configuration
@@ -40,8 +40,6 @@ import eu.solven.kumite.webhook.WebhooksRegistry;
 		BoardsRegistry.class,
 		BoardHandler.class,
 		PlayerMovesHandler.class,
-
-		ContestLifecycleManager.class,
 
 		InjectDefaultGamesConfig.class,
 

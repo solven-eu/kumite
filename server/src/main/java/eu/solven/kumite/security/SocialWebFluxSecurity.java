@@ -1,4 +1,4 @@
-package eu.solven.kumite.account.login;
+package eu.solven.kumite.security;
 
 import java.net.URI;
 
@@ -25,6 +25,7 @@ import com.nimbusds.jwt.JWT;
 
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
+import eu.solven.kumite.security.oauth2.KumiteOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

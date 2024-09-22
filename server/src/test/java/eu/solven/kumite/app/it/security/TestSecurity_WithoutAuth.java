@@ -21,11 +21,11 @@ import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import eu.solven.kumite.app.IKumiteSpringProfiles;
-import eu.solven.kumite.app.controllers.KumiteLoginController;
-import eu.solven.kumite.app.controllers.KumitePublicController;
-import eu.solven.kumite.app.greeting.GreetingHandler;
-import eu.solven.kumite.app.webflux.AccessTokenHandler;
-import eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter;
+import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
+import eu.solven.kumite.app.webflux.api.AccessTokenHandler;
+import eu.solven.kumite.app.webflux.api.GreetingHandler;
+import eu.solven.kumite.app.webflux.api.KumiteLoginController;
+import eu.solven.kumite.app.webflux.api.KumitePublicController;
 import eu.solven.pepper.unittest.ILogDisabler;
 import eu.solven.pepper.unittest.PepperTestHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -144,7 +144,7 @@ public class TestSecurity_WithoutAuth {
 	public void testLoginUser() {
 		log.debug("About {}", GreetingHandler.class);
 
-		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteWebExceptionHandler.class)) {
 			webTestClient
 
 					.get()
@@ -232,7 +232,7 @@ public class TestSecurity_WithoutAuth {
 	public void testLoginToken() {
 		log.debug("About {}", GreetingHandler.class);
 
-		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteWebExceptionHandler.class)) {
 			webTestClient
 
 					.get()
@@ -285,7 +285,7 @@ public class TestSecurity_WithoutAuth {
 	public void testApiPrivate() {
 		log.debug("About {}", GreetingHandler.class);
 
-		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteWebExceptionHandler.class)) {
 			webTestClient
 
 					.get()
@@ -302,7 +302,7 @@ public class TestSecurity_WithoutAuth {
 	public void testApiPrivate_unknownRoute() {
 		log.debug("About {}", GreetingHandler.class);
 
-		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteWebExceptionHandler.class)) {
 			webTestClient
 
 					.get()
@@ -320,7 +320,7 @@ public class TestSecurity_WithoutAuth {
 	public void testApiPOSTWithCsrf() {
 		log.debug("About {}", KumitePublicController.class);
 
-		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteWebExceptionHandler.class)) {
 			webTestClient
 					// https://www.baeldung.com/spring-security-csrf
 					.mutateWith(SecurityMockServerConfigurers.csrf())
@@ -341,7 +341,7 @@ public class TestSecurity_WithoutAuth {
 	public void testApiPOSTWithoutCsrf() {
 		log.debug("About {}", KumitePublicController.class);
 
-		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteWebExceptionHandler.class)) {
 			StatusAssertions expectStatus = webTestClient.post()
 					.uri("/api/v1/hello")
 					.bodyValue("{}")
@@ -357,7 +357,7 @@ public class TestSecurity_WithoutAuth {
 	public void testMakeRefreshToken() {
 		log.debug("About {}", KumiteLoginController.class);
 
-		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteWebExceptionHandler.class)) {
 			StatusAssertions expectStatus = webTestClient.get()
 					.uri("/api/login/v1/oauth2/token?refresh_token=true")
 					.accept(MediaType.APPLICATION_JSON)
@@ -373,7 +373,7 @@ public class TestSecurity_WithoutAuth {
 	public void testRefreshTokenToAccessToken() {
 		log.debug("About {}", AccessTokenHandler.class);
 
-		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteWebExceptionHandler.class)) {
 			StatusAssertions expectStatus = webTestClient.get()
 					.uri("/api/v1/oauth2/token?player_id=11111111-1111-1111-1111-111111111111")
 					.accept(MediaType.APPLICATION_JSON)

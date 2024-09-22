@@ -1,4 +1,4 @@
-package eu.solven.kumite.app.webflux;
+package eu.solven.kumite.app.webflux.api;
 
 import static org.springdoc.core.fn.builders.parameter.Builder.parameterBuilder;
 
@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import eu.solven.kumite.app.greeting.GreetingHandler;
+import eu.solven.kumite.app.webflux.PlayerVerifierFilterFunction;
 import lombok.extern.slf4j.Slf4j;
 
 /**

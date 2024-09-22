@@ -1,4 +1,4 @@
-package eu.solven.kumite.app.webflux;
+package eu.solven.kumite.app.webflux.api;
 
 import java.util.UUID;
 
@@ -12,8 +12,7 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.account.login.KumiteUsersRegistry;
-import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
+import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.login.AccessTokenWrapper;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import lombok.AllArgsConstructor;

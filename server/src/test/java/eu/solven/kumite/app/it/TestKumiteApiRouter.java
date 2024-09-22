@@ -17,9 +17,9 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import eu.solven.kumite.account.fake_player.FakePlayerTokens;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteContestServerApplication;
-import eu.solven.kumite.app.greeting.Greeting;
-import eu.solven.kumite.app.greeting.GreetingHandler;
-import eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter;
+import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
+import eu.solven.kumite.app.webflux.api.Greeting;
+import eu.solven.kumite.app.webflux.api.GreetingHandler;
 import eu.solven.kumite.contest.ContestMetadataRaw;
 import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameMetadata;
@@ -110,7 +110,7 @@ public class TestKumiteApiRouter {
 	public void testSearchGames_gameId_undefined() {
 		log.debug("About {}", GameSearchHandler.class);
 
-		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteWebExceptionHandler.class)) {
 			webTestClient.get()
 
 					.uri(v1 + "/games?game_id=undefined")

@@ -7,6 +7,8 @@ import java.util.Map;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.resource.NoResourceFoundException;
 import org.springframework.web.server.ServerWebExchange;
@@ -15,15 +17,25 @@ import org.springframework.web.server.WebExceptionHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.solven.kumite.app.KumiteJackson;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Convert an applicative {@link Throwable} into a relevant {@link HttpStatus}
+ * 
+ * @author Benoit Lacelle
+ *
+ */
 @Component
 // '-2' to have higher priority than the default WebExceptionHandler
 @Order(-2)
 @Slf4j
+// https://stackoverflow.com/questions/51931178/error-handling-in-webflux-with-routerfunction
 public class KumiteWebExceptionHandler implements WebExceptionHandler {
+
+	final ObjectMapper objectMapper = KumiteJackson.objectMapper();
 
 	@Override
 	public Mono<Void> handle(ServerWebExchange exchange, Throwable e) {
@@ -41,7 +53,8 @@ public class KumiteWebExceptionHandler implements WebExceptionHandler {
 			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 		}
 
-		exchange.getResponse().setStatusCode(httpStatus);
+		ServerHttpResponse response = exchange.getResponse();
+		response.setStatusCode(httpStatus);
 		if (log.isDebugEnabled()) {
 			log.warn("Returning a {} given {} ({})", httpStatus, e.getClass(), e.getMessage(), e);
 		} else {
@@ -58,15 +71,17 @@ public class KumiteWebExceptionHandler implements WebExceptionHandler {
 
 		String respondyBodyAsString;
 		try {
-			respondyBodyAsString = new ObjectMapper().writeValueAsString(responseBody);
+			respondyBodyAsString = objectMapper.writeValueAsString(responseBody);
 		} catch (JsonProcessingException ee) {
 			log.error("Issue producing responseBody given {}", responseBody, ee);
 			respondyBodyAsString = "{\"error_message\":\"something_went_very_wrong\"}";
 		}
 
 		byte[] bytes = respondyBodyAsString.getBytes(StandardCharsets.UTF_8);
-		DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
-		return exchange.getResponse().writeWith(Flux.just(buffer));
+
+		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+		DataBuffer buffer = response.bufferFactory().wrap(bytes);
+		return response.writeWith(Flux.just(buffer));
 	}
 
 }

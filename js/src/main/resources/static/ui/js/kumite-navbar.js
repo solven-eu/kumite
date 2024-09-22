@@ -1,9 +1,14 @@
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
+import Logout from "./login-logout.js";
+
 export default {
+components: {
+    Logout,
+},
 	computed: {
-		...mapState(useKumiteStore, ["needsToLogin", "account", "tokens", "nbAccountFetching", "playingPlayerId"]),
+		...mapState(useKumiteStore, ["needsToLogin", "isLoggedIn", "account", "tokens", "nbAccountFetching", "playingPlayerId"]),
 	},
 	setup() {
 		const store = useKumiteStore();
@@ -40,31 +45,29 @@ export default {
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <RouterLink class="nav-link active" aria-current="page" to="/">Home</RouterLink>
+                            <RouterLink class="nav-link" to="/html/games"><i class="bi bi-puzzle"/>Games</RouterLink>
                         </li>
                         <li class="nav-item">
-                            <RouterLink class="nav-link" to="/html/games">Games</RouterLink>
+                            <RouterLink class="nav-link" to="/html/contests"><i class="bi bi-trophy"/>Contests</RouterLink>
                         </li>
                         <li class="nav-item">
-                            <RouterLink class="nav-link" to="/html/contests">Contests</RouterLink>
-                        </li>
-                        <li class="nav-item">
-                            <RouterLink class="nav-link" to="/html/about">About</RouterLink>
+                            <RouterLink class="nav-link" to="/html/about"><i class="bi bi-info-lg"/>About</RouterLink>
                         </li>
 
-                        <li class="nav-item" v-if="account.raw">
-                            <RouterLink class="nav-link" to="/html/me">Account Settings</RouterLink>
+                        <li class="nav-item" v-if="isLoggedIn">
+                            <RouterLink class="nav-link" to="/html/me"><i class="bi bi-person"/>Account Settings</RouterLink>
                         </li>
                     </ul>
-                    <span v-if="account.raw">
-                        Current user: {{account.raw.name}}<img
+                    <span v-if="isLoggedIn">
+                        {{account.raw.name}}<img
                             :src="account.raw.picture"
                             class="img-thumbnail"
                             alt="You're looking nice"
-                            width="128"
-                            height="128"
+                            width="64"
+                            height="64"
                             v-if="account.raw.picture"
                         />
+                        <Logout />
                     </span>
                 </div>
             </div>

@@ -40,14 +40,14 @@ export default {
                 <span v-if="withDescription">
                     <h1>
                         <RouterLink :to="{path:'/html/games/' + game.gameId}"><i class="bi bi-puzzle"></i> {{game.title}}</RouterLink>
-                        <RouterLink :to="{path:'/html/games'}"><i class="bi bi-arrow-90deg-left"></i></RouterLink>
+                        <!--RouterLink :to="{path:'/html/games'}"><i class="bi bi-arrow-90deg-left"></i></RouterLink-->
                     </h1>
                     Game-Description: {{game.shortDescription}}
                 </span>
                 <span v-else>
                     <h5>
                         <RouterLink :to="{path:'/html/games/' + game.gameId}"><i class="bi bi-puzzle"></i> {{game.title}}</RouterLink>
-                        <RouterLink :to="{path:'/html/games'}"><i class="bi bi-arrow-90deg-left"></i></RouterLink>
+                        <!--RouterLink :to="{path:'/html/games'}"><i class="bi bi-arrow-90deg-left"></i></RouterLink-->
                     </h5>
                 </span>
             </span>

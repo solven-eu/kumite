@@ -1,4 +1,4 @@
-package eu.solven.kumite.app.greeting;
+package eu.solven.kumite.app.webflux.api;
 
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;

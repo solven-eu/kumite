@@ -1,4 +1,4 @@
-package eu.solven.kumite.app.controllers;
+package eu.solven.kumite.app.webflux.api;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,8 +8,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
+import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.account.fake_player.FakePlayerTokens;
-import eu.solven.kumite.account.login.KumiteUsersRegistry;
+import eu.solven.kumite.app.webflux.api.KumiteLoginController;
 import eu.solven.kumite.oauth2.IKumiteOAuth2Constants;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.player.IAccountPlayersRegistry;

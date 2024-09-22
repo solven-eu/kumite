@@ -12,9 +12,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 import eu.solven.kumite.app.IKumiteSpringProfiles;
-import eu.solven.kumite.app.KumiteRandomConfiguration;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
+import eu.solven.kumite.tools.KumiteRandomConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 /**

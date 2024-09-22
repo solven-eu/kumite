@@ -1,10 +1,7 @@
-package eu.solven.kumite.account.login;
+package eu.solven.kumite.account;
 
 import java.util.UUID;
 
-import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.account.KumiteUserRaw;
-import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.user.IKumiteUserRawRawRepository;
 import eu.solven.kumite.user.IKumiteUserRepository;

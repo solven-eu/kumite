@@ -5,7 +5,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
+import eu.solven.kumite.app.webflux.api.KumiteHandlerHelper;
 import eu.solven.kumite.leaderboard.LeaderboardSearchParameters.LeaderboardSearchParametersBuilder;
 import lombok.Value;
 import reactor.core.publisher.Mono;

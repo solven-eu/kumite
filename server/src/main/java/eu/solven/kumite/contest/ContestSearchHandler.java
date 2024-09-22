@@ -14,7 +14,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.solven.kumite.app.KumiteJackson;
-import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
+import eu.solven.kumite.app.webflux.api.KumiteHandlerHelper;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.ContestSearchParameters.ContestSearchParametersBuilder;
 import eu.solven.kumite.game.GameMetadata;

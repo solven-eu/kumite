@@ -1,4 +1,4 @@
-package eu.solven.kumite.account.login;
+package eu.solven.kumite.security;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;

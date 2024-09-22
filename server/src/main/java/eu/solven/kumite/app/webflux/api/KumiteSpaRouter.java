@@ -1,4 +1,4 @@
-package eu.solven.kumite.app.webflux;
+package eu.solven.kumite.app.webflux.api;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

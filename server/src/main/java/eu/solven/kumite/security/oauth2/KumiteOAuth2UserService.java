@@ -1,4 +1,4 @@
-package eu.solven.kumite.account.login;
+package eu.solven.kumite.security.oauth2;
 
 import java.net.URI;
 
@@ -12,6 +12,7 @@ import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRaw;
 import eu.solven.kumite.account.KumiteUserRaw.KumiteUserRawBuilder;
 import eu.solven.kumite.account.KumiteUserRawRaw;
+import eu.solven.kumite.account.KumiteUsersRegistry;
 import graphql.VisibleForTesting;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;

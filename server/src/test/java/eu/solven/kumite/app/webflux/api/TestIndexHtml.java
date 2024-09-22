@@ -1,4 +1,4 @@
-package eu.solven.kumite.app.webflux;
+package eu.solven.kumite.app.webflux.api;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -19,6 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.solven.kumite.app.webflux.api.KumiteSpaRouter;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)

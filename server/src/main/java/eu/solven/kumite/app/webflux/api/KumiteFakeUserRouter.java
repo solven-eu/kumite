@@ -1,4 +1,4 @@
-package eu.solven.kumite.app.webflux;
+package eu.solven.kumite.app.webflux.api;
 
 import static org.springdoc.core.fn.builders.apiresponse.Builder.responseBuilder;
 

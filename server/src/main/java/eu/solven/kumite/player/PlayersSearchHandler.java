@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import eu.solven.kumite.app.controllers.KumiteHandlerHelper;
+import eu.solven.kumite.app.webflux.api.KumiteHandlerHelper;
 import eu.solven.kumite.player.PlayerSearchParameters.PlayerSearchParametersBuilder;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;

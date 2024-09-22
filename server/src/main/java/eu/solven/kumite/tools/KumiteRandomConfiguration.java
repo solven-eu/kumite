@@ -1,4 +1,4 @@
-package eu.solven.kumite.app;
+package eu.solven.kumite.tools;
 
 import java.security.SecureRandom;
 import java.util.Random;

@@ -1,4 +1,4 @@
-package eu.solven.kumite.app.controllers;
+package eu.solven.kumite.app.webflux.api;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

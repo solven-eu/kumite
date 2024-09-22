@@ -1,4 +1,4 @@
-package eu.solven.kumite.lifecycle;
+package eu.solven.kumite.board;
 
 import java.util.List;
 import java.util.UUID;
@@ -8,9 +8,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import eu.solven.kumite.board.BoardsRegistry;
-import eu.solven.kumite.board.IKumiteBoard;
-import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.move.PlayerMoveRaw;
 import eu.solven.kumite.player.ContestPlayersRegistry;

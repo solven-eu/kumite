@@ -1,4 +1,4 @@
-package eu.solven.kumite.app.controllers;
+package eu.solven.kumite.app.webflux.api;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

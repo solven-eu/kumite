@@ -27,7 +27,7 @@ export default {
 	},
 	template: /* HTML */ `
         <RouterLink :to="{path:'/html/me'}">
-            <i class="bi bi-person"></i>accountId: {{ accountId }} <span v-if="account.accountId === accountId">You</span>
+            <i class="bi bi-person"></i>accountId: {{ accountId }}<span v-if="account.accountId === accountId"> (You)</span>
         </RouterLink>
     `,
 };

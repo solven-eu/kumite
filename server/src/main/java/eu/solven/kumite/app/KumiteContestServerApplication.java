@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
-import eu.solven.kumite.account.login.KumiteSecurity;
-import eu.solven.kumite.app.properties.GitPropertySourceConfig;
 import eu.solven.kumite.app.webflux.KumiteWebFluxConfiguration;
+import eu.solven.kumite.security.KumiteSecurity;
+import eu.solven.kumite.tools.GitPropertySourceConfig;
 
 @SpringBootApplication(scanBasePackages = "none")
 @Import({

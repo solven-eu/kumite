@@ -1,7 +1,7 @@
 spring:
+    application.name: kumite-player
     main:
         banner-mode: "off"
-    application.name: kumite-player
     # https://stackoverflow.com/questions/26105061/spring-boot-without-the-web-server
     main.web-application-type: NONE
     profiles:

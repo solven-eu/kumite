@@ -17,10 +17,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRaw;
 import eu.solven.kumite.account.KumiteUserRawRaw;
-import eu.solven.kumite.account.login.KumiteUsersRegistry;
+import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerComponentsConfiguration;
-import eu.solven.kumite.app.controllers.KumiteLoginController;
+import eu.solven.kumite.app.webflux.api.KumiteLoginController;
+import eu.solven.kumite.board.BoardLifecycleManager;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestsRegistry;
@@ -33,8 +34,6 @@ import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.leaderboard.LeaderboardRaw;
 import eu.solven.kumite.leaderboard.LeaderboardRegistry;
 import eu.solven.kumite.leaderboard.LeaderboardSearchParameters;
-import eu.solven.kumite.lifecycle.BoardLifecycleManager;
-import eu.solven.kumite.lifecycle.ContestLifecycleManager;
 import eu.solven.kumite.move.IKumiteMove;
 import eu.solven.kumite.move.PlayerMoveRaw;
 import eu.solven.kumite.player.ContestPlayersRegistry;
@@ -66,9 +65,6 @@ public class TestTSPLifecycle {
 
 	@Autowired
 	LeaderboardRegistry leaderboardRegistry;
-
-	@Autowired
-	ContestLifecycleManager contestLifecycleManager;
 
 	@Autowired
 	BoardLifecycleManager boardLifecycleManager;

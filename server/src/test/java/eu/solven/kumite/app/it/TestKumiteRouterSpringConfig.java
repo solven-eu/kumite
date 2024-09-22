@@ -6,8 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import eu.solven.kumite.app.KumiteServerComponentsConfiguration;
-import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.app.webflux.KumiteWebFluxConfiguration;
+import eu.solven.kumite.app.webflux.api.GreetingHandler;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)

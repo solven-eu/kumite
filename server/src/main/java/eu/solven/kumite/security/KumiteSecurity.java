@@ -1,4 +1,4 @@
-package eu.solven.kumite.account.login;
+package eu.solven.kumite.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -7,14 +7,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.WebExceptionHandler;
-import org.springframework.web.server.WebFilter;
 
 import eu.solven.kumite.app.IKumiteSpringProfiles;
-import eu.solven.kumite.app.controllers.KumiteLoginController;
-import eu.solven.kumite.app.controllers.KumitePublicController;
-import eu.solven.kumite.app.controllers.MetadataController;
-import eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter;
 import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
+import eu.solven.kumite.app.webflux.api.KumiteLoginController;
+import eu.solven.kumite.app.webflux.api.KumitePublicController;
+import eu.solven.kumite.app.webflux.api.MetadataController;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
 import lombok.extern.slf4j.Slf4j;
@@ -70,10 +68,10 @@ public class KumiteSecurity {
 		return null;
 	}
 
-	@Bean
-	WebFilter kumiteExceptionRoutingWebFilter() {
-		return new KumiteExceptionRoutingWebFilter();
-	}
+//	@Bean
+//	WebFilter kumiteExceptionRoutingWebFilter() {
+//		return new KumiteExceptionRoutingWebFilter();
+//	}
 
 	@Bean
 	WebExceptionHandler kumiteWebExceptionHandler() {

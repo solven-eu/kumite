@@ -2,7 +2,12 @@ package eu.solven.kumite.app.webflux;
 
 import org.springframework.context.annotation.Import;
 
-import eu.solven.kumite.app.greeting.GreetingHandler;
+import eu.solven.kumite.app.webflux.api.AccessTokenHandler;
+import eu.solven.kumite.app.webflux.api.GreetingHandler;
+import eu.solven.kumite.app.webflux.api.KumiteApiRouter;
+import eu.solven.kumite.app.webflux.api.KumiteFakeUserRouter;
+import eu.solven.kumite.app.webflux.api.KumiteLoginRouter;
+import eu.solven.kumite.app.webflux.api.KumiteSpaRouter;
 import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameSearchHandler;
 import eu.solven.kumite.leaderboard.LeaderboardHandler;

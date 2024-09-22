@@ -20,6 +20,7 @@ import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToe;
 import eu.solven.kumite.game.optimization.lag.Lag;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
+import eu.solven.kumite.tools.CloseableBean;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration

@@ -22,17 +22,17 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRaw;
-import eu.solven.kumite.account.login.KumiteOAuth2UserService;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteJackson;
-import eu.solven.kumite.app.controllers.KumiteLoginController;
-import eu.solven.kumite.app.controllers.KumitePublicController;
-import eu.solven.kumite.app.greeting.GreetingHandler;
-import eu.solven.kumite.app.webflux.AccessTokenHandler;
-import eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter;
+import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
+import eu.solven.kumite.app.webflux.api.AccessTokenHandler;
+import eu.solven.kumite.app.webflux.api.GreetingHandler;
+import eu.solven.kumite.app.webflux.api.KumiteLoginController;
+import eu.solven.kumite.app.webflux.api.KumitePublicController;
 import eu.solven.kumite.login.AccessTokenWrapper;
 import eu.solven.kumite.login.RefreshTokenWrapper;
 import eu.solven.kumite.scenario.TestTSPLifecycle;
+import eu.solven.kumite.security.oauth2.KumiteOAuth2UserService;
 import eu.solven.pepper.unittest.ILogDisabler;
 import eu.solven.pepper.unittest.PepperTestHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -388,7 +388,7 @@ public class TestSecurity_WithOAuth2User {
 			oauth2UserService.onKumiteUserRaw(userRaw);
 		}
 
-		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteWebExceptionHandler.class)) {
 			StatusAssertions expectStatus = webTestClient
 
 					.mutateWith(oauth2Login)

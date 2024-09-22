@@ -4,15 +4,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
-import eu.solven.kumite.account.login.KumiteSecurity;
-import eu.solven.kumite.account.login.KumiteUsersRegistry;
-import eu.solven.kumite.app.KumiteRandomConfiguration;
-import eu.solven.kumite.app.greeting.GreetingHandler;
-import eu.solven.kumite.app.webflux.AccessTokenHandler;
-import eu.solven.kumite.app.webflux.KumiteLoginRouter;
-import eu.solven.kumite.app.webflux.KumiteSpaRouter;
+import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.app.webflux.PlayerVerifierFilterFunction;
+import eu.solven.kumite.app.webflux.api.AccessTokenHandler;
+import eu.solven.kumite.app.webflux.api.GreetingHandler;
+import eu.solven.kumite.app.webflux.api.KumiteLoginRouter;
+import eu.solven.kumite.app.webflux.api.KumiteSpaRouter;
 import eu.solven.kumite.player.persistence.BijectiveAccountPlayersRegistry;
+import eu.solven.kumite.security.KumiteSecurity;
+import eu.solven.kumite.tools.KumiteRandomConfiguration;
 import eu.solven.kumite.user.InMemoryUserRepository;
 
 @SpringBootApplication(scanBasePackages = "none")

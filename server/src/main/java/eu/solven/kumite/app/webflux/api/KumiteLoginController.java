@@ -1,4 +1,4 @@
-package eu.solven.kumite.app.controllers;
+package eu.solven.kumite.app.webflux.api;
 
 import java.util.List;
 import java.util.Map;
@@ -29,8 +29,8 @@ import org.springframework.web.server.ServerWebExchange;
 
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRawRaw;
+import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.account.fake_player.FakePlayerTokens;
-import eu.solven.kumite.account.login.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.webflux.LoginRouteButNotAuthenticatedException;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;

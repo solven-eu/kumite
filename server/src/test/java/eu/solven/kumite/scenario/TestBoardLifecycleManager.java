@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import eu.solven.kumite.board.BoardLifecycleManager;
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
@@ -19,7 +20,6 @@ import eu.solven.kumite.contest.ContestCreationMetadata;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
-import eu.solven.kumite.lifecycle.BoardLifecycleManager;
 import eu.solven.kumite.move.IKumiteMove;
 import eu.solven.kumite.move.PlayerMoveRaw;
 import eu.solven.kumite.player.ContestPlayersFromBoard;
