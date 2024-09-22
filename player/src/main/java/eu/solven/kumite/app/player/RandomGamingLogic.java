@@ -216,7 +216,7 @@ public class RandomGamingLogic implements IGamingLogic {
 	 * @return the duration to sleep before polling again for exampleMoves.
 	 */
 	protected Duration waitDurationIfNoMove() {
-		return Duration.ofSeconds(1);
+		return Duration.ofMillis(10);
 	}
 
 	/**

@@ -33,6 +33,7 @@ public class RedisUserRepository implements IKumiteUserRawRawRepository, IKumite
 
 	@Override
 	public void putIfAbsent(UUID accountId, KumiteUserRawRaw kumiteUserRawRaw) {
+		// No TTL on Users
 		Boolean result = redisTemplate.boundValueOps(kumiteUserRawRaw).setIfAbsent(kumiteUserRawRaw);
 		log.info("accountId={} rawRaw={} putIfAbsent={}", accountId, kumiteUserRawRaw, result);
 	}

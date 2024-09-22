@@ -1,4 +1,4 @@
-package eu.solven.kumite.app;
+package eu.solven.kumite.redis;
 
 import java.io.IOException;
 
@@ -10,6 +10,12 @@ import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import redis.embedded.RedisServer;
 
+/**
+ * Provides an embedded Redis for unitTests purposes.
+ * 
+ * @author Benoit Lacelle
+ *
+ */
 @TestConfiguration
 @Slf4j
 public class RedisTestConfiguration {

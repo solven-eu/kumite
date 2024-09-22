@@ -29,7 +29,7 @@ public class Lag implements IGame {
 			.tag(IGameMetadataConstants.TAG_OPTIMIZATION)
 			.tag(IGameMetadataConstants.TAG_PERFECT_INFORMATION)
 			.tag(IGameMetadataConstants.TAG_REALTIME)
-			.maxPlayers(Integer.MAX_VALUE)
+			.maxPlayers(1024)
 			.shortDescription("You score your Lag. This is the simplest realtime game")
 			.reference(URI.create("https://en.wikipedia.org/wiki/Lag_(video_games)"))
 			.build();

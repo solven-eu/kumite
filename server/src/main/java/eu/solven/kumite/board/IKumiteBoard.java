@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.solven.kumite.move.PlayerMoveRaw;
 
 /**
- * Needs to be serializable to {@link String} by {@link ObjectMapper}.
+ * Needs to be serializable to {@link String} by {@link ObjectMapper} as it is stored in Redis as json.
  * 
  * @author Benoit Lacelle
  *

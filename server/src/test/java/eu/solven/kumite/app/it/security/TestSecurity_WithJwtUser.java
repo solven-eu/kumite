@@ -143,34 +143,38 @@ public class TestSecurity_WithJwtUser {
 	public void testLoginUser() {
 		log.debug("About {}", KumiteLoginController.class);
 
-		webTestClient
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+			webTestClient
 
-				.get()
-				.uri("/api/login/v1/user")
-				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
-				.accept(MediaType.APPLICATION_JSON)
-				.exchange()
+					.get()
+					.uri("/api/login/v1/user")
+					.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
+					.accept(MediaType.APPLICATION_JSON)
+					.exchange()
 
-				.expectStatus()
-				// This routes requires OAuth2 authentication
-				.isUnauthorized();
+					.expectStatus()
+					// This routes requires OAuth2 authentication
+					.isUnauthorized();
+		}
 	}
 
 	@Test
 	public void testLoginToken() {
 		log.debug("About {}", KumiteLoginController.class);
 
-		webTestClient
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+			webTestClient
 
-				.get()
-				.uri("/api/login/v1/oauth2/token")
-				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
-				.accept(MediaType.APPLICATION_JSON)
-				.exchange()
+					.get()
+					.uri("/api/login/v1/oauth2/token")
+					.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
+					.accept(MediaType.APPLICATION_JSON)
+					.exchange()
 
-				.expectStatus()
-				// This routes requires OAuth2 authentication
-				.isUnauthorized();
+					.expectStatus()
+					// This routes requires OAuth2 authentication
+					.isUnauthorized();
+		}
 	}
 
 	@Test

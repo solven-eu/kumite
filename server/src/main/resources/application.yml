@@ -25,6 +25,8 @@ spring:
                 - default_server
             unsafe_external_oauth2:
                 - default_server
+    main:
+        banner-mode: "off"
 
 logging:
     level:

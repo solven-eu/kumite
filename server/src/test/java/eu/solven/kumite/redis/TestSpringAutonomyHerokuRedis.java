@@ -1,4 +1,4 @@
-package eu.solven.kumite.app;
+package eu.solven.kumite.redis;
 
 import java.util.Map;
 
@@ -16,6 +16,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.solven.kumite.account.KumiteUserRawRaw;
+import eu.solven.kumite.app.IKumiteSpringProfiles;
+import eu.solven.kumite.app.KumiteContestServerApplication;
 import eu.solven.kumite.oauth2.IKumiteOAuth2Constants;
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,7 +50,13 @@ public class TestSpringAutonomyHerokuRedis implements IKumiteSpringProfiles {
 	public void testObjectMapper() {
 		// Ensure Redis did not corrupted ObjectMapper with its own configuration
 		KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId("someProviderId").sub("someSub").build();
+		@SuppressWarnings("rawtypes")
 		Map asMap = objectMapper.convertValue(rawRaw, Map.class);
 		Assertions.assertThat(asMap).hasSize(2);
+	}
+
+	@Test
+	public void testListGames() {
+
 	}
 }

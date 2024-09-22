@@ -7,6 +7,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.move.PlayerMoveRaw;
@@ -17,8 +19,9 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
+@JsonIgnoreProperties(value = { "boardSvg", "moveSvg" }, allowGetters = true)
 public class LagBoard implements IKumiteBoard, IKumiteBoardView {
-
+	@Builder.Default
 	Map<UUID, Long> playerToLatestLagMs = new ConcurrentHashMap<>();
 
 	@Override

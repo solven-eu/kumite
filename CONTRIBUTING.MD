@@ -57,6 +57,8 @@ Heroku may also deploy on push over Heroku own repository: `git push heroku mast
 
     heroku open
     heroku logs --tail
+    heroku logs --tail --dyno web
+    heroku logs --tail --dyno player
 
 ## Run Heroku locally
 

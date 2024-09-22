@@ -22,6 +22,7 @@ public class TSPBoard implements IKumiteBoard {
 	@NonNull
 	TSPProblem problem;
 
+	@Builder.Default
 	Map<UUID, TSPSolution> playerToLatestSolution = new ConcurrentHashMap<>();
 
 	@Override

@@ -28,16 +28,6 @@ Such a JWT can be fetched:
 In both cases, the JWT behave as a short-lived access_token: it expires after 1 hour.
 
 
-## How to get a refresh_token
+## How to get a refresh_token and authenticate my Robot
 
-This is demonstrated by the `js` app on the `/html/me` route. The API call is essentially `GET /api/login/v1/oauth2/token?refresh_token=true`.
-
-## How to authenticate my Robot
-
-(We refer to the wording access_token and refresh_token. However, we do not follow formally the standard regarding these tokens. This would be done in a later iteration, as it would require to split the Resource Server (serving the business API given an access_token) and the Authentication Server (which would provide and receive refresh_token)).
-
-1. Connect to the `js` app
-2. Submit the form on `/html/me` to get a RefreshToken. This refreshToken is long-lived: it expires after 1 year.
-3. Generate AccessToken while being authenticated with the refreshToken: `curl -H "Authorization: OAuth <REFRESH_TOKEN>" <HOST>/api/v1/oauth2/token?refresh_token=true`
-
-Long-lived JWT shall later be banned based on their `jid`.
+see [authorization](../authorization/README.MD)

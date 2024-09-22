@@ -37,7 +37,7 @@ public class TravellingSalesmanProblem implements IGame {
 			.title("Travelling Salesman Problem")
 			.tag(IGameMetadataConstants.TAG_OPTIMIZATION)
 			.tag(IGameMetadataConstants.TAG_PERFECT_INFORMATION)
-			.maxPlayers(Integer.MAX_VALUE)
+			.maxPlayers(1024)
 			.shortDescription(
 					"Given a list of cities and the distances between each pair of cities, what is the shortest possible route that visits each city exactly once and returns to the origin city?")
 			.reference(URI.create("https://en.wikipedia.org/wiki/Travelling_salesman_problem"))

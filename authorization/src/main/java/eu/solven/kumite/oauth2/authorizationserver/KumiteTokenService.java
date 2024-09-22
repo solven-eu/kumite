@@ -80,6 +80,10 @@ public class KumiteTokenService {
 			Set<UUID> playerIds,
 			Duration accessTokenValidity,
 			boolean isRefreshToken) {
+		if (!isRefreshToken && playerIds.size() != 1) {
+			throw new IllegalArgumentException("access_token are generated for a specific single playerId");
+		}
+
 		// Generating a Signed JWT
 		// https://auth0.com/blog/rs256-vs-hs256-whats-the-difference/
 		// https://security.stackexchange.com/questions/194830/recommended-asymmetric-algorithms-for-jwt
@@ -123,7 +127,7 @@ public class KumiteTokenService {
 			throw new IllegalStateException("Need to setup %s".formatted(IKumiteOAuth2Constants.KEY_OAUTH2_ISSUER));
 		}
 		// This matches `/api/v1/oauth2/token` as route for token generation
-		return issuerBaseUrl + "/api/v1/oauth2";
+		return issuerBaseUrl + "/api/v1" + "/oauth2";
 	}
 
 	/**
@@ -140,6 +144,7 @@ public class KumiteTokenService {
 	 * @throws IllegalStateException
 	 */
 	public AccessTokenWrapper wrapInJwtAccessToken(KumiteUser user, UUID playerId) {
+		// access_token are short-lived
 		Duration accessTokenValidity = Duration.parse("PT1H");
 
 		String accessToken = generateAccessToken(user, Set.of(playerId), accessTokenValidity, false);
@@ -157,6 +162,7 @@ public class KumiteTokenService {
 	// https://stackoverflow.com/questions/38986005/what-is-the-purpose-of-a-refresh-token
 	// https://stackoverflow.com/questions/40555855/does-the-refresh-token-expire-and-if-so-when
 	public RefreshTokenWrapper wrapInJwtRefreshToken(KumiteUser user, Set<UUID> playerIds) {
+		// refresh_token are long-lived
 		Duration refreshTokenValidity = Duration.parse("P365D");
 
 		String accessToken = generateAccessToken(user, playerIds, refreshTokenValidity, true);

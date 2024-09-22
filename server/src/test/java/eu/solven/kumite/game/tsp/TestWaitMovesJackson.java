@@ -1,4 +1,4 @@
-package eu.solven.kumite.tsp;
+package eu.solven.kumite.game.tsp;
 
 import java.util.UUID;
 

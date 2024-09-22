@@ -19,12 +19,15 @@ import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteContestServerApplication;
 import eu.solven.kumite.app.greeting.Greeting;
 import eu.solven.kumite.app.greeting.GreetingHandler;
+import eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter;
 import eu.solven.kumite.contest.ContestMetadataRaw;
 import eu.solven.kumite.contest.ContestSearchHandler;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchHandler;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
+import eu.solven.pepper.unittest.ILogDisabler;
+import eu.solven.pepper.unittest.PepperTestHelper;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
@@ -92,7 +95,7 @@ public class TestKumiteApiRouter {
 								Assertions.assertThat(game.getTitle()).isEqualTo("Travelling Salesman Problem");
 
 								Assertions.assertThat(game.getMinPlayers()).isEqualTo(1);
-								Assertions.assertThat(game.getMaxPlayers()).isEqualTo(Integer.MAX_VALUE);
+								Assertions.assertThat(game.getMaxPlayers()).isEqualTo(1024);
 							})
 							.anySatisfy(game -> {
 								Assertions.assertThat(game.getTitle()).isEqualTo("Tic-Tac-Toe");
@@ -107,15 +110,17 @@ public class TestKumiteApiRouter {
 	public void testSearchGames_gameId_undefined() {
 		log.debug("About {}", GameSearchHandler.class);
 
-		webTestClient.get()
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+			webTestClient.get()
 
-				.uri(v1 + "/games?game_id=undefined")
-				.accept(MediaType.APPLICATION_JSON)
-				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
-				.exchange()
+					.uri(v1 + "/games?game_id=undefined")
+					.accept(MediaType.APPLICATION_JSON)
+					.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateAccessToken())
+					.exchange()
 
-				.expectStatus()
-				.isBadRequest();
+					.expectStatus()
+					.isBadRequest();
+		}
 	}
 
 	@Test

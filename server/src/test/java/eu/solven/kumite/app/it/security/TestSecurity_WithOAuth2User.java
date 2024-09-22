@@ -29,9 +29,12 @@ import eu.solven.kumite.app.controllers.KumiteLoginController;
 import eu.solven.kumite.app.controllers.KumitePublicController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.app.webflux.AccessTokenHandler;
+import eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter;
 import eu.solven.kumite.login.AccessTokenWrapper;
 import eu.solven.kumite.login.RefreshTokenWrapper;
 import eu.solven.kumite.scenario.TestTSPLifecycle;
+import eu.solven.pepper.unittest.ILogDisabler;
+import eu.solven.pepper.unittest.PepperTestHelper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -214,7 +217,7 @@ public class TestSecurity_WithOAuth2User {
 				attributes.put("providerId", userRaw.getRawRaw().getProviderId());
 			});
 			oauth2UserService.onKumiteUserRaw(userRaw);
-		}	
+		}
 
 		webTestClient
 
@@ -334,16 +337,18 @@ public class TestSecurity_WithOAuth2User {
 			oauth2UserService.onKumiteUserRaw(userRaw);
 		}
 
-		StatusAssertions expectStatus = webTestClient
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+			StatusAssertions expectStatus = webTestClient
 
-				.mutateWith(oauth2Login)
+					.mutateWith(oauth2Login)
 
-				.get()
-				.uri("/api/v1/oauth2/token?player_id=11111111-1111-1111-1111-111111111111")
-				.accept(MediaType.APPLICATION_JSON)
-				.exchange()
-				.expectStatus();
+					.get()
+					.uri("/api/v1/oauth2/token?player_id=11111111-1111-1111-1111-111111111111")
+					.accept(MediaType.APPLICATION_JSON)
+					.exchange()
+					.expectStatus();
 
-		expectStatus.isUnauthorized();
+			expectStatus.isUnauthorized();
+		}
 	}
 }

@@ -12,8 +12,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 @SpringBootApplication(scanBasePackages = "none")
 @Import({
 
-		// RedisConfiguration.class,
-
 		RedisAutoConfiguration.class
 
 })
@@ -29,8 +27,6 @@ public class KumiteRedisApplication {
 	public Void testInteraction(RedisTemplate<Object, Object> redisTemplate) {
 		UUID someUuid = UUID.randomUUID();
 		redisTemplate.opsForValue().set(someUuid, "Youpi");
-		// redisTemplate.opsForSet().set(someUuid, "Youpi");
-		// redisTemplate.boundSetOps("").
 		redisTemplate.delete(someUuid);
 		return null;
 	}

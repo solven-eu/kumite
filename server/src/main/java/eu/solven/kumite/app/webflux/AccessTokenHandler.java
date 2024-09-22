@@ -36,7 +36,6 @@ public class AccessTokenHandler {
 		return ReactiveSecurityContextHolder.getContext().map(securityContext -> {
 			Authentication authentication = securityContext.getAuthentication();
 
-			// TODO Check `authentication` is a refreshToken
 			KumiteUser user = userFromRefreshTokenJwt(authentication);
 
 			return user;
@@ -55,7 +54,7 @@ public class AccessTokenHandler {
 		Jwt jwt = jwtAuthentication.getToken();
 
 		if (!jwt.getClaimAsBoolean("refresh_token")) {
-			throw new IllegalArgumentException("The caller needs to provide a refresh_token");
+			throw new IllegalArgumentException("Authenticate yourself with a refresh_token, not an access_token");
 		}
 
 		UUID accountId = UUID.fromString(jwt.getSubject());

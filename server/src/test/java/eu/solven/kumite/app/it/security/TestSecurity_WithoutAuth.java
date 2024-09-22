@@ -24,6 +24,9 @@ import eu.solven.kumite.app.controllers.KumiteLoginController;
 import eu.solven.kumite.app.controllers.KumitePublicController;
 import eu.solven.kumite.app.greeting.GreetingHandler;
 import eu.solven.kumite.app.webflux.AccessTokenHandler;
+import eu.solven.kumite.app.webflux.KumiteExceptionRoutingWebFilter;
+import eu.solven.pepper.unittest.ILogDisabler;
+import eu.solven.pepper.unittest.PepperTestHelper;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
@@ -140,33 +143,37 @@ public class TestSecurity_WithoutAuth {
 	public void testLoginUser() {
 		log.debug("About {}", GreetingHandler.class);
 
-		webTestClient
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+			webTestClient
 
-				.get()
-				.uri("/api/login/v1/user")
-				.accept(MediaType.APPLICATION_JSON)
-				.exchange()
+					.get()
+					.uri("/api/login/v1/user")
+					.accept(MediaType.APPLICATION_JSON)
+					.exchange()
 
-				// By default, oauth2 returns a 302 if not logged-in
-				// Though we prefer to return a nice API answer
-				.expectStatus()
-				.isUnauthorized();
+					// By default, oauth2 returns a 302 if not logged-in
+					// Though we prefer to return a nice API answer
+					.expectStatus()
+					.isUnauthorized();
+		}
 	}
 
 	@Test
 	public void testLoginToken() {
 		log.debug("About {}", GreetingHandler.class);
 
-		webTestClient
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+			webTestClient
 
-				.get()
-				.uri("/api/login/v1/oauth2/token")
-				.accept(MediaType.APPLICATION_JSON)
-				.exchange()
+					.get()
+					.uri("/api/login/v1/oauth2/token")
+					.accept(MediaType.APPLICATION_JSON)
+					.exchange()
 
-				// By default, oauth2 returns a 302 if not logged-in
-				.expectStatus()
-				.isUnauthorized();
+					// By default, oauth2 returns a 302 if not logged-in
+					.expectStatus()
+					.isUnauthorized();
+		}
 	}
 
 	@Test
@@ -208,30 +215,34 @@ public class TestSecurity_WithoutAuth {
 	public void testApiPrivate() {
 		log.debug("About {}", GreetingHandler.class);
 
-		webTestClient
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+			webTestClient
 
-				.get()
-				.uri("/api/private")
-				.accept(MediaType.APPLICATION_JSON)
-				.exchange()
+					.get()
+					.uri("/api/private")
+					.accept(MediaType.APPLICATION_JSON)
+					.exchange()
 
-				.expectStatus()
-				.isUnauthorized();
+					.expectStatus()
+					.isUnauthorized();
+		}
 	}
 
 	@Test
 	public void testApiPrivate_unknownRoute() {
 		log.debug("About {}", GreetingHandler.class);
 
-		webTestClient
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+			webTestClient
 
-				.get()
-				.uri("/api/private/unknown")
-				.accept(MediaType.APPLICATION_JSON)
-				.exchange()
+					.get()
+					.uri("/api/private/unknown")
+					.accept(MediaType.APPLICATION_JSON)
+					.exchange()
 
-				.expectStatus()
-				.isUnauthorized();
+					.expectStatus()
+					.isUnauthorized();
+		}
 	}
 
 	// TODO Change the route to make sure CSRF and CORS are OK on the first securityFilterChain
@@ -239,18 +250,20 @@ public class TestSecurity_WithoutAuth {
 	public void testApiPOSTWithCsrf() {
 		log.debug("About {}", KumitePublicController.class);
 
-		webTestClient
-				// https://www.baeldung.com/spring-security-csrf
-				.mutateWith(SecurityMockServerConfigurers.csrf())
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+			webTestClient
+					// https://www.baeldung.com/spring-security-csrf
+					.mutateWith(SecurityMockServerConfigurers.csrf())
 
-				.post()
-				.uri("/api/v1/hello")
-				.bodyValue("{}")
-				.accept(MediaType.APPLICATION_JSON)
-				.exchange()
+					.post()
+					.uri("/api/v1/hello")
+					.bodyValue("{}")
+					.accept(MediaType.APPLICATION_JSON)
+					.exchange()
 
-				.expectStatus()
-				.isUnauthorized();
+					.expectStatus()
+					.isUnauthorized();
+		}
 	}
 
 	// TODO Change the route to make sure CSRF and CORS are OK on the first securityFilterChain
@@ -258,40 +271,46 @@ public class TestSecurity_WithoutAuth {
 	public void testApiPOSTWithoutCsrf() {
 		log.debug("About {}", KumitePublicController.class);
 
-		StatusAssertions expectStatus = webTestClient.post()
-				.uri("/api/v1/hello")
-				.bodyValue("{}")
-				.accept(MediaType.APPLICATION_JSON)
-				.exchange()
-				.expectStatus();
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+			StatusAssertions expectStatus = webTestClient.post()
+					.uri("/api/v1/hello")
+					.bodyValue("{}")
+					.accept(MediaType.APPLICATION_JSON)
+					.exchange()
+					.expectStatus();
 
-		expectStatus.isUnauthorized();
+			expectStatus.isUnauthorized();
+		}
 	}
 
 	@Test
 	public void testMakeRefreshToken() {
 		log.debug("About {}", KumiteLoginController.class);
 
-		StatusAssertions expectStatus = webTestClient.get()
-				.uri("/api/login/v1/oauth2/token?refresh_token=true")
-				.accept(MediaType.APPLICATION_JSON)
-				.exchange()
-				.expectStatus();
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+			StatusAssertions expectStatus = webTestClient.get()
+					.uri("/api/login/v1/oauth2/token?refresh_token=true")
+					.accept(MediaType.APPLICATION_JSON)
+					.exchange()
+					.expectStatus();
 
-		// We need an oauth2 user, not a jwt user
-		expectStatus.isUnauthorized();
+			// We need an oauth2 user, not a jwt user
+			expectStatus.isUnauthorized();
+		}
 	}
 
 	@Test
 	public void testRefreshTokenToAccessToken() {
 		log.debug("About {}", AccessTokenHandler.class);
 
-		StatusAssertions expectStatus = webTestClient.get()
-				.uri("/api/v1/oauth2/token?player_id=11111111-1111-1111-1111-111111111111")
-				.accept(MediaType.APPLICATION_JSON)
-				.exchange()
-				.expectStatus();
+		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteExceptionRoutingWebFilter.class)) {
+			StatusAssertions expectStatus = webTestClient.get()
+					.uri("/api/v1/oauth2/token?player_id=11111111-1111-1111-1111-111111111111")
+					.accept(MediaType.APPLICATION_JSON)
+					.exchange()
+					.expectStatus();
 
-		expectStatus.isUnauthorized();
+			expectStatus.isUnauthorized();
+		}
 	}
 }

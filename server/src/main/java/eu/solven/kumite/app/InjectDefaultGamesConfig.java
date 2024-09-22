@@ -3,6 +3,7 @@ package eu.solven.kumite.app;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +68,7 @@ public class InjectDefaultGamesConfig {
 	}
 
 	@Bean
-	public Void injectStaticContests(Environment env, ActiveContestGenerator activeContestGenerator) {
+	public CloseableBean injectStaticContests(Environment env, ActiveContestGenerator activeContestGenerator) {
 		{
 			// This is useful for unitTests, to get contests right-away.
 			// it is OK for PRD as this generation is supposedly very fast
@@ -80,11 +81,13 @@ public class InjectDefaultGamesConfig {
 		log.info("Contests for games without joinable contest will be generated every {}", periodEnsureActiveContests);
 		long seconds = periodEnsureActiveContests.toSeconds();
 
-		Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(() -> {
+		ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
+		ses.scheduleWithFixedDelay(() -> {
 			log.debug("About to generate contests for games without joinable contest");
 			activeContestGenerator.makeContestsIfNoneJoinable();
 		}, seconds, seconds, TimeUnit.SECONDS);
 
-		return null;
+		// In case of reboot (e.g. DevTools), we need to make sure the executor is closed
+		return new CloseableBean(ses);
 	}
 }

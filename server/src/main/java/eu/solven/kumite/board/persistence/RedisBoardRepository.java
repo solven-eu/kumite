@@ -1,8 +1,10 @@
 package eu.solven.kumite.board.persistence;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -17,6 +19,8 @@ public class RedisBoardRepository implements IBoardRepository {
 
 	final RedisTemplate<Object, Object> redisTemplate;
 
+	final Environment env;
+
 	private RepositoryKey<UUID> key(UUID contestId) {
 		return RepositoryKey.<UUID>builder().storeName(this.getClass().getSimpleName()).actualKey(contestId).build();
 	}
@@ -25,9 +29,14 @@ public class RedisBoardRepository implements IBoardRepository {
 		return redisTemplate.boundValueOps(key(contestId));
 	}
 
+	// Contests lives for at most 1 day. This helps preventing Redis OOM.
+	Duration getTtl() {
+		return Duration.parse(env.getProperty("kumite.redis.ttl", "P1D"));
+	}
+
 	@Override
 	public Optional<IKumiteBoard> putIfAbsent(UUID contestId, IKumiteBoard initialBoard) {
-		Boolean result = valueOp(contestId).setIfAbsent(initialBoard);
+		Boolean result = valueOp(contestId).setIfAbsent(initialBoard, getTtl());
 		log.info("contestId={} putIfAbsent={}", contestId, result);
 		if (Boolean.TRUE.equals(result)) {
 			return Optional.empty();
