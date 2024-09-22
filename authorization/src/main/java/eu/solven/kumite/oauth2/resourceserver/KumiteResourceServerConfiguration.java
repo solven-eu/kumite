@@ -52,7 +52,7 @@ public class KumiteResourceServerConfiguration {
 					+ "` or spring.profiles.active="
 					+ IKumiteSpringProfiles.P_UNSAFE_SERVER);
 		} else if ("GENERATE".equals(secretKeySpec)) {
-			if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_PRODMODE))) {
+			if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_PRDMODE))) {
 				throw new IllegalStateException("Can not GENERATE oauth2 signingKey in `prodmode`");
 			}
 			log.warn("We generate a random signingKey");

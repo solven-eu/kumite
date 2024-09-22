@@ -2,10 +2,7 @@ package eu.solven.kumite.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.solven.kumite.account.login.KumiteSecurity;
 import eu.solven.kumite.app.properties.GitPropertySourceConfig;
@@ -24,11 +21,6 @@ public class KumiteContestServerApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(KumiteContestServerApplication.class, args);
-	}
-
-	@Bean
-	public ObjectMapper objectMapper() {
-		return KumiteJackson.objectMapper();
 	}
 
 }

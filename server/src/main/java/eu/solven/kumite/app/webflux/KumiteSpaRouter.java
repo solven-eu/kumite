@@ -60,7 +60,7 @@ public class KumiteSpaRouter {
 	}
 
 	private Resource filterIndexHtmlMl(Environment env, Resource indexHtmlResource) {
-		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_PRODMODE))) {
+		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_PRDMODE))) {
 			String indexHtml;
 			try {
 				indexHtml = indexHtmlResource.getContentAsString(StandardCharsets.UTF_8);
@@ -74,7 +74,7 @@ public class KumiteSpaRouter {
 			log.info("{} has been minified", fileName);
 
 			return new ByteArrayResource(indexHtml.getBytes(StandardCharsets.UTF_8),
-					"fileName <minified for %s>".formatted(IKumiteSpringProfiles.P_PRODMODE));
+					"fileName <minified for %s>".formatted(IKumiteSpringProfiles.P_PRDMODE));
 		} else {
 			return indexHtmlResource;
 		}

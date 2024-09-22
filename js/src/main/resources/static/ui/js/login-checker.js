@@ -12,14 +12,12 @@ export default {
 		...mapState(useKumiteStore, ["nbAccountFetching", "account", "needsToLogin"]),
 		...mapState(useKumiteStore, {
 			user(store) {
-				return store.account || { error: "not_loaded", raw: {error: "not_loaded"} };
+				return store.account;
 			},
 		}),
 	},
 	setup() {
 		const store = useKumiteStore();
-        
-        console.log("user", store.account || { error: "not_loaded", raw: {error: "not_loaded"} });
 
 		store.loadUser();
 

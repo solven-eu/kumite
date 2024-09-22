@@ -39,7 +39,7 @@ public interface IKumiteSpringProfiles {
 
 	// Opposite to devmode. Should be activated in production
 	// Checks there is not a single unsafe|fake configurations activated
-	String P_PRODMODE = "prodmode";
+	String P_PRDMODE = "prdmode";
 
 	// InMemory enables easy run but lack of persistence
 	String P_INMEMORY = "inmemory";

@@ -11,6 +11,7 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.solven.kumite.app.IKumiteSpringProfiles;
+import eu.solven.kumite.app.KumiteJackson;
 
 /**
  * 
@@ -21,24 +22,18 @@ import eu.solven.kumite.app.IKumiteSpringProfiles;
 @Profile(IKumiteSpringProfiles.P_REDIS)
 public class KumiteRedisConfiguration {
 
-	// @Bean
-	// public JedisConnectionFactory redisConnectionFactory() {
-	// // https://app.redislabs.com/#/databases/12516930/subscription/2419490/view-bdb/configuration
-	// RedisStandaloneConfiguration config =
-	// new RedisStandaloneConfiguration("redis-10694.c242.eu-west-1-2.ec2.redns.redis-cloud.com", 10694);
-	// return new JedisConnectionFactory(config);
-	// }
-
 	@Bean
-	public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory,
-			ObjectMapper objectMapper) {
+	public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		RedisTemplate<Object, Object> template = new RedisTemplate<>();
 		template.setConnectionFactory(redisConnectionFactory);
+
+		// We make a dedicated objectMapper, as `defaultTyping(true)` will mutate it
+		ObjectMapper redisObjectmapper = KumiteJackson.objectMapper();
 
 		// We prefer to rely on Jackson serialized than JDK Serialized, as Jackson will enable easier
 		// forward/backward-compatibility
 		template.setDefaultSerializer(GenericJackson2JsonRedisSerializer.builder()
-				.objectMapper(objectMapper)
+				.objectMapper(redisObjectmapper)
 				// This will enable Redis to read back to the proper type
 				.defaultTyping(true)
 				.build());
