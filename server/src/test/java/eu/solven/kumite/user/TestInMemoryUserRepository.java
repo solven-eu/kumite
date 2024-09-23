@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import eu.solven.kumite.account.InMemoryUserRepository;
 import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.account.fake_player.FakePlayerTokens;
 import eu.solven.kumite.player.persistence.BijectiveAccountPlayersRegistry;

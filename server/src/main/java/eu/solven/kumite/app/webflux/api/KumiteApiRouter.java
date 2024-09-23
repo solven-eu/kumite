@@ -15,7 +15,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import eu.solven.kumite.app.webflux.PlayerVerifierFilterFunction;
 import eu.solven.kumite.board.BoardHandler;
-import eu.solven.kumite.contest.ContestSearchHandler;
+import eu.solven.kumite.contest.ContestHandler;
 import eu.solven.kumite.game.GameSearchHandler;
 import eu.solven.kumite.leaderboard.LeaderboardHandler;
 import eu.solven.kumite.player.PlayerMovesHandler;
@@ -49,7 +49,7 @@ public class KumiteApiRouter {
 	public RouterFunction<ServerResponse> apiRoutes(PlayerVerifierFilterFunction playerVerifierFilterFunction,
 			GameSearchHandler gamesSearchHandler,
 			PlayersSearchHandler playersSearchHandler,
-			ContestSearchHandler contestSearchHandler,
+			ContestHandler contestSearchHandler,
 			BoardHandler boardHandler,
 			PlayerMovesHandler playerMovesHandler,
 			LeaderboardHandler leaderboardHandler,

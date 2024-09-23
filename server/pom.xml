@@ -1,182 +1,173 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>eu.solven.kumite</groupId>
-		<artifactId>aggregator</artifactId>
-		<version>1.0-SNAPSHOT</version>
-	</parent>
-	<artifactId>server</artifactId>
-	<description>Contests Server</description>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>eu.solven.kumite</groupId>
+        <artifactId>aggregator</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>server</artifactId>
+    <description>Contests Server</description>
 
-	<dependencies>
-		<dependency>
-			<groupId>eu.solven.kumite</groupId>
-			<artifactId>public</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>eu.solven.kumite</groupId>
-			<artifactId>authorization</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>eu.solven.kumite</groupId>
+            <artifactId>contest-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.solven.kumite</groupId>
+            <artifactId>authorization</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>eu.solven.kumite</groupId>
-			<artifactId>js</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>eu.solven.kumite</groupId>
+            <artifactId>js</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>eu.solven.kumite</groupId>
-			<artifactId>redis</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>eu.solven.kumite</groupId>
+            <artifactId>redis</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webflux</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-client</artifactId>
-		</dependency>
+        <!-- tools -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-graphql</artifactId>
+        </dependency>
 
-		<!-- tools -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.6.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
-		</dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>jquery</artifactId>
+            <version>3.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>bootstrap</artifactId>
+            <version>5.3.3</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.webjars.npm/vue -->
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>vue</artifactId>
+            <version>3.5.6</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.webjars.npm/vue-router -->
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>vue-router</artifactId>
+            <version>4.4.5</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-graphql</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+            <version>2.6.0</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>jquery</artifactId>
-			<version>3.7.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>bootstrap</artifactId>
-			<version>5.3.3</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.webjars.npm/vue -->
-		<dependency>
-			<groupId>org.webjars.npm</groupId>
-			<artifactId>vue</artifactId>
-			<version>3.5.6</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.webjars.npm/vue-router -->
-		<dependency>
-			<groupId>org.webjars.npm</groupId>
-			<artifactId>vue-router</artifactId>
-			<version>4.4.5</version>
-		</dependency>
+        <dependency>
+            <!-- https://docs.spring.io/spring-session/reference/guides/boot-redis.html -->
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
-			<version>2.6.0</version>
-		</dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>webjars-locator-core</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>webjars-locator-core</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <!-- https://github.com/skyscreamer/JSONassert/pull/194 -->
+                    <groupId>com.vaadin.external.google</groupId>
+                    <artifactId>android-json</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<!-- https://github.com/skyscreamer/JSONassert/pull/194 -->
-					<groupId>com.vaadin.external.google</groupId>
-					<artifactId>android-json</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>io.projectreactor</groupId>
-			<artifactId>reactor-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <!-- @WithMockUser -->
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<!-- @WithMockUser -->
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>com.microsoft.playwright</groupId>
+            <artifactId>playwright</artifactId>
+            <version>1.47.0</version>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>com.microsoft.playwright</groupId>
-			<artifactId>playwright</artifactId>
-			<version>1.47.0</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <!-- https://www.baeldung.com/spring-embedded-redis -->
+            <!-- https://github.com/codemonstur/embedded-redis -->
+            <groupId>com.github.codemonstur</groupId>
+            <artifactId>embedded-redis</artifactId>
+            <version>1.4.3</version>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<!-- https://www.baeldung.com/spring-embedded-redis -->
-			<!-- https://github.com/codemonstur/embedded-redis -->
-			<groupId>com.github.codemonstur</groupId>
-			<artifactId>embedded-redis</artifactId>
-			<version>1.4.3</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <!-- Used to check links in HTML -->
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.18.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-		<dependency>
-			<!-- Used to check links in HTML -->
-			<groupId>org.jsoup</groupId>
-			<artifactId>jsoup</artifactId>
-			<version>1.18.1</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <classifier>exec</classifier>
 
-	<build>
-		<plugins>
-			<plugin>
-				<!-- Used to generate git.properties -->
-				<groupId>io.github.git-commit-id</groupId>
-				<artifactId>git-commit-id-maven-plugin</artifactId>
-			</plugin>
-
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<classifier>exec</classifier>
-
-					<mainClass>eu.solven.kumite.app.KumiteContestServerApplication</mainClass>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+                    <mainClass>eu.solven.kumite.app.KumiteContestServerApplication</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -8,7 +8,7 @@ import eu.solven.kumite.app.webflux.api.KumiteApiRouter;
 import eu.solven.kumite.app.webflux.api.KumiteFakeUserRouter;
 import eu.solven.kumite.app.webflux.api.KumiteLoginRouter;
 import eu.solven.kumite.app.webflux.api.KumiteSpaRouter;
-import eu.solven.kumite.contest.ContestSearchHandler;
+import eu.solven.kumite.contest.ContestHandler;
 import eu.solven.kumite.game.GameSearchHandler;
 import eu.solven.kumite.leaderboard.LeaderboardHandler;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 		GreetingHandler.class,
 		GameSearchHandler.class,
-		ContestSearchHandler.class,
+		ContestHandler.class,
 		LeaderboardHandler.class,
 		WebhooksHandler.class,
 

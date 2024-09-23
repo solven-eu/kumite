@@ -32,10 +32,10 @@ import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.account.fake_player.FakePlayerTokens;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
-import eu.solven.kumite.app.webflux.LoginRouteButNotAuthenticatedException;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.KumitePlayer;
+import eu.solven.kumite.security.LoginRouteButNotAuthenticatedException;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
 

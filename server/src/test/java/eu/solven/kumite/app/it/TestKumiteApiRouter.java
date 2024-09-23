@@ -21,7 +21,7 @@ import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
 import eu.solven.kumite.app.webflux.api.Greeting;
 import eu.solven.kumite.app.webflux.api.GreetingHandler;
 import eu.solven.kumite.contest.ContestMetadataRaw;
-import eu.solven.kumite.contest.ContestSearchHandler;
+import eu.solven.kumite.contest.ContestHandler;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchHandler;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
@@ -140,7 +140,7 @@ public class TestKumiteApiRouter {
 
 	@Test
 	public void testSearchContests() {
-		log.debug("About {}", ContestSearchHandler.class);
+		log.debug("About {}", ContestHandler.class);
 
 		webTestClient.get()
 				.uri(v1 + "/contests")

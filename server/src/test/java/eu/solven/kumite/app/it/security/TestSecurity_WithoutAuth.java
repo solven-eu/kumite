@@ -42,6 +42,11 @@ public class TestSecurity_WithoutAuth {
 	@Autowired
 	private WebTestClient webTestClient;
 
+//	@Bean
+//	public SessionRepository<?> inmemorySessionRepository() {
+//		return new MapSessionRepository(new ConcurrentHashMap<>());
+//	}
+
 	@Test
 	public void testApiPublic() {
 		log.debug("About {}", GreetingHandler.class);

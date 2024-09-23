@@ -16,11 +16,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRaw;
-import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.account.KumiteUsersRegistry;
+import eu.solven.kumite.account.login.IKumiteTestConstants;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerComponentsConfiguration;
-import eu.solven.kumite.app.webflux.api.KumiteLoginController;
 import eu.solven.kumite.board.BoardLifecycleManager;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestSearchParameters;
@@ -69,10 +68,9 @@ public class TestTSPLifecycle {
 	@Autowired
 	BoardLifecycleManager boardLifecycleManager;
 
+	@Deprecated
 	public static final KumiteUserRaw userRaw() {
-		KumiteUserRawRaw rawRaw =
-				KumiteUserRawRaw.builder().providerId(KumiteLoginController.PROVIDERID_TEST).sub("test").build();
-		return KumiteUserRaw.builder().rawRaw(rawRaw).email("test@test").username("fakeUsername").build();
+		return IKumiteTestConstants.userRaw();
 	}
 
 	@Test

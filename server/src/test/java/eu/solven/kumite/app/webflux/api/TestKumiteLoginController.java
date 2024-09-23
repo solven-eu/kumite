@@ -8,16 +8,15 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
+import eu.solven.kumite.account.InMemoryUserRepository;
 import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.account.fake_player.FakePlayerTokens;
-import eu.solven.kumite.app.webflux.api.KumiteLoginController;
 import eu.solven.kumite.oauth2.IKumiteOAuth2Constants;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.persistence.BijectiveAccountPlayersRegistry;
 import eu.solven.kumite.tools.IUuidGenerator;
 import eu.solven.kumite.tools.JdkUuidGenerator;
-import eu.solven.kumite.user.InMemoryUserRepository;
 
 public class TestKumiteLoginController {
 	final ClientRegistration someClientRegistration = ClientRegistration.withRegistrationId("someRegistrationId")

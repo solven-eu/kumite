@@ -19,12 +19,16 @@
 	<name>aggregator</name>
 
 	<modules>
+        <!-- Technical tools used through the appliction -->
+        <module>tools</module>
 		<!-- Resources shared between the server and the players -->
 		<module>public</module>
 		<!-- The Javascript resource of the Contest server -->
 		<module>js</module>
         <!-- What's refer to access_token and refresh_token -->
         <module>authorization</module>
+        <!-- The contest domain-specific code-->
+        <module>contest-core</module>
 		<!-- Host the contests, and serves the API -->
 		<module>server</module>
 		<!-- Demonstrate how to list and play contest -->

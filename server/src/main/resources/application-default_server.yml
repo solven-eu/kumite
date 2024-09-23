@@ -17,3 +17,4 @@ spring:
             enabled: true
 
 springdoc.show-actuator: true
+

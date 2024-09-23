@@ -35,8 +35,7 @@ import reactor.core.publisher.Mono;
  * @see 'TestTSPLifecycle'
  */
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = KumiteContestServerApplication.class,
-		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = KumiteContestServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, IKumiteSpringProfiles.P_INMEMORY, IKumiteSpringProfiles.P_FAKEUSER })
 @TestPropertySource(properties = { "kumite.random.seed=123",
 		KumiteWebclientServerProperties.KEY_PLAYER_CONTESTBASEURL + "=http://localhost:LocalServerPort" })

@@ -43,7 +43,7 @@ public class TestSpringAutonomyHerokuRedis implements IKumiteSpringProfiles {
 
 	@Test
 	public void testSpringProfiles() {
-		log.info("startUpdate: {}", appContest.getStartupDate());
+		log.info("startupDate: {}", appContest.getStartupDate());
 	}
 
 	@Test
@@ -53,10 +53,5 @@ public class TestSpringAutonomyHerokuRedis implements IKumiteSpringProfiles {
 		@SuppressWarnings("rawtypes")
 		Map asMap = objectMapper.convertValue(rawRaw, Map.class);
 		Assertions.assertThat(asMap).hasSize(2);
-	}
-
-	@Test
-	public void testListGames() {
-
 	}
 }

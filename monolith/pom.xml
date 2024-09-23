@@ -28,6 +28,15 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        
+        <dependency>
+            <!-- https://www.baeldung.com/spring-embedded-redis -->
+            <!-- https://github.com/codemonstur/embedded-redis -->
+            <groupId>com.github.codemonstur</groupId>
+            <artifactId>embedded-redis</artifactId>
+            <version>1.4.3</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

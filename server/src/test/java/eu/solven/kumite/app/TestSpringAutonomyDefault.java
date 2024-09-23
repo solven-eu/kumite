@@ -19,6 +19,6 @@ public class TestSpringAutonomyDefault implements IKumiteSpringProfiles {
 
 	@Test
 	public void testSpringProfiles() {
-		log.info("startUpdate: {}", appContest.getStartupDate());
+		log.info("startupDate: {}", appContest.getStartupDate());
 	}
 }

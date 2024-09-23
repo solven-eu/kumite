@@ -13,6 +13,11 @@
     <dependencies>
         <dependency>
             <groupId>eu.solven.kumite</groupId>
+            <artifactId>tools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.solven.kumite</groupId>
             <artifactId>public</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -27,14 +32,6 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-jose</artifactId>
-        </dependency>
-
-        <!-- https://github.com/cowtowncoder/java-uuid-generator -->
-        <!-- Useful for deterministic UUID generation, e.g. in development environments-->
-        <dependency>
-            <groupId>com.fasterxml.uuid</groupId>
-            <artifactId>java-uuid-generator</artifactId>
-            <version>5.1.0</version>
         </dependency>
 
         <dependency>
