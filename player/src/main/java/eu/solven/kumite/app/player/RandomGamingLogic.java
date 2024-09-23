@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import org.springframework.core.env.Environment;
+
 import eu.solven.kumite.app.server.IKumiteServer;
 import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestView;
@@ -28,6 +30,7 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 @Slf4j
 public class RandomGamingLogic implements IGamingLogic {
+	final Environment env;
 	final IKumiteServer kumiteServer;
 
 	@Override
@@ -216,7 +219,7 @@ public class RandomGamingLogic implements IGamingLogic {
 	 * @return the duration to sleep before polling again for exampleMoves.
 	 */
 	protected Duration waitDurationIfNoMove() {
-		return Duration.ofMillis(10);
+		return Duration.parse(env.getProperty("kumite.player.wait_duration_if_no_move", "PT15S"));
 	}
 
 	/**
@@ -230,4 +233,5 @@ public class RandomGamingLogic implements IGamingLogic {
 		// WaitForPlayersMove and WaitForSignups would have a `wait:true` flag
 		return moves.getMoves().values().stream().filter(m -> !Boolean.TRUE.equals(m.get("wait"))).findAny();
 	}
+
 }

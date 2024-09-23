@@ -47,7 +47,7 @@ public class RedisBoardRepository implements IBoardRepository {
 	}
 
 	@Override
-	public boolean containsKey(UUID contestId) {
+	public boolean hasContest(UUID contestId) {
 		return redisTemplate.hasKey(key(contestId));
 	}
 
@@ -59,7 +59,7 @@ public class RedisBoardRepository implements IBoardRepository {
 
 	@Override
 	public void updateBoard(UUID contestId, IKumiteBoard currentBoard) {
-		valueOp(contestId).setIfPresent(currentBoard);
+		valueOp(contestId).setIfPresent(currentBoard, getTtl());
 	}
 
 }

@@ -21,7 +21,7 @@ public class InMemoryBoardRepository implements IBoardRepository {
 	}
 
 	@Override
-	public boolean containsKey(UUID contestId) {
+	public boolean hasContest(UUID contestId) {
 		return contestIdToBoard.containsKey(contestId);
 	}
 

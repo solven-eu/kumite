@@ -42,7 +42,7 @@ public class ContendersFromBoard implements IContendersRepository {
 
 	@Override
 	public IHasPlayers makeDynamicHasPlayers(UUID contestId) {
-		if (!boardRepository.containsKey(contestId)) {
+		if (!boardRepository.hasContest(contestId)) {
 			throw new IllegalArgumentException("Unknown contestId=" + contestId);
 		}
 		return () -> requireBoard(contestId).snapshotPlayers().stream().map(playerId -> {

@@ -46,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, IKumiteSpringProfiles.P_REDIS, IKumiteSpringProfiles.P_FAKEUSER })
 @TestPropertySource(properties = { "kumite.random.seed=123",
+		"kumite.player.wait_duration_if_no_move" + "=PT0.001S",
 		KumiteWebclientServerProperties.KEY_PLAYER_CONTESTBASEURL + "=http://localhost:LocalServerPort",
 
 		"rediscloud.url" + "=redis://${spring.data.redis.host}:${spring.data.redis.port}",
@@ -69,7 +70,7 @@ public class TestRandomGamingLogicRedis {
 		KumiteWebclientServerProperties properties = KumiteWebclientServerProperties.forTests(env, randomServerPort);
 		IKumiteServer kumiteServer = KumiteWebclientServer.fromProperties(properties);
 
-		IGamingLogic kumitePlayer = new RandomGamingLogic(kumiteServer);
+		IGamingLogic kumitePlayer = new RandomGamingLogic(env, kumiteServer);
 
 		Set<UUID> contestIds = kumitePlayer.playOptimizationGames(playerId);
 
@@ -92,7 +93,7 @@ public class TestRandomGamingLogicRedis {
 
 		KumiteWebclientServerProperties properties = KumiteWebclientServerProperties.forTests(env, randomServerPort);
 		IKumiteServer kumiteServer = KumiteWebclientServer.fromProperties(properties);
-		IGamingLogic kumitePlayer = new RandomGamingLogic(kumiteServer);
+		IGamingLogic kumitePlayer = new RandomGamingLogic(env, kumiteServer);
 
 		for (int iPlayer = 0; iPlayer < nbPlayers; iPlayer++) {
 			UUID playerId = FakePlayerTokens.fakePlayerId(iPlayer);

@@ -8,9 +8,9 @@ import java.util.NavigableSet;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpHeaders;
@@ -34,7 +34,6 @@ import eu.solven.kumite.player.PlayerContestStatus;
 import eu.solven.kumite.player.PlayerRawMovesHolder;
 import eu.solven.kumite.player.PlayerSearchParameters;
 import lombok.extern.slf4j.Slf4j;
-import oshi.util.MemoizedSupplier;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -57,7 +56,10 @@ public class KumiteWebclientServer implements IKumiteServer {
 
 	final AtomicReference<WebClient> webClientRef = new AtomicReference<>();
 
-	final Map<UUID, Supplier<Mono<AccessTokenWrapper>>> playerIdToAccessTokenSupplier = new ConcurrentHashMap<>();
+	// @VisibleForTesting
+	final AtomicInteger countAccessToken = new AtomicInteger();
+
+	final Map<UUID, Mono<AccessTokenWrapper>> playerIdToAccessTokenSupplier = new ConcurrentHashMap<>();
 
 	public static KumiteWebclientServer fromProperties(KumiteWebclientServerProperties properties) {
 		return new KumiteWebclientServer(properties.getBaseUrl(), properties.getRefreshToken());
@@ -120,6 +122,8 @@ public class KumiteWebclientServer implements IKumiteServer {
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + refreshToken);
 
 		return spec.exchangeToMono(r -> {
+			countAccessToken.incrementAndGet();
+
 			if (!r.statusCode().is2xxSuccessful()) {
 				throw new IllegalArgumentException("Request rejected: " + r.statusCode());
 			}
@@ -131,14 +135,13 @@ public class KumiteWebclientServer implements IKumiteServer {
 	// https://stackoverflow.com/questions/65972564/spring-reactive-web-client-rest-request-with-oauth-token-in-case-of-401-response
 	Mono<AccessTokenWrapper> accessToken(UUID playerId) {
 		// Return the same Mono for 45 minutes
-		Function<? super UUID, ? extends Supplier<Mono<AccessTokenWrapper>>> mappingFunction =
-				k -> MemoizedSupplier.memoize(() -> requestAccessToken(k), Duration.ofMinutes(45));
-		Supplier<Mono<AccessTokenWrapper>> supplier =
-				playerIdToAccessTokenSupplier.computeIfAbsent(playerId, mappingFunction);
-
-		return supplier.get()
+		Function<? super UUID, ? extends Mono<AccessTokenWrapper>> mappingFunction = k -> requestAccessToken(k)
 				// Given Mono will see its value cache for 45 minutes
+				// BEWARE This will not automatically discard the cached value if we get (for any reason) a 401
 				.cache(Duration.ofMinutes(45));
+		Mono<AccessTokenWrapper> supplier = playerIdToAccessTokenSupplier.computeIfAbsent(playerId, mappingFunction);
+
+		return supplier;
 	}
 
 	// see GameSearchHandler
@@ -323,6 +326,10 @@ public class KumiteWebclientServer implements IKumiteServer {
 				return r.bodyToMono(LeaderboardRaw.class);
 			});
 		});
+	}
+
+	public int getNbAccessTokens() {
+		return countAccessToken.get();
 	}
 
 }

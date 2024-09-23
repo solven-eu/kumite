@@ -15,7 +15,7 @@ public interface IBoardRepository {
 	 */
 	Optional<IKumiteBoard> putIfAbsent(UUID contestId, IKumiteBoard initialBoard);
 
-	boolean containsKey(UUID contestId);
+	boolean hasContest(UUID contestId);
 
 	Optional<IKumiteBoard> getBoard(UUID contestId);
 

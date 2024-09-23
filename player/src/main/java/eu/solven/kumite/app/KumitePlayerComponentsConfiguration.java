@@ -31,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 		KumitePlayerRandomConfiguration.class,
 		JdkUuidGenerator.class,
 
+		RandomGamingLogic.class,
+
 })
 @Slf4j
 public class KumitePlayerComponentsConfiguration {
@@ -50,11 +52,6 @@ public class KumitePlayerComponentsConfiguration {
 	public IKumiteServer kumiteServer(KumiteWebclientServerProperties kumiteWebclientServerProperties) {
 		return new KumiteWebclientServer(kumiteWebclientServerProperties.getBaseUrl(),
 				kumiteWebclientServerProperties.getRefreshToken());
-	}
-
-	@Bean
-	public IGamingLogic kumitePlayer(IKumiteServer kumiteServer) {
-		return new RandomGamingLogic(kumiteServer);
 	}
 
 	@Bean

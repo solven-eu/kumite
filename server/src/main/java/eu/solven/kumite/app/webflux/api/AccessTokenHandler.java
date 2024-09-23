@@ -1,5 +1,8 @@
 package eu.solven.kumite.app.webflux.api;
 
+import java.text.ParseException;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.springframework.http.MediaType;
@@ -10,6 +13,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+
+import com.nimbusds.jwt.SignedJWT;
 
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUsersRegistry;
@@ -35,14 +40,19 @@ public class AccessTokenHandler {
 		// The playerId authenticated by the accessToken
 		UUID queryPlayerId = KumiteHandlerHelper.uuid(request, "player_id");
 
-		return ReactiveSecurityContextHolder.getContext().map(securityContext -> {
+		return ReactiveSecurityContextHolder.getContext().flatMap(securityContext -> {
 			Authentication authentication = securityContext.getAuthentication();
 
-			KumiteUser user = userFromRefreshTokenJwt(authentication);
+			Entry<Jwt, KumiteUser> user = userFromRefreshTokenJwt(authentication);
 
-			return user;
-		}).flatMap(user -> {
-			AccessTokenWrapper tokenWrapper = kumiteTokenService.wrapInJwtAccessToken(user, queryPlayerId);
+			AccessTokenWrapper tokenWrapper = kumiteTokenService.wrapInJwtAccessToken(user.getValue(), queryPlayerId);
+
+			String accessTokenJti = getJti(tokenWrapper);
+
+			log.info("playerId={} Generating access_token.kid={} given refresh_token.kid={}",
+					queryPlayerId,
+					accessTokenJti,
+					user.getKey().getId());
 
 			return ServerResponse.ok()
 					.contentType(MediaType.APPLICATION_JSON)
@@ -50,7 +60,15 @@ public class AccessTokenHandler {
 		});
 	}
 
-	private KumiteUser userFromRefreshTokenJwt(Authentication authentication) {
+	private String getJti(AccessTokenWrapper tokenWrapper) {
+		try {
+			return SignedJWT.parse(tokenWrapper.getAccessToken()).getJWTClaimsSet().getJWTID();
+		} catch (ParseException e) {
+			throw new IllegalStateException("Issue parsing our own access_token", e);
+		}
+	}
+
+	private Map.Entry<Jwt, KumiteUser> userFromRefreshTokenJwt(Authentication authentication) {
 		JwtAuthenticationToken jwtAuthentication = (JwtAuthenticationToken) authentication;
 
 		Jwt jwt = jwtAuthentication.getToken();
@@ -65,7 +83,7 @@ public class AccessTokenHandler {
 
 		KumiteUser user = usersRegistry.getUser(accountId);
 		log.debug("We loaded {} from jti={}", user, jwt.getId());
-		return user;
+		return Map.entry(jwt, user);
 	}
 
 }

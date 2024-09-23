@@ -39,6 +39,7 @@ import reactor.core.publisher.Mono;
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, IKumiteSpringProfiles.P_INMEMORY, IKumiteSpringProfiles.P_FAKEUSER })
 @TestPropertySource(properties = { "kumite.random.seed=123",
+		"kumite.player.wait_duration_if_no_move" + "=PT0.001S",
 		KumiteWebclientServerProperties.KEY_PLAYER_CONTESTBASEURL + "=http://localhost:LocalServerPort" })
 @Slf4j
 public class TestTSPLifecycleThroughRouter {
