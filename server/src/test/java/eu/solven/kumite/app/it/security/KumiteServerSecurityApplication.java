@@ -16,6 +16,7 @@ import eu.solven.kumite.app.webflux.api.AccessTokenHandler;
 import eu.solven.kumite.app.webflux.api.GreetingHandler;
 import eu.solven.kumite.app.webflux.api.KumiteLoginRouter;
 import eu.solven.kumite.app.webflux.api.KumiteSpaRouter;
+import eu.solven.kumite.oauth2.authorizationserver.ActiveRefreshTokens;
 import eu.solven.kumite.player.persistence.BijectiveAccountPlayersRegistry;
 import eu.solven.kumite.security.KumiteSecurity;
 import eu.solven.kumite.tools.KumiteRandomConfiguration;
@@ -34,6 +35,7 @@ import eu.solven.kumite.tools.KumiteRandomConfiguration;
 		KumiteLoginRouter.class,
 		PlayerVerifierFilterFunction.class,
 		AccessTokenHandler.class,
+		ActiveRefreshTokens.class,
 
 		// IAccountPlayersRegistry is needed as security often checks the players of an account
 		BijectiveAccountPlayersRegistry.class,

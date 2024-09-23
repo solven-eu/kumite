@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.login.AccessTokenWrapper;
+import eu.solven.kumite.oauth2.authorizationserver.ActiveRefreshTokens;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,8 @@ public class AccessTokenHandler {
 
 	final KumiteTokenService kumiteTokenService;
 	final KumiteUsersRegistry usersRegistry;
+
+	final ActiveRefreshTokens activeRefreshTokens;
 
 	// This route has to be authenticated with a refresh_token as access_token. This is not standard following OAuth2,
 	// but to do it clean, we would need any way to provide a separate Authentication Server.
@@ -57,6 +60,8 @@ public class AccessTokenHandler {
 		}
 
 		UUID accountId = UUID.fromString(jwt.getSubject());
+
+		activeRefreshTokens.touchRefreshToken(accountId, UUID.fromString(jwt.getId()));
 
 		KumiteUser user = usersRegistry.getUser(accountId);
 		log.debug("We loaded {} from jti={}", user, jwt.getId());
