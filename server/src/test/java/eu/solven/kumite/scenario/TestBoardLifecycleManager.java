@@ -22,7 +22,7 @@ import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.move.IKumiteMove;
 import eu.solven.kumite.move.PlayerMoveRaw;
-import eu.solven.kumite.player.ContestPlayersFromBoard;
+import eu.solven.kumite.player.ContendersFromBoard;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
@@ -41,7 +41,7 @@ public class TestBoardLifecycleManager {
 
 	ContestPlayersRegistry contestPlayersRegistry = new ContestPlayersRegistry(gamesRegistry,
 			accountPlayers,
-			new ContestPlayersFromBoard(accountPlayers, boardRepository));
+			new ContendersFromBoard(accountPlayers, boardRepository));
 
 	BoardLifecycleManager boardLifecycleManager =
 			new BoardLifecycleManager(boardRegistry, contestPlayersRegistry, executor);

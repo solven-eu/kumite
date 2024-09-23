@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class InMemoryContestPlayersRepository implements IContendersRepository {
+public class InMemoryContendersRepository implements IContendersRepository {
 
 	final Map<UUID, Set<UUID>> contestToContenders = new ConcurrentHashMap<>();
 

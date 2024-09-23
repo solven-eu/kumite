@@ -18,7 +18,7 @@ import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.leaderboard.LeaderboardRegistry;
-import eu.solven.kumite.player.ContestPlayersFromBoard;
+import eu.solven.kumite.player.ContendersFromBoard;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.PlayerMovesHandler;
 import eu.solven.kumite.player.PlayersSearchHandler;
@@ -46,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 
 		InjectDefaultGamesConfig.class,
 
-		ContestPlayersFromBoard.class,
+		ContendersFromBoard.class,
 
 		// Only one of the following persistence options will actually kicks-in
 		InMemoryKumiteConfiguration.class,

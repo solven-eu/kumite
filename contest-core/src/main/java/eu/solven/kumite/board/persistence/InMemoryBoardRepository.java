@@ -25,6 +25,7 @@ public class InMemoryBoardRepository implements IBoardRepository {
 		return contestIdToBoard.containsKey(contestId);
 	}
 
+	// TODO We should return a clone, to detect earlier lack of persistence (e.g. currently detected with Redis)
 	@Override
 	public Optional<IKumiteBoard> getBoard(UUID contestId) {
 		return Optional.ofNullable(contestIdToBoard.get(contestId));

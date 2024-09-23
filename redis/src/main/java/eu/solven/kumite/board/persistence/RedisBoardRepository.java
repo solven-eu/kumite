@@ -59,7 +59,7 @@ public class RedisBoardRepository implements IBoardRepository {
 
 	@Override
 	public void updateBoard(UUID contestId, IKumiteBoard currentBoard) {
-		valueOp(contestId).setIfPresent(contestId);
+		valueOp(contestId).setIfPresent(currentBoard);
 	}
 
 }

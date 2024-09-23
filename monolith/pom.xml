@@ -22,13 +22,25 @@
             <artifactId>player</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <!-- Restore Netty as it is excluded by `player` -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-reactor-netty</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+            	<exclusion>
+            	   <!-- Rely on json-20231013 -->
+            		<groupId>com.vaadin.external.google</groupId>
+            		<artifactId>android-json</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
-        
+
         <dependency>
             <!-- https://www.baeldung.com/spring-embedded-redis -->
             <!-- https://github.com/codemonstur/embedded-redis -->

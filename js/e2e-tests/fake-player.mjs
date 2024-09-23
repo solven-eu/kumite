@@ -19,7 +19,7 @@ export default {
     },
 
     async playOptimization(page) {
-        await page.getByRole("link", { name: "Games", exact: true }).click();
+        await page.getByRole("link", { name: /Games/ }).click();
 
         await page.getByRole("link", { name: /Travelling Salesman Problem/ }).click();
         await page.getByRole("link", { name: /Create your own contest/ }).click();

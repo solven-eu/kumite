@@ -19,7 +19,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.solven.kumite.app.webflux.api.KumiteSpaRouter;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
@@ -72,7 +71,9 @@ public class TestIndexHtml {
 	}
 
 	private void checkUrl(AtomicInteger nbChecked, String href) {
-		if (href.startsWith("http")) {
+		if (href.startsWith("https://github.com/solven-eu/kumite/commit/")) {
+			log.debug("Skip the Github link to commit as current commit may not be pushed yet");
+		} else if (href.startsWith("http")) {
 			try {
 				HttpURLConnection urlConnection = (HttpURLConnection) URI.create(href).toURL().openConnection();
 

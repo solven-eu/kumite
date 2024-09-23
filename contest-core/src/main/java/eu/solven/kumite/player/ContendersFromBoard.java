@@ -14,7 +14,7 @@ import lombok.AllArgsConstructor;
  *
  */
 @AllArgsConstructor
-public class ContestPlayersFromBoard implements IContendersRepository {
+public class ContendersFromBoard implements IContendersRepository {
 	final IAccountPlayersRegistry accountPlayersRegistry;
 	final IBoardRepository boardRepository;
 
@@ -25,12 +25,12 @@ public class ContestPlayersFromBoard implements IContendersRepository {
 
 	@Override
 	public boolean registerContender(UUID contestId, UUID playerId) {
-		IKumiteBoard optBoard = requireBoard(contestId);
+		IKumiteBoard board = requireBoard(contestId);
 
-		// if (optBoard.snapshotPlayers().stream().noneMatch(p -> p.getPlayerId().equals(playerId))) {
-		// throw new IllegalStateException("The board should have registered the player");
-		// }
-		optBoard.registerContender(playerId);
+		board.registerContender(playerId);
+
+		// Persist the board (e.g. for concurrent changes)
+		boardRepository.updateBoard(contestId, board);
 
 		return true;
 	}

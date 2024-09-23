@@ -31,6 +31,7 @@ import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.account.fake_player.FakePlayerTokens;
+import eu.solven.kumite.account.login.IKumiteTestConstants;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
@@ -50,7 +51,8 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class KumiteLoginController {
 	public static final String PROVIDERID_GITHUB = "github";
-	public static final String PROVIDERID_TEST = "test";
+	@Deprecated
+	public static final String PROVIDERID_TEST = IKumiteTestConstants.PROVIDERID_TEST;
 
 	final InMemoryReactiveClientRegistrationRepository clientRegistrationRepository;
 
