@@ -25,6 +25,9 @@ public class GameMetadata implements IGameMetadataConstants {
 	@NonNull
 	String shortDescription;
 
+	@NonNull
+	URI icon = URI.create("/img/gaming-svgrepo-com.svg");
+
 	@Singular
 	List<URI> references;
 

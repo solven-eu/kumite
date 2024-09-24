@@ -1,5 +1,6 @@
 package eu.solven.kumite.app.webflux.api;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -76,8 +77,22 @@ public class KumiteLoginController {
 					// Typically 'github' or 'google'
 					String registrationId = r.getRegistrationId();
 					String loginUrl = "/oauth2/authorization/%s".formatted(registrationId);
-					registrationIdToDetails.put(registrationId,
-							Map.of("type", "oauth2", "registration_id", registrationId, "login_url", loginUrl));
+
+					Map<String, String> details = new LinkedHashMap<>();
+
+					details.put("type", "oauth2");
+					details.put("registration_id", registrationId);
+					details.put("login_url", loginUrl);
+
+					if (KumiteOAuth2UserService.PROVIDERID_GOOGLE.equals(registrationId)) {
+						// https://developers.google.com/identity/branding-guidelines?hl=fr
+						details.put("button_img", "/ui/img/google-web_light_sq_ctn.svg");
+					} else if (KumiteOAuth2UserService.PROVIDERID_GITHUB.equals(registrationId)) {
+						// https://github.com/logos
+						details.put("button_img", "/ui/img/GitHub_Logo.png");
+					}
+
+					registrationIdToDetails.put(registrationId, details);
 				});
 
 		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKEUSER))) {

@@ -29,8 +29,11 @@ export default {
 	template: /* HTML */ `
         <div v-if="isLoading">Loading login options</div>
         <div v-else>
-            <li v-for="item in loginProviders">
-                <a :href="item.login_url">{{ item.registration_id }}</a>
+            <li v-for="item in loginProviders">{{}}
+                <a :href="item.login_url">
+                    <img v-if="item.button_img" :src="item.button_img" style="max-height:50px;max-width:200px;height:auto;width:auto;" />
+                    <span v-else>{{ item.registration_id }}</span>
+                </a>
             </li>
         </div>
     `,
