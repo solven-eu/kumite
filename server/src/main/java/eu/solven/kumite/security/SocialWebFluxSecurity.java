@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
@@ -19,10 +18,15 @@ import org.springframework.security.config.web.server.ServerHttpSecurity.HttpBas
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.authentication.RedirectServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
@@ -48,14 +52,23 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SocialWebFluxSecurity {
 
+	// https://github.com/spring-projects/spring-security/issues/15846
+	@Bean
+	public OidcReactiveOAuth2UserService oidcReactiveOAuth2UserService(
+			ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService) {
+		OidcReactiveOAuth2UserService oidcReactiveOAuth2UserService = new OidcReactiveOAuth2UserService();
+
+		oidcReactiveOAuth2UserService.setOauth2UserService(oauth2UserService);
+
+		return oidcReactiveOAuth2UserService;
+	}
+
 	// https://github.com/ch4mpy/spring-addons/tree/master/samples/tutorials/resource-server_with_ui
 	// https://stackoverflow.com/questions/74744901/default-401-instead-of-redirecting-for-oauth2-login-spring-security
 	// `-1` as this has to be used in priority aver the API securityFilterChain
 	@Order(Ordered.LOWEST_PRECEDENCE - 1)
 	@Bean
-	public SecurityWebFilterChain configureUi(ServerProperties serverProperties,
-			ServerHttpSecurity http,
-			Environment env) {
+	public SecurityWebFilterChain configureUi(ServerHttpSecurity http, Environment env) {
 
 		boolean isFakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKEUSER));
 		if (isFakeUser) {
@@ -152,7 +165,11 @@ public class SocialWebFluxSecurity {
 				.oauth2Login(oauth2 -> {
 					String loginSuccess = "/html/login?success";
 					oauth2.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler(loginSuccess));
+
+					String loginError = "/html/login?error";
+					oauth2.authenticationFailureHandler(new RedirectServerAuthenticationFailureHandler(loginError));
 				})
+				// .oauth2Client(oauth2 -> oauth2.)
 
 				.httpBasic(basic -> {
 					if (isFakeUser) {
@@ -200,9 +217,9 @@ public class SocialWebFluxSecurity {
 	 */
 	@Order(Ordered.LOWEST_PRECEDENCE)
 	@Bean
-	public SecurityWebFilterChain configureApi(ServerHttpSecurity http,
-			Environment env,
-			ReactiveJwtDecoder jwtDecoder) {
+	public SecurityWebFilterChain configureApi(Environment env,
+			ReactiveJwtDecoder jwtDecoder,
+			ServerHttpSecurity http) {
 
 		boolean isFakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKEUSER));
 		if (isFakeUser) {

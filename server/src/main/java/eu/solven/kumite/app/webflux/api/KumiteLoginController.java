@@ -35,12 +35,12 @@ import org.springframework.web.server.ServerWebExchange;
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.account.KumiteUsersRegistry;
-import eu.solven.kumite.account.login.IKumiteTestConstants;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.security.LoginRouteButNotAuthenticatedException;
+import eu.solven.kumite.security.oauth2.KumiteOAuth2UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -56,9 +56,6 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 @Slf4j
 public class KumiteLoginController {
-	public static final String PROVIDERID_GITHUB = "github";
-	@Deprecated
-	public static final String PROVIDERID_TEST = IKumiteTestConstants.PROVIDERID_TEST;
 
 	final InMemoryReactiveClientRegistrationRepository clientRegistrationRepository;
 
@@ -127,6 +124,12 @@ public class KumiteLoginController {
 				"/html/login?success"));
 	}
 
+	private KumiteUser userFromOAuth2(OAuth2User o) {
+		KumiteUserRawRaw rawRaw = KumiteOAuth2UserService.oauth2ToRawRaw(o);
+		KumiteUser user = usersRegistry.getUser(rawRaw);
+		return user;
+	}
+
 	@GetMapping("/user")
 	public Mono<KumiteUser> user() {
 		return ReactiveSecurityContextHolder.getContext().map(sc -> {
@@ -148,39 +151,6 @@ public class KumiteLoginController {
 		UUID accountId = UUID.fromString(usernameToken.getName());
 		KumiteUser user = usersRegistry.getUser(accountId);
 		return user;
-	}
-
-	private KumiteUser userFromOAuth2(OAuth2User o) {
-		String providerId = guessProviderId(o);
-		String sub = getSub(providerId, o);
-		KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId(providerId).sub(sub).build();
-		KumiteUser user = usersRegistry.getUser(rawRaw);
-		return user;
-	}
-
-	private String getSub(String providerId, OAuth2User o) {
-		if (PROVIDERID_GITHUB.equals(providerId)) {
-			Object sub = o.getAttribute("id");
-			if (sub == null) {
-				throw new IllegalStateException("Invalid sub: " + sub);
-			}
-			return sub.toString();
-		} else if (PROVIDERID_TEST.equals(providerId)) {
-			Object sub = o.getAttribute("id");
-			if (sub == null) {
-				throw new IllegalStateException("Invalid sub: " + sub);
-			}
-			return sub.toString();
-		} else {
-			throw new IllegalStateException("Not managed providerId: " + providerId);
-		}
-	}
-
-	private String guessProviderId(OAuth2User o) {
-		if (PROVIDERID_TEST.equals(o.getAttribute("providerId"))) {
-			return PROVIDERID_TEST;
-		}
-		return PROVIDERID_GITHUB;
 	}
 
 	@GetMapping("/oauth2/token")

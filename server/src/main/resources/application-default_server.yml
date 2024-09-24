@@ -10,8 +10,8 @@ spring:
                         clientId: ${kumite.login.oauth2.github.clientId:NEEDS_TO_BE_DEFINED}
                         clientSecret: ${kumite.login.oauth2.github.clientSecret:NEEDS_TO_BE_DEFINED}
                     google:
-                        client-id: google-client-id
-                        client-secret: google-client-secret
+                        client-id: ${kumite.login.oauth2.google.clientId:NEEDS_TO_BE_DEFINED}
+                        client-secret: ${kumite.login.oauth2.google.clientSecret:NEEDS_TO_BE_DEFINED}
     graphql:
         graphiql:
             enabled: true

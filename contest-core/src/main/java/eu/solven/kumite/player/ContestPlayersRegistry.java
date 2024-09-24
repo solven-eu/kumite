@@ -73,7 +73,7 @@ public class ContestPlayersRegistry {
 			if (game.canAcceptPlayer(contest, player)) {
 				boolean registeredInBoard = contestPlayersRepository.registerContender(contestId, playerId);
 				if (registeredInBoard) {
-					log.info(
+					log.debug(
 							"Skip `board.registerContender` as already managed by `contestPlayersRepository.registerContender`");
 				} else {
 					IKumiteBoard board = contest.getBoard().get();
