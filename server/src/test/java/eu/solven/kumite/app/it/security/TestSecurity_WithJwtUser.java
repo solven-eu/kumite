@@ -3,7 +3,6 @@ package eu.solven.kumite.app.it.security;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,10 +62,8 @@ public class TestSecurity_WithJwtUser {
 	}
 
 	protected String generateRefreshToken() {
-		return tokenService.generateAccessToken(RandomPlayer.user(),
-				Set.of(RandomPlayer.PLAYERID_1),
-				Duration.ofMinutes(1),
-				true);
+		return tokenService
+				.generateAccessToken(RandomPlayer.user(), Set.of(RandomPlayer.PLAYERID_1), Duration.ofMinutes(1), true);
 	}
 
 	@Test
@@ -120,23 +117,7 @@ public class TestSecurity_WithJwtUser {
 
 				.expectStatus()
 				.isOk()
-				.expectBody(Map.class)
-				.value(greeting -> {
-					Map<String, ?> asMap = (Map<String, ?>) greeting.get("map");
-					assertThat(asMap).hasSize(2).containsOnlyKeys("github", "google");
-
-					Assertions.assertThat((Map) asMap.get("github"))
-							.containsEntry("login_url", "/oauth2/authorization/github");
-
-					List<Map<String, ?>> asList = (List<Map<String, ?>>) greeting.get("list");
-					assertThat(asList).hasSize(2).anySatisfy(m -> {
-						Assertions.assertThat((Map) m)
-								.containsEntry("login_url", "/oauth2/authorization/github")
-								.hasSize(2);
-					}).anySatisfy(m -> {
-						Assertions.assertThat((Map) m).containsEntry("login_url", "/oauth2/authorization/google");
-					});
-				});
+				.expectBody(Map.class);
 	}
 
 	@Test

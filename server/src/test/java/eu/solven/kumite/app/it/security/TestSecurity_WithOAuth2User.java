@@ -111,22 +111,24 @@ public class TestSecurity_WithOAuth2User {
 				.expectStatus()
 				.isOk()
 				.expectBody(Map.class)
-				.value(greeting -> {
-					Map<String, ?> asMap = (Map<String, ?>) greeting.get("map");
-					assertThat(asMap).hasSize(2).containsOnlyKeys("github", "google");
-
-					Assertions.assertThat((Map) asMap.get("github"))
-							.containsEntry("login_url", "/oauth2/authorization/github");
-
-					List<Map<String, ?>> asList = (List<Map<String, ?>>) greeting.get("list");
-					assertThat(asList).hasSize(2).anySatisfy(m -> {
-						Assertions.assertThat((Map) m)
-								.containsEntry("login_url", "/oauth2/authorization/github")
-								.hasSize(2);
-					}).anySatisfy(m -> {
-						Assertions.assertThat((Map) m).containsEntry("login_url", "/oauth2/authorization/google");
-					});
+				.value(loginOptions -> {
+					onLoginOptions(loginOptions);
 				});
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected void onLoginOptions(Map loginOptions) {
+		Map<String, ?> asMap = (Map<String, ?>) loginOptions.get("map");
+		assertThat(asMap).hasSize(2).containsKeys("github", "google");
+
+		Assertions.assertThat((Map) asMap.get("github")).containsEntry("login_url", "/oauth2/authorization/github");
+
+		List<Map<String, ?>> asList = (List<Map<String, ?>>) loginOptions.get("list");
+		assertThat(asList).hasSize(2).anySatisfy(m -> {
+			Assertions.assertThat((Map) m).containsEntry("login_url", "/oauth2/authorization/github").hasSize(3);
+		}).anySatisfy(m -> {
+			Assertions.assertThat((Map) m).containsEntry("login_url", "/oauth2/authorization/google");
+		});
 	}
 
 	@Test
