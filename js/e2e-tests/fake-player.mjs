@@ -10,12 +10,15 @@ export default {
 
     async showLoginOptions(page) {
         await page.getByRole("link", { name: /You need to login/ }).click();
+
+        await expect(page.getByRole("link", { name: /github/ })).toBeVisible();
+        await expect(page.getByRole("link", { name: /BASIC/ })).toBeVisible();
     },
 
     async login(page) {
         await this.showLoginOptions(page);
-        await page.getByRole("link", { name: /github/ }).click();
-        // How can we login automatically?
+        await page.getByRole("link", { name: /BASIC/ }).click();
+        await page.getByRole("button", { name: /Login fakeUser/ }).click();
     },
 
     async playOptimization(page) {

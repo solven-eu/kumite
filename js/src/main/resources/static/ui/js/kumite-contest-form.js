@@ -33,9 +33,8 @@ export default {
 	method: {},
 	setup(props) {
 		const store = useKumiteStore();
-        
-        
-		const contestName = ref('');
+
+		const contestName = ref("");
 		const createdContest = ref({});
 
 		const submitContestForm = function () {
@@ -82,7 +81,7 @@ export default {
 		return { contestName, submitContestForm, createdContest };
 	},
 	template: /* HTML */ `
-        <div v-if="(!game)">
+        <div v-if="(!game) || game.error">
             <div v-if="(nbGameFetching > 0)">
                 <div class="spinner-border" role="status">
                     <span class="visually-hidden">Loading gameId={{gameId}}</span>

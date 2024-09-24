@@ -4,9 +4,9 @@ import { useKumiteStore } from "./store.js";
 import Logout from "./login-logout.js";
 
 export default {
-components: {
-    Logout,
-},
+	components: {
+		Logout,
+	},
 	computed: {
 		...mapState(useKumiteStore, ["needsToLogin", "isLoggedIn", "account", "tokens", "nbAccountFetching", "playingPlayerId"]),
 	},
@@ -45,17 +45,17 @@ components: {
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <RouterLink class="nav-link" to="/html/games"><i class="bi bi-puzzle"/>Games</RouterLink>
+                            <RouterLink class="nav-link" to="/html/games"><i class="bi bi-puzzle" />Games</RouterLink>
                         </li>
                         <li class="nav-item">
-                            <RouterLink class="nav-link" to="/html/contests"><i class="bi bi-trophy"/>Contests</RouterLink>
+                            <RouterLink class="nav-link" to="/html/contests"><i class="bi bi-trophy" />Contests</RouterLink>
                         </li>
                         <li class="nav-item">
-                            <RouterLink class="nav-link" to="/html/about"><i class="bi bi-info-lg"/>About</RouterLink>
+                            <RouterLink class="nav-link" to="/html/about"><i class="bi bi-info-lg" />About</RouterLink>
                         </li>
 
                         <li class="nav-item" v-if="isLoggedIn">
-                            <RouterLink class="nav-link" to="/html/me"><i class="bi bi-person"/>Account Settings</RouterLink>
+                            <RouterLink class="nav-link" to="/html/me"><i class="bi bi-person" />Account Settings</RouterLink>
                         </li>
                     </ul>
                     <span v-if="isLoggedIn">

@@ -97,6 +97,29 @@ export const useKumiteStore = defineStore("kumite", {
 			return fetchFromUrl(prefix + "/public/metadata");
 		},
 
+		async fetchCsrfToken() {
+			// https://www.baeldung.com/spring-security-csrf
+			// If we relied on Cookie, `.csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse())` we could get the csrfToken with:
+			// const csrfToken = document.cookie.replace(/(?:(?:^|.*;\s*)XSRF-TOKEN\s*\=\s*([^;]*).*$)|^.*$/, '$1');
+
+			const response = await fetch(`/api/login/v1/csrf`);
+			if (!response.ok) {
+				throw new Error("Rejected request for logout");
+			}
+
+			const json = await response.json();
+			const csrfHeader = json.header;
+			console.log("csrf header", csrfHeader);
+
+			const freshCrsfToken = response.headers.get(csrfHeader);
+			if (!freshCrsfToken) {
+				throw new Error("Invalid csrfToken");
+			}
+			console.debug("csrf", freshCrsfToken);
+
+			return { header: csrfHeader, token: freshCrsfToken };
+		},
+
 		// This would not fail if the User needs to login.
 		// Callers would generally rely on `ensureUser()`
 		async loadUser() {
@@ -435,7 +458,6 @@ export const useKumiteStore = defineStore("kumite", {
 
 						const game = {
 							gameId: gameId,
-							status: "error",
 							error: e,
 						};
 						store.$patch({
@@ -525,11 +547,11 @@ export const useKumiteStore = defineStore("kumite", {
 						const responseJson = await response.json();
 
 						if (responseJson.length === 0) {
-							return { contestId: contestId, status: "unknown" };
+							return { contestId: contestId, error: "unknown" };
 						} else if (responseJson.length !== 1) {
 							// This should not happen as we provided an input contestId
 							console.error("We expected a single contest", responseJson);
-							return { contestId: contestId, status: "unknown" };
+							return { contestId: contestId, error: "unknown" };
 						}
 
 						const contest = responseJson[0];
@@ -540,7 +562,6 @@ export const useKumiteStore = defineStore("kumite", {
 
 						const contest = {
 							contestId: contestId,
-							status: "error",
 							error: e,
 						};
 
@@ -575,7 +596,7 @@ export const useKumiteStore = defineStore("kumite", {
 			const store = this;
 
 			return this.loadContestIfMissing(gameId, contestId).then((contest) => {
-				if (contest.status === "unknown") {
+				if (contest.error === "unknown") {
 					return contest;
 				}
 
@@ -596,7 +617,6 @@ export const useKumiteStore = defineStore("kumite", {
 
 						return {
 							contestId: contestId,
-							status: "error",
 							error: e,
 						};
 					} finally {
@@ -644,7 +664,6 @@ export const useKumiteStore = defineStore("kumite", {
 
 					const leaderboard = {
 						contestId: contestId,
-						status: "error",
 						error: e,
 						stale: false,
 					};

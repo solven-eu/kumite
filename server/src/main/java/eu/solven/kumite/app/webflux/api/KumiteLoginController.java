@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -79,8 +80,13 @@ public class KumiteLoginController {
 					String registrationId = r.getRegistrationId();
 					String loginUrl = "/oauth2/authorization/%s".formatted(registrationId);
 					registrationIdToDetails.put(registrationId,
-							Map.of("registration_id", registrationId, "login_url", loginUrl));
+							Map.of("type", "oauth2", "registration_id", registrationId, "login_url", loginUrl));
 				});
+
+		if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKEUSER))) {
+			registrationIdToDetails.put(IKumiteSpringProfiles.P_FAKEUSER,
+					Map.of("type", "basic", "registration_id", "BASIC", "login_url", "/html/login/basic"));
+		}
 
 		return Map.of("map", registrationIdToDetails, "list", registrationIdToDetails.values());
 	}
@@ -106,7 +112,21 @@ public class KumiteLoginController {
 		return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, url).build();
 	}
 
-	// @PreAuthorize("isAuthenticated()")
+	// BASIC login is available for fakeUser
+	@PostMapping("/basic")
+	public Mono<Map> basic() {
+		if (!env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKEUSER))) {
+			throw new LoginRouteButNotAuthenticatedException("No BASIC");
+		}
+
+		return user().map(user -> Map.of("Authentication",
+				"BASIC",
+				"username",
+				user.getAccountId(),
+				HttpHeaders.LOCATION,
+				"/html/login?success"));
+	}
+
 	@GetMapping("/user")
 	public Mono<KumiteUser> user() {
 		return ReactiveSecurityContextHolder.getContext().map(sc -> {

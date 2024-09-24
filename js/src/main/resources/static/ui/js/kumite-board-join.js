@@ -27,15 +27,15 @@ export default {
 		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "nbBoardFetching", "playingPlayerId"]),
 		...mapState(useKumiteStore, {
 			game(store) {
-				return store.games[this.gameId] || { status: "not_loaded" };
+				return store.games[this.gameId] || { error: "not_loaded" };
 			},
 			contest(store) {
-				return store.contests[this.contestId] || { status: "not_loaded" };
+				return store.contests[this.contestId] || { error: "not_loaded" };
 			},
 			board(store) {
 				return (
 					store.contests[this.contestId].board || {
-						status: "not_loaded",
+						error: "not_loaded",
 					}
 				);
 			},

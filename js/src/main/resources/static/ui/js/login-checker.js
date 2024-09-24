@@ -11,7 +11,7 @@ import Logout from "./login-logout.js";
 export default {
 	components: {
 		LoginOptions,
-        Logout,
+		Logout,
 	},
 	props: {
 		logout: {
@@ -32,7 +32,7 @@ export default {
 
 		store.loadUser();
 
-		return { };
+		return {};
 	},
 	template: /* HTML */ `
         <div v-if="needsToLogin">
@@ -41,8 +41,6 @@ export default {
                 <LoginOptions />
             </div>
         </div>
-        <div v-else>
-            Welcome {{user.raw.name}}. <Logout />
-        </div>
+        <div v-else>Welcome {{user.raw.name}}. <Logout /></div>
     `,
 };

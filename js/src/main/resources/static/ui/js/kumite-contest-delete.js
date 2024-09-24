@@ -32,7 +32,5 @@ export default {
 
 		return {};
 	},
-	template: /* HTML */ `
-        <button class="btn btn-danger">Archive this contest (force gameOver)</button>
-    `,
+	template: /* HTML */ ` <button class="btn btn-danger">Archive this contest (force gameOver)</button> `,
 };

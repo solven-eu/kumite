@@ -9,7 +9,7 @@ import KumiteContestDelete from "./kumite-contest-delete.js";
 export default {
 	components: {
 		KumiteAccountRef,
-        KumiteContestDelete,
+		KumiteContestDelete,
 	},
 	props: {
 		contestId: {
@@ -22,7 +22,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching"]),
+		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "isLoggedIn", "account"]),
 		...mapState(useKumiteStore, {
 			game(store) {
 				return store.games[this.gameId];
@@ -95,8 +95,8 @@ export default {
             <ul>
                 <li>author: <KumiteAccountRef :accountId="contest.constantMetadata.author" /></li>
                 <li>created: {{contest.constantMetadata.created}}</li>
-                <li v-if="contest.constantMetadata.author == account.accountId">
-<KumiteContestDelete :contestId="contestId" />
+                <li v-if="isLoggedIn && contest.constantMetadata.author == account.accountId">
+                    <KumiteContestDelete :gameId="gameId" :contestId="contestId" />
                 </li>
             </ul>
         </span>

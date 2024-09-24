@@ -10,13 +10,19 @@ test.beforeAll(async ({ request }) => {
     expect(response.ok()).toBeTruthy();
 });
 
-// FakeUser skips the login phase
-//test('login', async ({ page }) => {
-//    await page.goto(url);
-//    await fakePlayer.login(page);
-//});
+// We just check the login page is working OK
+test("showLoginOptions", async ({ page }) => {
+    await page.goto(url);
+    await fakePlayer.showLoginOptions(page);
+});
+
+test("login", async ({ page }) => {
+    await page.goto(url);
+    await fakePlayer.login(page);
+});
 
 test("play-optimization", async ({ page }) => {
     await page.goto(url);
+    await fakePlayer.login(page);
     await fakePlayer.playOptimization(page);
 });

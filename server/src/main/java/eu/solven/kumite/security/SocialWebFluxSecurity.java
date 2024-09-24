@@ -15,6 +15,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity.HttpBasicSpec;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -119,7 +120,10 @@ public class SocialWebFluxSecurity {
 
 						// If there is no logged-in user, we return a 401.
 						// `permitAll` is useful to return a 401 manually, else `.oauth2Login` would return a 302
-						.pathMatchers("/api/login/v1/user",
+						.pathMatchers(
+								// `BASIC` should be added here only if fakeUser
+								"/api/login/v1/basic",
+								"/api/login/v1/user",
 								"/api/login/v1/oauth2/token",
 								"/api/login/v1/html",
 								"/api/login/v1/providers",
@@ -151,24 +155,8 @@ public class SocialWebFluxSecurity {
 				})
 
 				.httpBasic(basic -> {
-					Map<String, UserDetails> userDetails = new ConcurrentHashMap<>();
-
-					UserDetails fakeUser = User.builder()
-							.username(FakePlayer.ACCOUNT_ID.toString())
-							// `{noop}` relates with `PasswordEncoderFactories.createDelegatingPasswordEncoder()`
-							.password("{noop}" + "no_password")
-							.roles(IKumiteSpringProfiles.P_FAKEUSER)
-							.build();
-
-					userDetails.put(fakeUser.getUsername(), fakeUser);
-
-					UserDetailsRepositoryReactiveAuthenticationManager ram =
-							new UserDetailsRepositoryReactiveAuthenticationManager(
-									new MapReactiveUserDetailsService(userDetails));
-
 					if (isFakeUser) {
-						basic.authenticationManager(ram)
-								.securityContextRepository(new WebSessionServerSecurityContextRepository());
+						configureBasicForFakeUser(basic);
 					} else {
 						basic.disable();
 					}
@@ -182,6 +170,23 @@ public class SocialWebFluxSecurity {
 				})
 
 				.build();
+	}
+
+	private void configureBasicForFakeUser(HttpBasicSpec basic) {
+		Map<String, UserDetails> userDetails = new ConcurrentHashMap<>();
+
+		UserDetails fakeUser = User.builder()
+				.username(FakePlayer.ACCOUNT_ID.toString())
+				// `{noop}` relates with `PasswordEncoderFactories.createDelegatingPasswordEncoder()`
+				.password("{noop}" + "no_password")
+				.roles(IKumiteSpringProfiles.P_FAKEUSER)
+				.build();
+
+		userDetails.put(fakeUser.getUsername(), fakeUser);
+
+		UserDetailsRepositoryReactiveAuthenticationManager ram =
+				new UserDetailsRepositoryReactiveAuthenticationManager(new MapReactiveUserDetailsService(userDetails));
+		basic.authenticationManager(ram).securityContextRepository(new WebSessionServerSecurityContextRepository());
 	}
 
 	/**

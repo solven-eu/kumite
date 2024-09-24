@@ -36,8 +36,8 @@ const config = defineConfig({
     },
 
     // https://playwright.dev/docs/test-timeouts
-    timeout: 5000,
-    expect: { timeout: 3000 },
+    timeout: 3000,
+    expect: { timeout: 2000 },
 
     // https://github.com/microsoft/playwright/issues/14854
     use: {

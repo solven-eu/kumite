@@ -32,39 +32,11 @@ export default {
 
 		store.loadUser();
 
-		const csrfToken = ref({});
-		const fetchCsrfToken = async function () {
-			try {
-				const response = await fetch(`/api/login/v1/csrf`);
-				if (!response.ok) {
-					throw new Error("Rejected request for logout");
-				}
-
-				const json = await response.json();
-				const csrfHeader = json.header;
-				console.log("csrf header", csrfHeader);
-
-				const freshCrsfToken = response.headers.get(csrfHeader);
-				if (!freshCrsfToken) {
-					throw new Error("Invalid csrfToken");
-				}
-				console.debug("csrf", freshCrsfToken);
-
-				csrfToken.value = { header: csrfHeader, token: freshCrsfToken };
-			} catch (e) {
-				console.error("Issue on Network: ", e);
-			}
-		};
-
 		const doLogout = function () {
 			console.info("Logout");
-			async function fetchFromUrl(url) {
-				// https://www.baeldung.com/spring-security-csrf
-				// If we relied on Cookie, `.csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse())` we could get the csrfToken with:
-				// const csrfToken = document.cookie.replace(/(?:(?:^|.*;\s*)XSRF-TOKEN\s*\=\s*([^;]*).*$)|^.*$/, '$1');
-
+			async function fetchFromUrl(url, csrfToken) {
 				// https://stackoverflow.com/questions/60265617/how-do-you-include-a-csrf-token-in-a-vue-js-application-with-a-spring-boot-backe
-				const headers = { [csrfToken.value.header]: csrfToken.value.token };
+				const headers = { [csrfToken.header]: csrfToken.token };
 
 				try {
 					const response = await fetch(url, {
@@ -96,8 +68,8 @@ export default {
 				}
 			}
 
-			fetchCsrfToken().then(() => {
-				fetchFromUrl(`/logout`);
+			store.fetchCsrfToken().then((csrfToken) => {
+				fetchFromUrl(`/logout`, csrfToken);
 			});
 		};
 
