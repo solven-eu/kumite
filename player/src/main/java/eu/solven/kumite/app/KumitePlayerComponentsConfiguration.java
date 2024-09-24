@@ -67,7 +67,7 @@ public class KumitePlayerComponentsConfiguration {
 
 			ses.scheduleWithFixedDelay(() -> {
 				try {
-					log.info("Playing contests as {}", playerId);
+					log.info("Playing `playOptimizationGames` as {}", playerId);
 					kumitePlayer.playOptimizationGames(playerId);
 				} catch (Throwable t) {
 					log.warn("Issue while playing games", t);
@@ -77,7 +77,7 @@ public class KumitePlayerComponentsConfiguration {
 
 			ses.scheduleWithFixedDelay(() -> {
 				try {
-					log.info("Playing contests as {}", playerId);
+					log.info("Playing `play1v1TurnBasedGames` as {}", playerId);
 					kumitePlayer.play1v1TurnBasedGames(playerId);
 				} catch (Throwable t) {
 					log.warn("Issue while playing games", t);

@@ -96,7 +96,7 @@ public class TestRandomGamingLogicRedis {
 		IGamingLogic kumitePlayer = new RandomGamingLogic(env, kumiteServer);
 
 		for (int iPlayer = 0; iPlayer < nbPlayers; iPlayer++) {
-			UUID playerId = RandomPlayer.randomPlayerId(iPlayer);
+			UUID playerId = RandomPlayer.playerId(iPlayer);
 
 			executorService.execute(() -> {
 				try {

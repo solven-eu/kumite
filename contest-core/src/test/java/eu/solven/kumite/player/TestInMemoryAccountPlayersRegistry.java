@@ -14,7 +14,7 @@ public class TestInMemoryAccountPlayersRegistry {
 
 	private void registerFakePlayers() {
 		playersRegistry.registerPlayer(FakePlayer.fakePlayer());
-		playersRegistry.registerPlayer(FakePlayer.fakePlayer(1));
+		playersRegistry.registerPlayer(FakePlayer.player(1));
 	}
 
 	@Test

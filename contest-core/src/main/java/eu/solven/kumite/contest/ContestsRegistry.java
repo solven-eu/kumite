@@ -2,6 +2,7 @@ package eu.solven.kumite.contest;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,9 +28,6 @@ public class ContestsRegistry {
 
 	@NonNull
 	final GamesRegistry gamesRegistry;
-
-	// @NonNull
-	// final LiveContestsRegistry liveContestsManager;
 
 	@NonNull
 	final ContestPlayersRegistry contestPlayersRegistry;
@@ -66,9 +64,6 @@ public class ContestsRegistry {
 			// (e.g. if the game has a very small timeout)
 			throw new IllegalArgumentException("When registered, a contest has not to be over");
 		}
-		// else {
-		// liveContestsManager.registerContestLive(contestId);
-		// }
 
 		return contest;
 	}
@@ -107,7 +102,18 @@ public class ContestsRegistry {
 			contestStream = contestsRepository.stream();
 		}
 
-		Stream<Contest> metaStream = contestStream.map(c -> getContest(c.getKey()));
+		Stream<Contest> metaStream = contestStream.map(c -> {
+			UUID contestId = c.getKey();
+			try {
+				return getContest(contestId);
+			} catch (RuntimeException e) {
+				// This may happen if the board expired a bit before the contest metadata
+				log.warn("Issue loading contestId={}", contestId, e);
+				return null;
+			}
+		})
+				// Filer the contest having failed to load
+				.filter(Objects::nonNull);
 
 		if (search.getGameId().isPresent()) {
 			metaStream = metaStream.filter(c -> c.getGameMetadata().getGameId().equals(search.getGameId().get()));

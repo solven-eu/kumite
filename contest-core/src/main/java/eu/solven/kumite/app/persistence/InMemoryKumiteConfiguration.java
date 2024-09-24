@@ -21,4 +21,5 @@ import eu.solven.kumite.player.persistence.InMemoryAccountPlayersRegistry;
 })
 @Profile(IKumiteSpringProfiles.P_INMEMORY)
 public class InMemoryKumiteConfiguration {
+	
 }

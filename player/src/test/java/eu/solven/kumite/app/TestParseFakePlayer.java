@@ -44,8 +44,8 @@ public class TestParseFakePlayer implements IKumiteSpringProfiles {
 		Set<UUID> playerIds = conf.playerIdFromRefreshToken(kumiteWebclientServerProperties);
 
 		Assertions.assertThat(playerIds)
-				.contains(RandomPlayer.randomPlayer(0).getPlayerId())
-				.contains(RandomPlayer.randomPlayer(1).getPlayerId())
+				.contains(RandomPlayer.player(0).getPlayerId())
+				.contains(RandomPlayer.player(1).getPlayerId())
 				.hasSize(2);
 	}
 }

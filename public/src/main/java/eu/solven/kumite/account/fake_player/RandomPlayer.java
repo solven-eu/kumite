@@ -23,7 +23,7 @@ public class RandomPlayer {
 	public static final UUID PLAYERID_1 = UUID.fromString("FFFFFFFF-FFFF-FFFF-FFFF-111111111111");
 	public static final UUID RANDOM_PLAYERID2 = UUID.fromString("FFFFFFFF-FFFF-FFFF-FFFF-222222222222");
 
-	public static UUID randomPlayerId(int playerIndex) {
+	public static UUID playerId(int playerIndex) {
 		if (playerIndex == 0) {
 			return PLAYERID_1;
 		} else if (playerIndex == 1) {
@@ -52,15 +52,15 @@ public class RandomPlayer {
 		return KumiteUser.builder().accountId(ACCOUNT_ID).playerId(PLAYERID_1).raw(raw).build();
 	}
 
-	public static KumitePlayer randomPlayer() {
+	public static KumitePlayer player() {
 		return KumitePlayer.builder().playerId(PLAYERID_1).accountId(ACCOUNT_ID).build();
 	}
 
-	public static KumitePlayer randomPlayer(int i) {
-		return KumitePlayer.builder().playerId(randomPlayerId(i)).accountId(ACCOUNT_ID).build();
+	public static KumitePlayer player(int i) {
+		return KumitePlayer.builder().playerId(playerId(i)).accountId(ACCOUNT_ID).build();
 	}
 
-	public static Set<UUID> randomPlayers() {
+	public static Set<UUID> playerIds() {
 		return Set.of(RandomPlayer.PLAYERID_1, RandomPlayer.RANDOM_PLAYERID2);
 	}
 

@@ -47,7 +47,7 @@ public class KumiteWebclientServerProperties {
 			}
 			KumiteTokenService kumiteTokenService = new KumiteTokenService(env, uuidGenerator);
 			RefreshTokenWrapper wrappedRefreshToken =
-					kumiteTokenService.wrapInJwtRefreshToken(RandomPlayer.user(), RandomPlayer.randomPlayers());
+					kumiteTokenService.wrapInJwtRefreshToken(RandomPlayer.user(), RandomPlayer.playerIds());
 			refreshToken = wrappedRefreshToken.getRefreshToken();
 		}
 		return refreshToken;

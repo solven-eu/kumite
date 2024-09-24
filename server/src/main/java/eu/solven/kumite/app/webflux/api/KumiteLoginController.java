@@ -210,7 +210,7 @@ public class KumiteLoginController {
 	void checkValidPlayerId(KumiteUser user, UUID playerId) {
 		UUID accountId = user.getAccountId();
 		if (!playersRegistry.makeDynamicHasPlayers(accountId).hasPlayerId(playerId)) {
-			throw new IllegalArgumentException("player_id=" + playerId + " is not managed by accountId=" + accountId);
+			throw new IllegalArgumentException("playerId=" + playerId + " is not managed by accountId=" + accountId);
 		}
 	}
 

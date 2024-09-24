@@ -27,9 +27,9 @@ public final class BijectiveAccountPlayersRegistry implements IAccountPlayersReg
 		UUID accountId = player.getAccountId();
 		UUID playerId = player.getPlayerId();
 		if (FakePlayer.ACCOUNT_ID.equals(accountId) && FakePlayer.isFakePlayer(playerId)) {
-			log.info("Registering the fakeUser");
+			log.info("Registering a fakePlayer={}", playerId);
 		} else if (RandomPlayer.ACCOUNT_ID.equals(accountId) && RandomPlayer.isRandomPlayer(playerId)) {
-			log.info("Registering the randomuser");
+			log.info("Registering a randomPlayer={}", playerId);
 		} else if (playerId.equals(generateMainPlayerId(accountId))) {
 			log.info("Registering accountId={} playerId={}", accountId, playerId);
 		} else {
@@ -51,10 +51,10 @@ public final class BijectiveAccountPlayersRegistry implements IAccountPlayersReg
 	@Override
 	public IHasPlayers makeDynamicHasPlayers(UUID accountId) {
 		if (FakePlayer.ACCOUNT_ID.equals(accountId)) {
-			List<KumitePlayer> players = Arrays.asList(FakePlayer.fakePlayer(0), FakePlayer.fakePlayer(1));
+			List<KumitePlayer> players = Arrays.asList(FakePlayer.player(0), FakePlayer.player(1));
 			return () -> players;
 		} else if (RandomPlayer.ACCOUNT_ID.equals(accountId)) {
-			List<KumitePlayer> players = Arrays.asList(RandomPlayer.randomPlayer(0), RandomPlayer.randomPlayer(1));
+			List<KumitePlayer> players = Arrays.asList(RandomPlayer.player(0), RandomPlayer.player(1));
 			return () -> players;
 		}
 

@@ -40,10 +40,7 @@ public interface IGame {
 	default boolean canAcceptPlayer(Contest contest, KumitePlayer player) {
 		if (!contest.isAcceptingPlayers()) {
 			return false;
-		} else if (contest.getPlayers()
-				.stream()
-				.map(p -> p.getPlayerId())
-				.anyMatch(p -> p.equals(player.getPlayerId()))) {
+		} else if (contest.hasPlayerId(player.getPlayerId())) {
 			// This player is already registered in given contest: most game accept each player at most once
 			return false;
 		}

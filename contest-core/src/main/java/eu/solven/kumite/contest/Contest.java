@@ -86,7 +86,7 @@ public class Contest implements IContest {
 		UUID playerId = playerMove.getPlayerId();
 		IKumiteMove move = playerMove.getMove();
 
-		if (getPlayers().stream().noneMatch(p -> p.getPlayerId().equals(playerId))) {
+		if (!hasPlayerId(playerId)) {
 			throw new IllegalArgumentException("playerId=" + playerId + " is not registered");
 		} else if (!game.isValidMove(move)) {
 			throw new IllegalArgumentException("move=" + move + " is invalid");

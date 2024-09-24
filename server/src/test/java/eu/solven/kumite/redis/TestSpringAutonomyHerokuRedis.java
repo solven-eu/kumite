@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
+import org.springframework.session.ReactiveSessionRepository;
+import org.springframework.session.data.redis.ReactiveRedisSessionRepository;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -53,5 +55,11 @@ public class TestSpringAutonomyHerokuRedis implements IKumiteSpringProfiles {
 		@SuppressWarnings("rawtypes")
 		Map asMap = objectMapper.convertValue(rawRaw, Map.class);
 		Assertions.assertThat(asMap).hasSize(2);
+	}
+
+	@Test
+	public void testSession() {
+		Assertions.assertThat(appContest.getBean(ReactiveSessionRepository.class))
+				.isInstanceOf(ReactiveRedisSessionRepository.class);
 	}
 }

@@ -57,7 +57,7 @@ public class FakePlayer {
 		return KumitePlayer.builder().playerId(PLAYER_ID1).accountId(ACCOUNT_ID).build();
 	}
 
-	public static KumitePlayer fakePlayer(int i) {
+	public static KumitePlayer player(int i) {
 		return KumitePlayer.builder().playerId(fakePlayerId(i)).accountId(ACCOUNT_ID).build();
 	}
 

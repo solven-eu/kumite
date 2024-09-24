@@ -1,21 +1,27 @@
 package eu.solven.kumite.security;
 
+import java.util.Set;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.WebExceptionHandler;
 
 import eu.solven.kumite.account.JwtUserContextHolder;
+import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
 import eu.solven.kumite.app.webflux.api.KumiteLoginController;
 import eu.solven.kumite.app.webflux.api.KumitePublicController;
 import eu.solven.kumite.app.webflux.api.MetadataController;
+import eu.solven.kumite.login.RefreshTokenWrapper;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
+import eu.solven.kumite.player.IAccountPlayersRegistry;
 import lombok.extern.slf4j.Slf4j;
 
 // https://docs.spring.io/spring-security/reference/reactive/oauth2/login/advanced.html#webflux-oauth2-login-advanced-userinfo-endpoint
@@ -32,6 +38,8 @@ import lombok.extern.slf4j.Slf4j;
 		KumiteTokenService.class,
 
 		JwtUserContextHolder.class,
+
+		KumiteWebExceptionHandler.class,
 
 })
 @Slf4j
@@ -71,13 +79,18 @@ public class KumiteSecurity {
 		return null;
 	}
 
-	// @Bean
-	// WebFilter kumiteExceptionRoutingWebFilter() {
-	// return new KumiteExceptionRoutingWebFilter();
-	// }
-
+	// We print a refreshToken at startup, as it makes it easier to configure a player
 	@Bean
-	WebExceptionHandler kumiteWebExceptionHandler() {
-		return new KumiteWebExceptionHandler();
+	public Void printRandomPlayerRefreshToken(@Qualifier("random") KumiteUser user,
+			KumiteTokenService tokenService,
+			IAccountPlayersRegistry accountPlayersRegistry) {
+		UUID accountId = user.getAccountId();
+
+		Set<UUID> playerIds = accountPlayersRegistry.makeDynamicHasPlayers(accountId).getPlayerIds();
+		RefreshTokenWrapper refreshToken = tokenService.wrapInJwtRefreshToken(user, playerIds);
+
+		log.info("refresh_token for accountId={}: {}", user.getAccountId(), refreshToken);
+
+		return null;
 	}
 }

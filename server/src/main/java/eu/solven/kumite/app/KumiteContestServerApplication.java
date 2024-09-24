@@ -31,14 +31,9 @@ public class KumiteContestServerApplication {
 
 	// https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#spring-session-store-type
 	@Bean
+	// This will override any auto-configured SessionRepository like Redis one
 	@Profile({ IKumiteSpringProfiles.P_INMEMORY })
 	public ReactiveSessionRepository<?> inmemorySessionRepository() {
-		return new ReactiveMapSessionRepository(new ConcurrentHashMap<>());
-	}
-
-	// https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide#spring-session-store-type
-	@Bean
-	public ReactiveSessionRepository<?> redisSessionRepository() {
 		return new ReactiveMapSessionRepository(new ConcurrentHashMap<>());
 	}
 
