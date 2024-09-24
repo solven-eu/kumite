@@ -17,52 +17,52 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class FakePlayerTokens {
+public class FakePlayer {
 
 	// IKumiteSpringProfiles.P_DEFAULT_FAKE_USER
-	public static final UUID FAKE_ACCOUNT_ID = UUID.fromString("11111111-1111-1111-1111-000000000000");
-	public static final UUID FAKE_PLAYER_ID1 = UUID.fromString("11111111-1111-1111-1111-111111111111");
-	public static final UUID FAKE_PLAYER_ID2 = UUID.fromString("11111111-1111-1111-1111-222222222222");
+	public static final UUID ACCOUNT_ID = UUID.fromString("11111111-1111-1111-1111-000000000000");
+	public static final UUID PLAYER_ID1 = UUID.fromString("11111111-1111-1111-1111-111111111111");
+	public static final UUID PLAYER_ID2 = UUID.fromString("11111111-1111-1111-1111-222222222222");
 
 	public static UUID fakePlayerId(int playerIndex) {
 		if (playerIndex == 0) {
-			return FAKE_PLAYER_ID1;
+			return PLAYER_ID1;
 		} else if (playerIndex == 1) {
-			return FAKE_PLAYER_ID2;
+			return PLAYER_ID2;
 		} else {
 			throw new IllegalArgumentException("There is no fakePlayer for playerIndex=" + playerIndex);
 		}
 	}
 
 	public static boolean isFakePlayer(UUID playerId) {
-		if (FAKE_PLAYER_ID1.equals(playerId) || FAKE_PLAYER_ID2.equals(playerId)) {
+		if (PLAYER_ID1.equals(playerId) || PLAYER_ID2.equals(playerId)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public static KumiteUser fakeUser() {
-		KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId("fakeProviderId").sub("fakeSub").build();
+	public static KumiteUser user() {
+		KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId("kumite").sub("fakeSub").build();
 		KumiteUserRaw raw = KumiteUserRaw.builder()
 				.rawRaw(rawRaw)
 				.username("fakeUsername")
 				.email("fake@fake")
 				.name("Fake User")
 				.build();
-		return KumiteUser.builder().accountId(FAKE_ACCOUNT_ID).playerId(FAKE_PLAYER_ID1).raw(raw).build();
+		return KumiteUser.builder().accountId(ACCOUNT_ID).playerId(PLAYER_ID1).raw(raw).build();
 	}
 
 	public static KumitePlayer fakePlayer() {
-		return KumitePlayer.builder().playerId(FAKE_PLAYER_ID1).accountId(FAKE_ACCOUNT_ID).build();
+		return KumitePlayer.builder().playerId(PLAYER_ID1).accountId(ACCOUNT_ID).build();
 	}
 
 	public static KumitePlayer fakePlayer(int i) {
-		return KumitePlayer.builder().playerId(fakePlayerId(i)).accountId(FAKE_ACCOUNT_ID).build();
+		return KumitePlayer.builder().playerId(fakePlayerId(i)).accountId(ACCOUNT_ID).build();
 	}
 
 	public static Set<UUID> fakePlayers() {
-		return Set.of(FakePlayerTokens.FAKE_PLAYER_ID1, FakePlayerTokens.FAKE_PLAYER_ID2);
+		return Set.of(FakePlayer.PLAYER_ID1, FakePlayer.PLAYER_ID2);
 	}
 
 }

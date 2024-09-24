@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
 
-import eu.solven.kumite.account.KumiteUser;
+import eu.solven.kumite.account.fake_player.RandomPlayer;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.game.GameSearchParameters;
@@ -51,7 +51,7 @@ public class ActiveContestGenerator {
 				String contestName = "Auto-generated " + randomGenerator.nextInt(128);
 				ContestCreationMetadata constantMetadata = ContestCreationMetadata.fromGame(gameMetadata)
 						.name(contestName)
-						.author(KumiteUser.SERVER_ACCOUNTID)
+						.author(RandomPlayer.ACCOUNT_ID)
 						.build();
 				Contest contest = contestsRegistry.registerContest(game, constantMetadata, initialBoard);
 

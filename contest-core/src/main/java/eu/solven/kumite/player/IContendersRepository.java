@@ -24,4 +24,6 @@ public interface IContendersRepository {
 
 	IHasPlayers makeDynamicHasPlayers(UUID contestId);
 
+	void gameover(UUID contestId);
+
 }

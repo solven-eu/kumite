@@ -14,7 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import eu.solven.kumite.account.fake_player.FakePlayerTokens;
+import eu.solven.kumite.account.fake_player.FakePlayer;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteContestServerApplication;
 import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
@@ -46,8 +46,8 @@ public class TestKumiteApiRouter {
 	KumiteTokenService tokenService;
 
 	protected String generateAccessToken() {
-		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser(),
-				Set.of(FakePlayerTokens.FAKE_PLAYER_ID1),
+		return tokenService.generateAccessToken(FakePlayer.user(),
+				Set.of(FakePlayer.PLAYER_ID1),
 				Duration.ofMinutes(1),
 				false);
 	}

@@ -14,7 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import eu.solven.kumite.account.fake_player.FakePlayerTokens;
+import eu.solven.kumite.account.fake_player.RandomPlayer;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteContestServerApplication;
 import eu.solven.kumite.app.KumiteWebclientServerProperties;
@@ -37,7 +37,7 @@ import reactor.core.publisher.Mono;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = KumiteContestServerApplication.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, IKumiteSpringProfiles.P_INMEMORY, IKumiteSpringProfiles.P_FAKEUSER })
+@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, IKumiteSpringProfiles.P_INMEMORY })
 @TestPropertySource(properties = { "kumite.random.seed=123",
 		"kumite.player.wait_duration_if_no_move" + "=PT0.001S",
 		KumiteWebclientServerProperties.KEY_PLAYER_CONTESTBASEURL + "=http://localhost:LocalServerPort" })
@@ -53,7 +53,7 @@ public class TestTSPLifecycleThroughRouter {
 
 	@Test
 	public void testSinglePlayer() {
-		UUID playerId = FakePlayerTokens.FAKE_PLAYER_ID1;
+		UUID playerId = RandomPlayer.PLAYERID_1;
 
 		KumiteWebclientServerProperties properties = KumiteWebclientServerProperties.forTests(env, randomServerPort);
 		IKumiteServer kumiteServer = KumiteWebclientServer.fromProperties(properties);

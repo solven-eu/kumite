@@ -8,6 +8,7 @@ import org.springframework.core.env.Profiles;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.WebExceptionHandler;
 
+import eu.solven.kumite.account.JwtUserContextHolder;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
 import eu.solven.kumite.app.webflux.api.KumiteLoginController;
@@ -29,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 
 		KumiteResourceServerConfiguration.class,
 		KumiteTokenService.class,
+
+		JwtUserContextHolder.class,
 
 })
 @Slf4j
@@ -68,10 +71,10 @@ public class KumiteSecurity {
 		return null;
 	}
 
-//	@Bean
-//	WebFilter kumiteExceptionRoutingWebFilter() {
-//		return new KumiteExceptionRoutingWebFilter();
-//	}
+	// @Bean
+	// WebFilter kumiteExceptionRoutingWebFilter() {
+	// return new KumiteExceptionRoutingWebFilter();
+	// }
 
 	@Bean
 	WebExceptionHandler kumiteWebExceptionHandler() {

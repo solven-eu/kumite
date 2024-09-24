@@ -4,10 +4,12 @@ import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
 import KumiteAccountRef from "./kumite-account-ref.js";
+import KumiteContestDelete from "./kumite-contest-delete.js";
 
 export default {
 	components: {
 		KumiteAccountRef,
+        KumiteContestDelete,
 	},
 	props: {
 		contestId: {
@@ -93,6 +95,9 @@ export default {
             <ul>
                 <li>author: <KumiteAccountRef :accountId="contest.constantMetadata.author" /></li>
                 <li>created: {{contest.constantMetadata.created}}</li>
+                <li v-if="contest.constantMetadata.author == account.accountId">
+<KumiteContestDelete :contestId="contestId" />
+                </li>
             </ul>
         </span>
     `,

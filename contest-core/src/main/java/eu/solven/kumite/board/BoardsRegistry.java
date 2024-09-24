@@ -31,4 +31,10 @@ public class BoardsRegistry {
 	public void updateBoard(UUID contestId, IKumiteBoard currentBoard) {
 		boardRepository.updateBoard(contestId, currentBoard);
 	}
+
+	public void forceGameover(UUID contestId) {
+//		currentBoard.
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -1,5 +1,6 @@
 package eu.solven.kumite.player;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -49,6 +50,15 @@ public class ContendersFromBoard implements IContendersRepository {
 			UUID accountId = accountPlayersRegistry.getAccountId(playerId);
 			return KumitePlayer.builder().playerId(playerId).accountId(accountId).build();
 		}).collect(Collectors.toList());
+	}
+
+	@Override
+	public void gameover(UUID contestId) {
+		Optional<IKumiteBoard> board = boardRepository.getBoard(contestId);
+		if (board.isPresent()) {
+			// TODO Checkif the board is actually over
+			// board.get().
+		}
 	}
 
 }

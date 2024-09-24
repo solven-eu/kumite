@@ -48,8 +48,8 @@ public class RunFakePlayerToken {
 
 	@Bean
 	public Void generateFakePlayerToken(KumiteTokenService tokenService) {
-		String accessToken = tokenService.generateAccessToken(FakePlayerTokens.fakeUser(),
-				Set.of(FakePlayerTokens.FAKE_PLAYER_ID1, FakePlayerTokens.FAKE_PLAYER_ID2),
+		String accessToken = tokenService.generateAccessToken(FakePlayer.user(),
+				Set.of(FakePlayer.PLAYER_ID1, FakePlayer.PLAYER_ID2),
 				Duration.ofDays(365),
 				false);
 

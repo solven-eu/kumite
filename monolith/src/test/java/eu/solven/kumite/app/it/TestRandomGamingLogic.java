@@ -20,7 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import eu.solven.kumite.account.fake_player.FakePlayerTokens;
+import eu.solven.kumite.account.fake_player.RandomPlayer;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteContestServerApplication;
 import eu.solven.kumite.app.KumiteWebclientServerProperties;
@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = KumiteContestServerApplication.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, IKumiteSpringProfiles.P_INMEMORY, IKumiteSpringProfiles.P_FAKEUSER })
+@ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, IKumiteSpringProfiles.P_INMEMORY })
 @TestPropertySource(properties = { "kumite.random.seed=123",
 		"kumite.player.wait_duration_if_no_move" + "=PT0.001S",
 
@@ -59,7 +59,7 @@ public class TestRandomGamingLogic {
 
 	@Test
 	public void testOptimization() {
-		UUID playerId = FakePlayerTokens.FAKE_PLAYER_ID1;
+		UUID playerId = RandomPlayer.PLAYERID_1;
 
 		KumiteWebclientServerProperties properties = KumiteWebclientServerProperties.forTests(env, randomServerPort);
 		KumiteWebclientServer kumiteServer = KumiteWebclientServer.fromProperties(properties);
@@ -93,7 +93,7 @@ public class TestRandomGamingLogic {
 		IGamingLogic kumitePlayer = new RandomGamingLogic(env, kumiteServer);
 
 		for (int iPlayer = 0; iPlayer < nbPlayers; iPlayer++) {
-			UUID playerId = FakePlayerTokens.fakePlayerId(iPlayer);
+			UUID playerId = RandomPlayer.randomPlayerId(iPlayer);
 
 			executorService.execute(() -> {
 				try {

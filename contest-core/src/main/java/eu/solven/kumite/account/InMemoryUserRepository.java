@@ -5,34 +5,23 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.beans.factory.InitializingBean;
-
-import eu.solven.kumite.account.fake_player.FakePlayerTokens;
+import eu.solven.kumite.account.fake_player.FakePlayer;
+import eu.solven.kumite.account.fake_player.RandomPlayer;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.tools.IUuidGenerator;
-import eu.solven.kumite.tools.JdkUuidGenerator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @AllArgsConstructor
 @Slf4j
-public class InMemoryUserRepository implements IKumiteUserRepository, IKumiteUserRawRawRepository, InitializingBean {
+public class InMemoryUserRepository implements IKumiteUserRepository, IKumiteUserRawRawRepository {
 	final Map<KumiteUserRawRaw, KumiteUser> accountIdToUser = new ConcurrentHashMap<>();
 	final Map<UUID, KumiteUserRawRaw> accountIdToRawRaw = new ConcurrentHashMap<>();
 
 	final IUuidGenerator uuidGenerator;
 
 	final IAccountPlayersRegistry playersRegistry;
-
-	@Override
-	public void afterPropertiesSet() {
-		KumiteUser fakeUser = FakePlayerTokens.fakeUser();
-		KumiteUserRawRaw rawRaw = fakeUser.getRaw().getRawRaw();
-
-		accountIdToRawRaw.put(fakeUser.getAccountId(), rawRaw);
-		accountIdToUser.put(rawRaw, fakeUser);
-	}
 
 	@Override
 	public Optional<KumiteUser> getUser(KumiteUserRawRaw accountId) {
@@ -56,7 +45,7 @@ public class InMemoryUserRepository implements IKumiteUserRepository, IKumiteUse
 		return accountIdToUser.compute(rawRaw, (k, alreadyIn) -> {
 			KumiteUser.KumiteUserBuilder kumiteUserBuilder = KumiteUser.builder().raw(kumiteUserRaw);
 			if (alreadyIn == null) {
-				UUID accountId = uuidGenerator.randomUUID();
+				UUID accountId = generateAccountId(rawRaw);
 
 				KumitePlayer player = register(rawRaw, accountId);
 
@@ -72,6 +61,19 @@ public class InMemoryUserRepository implements IKumiteUserRepository, IKumiteUse
 		});
 	}
 
+	protected UUID generateAccountId(KumiteUserRawRaw rawRaw) {
+		return generateAccountId(uuidGenerator, rawRaw);
+	}
+
+	public static UUID generateAccountId(IUuidGenerator uuidGenerator, KumiteUserRawRaw rawRaw) {
+		if (rawRaw.equals(FakePlayer.user().getRaw().getRawRaw())) {
+			return FakePlayer.ACCOUNT_ID;
+		} else if (rawRaw.equals(RandomPlayer.user().getRaw().getRawRaw())) {
+			return RandomPlayer.ACCOUNT_ID;
+		}
+		return uuidGenerator.randomUUID();
+	}
+
 	private KumitePlayer register(KumiteUserRawRaw rawRaw, UUID accountId) {
 		UUID playerId = playersRegistry.generateMainPlayerId(accountId);
 
@@ -83,12 +85,4 @@ public class InMemoryUserRepository implements IKumiteUserRepository, IKumiteUse
 
 		return player;
 	}
-
-	public static InMemoryUserRepository forTests(IAccountPlayersRegistry playersRegistry) {
-		InMemoryUserRepository inMemoryUserRepository =
-				new InMemoryUserRepository(JdkUuidGenerator.INSTANCE, playersRegistry);
-		inMemoryUserRepository.afterPropertiesSet();
-		return inMemoryUserRepository;
-	}
-
 }

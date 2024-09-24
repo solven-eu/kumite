@@ -1,6 +1,8 @@
 package eu.solven.kumite.security;
 
 import java.net.URI;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.context.annotation.Bean;
@@ -10,19 +12,25 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
 import com.nimbusds.jwt.JWT;
 
+import eu.solven.kumite.account.fake_player.FakePlayer;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
 import eu.solven.kumite.security.oauth2.KumiteOAuth2UserService;
@@ -47,11 +55,13 @@ public class SocialWebFluxSecurity {
 	public SecurityWebFilterChain configureUi(ServerProperties serverProperties,
 			ServerHttpSecurity http,
 			Environment env) {
-		boolean isSsl = serverProperties.getSsl() != null && serverProperties.getSsl().isEnabled();
 
-		ReactiveAuthenticationManager ram = auth -> {
-			throw new IllegalStateException();
-		};
+		boolean isFakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKEUSER));
+		if (isFakeUser) {
+			log.warn("{}=true", IKumiteSpringProfiles.P_FAKEUSER);
+		} else {
+			log.info("{}=false", IKumiteSpringProfiles.P_FAKEUSER);
+		}
 
 		return http
 				// We restrict the scope of this UI securityFilterChain to UI routes
@@ -123,7 +133,11 @@ public class SocialWebFluxSecurity {
 
 				// `/html/login` has to be synced with the SPA login route
 				.formLogin(login -> {
-					String loginPage = "/html/login".formatted(isSsl ? "s" : "");
+					ReactiveAuthenticationManager ram = auth -> {
+						throw new IllegalStateException();
+					};
+
+					String loginPage = "/html/login";
 					login.loginPage(loginPage)
 							// Required not to get an NPE at `.build()`
 							.authenticationManager(ram);
@@ -132,8 +146,32 @@ public class SocialWebFluxSecurity {
 				// https://docs.spring.io/spring-security/reference/servlet/oauth2/client/authorization-grants.html
 				// https://stackoverflow.com/questions/74242738/how-to-logout-from-oauth-signed-in-web-app-with-github
 				.oauth2Login(oauth2 -> {
-					String loginSuccess = "/html/login?success".formatted(isSsl ? "s" : "");
+					String loginSuccess = "/html/login?success";
 					oauth2.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler(loginSuccess));
+				})
+
+				.httpBasic(basic -> {
+					Map<String, UserDetails> userDetails = new ConcurrentHashMap<>();
+
+					UserDetails fakeUser = User.builder()
+							.username(FakePlayer.ACCOUNT_ID.toString())
+							// `{noop}` relates with `PasswordEncoderFactories.createDelegatingPasswordEncoder()`
+							.password("{noop}" + "no_password")
+							.roles(IKumiteSpringProfiles.P_FAKEUSER)
+							.build();
+
+					userDetails.put(fakeUser.getUsername(), fakeUser);
+
+					UserDetailsRepositoryReactiveAuthenticationManager ram =
+							new UserDetailsRepositoryReactiveAuthenticationManager(
+									new MapReactiveUserDetailsService(userDetails));
+
+					if (isFakeUser) {
+						basic.authenticationManager(ram)
+								.securityContextRepository(new WebSessionServerSecurityContextRepository());
+					} else {
+						basic.disable();
+					}
 				})
 
 				.logout(logout -> {
@@ -161,8 +199,8 @@ public class SocialWebFluxSecurity {
 			Environment env,
 			ReactiveJwtDecoder jwtDecoder) {
 
-		boolean fakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKEUSER));
-		if (fakeUser) {
+		boolean isFakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKEUSER));
+		if (isFakeUser) {
 			log.warn("{}=true", IKumiteSpringProfiles.P_FAKEUSER);
 		} else {
 			log.info("{}=false", IKumiteSpringProfiles.P_FAKEUSER);
@@ -195,7 +233,7 @@ public class SocialWebFluxSecurity {
 						.permitAll()
 
 						// If fakeUser==true, we allow the reset route (for integration tests)
-						.pathMatchers(fakeUser ? "/api/v1/clear" : "nonono")
+						.pathMatchers(isFakeUser ? "/api/v1/clear" : "nonono")
 						.permitAll()
 
 						// The rest needs to be authenticated

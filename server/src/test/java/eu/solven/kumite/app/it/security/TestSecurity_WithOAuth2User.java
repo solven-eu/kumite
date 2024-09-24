@@ -49,14 +49,15 @@ import lombok.extern.slf4j.Slf4j;
 @ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE, })
 @Slf4j
 // https://stackoverflow.com/questions/73881370/mocking-oauth2-client-with-webtestclient-for-servlet-applications-results-in-nul
-@AutoConfigureWebTestClient
+// https://stackoverflow.com/questions/56784289/autoconfigurewebtestclienttimeout-600000-has-no-effect
+@AutoConfigureWebTestClient(timeout = "PT10M")
 @WithMockUser
 public class TestSecurity_WithOAuth2User {
 
 	// Spring Boot will create a `WebTestClient` for you,
 	// already configure and ready to issue requests against "localhost:RANDOM_PORT"
 	@Autowired
-	private WebTestClient webTestClient;
+	WebTestClient webTestClient;
 
 	@Autowired
 	KumiteOAuth2UserService oauth2UserService;

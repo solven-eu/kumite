@@ -28,24 +28,6 @@
         </dependency>
 
         <dependency>
-            <!-- ReactiveSecurityContextHolder, for the sole purpose of inferring the accountId authoring a contest -->
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <!-- JwtAuthenticationToken, for the sole purpose of inferring the accountId authoring a contest-->
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-resource-server</artifactId>
-        </dependency>
-
-        <dependency>
-            <!-- Jwt, for the sole purpose of inferring the accountId authoring a contest-->
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-jose</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>

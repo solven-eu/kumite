@@ -6,10 +6,8 @@ import java.util.concurrent.Executors;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
 
 import eu.solven.kumite.account.KumiteUsersRegistry;
-import eu.solven.kumite.account.fake_player.FakePlayerTokens;
 import eu.solven.kumite.app.persistence.InMemoryKumiteConfiguration;
 import eu.solven.kumite.app.persistence.RedisKumiteConfiguration;
 import eu.solven.kumite.board.BoardHandler;
@@ -45,6 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 		PlayerMovesHandler.class,
 
 		InjectDefaultGamesConfig.class,
+		InjectKumiteAccountsConfig.class,
 
 		ContendersFromBoard.class,
 
@@ -62,15 +61,5 @@ public class KumiteServerComponentsConfiguration {
 		final Executor boardEvolutionExecutor = Executors.newFixedThreadPool(4);
 
 		return new BoardLifecycleManager(boardRegistry, contestPlayersRegistry, boardEvolutionExecutor);
-	}
-
-	@Profile(IKumiteSpringProfiles.P_FAKEUSER)
-	@Bean
-	public Void initFakePlayer(KumiteUsersRegistry usersRegistry) {
-		log.info("Registering the {} account and players", IKumiteSpringProfiles.P_FAKEUSER);
-
-		usersRegistry.registerOrUpdate(FakePlayerTokens.fakeUser().getRaw());
-
-		return null;
 	}
 }

@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import eu.solven.kumite.account.fake_player.FakePlayerTokens;
+import eu.solven.kumite.account.fake_player.FakePlayer;
 import eu.solven.kumite.player.persistence.BijectiveAccountPlayersRegistry;
 
 public class TestBijectiveAccountPlayersRegistry {
@@ -14,10 +14,10 @@ public class TestBijectiveAccountPlayersRegistry {
 
 	@Test
 	public void testFakePlayer() {
-		Assertions.assertThat(playersRegistry.getAccountId(FakePlayerTokens.FAKE_PLAYER_ID1))
-				.isEqualTo(FakePlayerTokens.FAKE_ACCOUNT_ID);
-		Assertions.assertThat(playersRegistry.getAccountId(FakePlayerTokens.FAKE_PLAYER_ID2))
-				.isEqualTo(FakePlayerTokens.FAKE_ACCOUNT_ID);
+		Assertions.assertThat(playersRegistry.getAccountId(FakePlayer.PLAYER_ID1))
+				.isEqualTo(FakePlayer.ACCOUNT_ID);
+		Assertions.assertThat(playersRegistry.getAccountId(FakePlayer.PLAYER_ID2))
+				.isEqualTo(FakePlayer.ACCOUNT_ID);
 	}
 
 	@Test
@@ -38,16 +38,16 @@ public class TestBijectiveAccountPlayersRegistry {
 	@Test
 	public void testHasPlayers_FakePlayers() {
 		List<KumitePlayer> players =
-				playersRegistry.makeDynamicHasPlayers(FakePlayerTokens.FAKE_ACCOUNT_ID).getPlayers();
+				playersRegistry.makeDynamicHasPlayers(FakePlayer.ACCOUNT_ID).getPlayers();
 
 		Assertions.assertThat(players)
 				.contains(KumitePlayer.builder()
-						.playerId(FakePlayerTokens.FAKE_PLAYER_ID1)
-						.accountId(FakePlayerTokens.FAKE_ACCOUNT_ID)
+						.playerId(FakePlayer.PLAYER_ID1)
+						.accountId(FakePlayer.ACCOUNT_ID)
 						.build())
 				.contains(KumitePlayer.builder()
-						.playerId(FakePlayerTokens.FAKE_PLAYER_ID2)
-						.accountId(FakePlayerTokens.FAKE_ACCOUNT_ID)
+						.playerId(FakePlayer.PLAYER_ID2)
+						.accountId(FakePlayer.ACCOUNT_ID)
 						.build())
 				.hasSize(2);
 	}

@@ -77,4 +77,9 @@ public class RedisContestRepository implements IContestsRepository {
 				.map(contestId -> Map.entry(contestId, getById(contestId).orElse(ContestCreationMetadata.empty())))
 				.filter(e -> !e.getValue().getGameId().equals(IGameMetadataConstants.EMPTY));
 	}
+
+	@Override
+	public void archive(UUID contestId) {
+		// Do not remove, as TTL will do its job in due-time
+	}
 }

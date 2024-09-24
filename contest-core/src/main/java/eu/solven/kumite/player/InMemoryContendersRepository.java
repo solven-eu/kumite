@@ -43,4 +43,9 @@ public class InMemoryContendersRepository implements IContendersRepository {
 		return viewContenders(contestId).stream().anyMatch(somePlayerId -> somePlayerId.equals(playerId));
 	}
 
+	@Override
+	public void gameover(UUID contestId) {
+		contestToContenders.remove(contestId);
+	}
+
 }

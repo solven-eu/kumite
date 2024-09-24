@@ -127,4 +127,10 @@ public class ContestsRegistry {
 
 		return metaStream.collect(Collectors.toList());
 	}
+
+	public void deleteContest(UUID contestId) {
+		boardsRegistry.forceGameover(contestId);
+		contestPlayersRegistry.forceGameover(contestId);
+		contestsRepository.archive(contestId);
+	}
 }

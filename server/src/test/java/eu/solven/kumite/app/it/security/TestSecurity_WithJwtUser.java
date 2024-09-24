@@ -21,7 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import eu.solven.kumite.account.fake_player.FakePlayerTokens;
+import eu.solven.kumite.account.fake_player.RandomPlayer;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
 import eu.solven.kumite.app.webflux.api.AccessTokenHandler;
@@ -56,15 +56,15 @@ public class TestSecurity_WithJwtUser {
 	KumiteTokenService tokenService;
 
 	protected String generateAccessToken() {
-		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser(),
-				Set.of(FakePlayerTokens.FAKE_PLAYER_ID1),
+		return tokenService.generateAccessToken(RandomPlayer.user(),
+				Set.of(RandomPlayer.PLAYERID_1),
 				Duration.ofMinutes(1),
 				false);
 	}
 
 	protected String generateRefreshToken() {
-		return tokenService.generateAccessToken(FakePlayerTokens.fakeUser(),
-				Set.of(FakePlayerTokens.FAKE_PLAYER_ID1),
+		return tokenService.generateAccessToken(RandomPlayer.user(),
+				Set.of(RandomPlayer.PLAYERID_1),
 				Duration.ofMinutes(1),
 				true);
 	}
@@ -274,7 +274,7 @@ public class TestSecurity_WithJwtUser {
 
 			// We need an oauth2 user, not a jwt user
 			expectStatus.isUnauthorized().expectBody(Map.class).value(bodyAsMap -> {
-				Assertions.assertThat(bodyAsMap).containsEntry("error_message", "Lack of OAuth2 user").hasSize(1);
+				Assertions.assertThat(bodyAsMap).containsEntry("error_message", "No user").hasSize(1);
 			});
 
 		}
@@ -285,7 +285,7 @@ public class TestSecurity_WithJwtUser {
 		log.debug("About {}", AccessTokenHandler.class);
 
 		StatusAssertions expectStatus = webTestClient.get()
-				.uri("/api/v1/oauth2/token?player_id=11111111-1111-1111-1111-111111111111")
+				.uri("/api/v1/oauth2/token?player_id=" + RandomPlayer.PLAYERID_1)
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + generateRefreshToken())
 				.accept(MediaType.APPLICATION_JSON)
 				.exchange()

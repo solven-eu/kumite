@@ -20,6 +20,12 @@
         </dependency>
 
         <dependency>
+            <!--  Used by IKumiteUserContextHolder (Mono) -->
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+        </dependency>
+
+        <dependency>
             <!-- Used by CloseableBean (DisposableBean) -->
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>

@@ -8,10 +8,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import eu.solven.kumite.account.IKumiteUserRawRawRepository;
 import eu.solven.kumite.account.IKumiteUserRepository;
+import eu.solven.kumite.account.InMemoryUserRepository;
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRaw;
 import eu.solven.kumite.account.KumiteUserRawRaw;
-import eu.solven.kumite.account.fake_player.FakePlayerTokens;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.redis.RepositoryKey;
@@ -103,11 +103,8 @@ public class RedisUserRepository implements IKumiteUserRawRawRepository, IKumite
 		return getUser(rawRaw).orElseThrow(() -> new IllegalStateException("No user through we just registered one"));
 	}
 
-	private UUID generateAccountId(KumiteUserRawRaw rawRaw) {
-		if (rawRaw.equals(FakePlayerTokens.fakeUser().getRaw().getRawRaw())) {
-			return FakePlayerTokens.FAKE_ACCOUNT_ID;
-		}
-		return uuidGenerator.randomUUID();
+	protected UUID generateAccountId(KumiteUserRawRaw rawRaw) {
+		return InMemoryUserRepository.generateAccountId(uuidGenerator, rawRaw);
 	}
 
 }

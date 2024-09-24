@@ -3,7 +3,8 @@ package eu.solven.kumite.app;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 
-import eu.solven.kumite.account.fake_player.FakePlayerTokens;
+import eu.solven.kumite.account.fake_player.FakePlayer;
+import eu.solven.kumite.account.fake_player.RandomPlayer;
 import eu.solven.kumite.login.RefreshTokenWrapper;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.tools.IUuidGenerator;
@@ -20,6 +21,7 @@ public class KumiteWebclientServerProperties {
 
 	public static final String ENV_REFRESH_TOKEN = "kumite.player.refresh_token";
 	public static final String PLACEHOLDER_GENERATEFAKEPLAYER = "GENERATE_FAKEUSER";
+	public static final String PLACEHOLDER_GENERATERANDOMPLAYER = "GENERATE_RANDOMUSER";
 
 	String baseUrl;
 	String refreshToken;
@@ -36,8 +38,16 @@ public class KumiteWebclientServerProperties {
 				log.info("Generating on-the-fly a fakeUser refreshToken");
 			}
 			KumiteTokenService kumiteTokenService = new KumiteTokenService(env, uuidGenerator);
-			RefreshTokenWrapper wrappedRefreshToken = kumiteTokenService
-					.wrapInJwtRefreshToken(FakePlayerTokens.fakeUser(), FakePlayerTokens.fakePlayers());
+			RefreshTokenWrapper wrappedRefreshToken =
+					kumiteTokenService.wrapInJwtRefreshToken(FakePlayer.user(), FakePlayer.fakePlayers());
+			refreshToken = wrappedRefreshToken.getRefreshToken();
+		} else if (KumiteWebclientServerProperties.PLACEHOLDER_GENERATERANDOMPLAYER.equals(refreshToken)) {
+			{
+				log.info("Generating on-the-fly a fakeUser refreshToken");
+			}
+			KumiteTokenService kumiteTokenService = new KumiteTokenService(env, uuidGenerator);
+			RefreshTokenWrapper wrappedRefreshToken =
+					kumiteTokenService.wrapInJwtRefreshToken(RandomPlayer.user(), RandomPlayer.randomPlayers());
 			refreshToken = wrappedRefreshToken.getRefreshToken();
 		}
 		return refreshToken;
@@ -46,7 +56,7 @@ public class KumiteWebclientServerProperties {
 	public static KumiteWebclientServerProperties forTests(Environment env, int randomServerPort) {
 		String refreshToken = loadRefreshToken(env,
 				JdkUuidGenerator.INSTANCE,
-				KumiteWebclientServerProperties.PLACEHOLDER_GENERATEFAKEPLAYER);
+				KumiteWebclientServerProperties.PLACEHOLDER_GENERATERANDOMPLAYER);
 
 		// https://github.com/spring-projects/spring-boot/issues/5077
 		String baseUrl = env.getRequiredProperty(KEY_PLAYER_CONTESTBASEURL)

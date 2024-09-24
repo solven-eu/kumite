@@ -21,9 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 @Jacksonized
 @Slf4j
 public class KumiteUser {
-	// Used to create contests
-	public static final UUID SERVER_ACCOUNTID = UUID.fromString("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF");
-
 	// Multiple Users may be attached to the same account (e.g. by using different OAuth2 providers)
 	@NonNull
 	UUID accountId;

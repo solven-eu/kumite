@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import eu.solven.kumite.account.fake_player.RandomPlayer;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(SpringExtension.class)
@@ -21,11 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 		// Enables generation on-the-fly on refreshToken
 		IKumiteSpringProfiles.P_UNSAFE_OAUTH2,
 		// Enables playing as fakeUser
-		IKumiteSpringProfiles.P_FAKEUSER,
+		// IKumiteSpringProfiles.P_FAKEUSER,
 		IKumiteSpringProfiles.P_UNSAFE_PLAYER })
 @TestPropertySource(properties = { KumiteWebclientServerProperties.KEY_PLAYER_CONTESTBASEURL + "=someUrl",
 		KumiteWebclientServerProperties.ENV_REFRESH_TOKEN + "="
-				+ KumiteWebclientServerProperties.PLACEHOLDER_GENERATEFAKEPLAYER })
+				+ KumiteWebclientServerProperties.PLACEHOLDER_GENERATERANDOMPLAYER })
 @Slf4j
 public class TestParseFakePlayer implements IKumiteSpringProfiles {
 
@@ -43,8 +44,8 @@ public class TestParseFakePlayer implements IKumiteSpringProfiles {
 		Set<UUID> playerIds = conf.playerIdFromRefreshToken(kumiteWebclientServerProperties);
 
 		Assertions.assertThat(playerIds)
-				.contains(UUID.fromString("11111111-1111-1111-1111-111111111111"))
-				.contains(UUID.fromString("11111111-1111-1111-1111-222222222222"))
+				.contains(RandomPlayer.randomPlayer(0).getPlayerId())
+				.contains(RandomPlayer.randomPlayer(1).getPlayerId())
 				.hasSize(2);
 	}
 }

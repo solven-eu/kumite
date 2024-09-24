@@ -166,4 +166,9 @@ public class ContestPlayersRegistry {
 		return playingPlayer;
 
 	}
+
+	public void forceGameover(UUID contestId) {
+		contestToViewingAccounts.remove(contestId);
+		contestPlayersRepository.gameover(contestId);
+	}
 }

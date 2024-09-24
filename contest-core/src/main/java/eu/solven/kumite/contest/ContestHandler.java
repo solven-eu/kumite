@@ -7,15 +7,13 @@ import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.solven.kumite.account.IKumiteUserContextHolder;
 import eu.solven.kumite.app.KumiteJackson;
 import eu.solven.kumite.app.webflux.api.KumiteHandlerHelper;
 import eu.solven.kumite.board.IKumiteBoard;
@@ -23,7 +21,6 @@ import eu.solven.kumite.contest.ContestSearchParameters.ContestSearchParametersB
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
-import eu.solven.kumite.security.LoginRouteButNotAuthenticatedException;
 import io.micrometer.common.util.StringUtils;
 import lombok.Builder;
 import lombok.NonNull;
@@ -46,6 +43,9 @@ public class ContestHandler {
 
 	@NonNull
 	final RandomGenerator randomGenerator;
+
+	@NonNull
+	final IKumiteUserContextHolder kumiteUser;
 
 	public Mono<ServerResponse> listContests(ServerRequest request) {
 		ContestSearchParametersBuilder parameters = ContestSearchParameters.builder();
@@ -74,23 +74,11 @@ public class ContestHandler {
 	}
 
 	// BEWARE we coupled the generation of a contest and its board. This may be poor design.
-	public Mono<ServerResponse> generateContest(ServerRequest request) {
+	public Mono<ServerResponse> openContest(ServerRequest request) {
 		UUID gameId = KumiteHandlerHelper.uuid(request, "game_id");
 		IGame game = gamesRegistry.getGame(gameId);
 
-		return ReactiveSecurityContextHolder.getContext().map(securityContext -> {
-			Authentication authentication = securityContext.getAuthentication();
-
-			if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-				// jwtAuth.ge
-
-				UUID accountId = UUID.fromString(jwtAuth.getToken().getSubject());
-
-				return accountId;
-			} else {
-				throw new LoginRouteButNotAuthenticatedException("Expecting a JWT token");
-			}
-		}).flatMap(authorAccountId -> {
+		return kumiteUser.authenticatedAccountId().flatMap(authorAccountId -> {
 			return request.bodyToMono(Map.class).<ServerResponse>flatMap(contestBody -> {
 				Map<String, ?> rawConstantMetadata = (Map<String, ?>) contestBody.get("constant_metadata");
 
@@ -149,6 +137,27 @@ public class ContestHandler {
 		}
 
 		return mergedContestMetadata;
+	}
+
+	public Mono<ServerResponse> deleteContest(ServerRequest request) {
+		UUID contestId = KumiteHandlerHelper.uuid(request, "contest_id");
+
+		return kumiteUser.authenticatedAccountId().flatMap(authorAccountId -> {
+			ContestCreationMetadata contest = contestsRegistry.contestsRepository.getById(contestId)
+					.orElseThrow(() -> new IllegalArgumentException("There is no contest for contestId=" + contestId));
+
+			if (!contest.getAuthor().equals(authorAccountId)) {
+				throw new IllegalArgumentException("Can not DELETE contestId=%s as its author is not you (but %s)"
+						.formatted(contestId, contest.getAuthor()));
+			}
+
+			contestsRegistry.deleteContest(contestId);
+
+			return ServerResponse.ok()
+					.contentType(MediaType.APPLICATION_JSON)
+					.body(BodyInserters.fromValue(Map.of("contestId", contestId, "author", authorAccountId)));
+		});
+
 	}
 
 }

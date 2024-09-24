@@ -7,7 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 
-import eu.solven.kumite.account.fake_player.FakePlayerTokens;
+import eu.solven.kumite.account.fake_player.FakePlayer;
+import eu.solven.kumite.account.fake_player.RandomPlayer;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
 import eu.solven.kumite.player.KumitePlayer;
@@ -27,9 +28,6 @@ public final class InMemoryAccountPlayersRegistry implements IAccountPlayersRegi
 
 	public InMemoryAccountPlayersRegistry(IUuidGenerator uuidGenerator) {
 		this.uuidGenerator = uuidGenerator;
-
-		registerPlayer(FakePlayerTokens.fakePlayer());
-		registerPlayer(FakePlayerTokens.fakePlayer(1));
 	}
 
 	@Override
@@ -50,10 +48,6 @@ public final class InMemoryAccountPlayersRegistry implements IAccountPlayersRegi
 
 	@Override
 	public UUID getAccountId(UUID playerId) {
-		if (FakePlayerTokens.isFakePlayer(playerId)) {
-			return FakePlayerTokens.FAKE_ACCOUNT_ID;
-		}
-
 		UUID accountId = playerIdToAccountId.get(playerId);
 		if (accountId == null) {
 			throw new IllegalArgumentException("Unknown playerId: " + playerId);
@@ -72,6 +66,12 @@ public final class InMemoryAccountPlayersRegistry implements IAccountPlayersRegi
 
 	@Override
 	public UUID generateMainPlayerId(UUID accountId) {
+		if (FakePlayer.ACCOUNT_ID.equals(accountId)) {
+			return FakePlayer.PLAYER_ID1;
+		} else if (RandomPlayer.ACCOUNT_ID.equals(accountId)) {
+			return RandomPlayer.PLAYERID_1;
+		}
+
 		return uuidGenerator.randomUUID();
 	}
 }

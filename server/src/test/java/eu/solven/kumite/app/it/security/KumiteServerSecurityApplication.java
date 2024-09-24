@@ -11,6 +11,7 @@ import org.springframework.session.ReactiveSessionRepository;
 
 import eu.solven.kumite.account.InMemoryUserRepository;
 import eu.solven.kumite.account.KumiteUsersRegistry;
+import eu.solven.kumite.app.InjectKumiteAccountsConfig;
 import eu.solven.kumite.app.webflux.PlayerVerifierFilterFunction;
 import eu.solven.kumite.app.webflux.api.AccessTokenHandler;
 import eu.solven.kumite.app.webflux.api.GreetingHandler;
@@ -39,6 +40,8 @@ import eu.solven.kumite.tools.KumiteRandomConfiguration;
 
 		// IAccountPlayersRegistry is needed as security often checks the players of an account
 		BijectiveAccountPlayersRegistry.class,
+
+		InjectKumiteAccountsConfig.class,
 
 })
 public class KumiteServerSecurityApplication {

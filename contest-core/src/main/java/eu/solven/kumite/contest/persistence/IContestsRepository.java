@@ -27,4 +27,6 @@ public interface IContestsRepository {
 
 	Stream<Map.Entry<UUID, ContestCreationMetadata>> stream();
 
+	void archive(UUID contestId);
+
 }

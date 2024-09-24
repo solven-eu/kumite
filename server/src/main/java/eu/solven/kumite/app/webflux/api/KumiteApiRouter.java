@@ -77,9 +77,10 @@ public class KumiteApiRouter {
 				.GET(json("/contests"),
 						contestSearchHandler::listContests,
 						ops -> ops.operationId("searchContest").parameter(gameId))
-				.POST(json("/contests"),
-						contestSearchHandler::generateContest,
-						ops -> ops.operationId("publishContest"))
+				.POST(json("/contests"), contestSearchHandler::openContest, ops -> ops.operationId("publishContest"))
+				.DELETE(json("/contests"),
+						contestSearchHandler::openContest,
+						ops -> ops.operationId("deleteContest").parameter(contestId))
 
 				.GET(json("/board"),
 						boardHandler::getBoard,
@@ -114,8 +115,6 @@ public class KumiteApiRouter {
 				// webhooksHandler::dropWebhooks,
 				// ops -> ops.operationId("deleteWebhook"))
 
-				.filter(playerVerifierFilterFunction, ops -> {
-				})
 				.build();
 
 	}
