@@ -20,6 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import eu.solven.kumite.account.fake_player.FakePlayer;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
 import eu.solven.kumite.app.webflux.api.AccessTokenHandler;
@@ -36,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 // https://stackoverflow.com/questions/73881370/mocking-oauth2-client-with-webtestclient-for-servlet-applications-results-in-nul
 @ActiveProfiles({ IKumiteSpringProfiles.P_UNSAFE })
-@AutoConfigureWebTestClient
+@AutoConfigureWebTestClient(timeout = "P1D")
 public class TestSecurity_WithoutAuth {
 
 	@Autowired
@@ -142,7 +143,7 @@ public class TestSecurity_WithoutAuth {
 
 	@Test
 	public void testLoginUser() {
-		log.debug("About {}", GreetingHandler.class);
+		log.debug("About {}", KumiteLoginController.class);
 
 		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteWebExceptionHandler.class)) {
 			webTestClient
@@ -157,6 +158,27 @@ public class TestSecurity_WithoutAuth {
 					.expectStatus()
 					.isUnauthorized();
 		}
+	}
+
+	@Test
+	public void testLoginJson() {
+		log.debug("About {}", KumiteLoginController.class);
+
+		webTestClient
+
+				.get()
+				.uri("/api/login/v1/json")
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+
+				// By default, oauth2 returns a 302 if not logged-in
+				// Though we prefer to return a nice API answer
+				.expectStatus()
+				.isOk()
+				.expectBody(Map.class)
+				.value(body -> {
+					Assertions.assertThat(body).containsEntry("login", 401).hasSize(1);
+				});
 	}
 
 	@Test
@@ -375,12 +397,22 @@ public class TestSecurity_WithoutAuth {
 
 		try (ILogDisabler logDisabler = PepperTestHelper.disableLog(KumiteWebExceptionHandler.class)) {
 			StatusAssertions expectStatus = webTestClient.get()
-					.uri("/api/v1/oauth2/token?player_id=11111111-1111-1111-1111-111111111111")
+					.uri("/api/v1/oauth2/token?player_id=" + FakePlayer.fakePlayerId(0))
 					.accept(MediaType.APPLICATION_JSON)
 					.exchange()
 					.expectStatus();
 
 			expectStatus.isUnauthorized();
 		}
+	}
+
+	@Test
+	public void testOpenApi() {
+		log.debug("About {}", AccessTokenHandler.class);
+
+		StatusAssertions expectStatus =
+				webTestClient.get().uri("/v3/api-docs").accept(MediaType.APPLICATION_JSON).exchange().expectStatus();
+
+		expectStatus.isOk();
 	}
 }

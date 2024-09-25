@@ -8,10 +8,13 @@ import { useRouter } from "vue-router";
 import LoginOptions from "./login-providers.js";
 import Logout from "./login-logout.js";
 
+import Whatnow from "./whatnow.js";
+
 export default {
 	components: {
 		LoginOptions,
 		Logout,
+		Whatnow,
 	},
 	props: {
 		logout: {
@@ -20,7 +23,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbAccountFetching", "account", "needsToLogin"]),
+		...mapState(useKumiteStore, ["nbAccountFetching", "account", "isLoggedIn", "isLoggedOut"]),
 		...mapState(useKumiteStore, {
 			user(store) {
 				return store.account;
@@ -35,12 +38,17 @@ export default {
 		return {};
 	},
 	template: /* HTML */ `
-        <div v-if="needsToLogin">
-            <div v-if="nbAccountFetching > 0">Loading...</div>
-            <div v-else>
-                <LoginOptions />
-            </div>
+        <div v-if="isLoggedIn">
+            Welcome {{user.raw.name}}. <Logout />
+
+            <Whatnow />
         </div>
-        <div v-else>Welcome {{user.raw.name}}. <Logout /></div>
+        <div v-else-if="isLoggedOut">
+            <LoginOptions />
+        </div>
+        <div v-else>
+            <div v-if="nbAccountFetching > 0">Loading...</div>
+            <div v-else>?</div>
+        </div>
     `,
 };

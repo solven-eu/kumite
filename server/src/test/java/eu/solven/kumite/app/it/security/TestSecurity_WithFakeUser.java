@@ -43,7 +43,7 @@ public class TestSecurity_WithFakeUser extends TestSecurity_WithOAuth2User {
 
 		List<Map<String, ?>> asList = (List<Map<String, ?>>) loginOptions.get("list");
 		assertThat(asList).hasSize(3).anySatisfy(m -> {
-			Assertions.assertThat((Map) m).containsEntry("login_url", "/oauth2/authorization/github").hasSize(3);
+			Assertions.assertThat((Map) m).containsEntry("login_url", "/oauth2/authorization/github").hasSize(4);
 		}).anySatisfy(m -> {
 			Assertions.assertThat((Map) m).containsEntry("login_url", "/oauth2/authorization/google");
 		}).anySatisfy(m -> {

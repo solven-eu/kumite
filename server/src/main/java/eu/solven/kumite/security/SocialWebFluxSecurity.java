@@ -133,7 +133,7 @@ public class SocialWebFluxSecurity {
 
 						// If there is no logged-in user, we return a 401.
 						// `permitAll` is useful to return a 401 manually, else `.oauth2Login` would return a 302
-						.pathMatchers(
+						.pathMatchers("/api/login/v1/json",
 								// `BASIC` should be added here only if fakeUser
 								"/api/login/v1/basic",
 								"/api/login/v1/user",

@@ -109,19 +109,19 @@ public class KumiteLoginController {
 	 * @return a REDIRECT to the relevant route to be rendered as HTML, given current user authentication status.
 	 */
 	@GetMapping("/html")
-	public ResponseEntity<?> loginpage(@AuthenticationPrincipal OAuth2User oauth2User) {
-		String url;
-		if (oauth2User != null) {
-			url = "login?success";
-		} else if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKEUSER))) {
-			url = "login?" + IKumiteSpringProfiles.P_FAKEUSER;
-		} else {
-			url = "login";
-		}
-
+	public Mono<ResponseEntity<?>> loginpage() {
 		// Spring-OAuth2-Login returns FOUND in case current user is not authenticated: let's follow this choice is=n
 		// this route dedicated in proper direction.
-		return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, url).build();
+		return userMayEmpty().map(user -> "login?success")
+				.switchIfEmpty(Mono.just("login"))
+				.map(url -> ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, url).build());
+
+	}
+
+	// This API enables fetching the login status without getting a 401/generating a JS error/generating an exception.
+	@GetMapping("/json")
+	public Mono<? extends Map<String, ?>> loginStatus(@AuthenticationPrincipal OAuth2User oauth2User) {
+		return userMayEmpty().map(user -> Map.of("login", 200)).switchIfEmpty(Mono.just(Map.of("login", 401)));
 	}
 
 	// BASIC login is available for fakeUser
@@ -145,8 +145,8 @@ public class KumiteLoginController {
 		return user;
 	}
 
-	@GetMapping("/user")
-	public Mono<KumiteUser> user() {
+	// Provides the User if available. Not error if no user.
+	private Mono<KumiteUser> userMayEmpty() {
 		return ReactiveSecurityContextHolder.getContext().map(sc -> {
 			Authentication authentication = sc.getAuthentication();
 
@@ -159,7 +159,12 @@ public class KumiteLoginController {
 			} else {
 				throw new LoginRouteButNotAuthenticatedException("Lack of authentication");
 			}
-		}).switchIfEmpty(Mono.error(() -> new LoginRouteButNotAuthenticatedException("No user")));
+		});
+	}
+
+	@GetMapping("/user")
+	public Mono<KumiteUser> user() {
+		return userMayEmpty().switchIfEmpty(Mono.error(() -> new LoginRouteButNotAuthenticatedException("No user")));
 	}
 
 	private KumiteUser userFromUsername(UsernamePasswordAuthenticationToken usernameToken) {
@@ -219,7 +224,7 @@ public class KumiteLoginController {
 	 * @see https://github.com/whatwg/fetch/issues/601#issuecomment-502667208
 	 */
 	@GetMapping("/logout")
-	public Map<String, String> loginpage() {
+	public Map<String, String> logout() {
 		return Map.of(HttpHeaders.LOCATION, "/html/login?logout");
 	}
 

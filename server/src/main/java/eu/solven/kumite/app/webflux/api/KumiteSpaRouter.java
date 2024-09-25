@@ -12,6 +12,7 @@ import org.springframework.core.env.Profiles;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -49,14 +50,14 @@ public class KumiteSpaRouter {
 		return SpringdocRouteBuilder.route()
 
 				// The following routes are useful for the SinglePageApplication
-				.GET(RequestPredicates.GET("/html/**").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
-						request -> responseIndexHtml,
-						ops -> ops.operationId("spaToRoute"))
-				.GET(RequestPredicates.GET("/login").and(RequestPredicates.accept(MediaType.TEXT_HTML)),
-						request -> responseIndexHtml,
-						ops -> ops.operationId("spaToLogin"))
+				.GET(html("/html/**"), request -> responseIndexHtml, ops -> ops.operationId("spaToRoute"))
+				.GET(html("/login"), request -> responseIndexHtml, ops -> ops.operationId("spaToLogin"))
 
 				.build();
+	}
+
+	private RequestPredicate html(String route) {
+		return RequestPredicates.path(route).and(RequestPredicates.accept(MediaType.TEXT_HTML));
 	}
 
 	private Resource filterIndexHtmlMl(Environment env, Resource indexHtmlResource) {

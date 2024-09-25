@@ -19,12 +19,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbAccountFetching", "account", "needsToLogin"]),
-		...mapState(useKumiteStore, {
-			user(store) {
-				return store.account;
-			},
-		}),
+		...mapState(useKumiteStore, ["nbAccountFetching", "account", "isLoggedIn"]),
 	},
 	setup(props) {
 		const store = useKumiteStore();
@@ -76,7 +71,7 @@ export default {
 		return { doLogout };
 	},
 	template: /* HTML */ `
-        <span v-if="!needsToLogin">
+        <span v-if="isLoggedIn">
             <button class="btn btn-danger" @click="doLogout">Logout</button>
         </span>
     `,

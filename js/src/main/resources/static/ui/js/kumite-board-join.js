@@ -33,11 +33,7 @@ export default {
 				return store.contests[this.contestId] || { error: "not_loaded" };
 			},
 			board(store) {
-				return (
-					store.contests[this.contestId].board || {
-						error: "not_loaded",
-					}
-				);
+				return store.contests[this.contestId].board || { error: "not_loaded" };
 			},
 		}),
 		curlGetBoard() {

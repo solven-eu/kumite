@@ -8,22 +8,12 @@ export default {
 		Logout,
 	},
 	computed: {
-		...mapState(useKumiteStore, ["needsToLogin", "isLoggedIn", "account", "tokens", "nbAccountFetching", "playingPlayerId"]),
+		...mapState(useKumiteStore, ["isLoggedIn", "account", "tokens", "nbAccountFetching", "playingPlayerId"]),
 	},
 	setup() {
 		const store = useKumiteStore();
 
-		store
-			.loadMetadata()
-			.then(() => {
-				return store.ensureUser();
-			})
-			.then(() => {
-				return store.loadUserTokens();
-			})
-			.catch((error) => {
-				store.onSwallowedError(error);
-			});
+		store.loadUser();
 
 		return {};
 	},

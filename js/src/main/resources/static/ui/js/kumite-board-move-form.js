@@ -19,13 +19,11 @@ class NetworkError extends Error {
 }
 
 export default {
-	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
 		KumiteJsonBoardMove,
 		KumiteTSPBoardMove,
 		KumiteTicTacToeBoardMove,
 	},
-	// https://vuejs.org/guide/components/props.html
 	props: {
 		contestId: {
 			type: String,

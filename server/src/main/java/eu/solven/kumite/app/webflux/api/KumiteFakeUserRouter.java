@@ -32,19 +32,21 @@ import lombok.extern.slf4j.Slf4j;
 })
 public class KumiteFakeUserRouter {
 
+	private RequestPredicate json(String route) {
+		return RequestPredicates.path(route).and(RequestPredicates.accept(MediaType.APPLICATION_JSON));
+	}
+
 	@Bean
 	public RouterFunction<ServerResponse> fakeUserRoutes(KumiteClearHandler kumiteResetHandler) {
-		RequestPredicate json = RequestPredicates.accept(MediaType.APPLICATION_JSON);
-
 		return SpringdocRouteBuilder.route()
-				.POST(RequestPredicates.path("/api/v1/clear").and(json),
+				.POST(json("/api/v1/clear"),
 						kumiteResetHandler::clear,
-						ops -> ops.operationId("clear")
+						ops -> ops.operationId("clear GET")
 								.response(responseBuilder().responseCode("200").description("Cleared")))
 				// One can clear with GET to make it easier for a human
-				.GET(RequestPredicates.path("/api/v1/clear").and(json),
+				.GET(json("/api/v1/clear"),
 						kumiteResetHandler::clear,
-						ops -> ops.operationId("clear")
+						ops -> ops.operationId("clear POST")
 								.response(responseBuilder().responseCode("200").description("Cleared")))
 
 				.build();

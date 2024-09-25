@@ -67,9 +67,9 @@ export default {
 
             <KumiteGameHeader :gameId="gameId" :withDescription="false" v-if="showGame" />
 
-                <RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + contestId + '/board'}">
-                    <button type="button" class="btn btn-outline-primary">Preview the board</button>
-                </RouterLink>
+            <RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + contestId + '/board'}">
+                <button type="button" class="btn btn-outline-primary">Preview the board</button>
+            </RouterLink>
 
             <KumiteLeaderboard :gameId="gameId" :contestId="contestId" v-if="showLeaderboard" />
         </div>

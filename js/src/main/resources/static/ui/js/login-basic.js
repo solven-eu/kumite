@@ -17,7 +17,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbAccountFetching", "account", "needsToLogin"]),
+		...mapState(useKumiteStore, ["nbAccountFetching", "account", "isLoggedIn"]),
 		...mapState(useKumiteStore, {
 			user(store) {
 				return store.account;
@@ -71,16 +71,16 @@ export default {
 		return { username, password, doLoginBasic };
 	},
 	template: /* HTML */ `
-        <span v-if="needsToLogin">
+        <span v-if="isLoggedIn">
+            <Logout />
+        </span>
+        <span v-else>
             <div class="input-group mb-3">
                 <input type="text" class="form-control" placeholder="Username" aria-label="Username" v-model="username" />
                 <span class="input-group-text">:</span>
                 <input type="text" class="form-control" placeholder="Password" aria-label="Password" v-model="password" />
                 <button type="button" @click="doLoginBasic" class="btn btn-primary">Login fakeUser</button>
             </div>
-        </span>
-        <span v-else>
-            <Logout />
         </span>
     `,
 };

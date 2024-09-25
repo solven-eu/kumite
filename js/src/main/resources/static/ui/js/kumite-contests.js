@@ -25,7 +25,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching"]),
+		...mapState(useKumiteStore, ["isLoggedIn", "nbGameFetching", "nbContestFetching"]),
 		...mapState(useKumiteStore, {
 			contests(store) {
 				const allContests = Object.values(store.contests);
@@ -56,6 +56,7 @@ export default {
 	},
 
 	template: /* HTML */ `
+        <div v-if="!isLoggedIn">You need to login</div>
         <div v-if="Object.values(contests).length == 0 && nbContestFetching > 0">Loading contests</div>
         <div v-else class="container">
             <div class="row border" v-for="contest in contests">

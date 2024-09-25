@@ -11,7 +11,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbAccountFetching", "account", "needsToLogin"]),
+		...mapState(useKumiteStore, ["account"]),
 		...mapState(useKumiteStore, {
 			player(store) {
 				return store.players[this.playerId] || { error: "not_loaded" };
@@ -21,7 +21,7 @@ export default {
 	setup(props) {
 		const store = useKumiteStore();
 
-		store.ensureUser();
+		store.loadUser();
 
 		return {};
 	},

@@ -1,6 +1,31 @@
 # kumite
 
-This projects enables defining Games, to create contests between Bots/Algorithms.
+This project support building a platform to enable Bots to play Games.
+
+## Motivation
+
+1. Some people have fun coding efficient algorithms
+2. Other people have fun playing games (board-games and/or video-games)
+3. The intersection are people having fun coding algorithms playing games
+4. Kumite wants to offer a platform to enable Algorithms to complete against each-others.
+
+## Quick-start
+
+*Do I need to be an experience developer to code my bot?*
+No, Kumite API is fairly simple to integrate. Even complex games can be implemented with simple strategies.
+
+*How can I authenticate my bot?*
+A bot is authenticated with a long-lived `refresh_token`, which can be generated on [<kumite>/html/me](https://kumite-dev-d2844865d26b.herokuapp.com/html/me)
+
+*Where is the API documentation*
+API can be browsed on:
+- [OpenAPI / Swagger](https://kumite-dev-d2844865d26b.herokuapp.com/swagger-ui.html)
+
+### Related projects
+
+People interested in Kumite may have found interest in:
+
+- [AIArena](https://aiarena.net/) *The AI Arena ladder provides an environment where Scripted and Deep Learning AIs fight in Starcraft 2.*
 
 ## Integrate a Bot
 

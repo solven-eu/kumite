@@ -18,7 +18,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbAccountFetching", "account", "needsToLogin"]),
+		...mapState(useKumiteStore, ["nbAccountFetching", "account", "isLoggedIn"]),
 		...mapState(useKumiteStore, {
 			player(store) {
 				return store.players[this.playerId] || { error: "not_loaded" };
@@ -35,7 +35,7 @@ export default {
 		return {};
 	},
 	template: /* HTML */ `
-        <div v-if="needsToLogin">You need to login</div>
+        <div v-if="!isLoggedIn">You need to login</div>
         <div v-else>
             <ul>
                 <li><KumitePlayerRef :playerId="playerId" /></li>

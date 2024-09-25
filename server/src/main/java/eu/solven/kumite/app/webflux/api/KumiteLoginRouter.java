@@ -48,8 +48,11 @@ public class KumiteLoginRouter {
 						accessTokenHandler::getAccessToken,
 						ops -> ops.operationId("getAccessTokenFromRefreshToken").parameter(playerId))
 
-				.filter(playerVerifierFilterFunction, op -> {
+				.filter(playerVerifierFilterFunction, ops -> {
+					// https://github.com/springdoc/springdoc-openapi/issues/1538
+					ops.operationId("login");
 				})
+
 				.build();
 
 	}

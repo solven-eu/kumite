@@ -15,7 +15,7 @@ export default {
 		KumitePlayerRef,
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbAccountFetching", "account", "needsToLogin"]),
+		...mapState(useKumiteStore, ["nbAccountFetching", "account"]),
 		...mapState(useKumiteStore, {
 			players(store) {
 				return Object.values(store.players).filter((p) => p.accountId == this.account.accountId);
@@ -76,7 +76,7 @@ export default {
 		return { generateRefreshToken, refreshToken, copyRefreshTokenToClipboard, copyToClipboardTooltip, copyToClipboardClass };
 	},
 	template: /* HTML */ `
-        <div v-if="needsToLogin">You need to login</div>
+        <div v-if="!isLoggedIn">You need to login</div>
         <div v-else>
             <KumiteAccountRef :accountId="account.accountId" /><br />
             <span v-if="account.raw">

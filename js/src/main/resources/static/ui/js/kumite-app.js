@@ -5,17 +5,20 @@ import { useKumiteStore } from "./store.js";
 
 import KumiteNavbar from "./kumite-navbar.js";
 
+import LoginRef from "./login-ref.js";
+
 import KumiteAccountRef from "./kumite-account-ref.js";
 import KumitePlayerRef from "./kumite-player-ref.js";
 
 export default {
 	components: {
 		KumiteNavbar,
+		LoginRef,
 		KumiteAccountRef,
 		KumitePlayerRef,
 	},
 	computed: {
-		...mapState(useKumiteStore, ["needsToLogin", "account", "tokens", "nbAccountFetching", "playingPlayerId"]),
+		...mapState(useKumiteStore, ["account", "tokens", "nbAccountFetching", "playingPlayerId"]),
 	},
 	setup() {
 		const store = useKumiteStore();
@@ -35,7 +38,8 @@ export default {
 		store
 			.loadMetadata()
 			.then(() => {
-				return store.ensureUser();
+				// We may not be logged-in
+				return store.loadUser();
 			})
 			.then(() => {
 				return store.loadUserTokens();
@@ -54,11 +58,9 @@ export default {
                 <RouterView />
             </main>
 
-            <div v-if="needsToLogin">
-                <div v-if="$route.fullPath !== '/html/login'">
-                    <RouterLink :to="{path:'/html/login'}"><i class="bi bi-person"></i> You need to login</RouterLink>
-                </div>
-            </div>
+            <span v-if="$route.fullPath !== '/html/login'">
+                <!--LoginRef /-->
+            </span>
 
             <div v-else>
                 <ul>
