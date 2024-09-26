@@ -1,5 +1,6 @@
 package eu.solven.kumite.app.webflux.api;
 
+import static org.springdoc.core.fn.builders.apiresponse.Builder.responseBuilder;
 import static org.springdoc.core.fn.builders.parameter.Builder.parameterBuilder;
 
 import org.springdoc.core.fn.builders.parameter.Builder;
@@ -13,6 +14,7 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import eu.solven.kumite.app.webflux.PlayerVerifierFilterFunction;
+import eu.solven.kumite.login.AccessTokenWrapper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -38,15 +40,22 @@ public class KumiteLoginRouter {
 
 		return SpringdocRouteBuilder.route()
 
-				.GET(json("/hello"), greetingHandler::hello, ops -> ops.operationId("getHello"))
-				.POST(json("/hello"), greetingHandler::hello, ops -> ops.operationId("postHello"))
+				// These API are useful only to test the API
+				.GET(json("/hello"),
+						greetingHandler::hello,
+						ops -> ops.operationId("hello").response(responseBuilder().implementation(Greeting.class)))
+				.POST(json("/hello"),
+						greetingHandler::hello,
+						ops -> ops.operationId("hello").response(responseBuilder().implementation(Greeting.class)))
 
 				// https://datatracker.ietf.org/doc/html/rfc6749#section-1.5
 				// https://curity.io/resources/learn/oauth-refresh/
 				// `/token` is the standard route to fetch tokens
 				.GET(json("/oauth2/token"),
 						accessTokenHandler::getAccessToken,
-						ops -> ops.operationId("getAccessTokenFromRefreshToken").parameter(playerId))
+						ops -> ops.operationId("getAccessTokenFromRefreshToken")
+								.parameter(playerId)
+								.response(responseBuilder().implementation(AccessTokenWrapper.class)))
 
 				.filter(playerVerifierFilterFunction, ops -> {
 					// https://github.com/springdoc/springdoc-openapi/issues/1538

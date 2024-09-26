@@ -2,20 +2,26 @@
 
 This project support building a platform to enable Bots to play Games.
 
+For full documentation visit [MkDocs](https://www.solven.eu/kumite/)
+
 ## Motivation
 
-1. Some people have fun coding efficient algorithms
-2. Other people have fun playing games (board-games and/or video-games)
-3. The intersection are people having fun coding algorithms playing games
-4. Kumite wants to offer a platform to enable Algorithms to complete against each-others.
+1. Some people have fun coding efficient algorithms.
+2. Other people have fun playing games (board-games and/or video-games).
+3. The intersection are people having fun coding algorithms playing games.
+4. Kumite offers a platform enabling Algorithms to complete against each-others.
+5. Coding algorithms is a nice way to learn coding, even more if you can compete with friends and co-learners.
 
 ## Quick-start
 
 *Do I need to be an experience developer to code my bot?*
 No, Kumite API is fairly simple to integrate. Even complex games can be implemented with simple strategies.
 
+*Can I play games before any coding?*
+Yes. To do so, browse our main [Contest-Server JS App](https://kumite-dev-d2844865d26b.herokuapp.com/) for [games](https://kumite-dev-d2844865d26b.herokuapp.com/html/games) and [contests](https://kumite-dev-d2844865d26b.herokuapp.com/html/contests).
+
 *How can I authenticate my bot?*
-A bot is authenticated with a long-lived `refresh_token`, which can be generated on [<kumite>/html/me](https://kumite-dev-d2844865d26b.herokuapp.com/html/me)
+A bot is authenticated with a long-lived `refresh_token`, which can be generated on [<kumite>/html/me](https://kumite-dev-d2844865d26b.herokuapp.com/html/me). Read more at [Authentication](https://www.solven.eu/kumite/authentication/)
 
 *Where is the API documentation?*
 API can be browsed on:
@@ -23,14 +29,14 @@ API can be browsed on:
 - Example Java integration: [KumiteWebclientServer](https://github.com/solven-eu/kumite/blob/master/player/src/main/java/eu/solven/kumite/app/server/KumiteWebclientServer.java)
 
 *Where is the Project documentation?*
-
-- [MkDocs](https://solven-eu.github.io/kumite/)
+- [MkDocs](https://www.solven.eu/kumite/)
 
 ### Related projects
 
 People interested in Kumite may have found interest in:
 
 - [AIArena](https://aiarena.net/) *The AI Arena ladder provides an environment where Scripted and Deep Learning AIs fight in Starcraft 2.*
+- [CodingGame Progranning Bots](https://www.codingame.com/multiplayer/bot-programming)
 
 ## Integrate a Bot
 
