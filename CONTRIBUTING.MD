@@ -91,3 +91,8 @@ https://github.com/organizations/solven-eu/settings/applications/2707435
     heroku config:set KUMITE_LOGIN_OAUTH2_GITHUB_CLIENTID=Ov23linFq8dxGOOIL1WA
     heroku config:set KUMITE_LOGIN_OAUTH2_GITHUB_CLIENTSECRET=XYZ
 
+# MkDocs
+
+    mkdocs serve
+    mkdocs build
+    mkdocs gh-deploy

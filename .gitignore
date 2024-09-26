@@ -37,3 +37,6 @@ replay_pid*
 
 # m2eclipse
 .factorypath
+
+# mkdocs
+site

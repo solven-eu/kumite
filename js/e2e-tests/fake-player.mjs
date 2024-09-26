@@ -44,6 +44,6 @@ export default {
         await page.getByRole("button", { name: "Prefill with an example move" }).click();
         await page.getByText("greedy").click();
         await page.getByRole("button", { name: "Submit" }).click();
-        await page.getByText("11111111-1111-1111-1111-111111111111 has score").click();
+        await expect(page.getByText("11111111-1111-1111-1111-111111111111 has score")).toBeVisible();
     },
 };

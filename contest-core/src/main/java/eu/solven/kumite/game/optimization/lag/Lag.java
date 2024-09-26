@@ -68,7 +68,9 @@ public class Lag implements IGame {
 	}
 
 	@Override
-	public Map<String, IKumiteMove> exampleMoves(IKumiteBoardView boardView, UUID playerId) {
+	public Map<String, IKumiteMove> exampleMoves(RandomGenerator randomGenerator,
+			IKumiteBoardView boardView,
+			UUID playerId) {
 		return Map.of("now",
 				LagServerTimestamp.builder().moveTimestamp(Long.toString(System.currentTimeMillis())).build());
 	}

@@ -302,11 +302,14 @@ export const useKumiteStore = defineStore("kumite", {
 		async authenticatedFetch(url, fetchOptions) {
 			if (url.startsWith("/api")) {
 				throw new Error("Invalid URL as '/api' is added automatically");
-			} else if (this.isLoggedOut) {
-				throw new UserNeedsToLoginError("User needs to login");
 			}
 
+            // loading missing tokens will ensure login status
 			await this.loadIfMissingUserTokens();
+            
+            if (this.isLoggedOut) {
+                throw new UserNeedsToLoginError("User needs to login");
+            }
 
 			const apiHeaders = this.apiHeaders;
 

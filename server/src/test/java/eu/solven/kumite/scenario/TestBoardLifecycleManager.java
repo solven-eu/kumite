@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.random.RandomGenerator;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import eu.solven.kumite.player.ContendersFromBoard;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
+import eu.solven.kumite.player.InMemoryViewingAccountsRepository;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerJoinRaw;
 import eu.solven.kumite.player.persistence.BijectiveAccountPlayersRegistry;
@@ -41,10 +43,14 @@ public class TestBoardLifecycleManager {
 
 	ContestPlayersRegistry contestPlayersRegistry = new ContestPlayersRegistry(gamesRegistry,
 			accountPlayers,
-			new ContendersFromBoard(accountPlayers, boardRepository));
+			new ContendersFromBoard(accountPlayers, boardRepository),
+			new InMemoryViewingAccountsRepository());
 
 	BoardLifecycleManager boardLifecycleManager =
 			new BoardLifecycleManager(boardRegistry, contestPlayersRegistry, executor);
+
+	RandomGenerator randomGenerator = new Random(0);
+
 	UUID contestId = UUID.randomUUID();
 
 	@Test
@@ -101,7 +107,7 @@ public class TestBoardLifecycleManager {
 	}
 
 	private PlayerMoveRaw makeValidMove() {
-		Map<String, IKumiteMove> exampleMoves = game.exampleMoves(board.asView(playerId), playerId);
+		Map<String, IKumiteMove> exampleMoves = game.exampleMoves(randomGenerator, board.asView(playerId), playerId);
 		return PlayerMoveRaw.builder().playerId(playerId).move(exampleMoves.values().iterator().next()).build();
 	}
 

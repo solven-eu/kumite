@@ -10,7 +10,7 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 @JsonIgnoreProperties(value = "wait", allowGetters = true)
-public class WaitForSignups implements IKumiteMove {
+public class WaitForSignups implements INoOpKumiteMove {
 
 	// @JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	final boolean wait = true;

@@ -10,7 +10,7 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 @JsonIgnoreProperties(value = "gameOver", allowGetters = true)
-public class GameOver implements IKumiteMove {
+public class GameOver implements INoOpKumiteMove {
 
 	// @JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	final boolean gameOver = true;

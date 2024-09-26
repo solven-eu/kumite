@@ -41,12 +41,12 @@ public class KumiteFakeUserRouter {
 		return SpringdocRouteBuilder.route()
 				.POST(json("/api/v1/clear"),
 						kumiteResetHandler::clear,
-						ops -> ops.operationId("clear GET")
+						ops -> ops.operationId("clear")
 								.response(responseBuilder().responseCode("200").description("Cleared")))
 				// One can clear with GET to make it easier for a human
 				.GET(json("/api/v1/clear"),
 						kumiteResetHandler::clear,
-						ops -> ops.operationId("clear POST")
+						ops -> ops.operationId("clear")
 								.response(responseBuilder().responseCode("200").description("Cleared")))
 
 				.build();

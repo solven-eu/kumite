@@ -1,11 +1,6 @@
 package eu.solven.kumite.player;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest;
@@ -22,10 +17,7 @@ public class ContestPlayersRegistry {
 
 	final IContendersRepository contestPlayersRepository;
 
-	// Once a player is viewing, it can not play as it got some private information about the game.
-	// The public information of a board is available by querying the board with playerId=KumitePlayer.PUBLIC
-	// A cheater could use 2 accounts: one to look at public information, the other to actually play the game
-	final Map<UUID, Set<UUID>> contestToViewingAccounts = new ConcurrentHashMap<>();
+	final IViewingAccountsRepository viewingAccountsRepository;
 
 	private void registerViewingPlayer(Contest contest, UUID playerId) {
 		if (KumitePlayer.AUDIENCE_PLAYER_ID.equals(playerId) || KumitePlayer.PREVIEW_PLAYER_ID.equals(playerId)) {
@@ -34,8 +26,7 @@ public class ContestPlayersRegistry {
 		}
 
 		UUID accountId = accountPlayersRegistry.getAccountId(playerId);
-		contestToViewingAccounts.computeIfAbsent(contest.getContestId(), k -> new ConcurrentSkipListSet<>())
-				.add(accountId);
+		viewingAccountsRepository.registerViewer(contest.getContestId(), accountId);
 	}
 
 	public void registerPlayer(Contest contest, PlayerJoinRaw playerRegistrationRaw) {
@@ -121,7 +112,7 @@ public class ContestPlayersRegistry {
 	public boolean isViewing(UUID contestId, UUID playerId) {
 		UUID accountId = accountPlayersRegistry.getAccountId(playerId);
 
-		return contestToViewingAccounts.getOrDefault(contestId, Collections.emptySet()).contains(accountId);
+		return viewingAccountsRepository.isViewing(contestId, accountId);
 	}
 
 	public boolean isRegisteredPlayer(UUID contestId, UUID playerId) {
@@ -168,7 +159,7 @@ public class ContestPlayersRegistry {
 	}
 
 	public void forceGameover(UUID contestId) {
-		contestToViewingAccounts.remove(contestId);
+		// viewingAccountsRepository.remove(contestId);
 		contestPlayersRepository.gameover(contestId);
 	}
 }

@@ -3,6 +3,7 @@ package eu.solven.kumite.player;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.random.RandomGenerator;
 
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -29,6 +30,7 @@ public class PlayerMovesHandler {
 	final ContestsRegistry contestsRegistry;
 
 	final BoardLifecycleManager boardLifecycleManager;
+	final RandomGenerator randomGenerator;
 
 	public Mono<ServerResponse> registerPlayer(ServerRequest request) {
 		PlayerJoinRawBuilder parameters = PlayerJoinRaw.builder();
@@ -69,7 +71,7 @@ public class PlayerMovesHandler {
 		IGame game = gamesRegistry.getGame(contest.getGameMetadata().getGameId());
 
 		IKumiteBoardView boardView = contest.getBoard().get().asView(playerId);
-		Map<String, IKumiteMove> moves = game.exampleMoves(boardView, playerId);
+		Map<String, IKumiteMove> moves = game.exampleMoves(randomGenerator, boardView, playerId);
 
 		PlayerMovesHolder movesHolder = PlayerMovesHolder.builder().moves(moves).build();
 

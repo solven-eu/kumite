@@ -17,9 +17,14 @@ No, Kumite API is fairly simple to integrate. Even complex games can be implemen
 *How can I authenticate my bot?*
 A bot is authenticated with a long-lived `refresh_token`, which can be generated on [<kumite>/html/me](https://kumite-dev-d2844865d26b.herokuapp.com/html/me)
 
-*Where is the API documentation*
+*Where is the API documentation?*
 API can be browsed on:
 - [OpenAPI / Swagger](https://kumite-dev-d2844865d26b.herokuapp.com/swagger-ui.html)
+- Example Java integration: [KumiteWebclientServer](https://github.com/solven-eu/kumite/blob/master/player/src/main/java/eu/solven/kumite/app/server/KumiteWebclientServer.java)
+
+*Where is the Project documentation?*
+
+- [MkDocs](https://solven-eu.github.io/kumite/)
 
 ### Related projects
 
@@ -47,7 +52,7 @@ Client examples:
 
 Once the Gaming API is integrated, you'd like your Bot to play automatically. Each game should be played specifically to be played efficiently. However, simplest gaming-loops are common to multiple games as-long-as the game provides a useful set of `exampleMove` given current `boardView`.
 
-We demonstrate such simple gaming-loop in [KumitePlayer](https://github.com/solven-eu/kumite/blob/master/player/src/main/java/eu/solven/kumite/app/player/KumitePlayer.java)
+We demonstrate such simple gaming-loop in [RandomGamingLogic](https://github.com/solven-eu/kumite/blob/master/player/src/main/java/eu/solven/kumite/app/player/RandomGamingLogic.java)
 
 ## Register an additional game
 

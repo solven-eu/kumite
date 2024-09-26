@@ -2,6 +2,7 @@ package eu.solven.kumite.game.optimization.tsp;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,13 +142,22 @@ public class TravellingSalesmanProblem implements IGame {
 	}
 
 	@Override
-	public Map<String, IKumiteMove> exampleMoves(IKumiteBoardView boardView, UUID playerId) {
+	public Map<String, IKumiteMove> exampleMoves(RandomGenerator randomGenerator,
+			IKumiteBoardView boardView,
+			UUID playerId) {
 		TSPProblem problem = (TSPProblem) boardView;
 
 		TSPSolution lexicographicalMove;
 		{
 			List<String> cityNames = problem.getCities().stream().map(c -> c.getName()).collect(Collectors.toList());
 			lexicographicalMove = TSPSolution.builder().cities(cityNames).build();
+		}
+
+		TSPSolution randomMove;
+		{
+			List<String> cityNames = problem.getCities().stream().map(c -> c.getName()).collect(Collectors.toList());
+			Collections.shuffle(cityNames, randomGenerator);
+			randomMove = TSPSolution.builder().cities(cityNames).build();
 		}
 
 		TSPSolution greedyMove;
@@ -180,7 +190,7 @@ public class TravellingSalesmanProblem implements IGame {
 			greedyMove = TSPSolution.builder().cities(cityNames).build();
 		}
 
-		return Map.of("lexicographical", lexicographicalMove, "greedy", greedyMove);
+		return Map.of("lexicographical", lexicographicalMove, "greedy", greedyMove, "random", randomMove);
 	}
 
 	@Override

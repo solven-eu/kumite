@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
@@ -25,6 +26,7 @@ import eu.solven.kumite.move.PlayerMoveRaw;
 
 public class TestTicTacToe {
 	ObjectMapper objectMapper = new ObjectMapper();
+	RandomGenerator randomGenerator = new Random(0);
 
 	@Test
 	public void testGame() throws JsonMappingException, JsonProcessingException {
@@ -56,7 +58,7 @@ public class TestTicTacToe {
 					Assertions.assertThat(fromString).isEqualTo(boardView);
 				}
 
-				Map<String, IKumiteMove> exampleMoves = game.exampleMoves(boardView, playerId);
+				Map<String, IKumiteMove> exampleMoves = game.exampleMoves(randomGenerator, boardView, playerId);
 
 				List<IKumiteMove> playableMoves = exampleMoves.values()
 						.stream()

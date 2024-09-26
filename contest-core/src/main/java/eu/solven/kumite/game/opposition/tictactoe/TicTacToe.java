@@ -66,9 +66,11 @@ public class TicTacToe implements IGame {
 	}
 
 	@Override
-	public Map<String, IKumiteMove> exampleMoves(IKumiteBoardView boardView, UUID playerId) {
+	public Map<String, IKumiteMove> exampleMoves(RandomGenerator randomGenerator,
+			IKumiteBoardView boardView,
+			UUID playerId) {
 		TicTacToeBoard board = (TicTacToeBoard) boardView;
-		
+
 		if (board.isGameOver()) {
 			return Collections.singletonMap("Game is over", WaitForSignups.builder().build());
 		}

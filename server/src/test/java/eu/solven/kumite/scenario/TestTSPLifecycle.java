@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.random.RandomGenerator;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,9 @@ public class TestTSPLifecycle {
 	@Autowired
 	BoardLifecycleManager boardLifecycleManager;
 
+	@Autowired
+	RandomGenerator randomGenerator;
+
 	@Deprecated
 	public static final KumiteUserRaw userRaw() {
 		return IKumiteTestConstants.userRaw();
@@ -101,8 +105,8 @@ public class TestTSPLifecycle {
 				PlayerJoinRaw.builder().contestId(contest.getContestId()).playerId(player.getPlayerId()).build());
 
 		TSPBoard tspBoard = (TSPBoard) contest.getBoard().get();
-		Map<String, IKumiteMove> nameToMove =
-				new TravellingSalesmanProblem().exampleMoves(tspBoard.asView(player.getPlayerId()), accountId);
+		Map<String, IKumiteMove> nameToMove = new TravellingSalesmanProblem()
+				.exampleMoves(randomGenerator, tspBoard.asView(player.getPlayerId()), accountId);
 		TSPSolution rawMove = (TSPSolution) nameToMove.get("lexicographical");
 
 		PlayerMoveRaw playerMove = PlayerMoveRaw.builder().playerId(player.getPlayerId()).move(rawMove).build();

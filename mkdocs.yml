@@ -1,0 +1,10 @@
+site_name: Kumite
+site_url: https://solven-eu.github.io/kumite/
+theme:
+  name: material
+# https://squidfunk.github.io/mkdocs-material/setup/adding-a-git-repository/
+repo_url: https://github.com/solven-eu/kumite
+
+theme:
+  icon:
+    repo: fontawesome/brands/github

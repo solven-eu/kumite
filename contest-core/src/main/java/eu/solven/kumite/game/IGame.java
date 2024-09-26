@@ -61,7 +61,9 @@ public interface IGame {
 	 * @param playerId
 	 * @return a indicative {@link List} of valid moves for given {@link KumitePlayer} on given {@link IKumiteBoardView}
 	 */
-	default Map<String, IKumiteMove> exampleMoves(IKumiteBoardView boardView, UUID playerId) {
+	default Map<String, IKumiteMove> exampleMoves(RandomGenerator randomGenerator,
+			IKumiteBoardView boardView,
+			UUID playerId) {
 		return Collections.emptyMap();
 	}
 
