@@ -26,7 +26,7 @@ import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.leaderboard.IPlayerScore;
-import eu.solven.kumite.leaderboard.LeaderBoard;
+import eu.solven.kumite.leaderboard.Leaderboard;
 import eu.solven.kumite.leaderboard.PlayerDoubleScore;
 import eu.solven.kumite.move.IKumiteMove;
 import lombok.Value;
@@ -129,7 +129,7 @@ public class TravellingSalesmanProblem implements IGame {
 	}
 
 	@Override
-	public LeaderBoard makeLeaderboard(IKumiteBoard board) {
+	public Leaderboard makeLeaderboard(IKumiteBoard board) {
 		Map<UUID, IPlayerScore> playerToScore = new TreeMap<>();
 
 		TSPBoard tspBoard = (TSPBoard) board;
@@ -138,7 +138,7 @@ public class TravellingSalesmanProblem implements IGame {
 			playerToScore.put(playerId, PlayerDoubleScore.builder().playerId(playerId).score(score).build());
 		});
 
-		return LeaderBoard.builder().playerIdToPlayerScore(playerToScore).build();
+		return Leaderboard.builder().playerIdToPlayerScore(playerToScore).build();
 	}
 
 	@Override

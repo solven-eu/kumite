@@ -28,6 +28,14 @@
         </dependency>
 
         <dependency>
+            <!-- A lightweight EventBus-->
+            <!-- https://github.com/greenrobot/EventBus -->
+            <groupId>org.greenrobot</groupId>
+            <artifactId>eventbus-java</artifactId>
+            <version>3.3.1</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>

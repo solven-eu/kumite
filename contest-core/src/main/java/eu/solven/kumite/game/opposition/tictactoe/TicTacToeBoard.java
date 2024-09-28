@@ -14,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.IKumiteBoardView;
+import eu.solven.kumite.leaderboard.Leaderboard;
+import eu.solven.kumite.leaderboard.PlayerLongScore;
 import eu.solven.kumite.move.PlayerMoveRaw;
 import lombok.Builder;
 import lombok.Value;
@@ -151,6 +153,28 @@ public class TicTacToeBoard implements IKumiteBoard, IKumiteBoardView {
 
 		// As soon as there is a winnignChar, the game is over
 		return winningChar.isPresent();
+	}
+
+	public Leaderboard makeLeaderboard() {
+		Leaderboard leaderboard = Leaderboard.builder().build();
+
+		if (!isGameOver()) {
+			return leaderboard;
+		}
+
+		int winningChar = optWinningSymbol().getAsInt();
+
+		playerIdToSymbol.forEach((playerId, symbol) -> {
+			if (symbol.charValue() == winningChar) {
+				// 3 points for a win
+				leaderboard.registerScore(PlayerLongScore.builder().playerId(playerId).score(3).build());
+			} else {
+				// 1 point for a tie
+				leaderboard.registerScore(PlayerLongScore.builder().playerId(playerId).score(1).build());
+			}
+		});
+
+		return leaderboard;
 	}
 
 	/**

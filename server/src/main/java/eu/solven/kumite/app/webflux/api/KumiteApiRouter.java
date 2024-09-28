@@ -2,6 +2,7 @@ package eu.solven.kumite.app.webflux.api;
 
 import static org.springdoc.core.fn.builders.apiresponse.Builder.responseBuilder;
 import static org.springdoc.core.fn.builders.parameter.Builder.parameterBuilder;
+import static org.springdoc.core.fn.builders.requestbody.Builder.requestBodyBuilder;
 
 import org.springdoc.core.fn.builders.parameter.Builder;
 import org.springdoc.webflux.core.fn.SpringdocRouteBuilder;
@@ -16,9 +17,16 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import eu.solven.kumite.app.webflux.PlayerVerifierFilterFunction;
 import eu.solven.kumite.board.BoardHandler;
 import eu.solven.kumite.contest.ContestHandler;
+import eu.solven.kumite.contest.ContestMetadataRaw;
+import eu.solven.kumite.contest.ContestView;
+import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchHandler;
 import eu.solven.kumite.leaderboard.LeaderboardHandler;
+import eu.solven.kumite.move.IKumiteMove;
+import eu.solven.kumite.player.KumitePlayer;
+import eu.solven.kumite.player.PlayerContestStatus;
 import eu.solven.kumite.player.PlayerMovesHandler;
+import eu.solven.kumite.player.PlayerRawMovesHolder;
 import eu.solven.kumite.player.PlayersSearchHandler;
 import eu.solven.kumite.webhook.WebhooksHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -70,21 +78,32 @@ public class KumiteApiRouter {
 										.description("Search games with at least given maxPlayers"))
 								.parameter(parameterBuilder().name("title_regex")
 										.description("Search games with a title matching given Regex"))
-								.response(responseBuilder().responseCode("200").description("Hello")))
+								.response(
+										responseBuilder().responseCode("200").implementationArray(GameMetadata.class)))
 
-				.GET(json("/players"), playersSearchHandler::listPlayers, ops -> ops.operationId("searchPlayers"))
+				.GET(json("/players"),
+						playersSearchHandler::listPlayers,
+						ops -> ops.operationId("searchPlayers")
+								.response(
+										responseBuilder().responseCode("200").implementationArray(KumitePlayer.class)))
 
 				.GET(json("/contests"),
 						contestSearchHandler::listContests,
-						ops -> ops.operationId("searchContest").parameter(gameId))
+						ops -> ops.operationId("searchContest")
+								.parameter(gameId)
+								.response(responseBuilder().responseCode("200")
+										.implementationArray(ContestMetadataRaw.class)))
 				.POST(json("/contests"), contestSearchHandler::openContest, ops -> ops.operationId("publishContest"))
 				.DELETE(json("/contests"),
 						contestSearchHandler::openContest,
-						ops -> ops.operationId("deleteContest").parameter(contestId))
+						ops -> ops.operationId("forceGameover").parameter(contestId))
 
 				.GET(json("/board"),
 						boardHandler::getBoard,
-						ops -> ops.operationId("fetchBoard").parameter(playerId).parameter(contestId))
+						ops -> ops.operationId("fetchBoard")
+								.parameter(playerId)
+								.parameter(contestId)
+								.response(responseBuilder().implementation(ContestView.class)))
 				.POST(json("/board/player"),
 						playerMovesHandler::registerPlayer,
 						ops -> ops.operationId("registerPlayer")
@@ -92,13 +111,21 @@ public class KumiteApiRouter {
 								.parameter(contestId)
 								.parameter(parameterBuilder().name("viewer")
 										.description("`true` if you want to spectate the contest")
-										.implementation(Boolean.class)))
+										.implementation(Boolean.class)
+										.required(false))
+								.response(responseBuilder().implementation(PlayerContestStatus.class)))
 				.GET(json("/board/moves"),
 						playerMovesHandler::listPlayerMoves,
-						ops -> ops.operationId("fetchMoves").parameter(playerId).parameter(contestId))
+						ops -> ops.operationId("fetchMoves")
+								.parameter(playerId)
+								.parameter(contestId)
+								.response(responseBuilder().implementation(PlayerRawMovesHolder.class)))
 				.POST(json("/board/move"),
 						playerMovesHandler::playMove,
-						ops -> ops.operationId("playMove").parameter(playerId).parameter(contestId))
+						ops -> ops.operationId("playMove")
+								.parameter(playerId)
+								.parameter(contestId)
+								.requestBody(requestBodyBuilder().implementation(IKumiteMove.class)))
 
 				.GET(json("/leaderboards"),
 						leaderboardHandler::listScores,

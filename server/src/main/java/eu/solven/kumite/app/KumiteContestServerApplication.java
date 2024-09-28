@@ -13,6 +13,7 @@ import org.springframework.session.ReactiveSessionRepository;
 import eu.solven.kumite.app.webflux.KumiteWebFluxConfiguration;
 import eu.solven.kumite.security.KumiteSecurity;
 import eu.solven.kumite.tools.GitPropertySourceConfig;
+import lombok.extern.slf4j.Slf4j;
 
 @SpringBootApplication(scanBasePackages = "none")
 @Import({
@@ -23,6 +24,7 @@ import eu.solven.kumite.tools.GitPropertySourceConfig;
 		GitPropertySourceConfig.class,
 
 })
+@Slf4j
 public class KumiteContestServerApplication {
 
 	public static void main(String[] args) {
@@ -34,6 +36,7 @@ public class KumiteContestServerApplication {
 	// This will override any auto-configured SessionRepository like Redis one
 	@Profile({ IKumiteSpringProfiles.P_INMEMORY })
 	public ReactiveSessionRepository<?> inmemorySessionRepository() {
+		log.info("Sessions are managed by a {}", ReactiveMapSessionRepository.class.getSimpleName());
 		return new ReactiveMapSessionRepository(new ConcurrentHashMap<>());
 	}
 

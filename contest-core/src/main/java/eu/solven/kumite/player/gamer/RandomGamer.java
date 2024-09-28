@@ -1,9 +1,14 @@
 package eu.solven.kumite.player.gamer;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 
@@ -13,6 +18,7 @@ import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestsRegistry;
+import eu.solven.kumite.game.GameSearchParameters;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.move.IKumiteMove;
 import eu.solven.kumite.move.INoOpKumiteMove;
@@ -44,16 +50,31 @@ public class RandomGamer {
 
 	final BoardLifecycleManager boardLifecycleManager;
 
-	final IContestJoiningStrategy contestJoiningStrategy = new RandomPlayersVs1();
+	private static long multimapSize(Map<?, ? extends Collection<?>> multimap) {
+		return multimap.values().stream().mapToLong(c -> c.size()).sum();
+	}
 
 	/**
 	 * Join any contest with given policy.
 	 */
-	public void doJoin() {
+	public void joinOncePerContestAndPlayer(IContestJoiningStrategy contestJoiningStrategy) {
+		joinOncePerContestAndPlayer(GameSearchParameters.builder().build(), contestJoiningStrategy, Integer.MAX_VALUE);
+	}
+
+	public Map<UUID, Set<UUID>> joinOncePerContestAndPlayer(GameSearchParameters gameSearch,
+			IContestJoiningStrategy contestJoiningStrategy,
+			int maxJoin) {
+		Map<UUID, Set<UUID>> joinedContestToPlayerIds = new ConcurrentHashMap<>();
+
 		gamesRegistry.getGames().forEach(game -> {
 			contestsRegistry
 					.searchContests(ContestSearchParameters.builder().gameOver(false).acceptPlayers(true).build())
 					.forEach(contest -> {
+						if (multimapSize(joinedContestToPlayerIds) >= maxJoin) {
+							// We requested not to execute more join flows
+							return;
+						}
+
 						for (UUID playerId : RandomPlayer.playerIds()) {
 							PlayerContestStatus playerStatus =
 									contestPlayersRegistry.getPlayingPlayer(playerId, contest);
@@ -61,11 +82,13 @@ public class RandomGamer {
 							boolean canJoin = playerStatus.isPlayerCanJoin();
 
 							if (!canJoin) {
-								return;
+								// given player may be already joined
+								continue;
 							}
 
-							boolean wantToJoin = contestJoiningStrategy.shouldJoin(game, contest);
-							if (!wantToJoin) {
+							boolean additionalRandomShouldJoin = contestJoiningStrategy.shouldJoin(game, contest);
+							if (!additionalRandomShouldJoin) {
+								// Current strategy would not accept more players for given contest
 								return;
 							}
 
@@ -75,18 +98,29 @@ public class RandomGamer {
 									.playerId(playerId)
 									.build();
 							contestPlayersRegistry.registerPlayer(contest, playerRegistrationRaw);
+
+							joinedContestToPlayerIds
+									.computeIfAbsent(contest.getContestId(), k -> new ConcurrentSkipListSet<>())
+									.add(playerId);
+							if (multimapSize(joinedContestToPlayerIds) >= maxJoin) {
+								// We requested not to execute more join flows
+								return;
+							}
 						}
 					});
 		});
+
+		return joinedContestToPlayerIds;
 	}
 
 	/**
 	 * Play joined contest with given policy.
 	 */
-	public void doPlay() {
+	public int playOncePerContestAndPlayer() {
+		AtomicInteger nbMoves = new AtomicInteger();
+
 		gamesRegistry.getGames().forEach(game -> {
-			contestsRegistry
-					.searchContests(ContestSearchParameters.builder().gameOver(false).acceptPlayers(true).build())
+			contestsRegistry.searchContests(ContestSearchParameters.builder().gameOver(false).build())
 					.forEach(contest -> {
 						contest.getPlayers()
 								.stream()
@@ -115,6 +149,7 @@ public class RandomGamer {
 											contest.getContestId(),
 											chosenMove.getKey());
 
+									nbMoves.incrementAndGet();
 									boardLifecycleManager.onPlayerMove(contest,
 											PlayerMoveRaw.builder()
 													.playerId(player.getPlayerId())
@@ -123,6 +158,8 @@ public class RandomGamer {
 								});
 					});
 		});
+
+		return nbMoves.get();
 	}
 
 	private Entry<String, IKumiteMove> pickMove(List<Entry<String, IKumiteMove>> playableMoves) {
@@ -136,4 +173,5 @@ public class RandomGamer {
 			return true;
 		}
 	}
+
 }

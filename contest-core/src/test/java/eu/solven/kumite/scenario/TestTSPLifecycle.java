@@ -16,7 +16,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.account.KumiteUserRaw;
 import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.account.login.IKumiteTestConstants;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
@@ -72,14 +71,10 @@ public class TestTSPLifecycle {
 	@Autowired
 	RandomGenerator randomGenerator;
 
-	@Deprecated
-	public static final KumiteUserRaw userRaw() {
-		return IKumiteTestConstants.userRaw();
-	}
 
 	@Test
 	public void testSinglePlayer() {
-		KumiteUser account = usersRegistry.registerOrUpdate(userRaw());
+		KumiteUser account = usersRegistry.registerOrUpdate(IKumiteTestConstants.userRaw());
 		UUID accountId = account.getAccountId();
 
 		List<GameMetadata> games =

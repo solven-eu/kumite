@@ -135,6 +135,7 @@ public class BoardLifecycleManager {
 			boardRegistry.updateBoard(contestId, currentBoard);
 
 			refBoardView.set(currentBoard.asView(playerId));
+			
 		});
 
 		IKumiteBoardView boardViewPostMove = refBoardView.get();

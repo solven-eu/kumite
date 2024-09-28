@@ -3,6 +3,7 @@ package eu.solven.kumite.contest;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.random.RandomGenerator;
 
 import eu.solven.kumite.account.fake_player.RandomPlayer;
@@ -29,7 +30,9 @@ public class ActiveContestGenerator {
 	final ContestsRegistry contestsRegistry;
 	final RandomGenerator randomGenerator;
 
-	public void makeContestsIfNoneJoinable() {
+	public int makeContestsIfNoneJoinable() {
+		AtomicInteger nbCreated = new AtomicInteger();
+
 		gamesRegistry.searchGames(GameSearchParameters.builder().build()).forEach(gameMetadata -> {
 			UUID gameId = gameMetadata.getGameId();
 
@@ -54,6 +57,7 @@ public class ActiveContestGenerator {
 						.author(RandomPlayer.ACCOUNT_ID)
 						.build();
 				Contest contest = contestsRegistry.registerContest(game, constantMetadata, initialBoard);
+				nbCreated.incrementAndGet();
 
 				log.info("{} generated contestId={} for gameId={}",
 						IKumiteSpringProfiles.P_INJECT_DEFAULT_GAMES,
@@ -61,5 +65,7 @@ public class ActiveContestGenerator {
 						gameId);
 			}
 		});
+
+		return nbCreated.get();
 	}
 }

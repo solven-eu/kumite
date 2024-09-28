@@ -30,7 +30,7 @@ public class LeaderboardRegistry {
 		Contest contest = contestsRegistry.getContest(contestId);
 		IGame game = gamesRegistry.getGame(contest.getGame().getGameMetadata().getGameId());
 
-		LeaderBoard leaderboard = game.makeLeaderboard(board);
+		Leaderboard leaderboard = game.makeLeaderboard(board);
 
 		Map<UUID, IPlayerScore> playerToScore = leaderboard.getPlayerIdToPlayerScore();
 

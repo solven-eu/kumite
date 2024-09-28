@@ -44,3 +44,7 @@ A `move` is an action which can be done by a `player` on a given `board`.
 ## Fog-of-War
 
 Some `game` have imperfect information: each `player` can only see the fraction of the `board`. In some such games, a `contender` can only see the `board` around its own unit ; the `fog-of-war` is the mechanism preventing a `contender` to see the board out of its units range-of-vision.
+
+## Gameover
+
+A `contest` is `gameover` once its board state is final. No player will be able to submit a move ever.

@@ -12,6 +12,11 @@ import lombok.Builder.Default;
 import lombok.Singular;
 import lombok.Value;
 
+/**
+ * Options to search through games.
+ * 
+ * @author Benoit Lacelle
+ */
 @Value
 @Builder
 public class GameSearchParameters {
@@ -38,5 +43,9 @@ public class GameSearchParameters {
 				throw new IllegalArgumentException("An individual tag must not contain a ','");
 			}
 		}).collect(Collectors.joining(","));
+	}
+
+	public static GameSearchParameters byGameId(UUID gameId) {
+		return GameSearchParameters.builder().gameId(Optional.of(gameId)).build();
 	}
 }

@@ -26,7 +26,6 @@ import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.oauth2.IKumiteOAuth2Constants;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
-import eu.solven.kumite.scenario.TestTSPLifecycle;
 import eu.solven.kumite.tools.JdkUuidGenerator;
 
 public class TestKumiteTokenService {
@@ -41,8 +40,11 @@ public class TestKumiteTokenService {
 
 		UUID accountId = UUID.randomUUID();
 		UUID playerId = UUID.randomUUID();
-		KumiteUser user =
-				KumiteUser.builder().accountId(accountId).playerId(playerId).raw(TestTSPLifecycle.userRaw()).build();
+		KumiteUser user = KumiteUser.builder()
+				.accountId(accountId)
+				.playerId(playerId)
+				.raw(IKumiteTestConstants.userRaw())
+				.build();
 		String accessToken =
 				tokenService.get().generateAccessToken(user, Set.of(playerId), Duration.ofMinutes(1), false);
 

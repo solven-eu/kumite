@@ -8,9 +8,15 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Value;
 
+/**
+ * A {@link Leaderboard} tracks the score of players for a given game, through contests.
+ * 
+ * @author Benoit Lacelle
+ *
+ */
 @Value
 @Builder
-public class LeaderBoard {
+public class Leaderboard {
 	@Default
 	Map<UUID, IPlayerScore> playerIdToPlayerScore = new ConcurrentHashMap<>();
 
@@ -18,7 +24,7 @@ public class LeaderBoard {
 		playerIdToPlayerScore.put(playerScore.getPlayerId(), playerScore);
 	}
 
-	public static LeaderBoard empty() {
-		return new LeaderBoard(Map.of());
+	public static Leaderboard empty() {
+		return new Leaderboard(Map.of());
 	}
 }

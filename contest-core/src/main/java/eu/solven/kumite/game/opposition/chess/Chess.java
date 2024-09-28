@@ -11,7 +11,6 @@ import eu.solven.kumite.contest.IHasGameover;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
-import eu.solven.kumite.leaderboard.LeaderBoard;
 import eu.solven.kumite.move.IKumiteMove;
 
 // https://peterellisjones.com/posts/generating-legal-chess-moves-efficiently/
@@ -53,11 +52,6 @@ public class Chess implements IGame {
 	@Override
 	public IKumiteBoard parseRawBoard(Map<String, ?> rawBoard) {
 		return ChessBoard.builder().build();
-	}
-
-	@Override
-	public LeaderBoard makeLeaderboard(IKumiteBoard board) {
-		return LeaderBoard.empty();
 	}
 
 	@Override

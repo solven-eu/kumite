@@ -16,6 +16,7 @@ import eu.solven.kumite.contest.IHasGameover;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
+import eu.solven.kumite.leaderboard.Leaderboard;
 import eu.solven.kumite.move.IKumiteMove;
 import eu.solven.kumite.move.WaitForPlayersMove;
 import eu.solven.kumite.move.WaitForSignups;
@@ -123,4 +124,10 @@ public class TicTacToe implements IGame {
 		};
 	}
 
+	@Override
+	public Leaderboard makeLeaderboard(IKumiteBoard rawBoard) {
+		TicTacToeBoard board = (TicTacToeBoard) rawBoard;
+		
+		return board.makeLeaderboard();
+	}
 }

@@ -20,6 +20,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUserRaw;
+import eu.solven.kumite.account.login.IKumiteTestConstants;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteJackson;
 import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
@@ -30,7 +31,6 @@ import eu.solven.kumite.app.webflux.api.KumitePublicController;
 import eu.solven.kumite.login.AccessTokenWrapper;
 import eu.solven.kumite.login.RefreshTokenWrapper;
 import eu.solven.kumite.player.PlayerMovesHandler;
-import eu.solven.kumite.scenario.TestTSPLifecycle;
 import eu.solven.kumite.security.oauth2.KumiteOAuth2UserService;
 import eu.solven.pepper.unittest.ILogDisabler;
 import eu.solven.pepper.unittest.PepperTestHelper;
@@ -66,7 +66,7 @@ public class TestSecurity_WithOAuth2User {
 		// login
 		OAuth2LoginMutator oauth2Login;
 		{
-			KumiteUserRaw userRaw = TestTSPLifecycle.userRaw();
+			KumiteUserRaw userRaw = IKumiteTestConstants.userRaw();
 			oauth2Login = SecurityMockServerConfigurers.mockOAuth2Login().attributes(attributes -> {
 				attributes.put("id", userRaw.getRawRaw().getSub());
 				attributes.put("providerId", userRaw.getRawRaw().getProviderId());
@@ -164,7 +164,9 @@ public class TestSecurity_WithOAuth2User {
 				.isOk()
 				.expectBody(Map.class)
 				.value(greeting -> {
-					Assertions.assertThat(greeting).containsKeys("accountId", "raw").hasSize(4);
+					Assertions.assertThat(greeting)
+							.containsKeys("accountId", "raw", "company", "countryCode")
+							.hasSize(7);
 				});
 	}
 
@@ -237,7 +239,7 @@ public class TestSecurity_WithOAuth2User {
 		// login
 		OAuth2LoginMutator oauth2Login;
 		{
-			KumiteUserRaw userRaw = TestTSPLifecycle.userRaw();
+			KumiteUserRaw userRaw = IKumiteTestConstants.userRaw();
 			oauth2Login = SecurityMockServerConfigurers.mockOAuth2Login().attributes(attributes -> {
 				attributes.put("id", userRaw.getRawRaw().getSub());
 				attributes.put("providerId", userRaw.getRawRaw().getProviderId());
