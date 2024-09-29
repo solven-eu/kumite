@@ -102,7 +102,7 @@ public class InjectDefaultGamesConfig {
 			// BEWARE The appContext may not be fully started yet
 			// https://stackoverflow.com/questions/8686507/how-to-add-a-hook-to-the-application-context-initialization-event
 			// https://www.baeldung.com/spring-context-events
-			
+
 			log.debug("About to generate contests for games without joinable contest");
 			activeContestGenerator.makeContestsIfNoneJoinable();
 		}, seconds, seconds, TimeUnit.SECONDS);

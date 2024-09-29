@@ -105,7 +105,8 @@ public class TicTacToe implements IGame {
 			if ('_' == positions[i]) {
 				// This is a playable position
 				int oneBasePosition = i + 1;
-				moves.put(Integer.toString(oneBasePosition), TicTacToeMove.builder().position(oneBasePosition).build());
+				moves.put(Integer.toString(oneBasePosition),
+						TicTacToeMove.builder().symbol(nextPlayerSymbol).position(oneBasePosition).build());
 			} else {
 				// This position is occupied
 			}

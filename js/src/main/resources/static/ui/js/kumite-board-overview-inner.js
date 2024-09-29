@@ -3,22 +3,25 @@ import { watch } from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
-import KumiteBoardViewCurl from "./kumite-board-view-curl.js";
+import KumiteBoardOverviewPlay from "./kumite-board-overview-play.js";
+
+import KumiteBoardOverviewCurl from "./kumite-board-overview-curl.js";
+import KumiteLeaderboard from "./kumite-leaderboard.js";
 
 import KumiteJsonBoardState from "./board-renderers/kumite-json-board-state.js";
 import KumiteTSPBoardState from "./board-renderers/kumite-tsp-board-state.js";
 import KumiteTicTacToeBoardState from "./board-renderers/kumite-tictactoe-board-state.js";
 
 export default {
-	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
-		KumiteBoardViewCurl,
+		KumiteBoardOverviewPlay,
+		KumiteBoardOverviewCurl,
+		KumiteLeaderboard,
 
 		KumiteJsonBoardState,
 		KumiteTSPBoardState,
 		KumiteTicTacToeBoardState,
 	},
-	// https://vuejs.org/guide/components/props.html
 	props: {
 		contestId: {
 			type: String,
@@ -70,13 +73,16 @@ export default {
         <div v-else-if="game.error || contest.error || board.error">{{game.error || contest.error || board.error}}</div>
         <div v-else>
             <div class="border position-relative">
-                Board: This is the view of the contest given players previous moves.
+                <i class="bi bi-motherboard">Board</i>
                 <!-- https://stackoverflow.com/questions/43658481/passing-props-dynamically-to-dynamic-component-in-vuejs -->
                 <component :is="board.boardSvg" v-bind="{ 'board': board}" class="col text-center" />
 
                 <div class="position-absolute top-0 end-0">
-                    <KumiteBoardViewCurl :gameId="gameId" :contestId="contestId" />
+                    <KumiteBoardOverviewCurl :gameId="gameId" :contestId="contestId" />
                 </div>
+
+                <KumiteBoardOverviewPlay class="row border" :gameId="gameId" :contestId="contestId" />
+                <KumiteLeaderboard class="row border" :gameId="gameId" :contestId="contestId" />
             </div>
         </div>
     `,

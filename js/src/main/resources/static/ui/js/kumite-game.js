@@ -10,10 +10,13 @@ import KumiteGameHeader from "./kumite-game-header.js";
 
 import KumiteContests from "./kumite-contests.js";
 
+import KumiteContestFormRef from "./kumite-contest-form-ref.js";
+
 export default {
 	components: {
 		KumiteGameHeader,
 		KumiteContests,
+		KumiteContestFormRef,
 	},
 	props: {
 		gameId: {
@@ -78,11 +81,11 @@ export default {
             </span>
             <span v-else>
                 <RouterLink :to="{path:'/html/games/' + game.gameId + '/contests'}"
-                    ><i class="bi bi-trophy"></i> Join an existing contest ({{nbContests}})</RouterLink
-                ><br />
+                    ><i class="bi bi-trophy"></i> Join an existing contest ({{nbContests}})
+                </RouterLink>
             </span>
 
-            <RouterLink :to="{path:'/html/games/' + game.gameId + '/contest-form'}"><i class="bi bi-node-plus"></i> Create your own contest</RouterLink><br />
+            <KumiteContestFormRef :gameId="gameId" />
         </div>
     `,
 };

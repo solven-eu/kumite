@@ -1,20 +1,15 @@
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 
 import { Renderer } from "https://cdn.jsdelivr.net/npm/two.js/src/renderers/svg.js";
-import { Circle } from "https://cdn.jsdelivr.net/npm/two.js/src/shapes/circle.js";
-import { Line } from "https://cdn.jsdelivr.net/npm/two.js/src/shapes/line.js";
-import { Group } from "https://cdn.jsdelivr.net/npm/two.js/src/group.js";
+
+import TicTacToeTools from "./kumite-tictactoe-tools.js";
 
 // https://github.com/jonobr1/two.js/tree/main?tab=readme-ov-file#running-in-headless-environments
 // We may want to generate board views with server-side rendering
 // It may help picking dynamically a nice way to render a given board
 export default {
-	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
 		Renderer,
-		Circle,
-		Line,
-		Group,
 	},
 	// https://vuejs.org/guide/components/props.html
 	props: {
@@ -27,49 +22,35 @@ export default {
 		const boardCanvas = ref(null);
 		const board = props.board;
 
-		onMounted(() => {
-			const width = 256; //window.innerWidth;
-			const height = 256; // window.innerHeight;
-			const renderer = new Renderer({});
-
-			boardCanvas.value.appendChild(renderer.domElement);
-			renderer.setSize(width, height);
-
+		const renderer = new Renderer({});
+		function renderBoard() {
 			const positions = board.positions;
 
-			for (let i = 1; i < 3; i++) {
-				const hLine = new Line(16, (height / 3) * i, width - 16, (height / 3) * i);
-				renderer.scene.add(hLine);
+			TicTacToeTools.renderSupport(renderer);
+			TicTacToeTools.renderPositions(renderer, positions);
 
-				const vLine = new Line((width / 3) * i, 16, (width / 3) * i, height - 16);
-				renderer.scene.add(vLine);
-			}
-
-			for (let i = 0; i < 9; i++) {
-				const char = positions.charAt(i);
-
-				const x = i / 3;
-				const y = i % 3;
-				const group = new Group();
-
-				if (char === "X") {
-					const line = new Line((width / 3) * x - 16, (height / 3) * y - 16, (width / 3) * x + 16, (height / 3) * y + 16);
-					group.add(line);
-				} else if (char === "O") {
-					const circle = new Circle(width * x, height * y, 1);
-					group.add(circle);
-				} else {
-					// Nothing to render on not played positions
-				}
-
-				renderer.scene.add(group);
-			}
 			renderer.render();
+		}
+
+		onMounted(() => {
+			boardCanvas.value.appendChild(renderer.domElement);
+
+			renderer.setSize(TicTacToeTools.width(), TicTacToeTools.height());
+
+			renderBoard();
+
+			watch(
+				() => props.board,
+				() => {
+					renderBoard();
+				},
+				{ deep: true },
+			);
 		});
 
 		return {
 			boardCanvas,
 		};
 	},
-	template: /* HTML */ ` <div ref="boardCanvas" class="border"></div> `,
+	template: /* HTML */ `<div><div ref="boardCanvas" class="border" /></div>`,
 };

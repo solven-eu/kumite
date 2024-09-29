@@ -3,8 +3,12 @@ import { ref, watch, onMounted, onUnmounted } from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
+import KumitePlayerRef from "./kumite-player-ref.js";
+
 export default {
-	// https://vuejs.org/guide/components/props.html
+	components: {
+		KumitePlayerRef,
+	},
 	props: {
 		contestId: {
 			type: String,
@@ -99,9 +103,9 @@ export default {
         </div>
         <div v-else-if="game.error || contest.error || leaderboard.error">{{game.error || contest.error || leaderboard.error}}</div>
         <div v-else>
-            <i class="bi bi-speedometer"></i>
+            <i class="bi bi-speedometer">Leaderboard</i>
             <div v-if="leaderboard.playerScores && leaderboard.playerScores.length">
-                <li v-for="item in leaderboard.playerScores">{{item.playerId}} has score {{item.score}}</li>
+                <li v-for="item in leaderboard.playerScores"><KumitePlayerRef :playerId="item.playerId" /> has score {{item.score}}</li>
             </div>
             <span v-else> Leaderboard is empty </span>
         </div>

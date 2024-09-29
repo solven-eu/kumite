@@ -4,13 +4,13 @@ import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
 import KumiteBoardMoveForm from "./kumite-board-move-form.js";
+import KumiteContestFormRef from "./kumite-contest-form-ref.js";
 
 export default {
-	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
 		KumiteBoardMoveForm,
+		KumiteContestFormRef,
 	},
-	// https://vuejs.org/guide/components/props.html
 	props: {
 		contestId: {
 			type: String,
@@ -95,6 +95,11 @@ export default {
                 Waiting for more players ({{contest.dynamicMetadata.contenders.length}} / {{ contest.constantMetadata.minPlayers }})
             </div>
             <!-- Can be played -->
+            <div v-else-if="contest.dynamicMetadata.gameOver">
+                Game Over<br />
+
+                <KumiteContestFormRef :gameId="gameId" />
+            </div>
             <div v-else>
                 <KumiteBoardMoveForm :gameId="gameId" :contestId="contestId" />
             </div>

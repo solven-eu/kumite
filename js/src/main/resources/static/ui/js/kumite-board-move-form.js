@@ -2,6 +2,8 @@ import { ref } from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
+import { useRouter } from "vue-router";
+
 import KumiteJsonBoardMove from "./board-renderers/kumite-json-board-move.js";
 import KumiteTSPBoardMove from "./board-renderers/kumite-tsp-board-move.js";
 import KumiteTicTacToeBoardMove from "./board-renderers/kumite-tictactoe-board-move.js";
@@ -61,6 +63,7 @@ export default {
 	},
 	setup(props) {
 		const store = useKumiteStore();
+		const router = useRouter();
 
 		function loadExampleMoves() {
 			console.debug("Loading example moves");
@@ -134,17 +137,18 @@ export default {
 						throw new NetworkError("POST has failed (" + response.statusText + " - " + response.status + ")", url, response);
 					}
 
-					// debugger;
-					// context.emit('move-sent', {gameId: props.gameId, contestId: props.contestId});
 					// The submitted move may have impacted the leaderboard
 					store.$patch((state) => {
 						if (!state.leaderboards[contestId]) {
-							state.leaderboards[contestId] = {};
+							state.leaderboards[contestId] = { error: "not_loaded" };
 						}
 						state.leaderboards[contestId].stale = true;
 						state.contests[contestId].stale = true;
 					});
 					sendMoveError.value = "";
+
+					// TODO Rely on a named route and params
+					router.push({ name: "board" });
 				} catch (e) {
 					console.error("Issue on Network:", e);
 					sendMoveError.value = e.message;
@@ -207,7 +211,16 @@ export default {
                                 Prefill with an example move
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" @click="fillMove(moveJson)" v-for="(moveJson, moveKey) in exampleMoves">{{moveKey}}</a></li>
+                                <li>
+                                    <a
+                                        class="dropdown-item"
+                                        @click="fillMove(moveJson)"
+                                        :data-testid="'move_' + moveIndex"
+                                        v-for="(moveJson, moveKey, moveIndex) in exampleMoves"
+                                    >
+                                        {{moveKey}}
+                                    </a>
+                                </li>
                             </ul>
                         </span>
                         <span v-else> Not a single example move. It may not be your turn. </span>

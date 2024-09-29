@@ -6,5 +6,5 @@ import eu.solven.kumite.game.IGame;
 public interface IContestJoiningStrategy {
 
 	boolean shouldJoin(IGame game, Contest contest);
-	
+
 }

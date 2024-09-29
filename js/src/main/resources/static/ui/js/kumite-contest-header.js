@@ -99,10 +99,9 @@ export default {
                     <KumiteContestDelete :gameId="gameId" :contestId="contestId" />
                 </li>
                 <li>
-                    {{contest.dynamicMetadata.contenders.length}} contenders / {{ contest.constantMetadata.minPlayers }} required players
+                    {{contest.dynamicMetadata.contenders.length}} contenders / {{ contest.constantMetadata.minPlayers }} required players / {{
+                    contest.constantMetadata.maxPlayers }} maximum players
                 </li>
-
-                
             </ul>
         </span>
     `,

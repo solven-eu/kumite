@@ -35,14 +35,14 @@ export default {
 				// `city.x` and `city.y` ranges in [0;1]
 				const circle = new Circle(width * city.x, height * city.y, 1);
 				renderer.scene.add(circle);
-
-				renderer.render();
 			});
+
+			renderer.render();
 		});
 
 		return {
 			boardCanvas,
 		};
 	},
-	template: /* HTML */ ` <div ref="boardCanvas" class="border"></div> `,
+	template: /* HTML */ ` <div ref="boardCanvas" class="border"></div>`,
 };

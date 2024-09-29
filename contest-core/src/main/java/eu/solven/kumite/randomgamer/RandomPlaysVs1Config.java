@@ -48,8 +48,7 @@ public class RandomPlaysVs1Config {
 					strategy);
 		}
 
-		// Async to prevent submitting board operations from a boardMutating thread
-		@Subscribe// (threadMode = ThreadMode.ASYNC)
+		@Subscribe
 		public void onPlayerJoinedBoard(PlayerJoinedBoard playerJoined) {
 			ContestSearchParameters searchContestId =
 					ContestSearchParameters.searchContestId(playerJoined.getContestId());
@@ -58,8 +57,7 @@ public class RandomPlaysVs1Config {
 			randomGamer.playOncePerContestAndPlayer(searchContestId, p -> true);
 		}
 
-		// Async to prevent submitting board operations from a boardMutating thread
-		@Subscribe// (threadMode = ThreadMode.ASYNC)
+		@Subscribe
 		public void onBoardIsUpdated(PlayerMoved playerMoved) {
 			ContestSearchParameters searchContestId =
 					ContestSearchParameters.searchContestId(playerMoved.getContestId());

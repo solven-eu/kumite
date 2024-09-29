@@ -55,7 +55,7 @@ export default {
 			renderMove(move);
 		}
 
-		const renderedGroup = ref(null);
+		const renderedMove = ref(null);
 
 		function renderMove(move) {
 			if (!move || !move.cities) {
@@ -94,20 +94,20 @@ export default {
 				if (index == 0) {
 					const previousCity = cityToPosition[move.cities[move.cities.length - 1]];
 					const currentCity = cityToPosition[city];
-					checkAndAddLine(previousCity, currentCity, renderer);
+					checkAndAddLine(previousCity, currentCity);
 				} else {
 					const previousCity = cityToPosition[move.cities[index - 1]];
 					const currentCity = cityToPosition[city];
 
-					checkAndAddLine(previousCity, currentCity, renderer);
+					checkAndAddLine(previousCity, currentCity);
 				}
 			});
 
-			if (renderedGroup.value) {
+			if (renderedMove.value) {
 				// Undraw the previously rendered solution
-				renderedGroup.value.remove();
+				renderedMove.value.remove();
 			}
-			renderedGroup.value = group;
+			renderedMove.value = group;
 			renderer.scene.add(group);
 
 			console.log("Rendering move", move);
@@ -120,13 +120,13 @@ export default {
 			boardCanvas.value.appendChild(renderer.domElement);
 			renderer.setSize(width, height);
 
+			// Print the state
+			console.log("Rendering board", board);
 			board.cities.forEach((city) => {
 				// `city.x` and `city.y` ranges in [0;1]
 				const circle = new Circle(width * city.x, height * city.y, 1);
 				renderer.scene.add(circle);
 			});
-
-			console.log("Rendering board", board);
 			renderer.render();
 
 			watch(

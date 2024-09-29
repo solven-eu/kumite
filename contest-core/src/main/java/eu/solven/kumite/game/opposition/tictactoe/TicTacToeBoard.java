@@ -159,20 +159,33 @@ public class TicTacToeBoard implements IKumiteBoard, IKumiteBoardView {
 		Leaderboard leaderboard = Leaderboard.builder().build();
 
 		if (!isGameOver()) {
+			playerIdToSymbol.forEach((playerId, symbol) -> {
+				leaderboard.registerScore(PlayerLongScore.builder().playerId(playerId).score(0).build());
+			});
+
 			return leaderboard;
 		}
 
-		int winningChar = optWinningSymbol().getAsInt();
+		OptionalInt optWinningSymbol = optWinningSymbol();
 
-		playerIdToSymbol.forEach((playerId, symbol) -> {
-			if (symbol.charValue() == winningChar) {
-				// 3 points for a win
-				leaderboard.registerScore(PlayerLongScore.builder().playerId(playerId).score(3).build());
-			} else {
-				// 1 point for a tie
-				leaderboard.registerScore(PlayerLongScore.builder().playerId(playerId).score(1).build());
-			}
-		});
+		if (optWinningSymbol.isPresent()) {
+			int winningChar = optWinningSymbol.getAsInt();
+
+			playerIdToSymbol.forEach((playerId, symbol) -> {
+				if (symbol.charValue() == winningChar) {
+					// 3 points for a win
+					leaderboard.registerScore(PlayerLongScore.builder().playerId(playerId).score(3).build());
+				} else {
+					// 1 point for a lose
+					leaderboard.registerScore(PlayerLongScore.builder().playerId(playerId).score(1).build());
+				}
+			});
+		} else {
+			playerIdToSymbol.forEach((playerId, symbol) -> {
+				// 2 point for a tie
+				leaderboard.registerScore(PlayerLongScore.builder().playerId(playerId).score(2).build());
+			});
+		}
 
 		return leaderboard;
 	}

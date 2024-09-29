@@ -29,7 +29,6 @@ export const useKumiteStore = defineStore("kumite", {
 		// The loaded games and contests
 		games: {},
 		contests: {},
-		boards: {},
 		nbGameFetching: 0,
 		nbContestFetching: 0,
 		nbBoardFetching: 0,
@@ -304,12 +303,12 @@ export const useKumiteStore = defineStore("kumite", {
 				throw new Error("Invalid URL as '/api' is added automatically");
 			}
 
-            // loading missing tokens will ensure login status
+			// loading missing tokens will ensure login status
 			await this.loadIfMissingUserTokens();
-            
-            if (this.isLoggedOut) {
-                throw new UserNeedsToLoginError("User needs to login");
-            }
+
+			if (this.isLoggedOut) {
+				throw new UserNeedsToLoginError("User needs to login");
+			}
 
 			const apiHeaders = this.apiHeaders;
 

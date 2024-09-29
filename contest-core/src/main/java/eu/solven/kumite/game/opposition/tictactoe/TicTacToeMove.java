@@ -20,6 +20,10 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 public class TicTacToeMove implements IKumiteMove {
+	// This is useful for rendering the move, hence RandomPlayer does not have to compute its own symbol
+	// 'X' or 'O'
+	char symbol;
+
 	// Has to be between 1 and 9 (included)
 	int position;
 }

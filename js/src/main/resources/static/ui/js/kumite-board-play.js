@@ -1,27 +1,18 @@
-// my-component.js
-import {} from "vue";
-
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
 import KumiteGameHeader from "./kumite-game-header.js";
 import KumiteContestHeader from "./kumite-contest-header.js";
 
-import KumiteBoardView from "./kumite-board-view.js";
-import KumiteBoardJoin from "./kumite-board-join.js";
-import KumiteLeaderboard from "./kumite-leaderboard.js";
+import KumiteBoardPlayInner from "./kumite-board-play-inner.js";
 
 export default {
-	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
 		KumiteGameHeader,
 		KumiteContestHeader,
 
-		KumiteBoardView,
-		KumiteLeaderboard,
-		KumiteBoardJoin,
+		KumiteBoardPlayInner,
 	},
-	// https://vuejs.org/guide/components/props.html
 	props: {
 		contestId: {
 			type: String,
@@ -75,9 +66,7 @@ export default {
         <div v-else class="container">
             <KumiteGameHeader class="row" :gameId="gameId" />
             <KumiteContestHeader class="row" :gameId="gameId" :contestId="contestId" />
-            <KumiteBoardView class="row" :gameId="gameId" :contestId="contestId" />
-            <KumiteBoardJoin class="row border" :gameId="gameId" :contestId="contestId" />
-            <KumiteLeaderboard class="row border" :gameId="gameId" :contestId="contestId" />
+            <KumiteBoardPlayInner class="row border" :gameId="gameId" :contestId="contestId" />
         </div>
     `,
 };

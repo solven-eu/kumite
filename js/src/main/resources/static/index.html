@@ -51,7 +51,8 @@
             import KumiteContestForm from "./ui/js/kumite-contest-form.js";
             import KumiteSearchContests from "./ui/js/kumite-search-contests.js";
             import KumiteContest from "./ui/js/kumite-contest.js";
-            import KumiteBoard from "./ui/js/kumite-board.js";
+            import KumiteBoardOverview from "./ui/js/kumite-board-overview.js";
+            import KumiteBoardPlay from "./ui/js/kumite-board-play.js";
             import Login from "./ui/js/login.js";
             import LoginBasic from "./ui/js/login-basic.js";
             import AboutView from "./ui/js/about.js";
@@ -99,7 +100,14 @@
                 },
                 {
                     path: "/html/games/:gameId/contest/:contestId/board",
-                    component: KumiteBoard,
+                    name: "board",
+                    component: KumiteBoardOverview,
+                    props: true,
+                },
+                {
+                    path: "/html/games/:gameId/contest/:contestId/board/play",
+                    name: "play",
+                    component: KumiteBoardPlay,
                     props: true,
                 },
                 {
@@ -133,7 +141,7 @@
         </script>
         <!-- This demonstrate how we can inject properties into source files, to be rendered without any API/Javascript-->
         <!-- https://stackoverflow.com/questions/39099295/make-div-stick-to-bottom-of-page -->
-        <div style="position: fixed; bottom: 0; width: 100%; text-align: center">
+        <div style="position: fixed; bottom: 0; width: 100%; text-align: right; z-index: -1;">
             <a href="https://github.com/solven-eu/kumite/commit/@git.commit.id.abbrev@" target="_blank">
                 <img src="./ui/img/github-mark.svg" alt="Github" width="32" height="32" />
             </a>
