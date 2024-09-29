@@ -98,6 +98,11 @@ export default {
                 <li v-if="isLoggedIn && contest.constantMetadata.author == account.accountId">
                     <KumiteContestDelete :gameId="gameId" :contestId="contestId" />
                 </li>
+                <li>
+                    {{contest.dynamicMetadata.contenders.length}} contenders / {{ contest.constantMetadata.minPlayers }} required players
+                </li>
+
+                
             </ul>
         </span>
     `,

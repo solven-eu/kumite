@@ -1,4 +1,4 @@
-package eu.solven.kumite.player.gamer;
+package eu.solven.kumite.randomgamer;
 
 import eu.solven.kumite.account.fake_player.RandomPlayer;
 import eu.solven.kumite.contest.Contest;
@@ -13,7 +13,7 @@ import eu.solven.kumite.game.IGame;
  * @author Benoit Lacelle
  *
  */
-public class RandomPlayersVsThemselves implements IContestJoiningStrategy {
+public class RandomPlayersVs1 implements IContestJoiningStrategy {
 
 	@Override
 	public boolean shouldJoin(IGame game, Contest contest) {
@@ -31,8 +31,9 @@ public class RandomPlayersVsThemselves implements IContestJoiningStrategy {
 
 		int nbMinPlayers = contest.getConstantMetadata().getMinPlayers();
 
-		if (nbRandomContenders < nbMinPlayers) {
-			// We accept more random players until the game is playable
+		if (nbRandomContenders < nbMinPlayers - 1) {
+			// We accept more random players, only 1 slot is left for a real/fake player
+			// (fakeplayer is typically used in integrationTests)
 			return true;
 		}
 

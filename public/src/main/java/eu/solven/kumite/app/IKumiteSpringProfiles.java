@@ -16,8 +16,10 @@ public interface IKumiteSpringProfiles {
 	String P_DEFAULT_SERVER = "default_server";
 	// If true, we install at startup a small bunch of games
 	String P_INJECT_DEFAULT_GAMES = "inject_default_games";
-	
-	String P_RANDOM_PLAYS_VS1 = "random_plays_vs1";
+	// If true, random players will join until leaving 1 slot for a not random player, and plays randomly
+	String P_RANDOM_PLAYS_VS1 = "randomplayers_play_vs1";
+	// If true, random players will join until leaving 1 slot for a not random player, and plays randomly
+	String P_RANDOM_PLAYS_VSTHEMSELVES = "randomplayers_play_vsthemselves";
 
 	// Activates the whole unsafe configuration
 	String P_UNSAFE = "unsafe";

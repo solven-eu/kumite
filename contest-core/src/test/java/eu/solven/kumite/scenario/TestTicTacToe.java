@@ -26,8 +26,8 @@ import eu.solven.kumite.game.GameSearchParameters;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToe;
 import eu.solven.kumite.leaderboard.Leaderboard;
-import eu.solven.kumite.player.gamer.RandomGamer;
-import eu.solven.kumite.player.gamer.RandomPlayersVsThemselves;
+import eu.solven.kumite.randomgamer.RandomGamer;
+import eu.solven.kumite.randomgamer.RandomPlayersVsThemselves;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(
@@ -60,8 +60,7 @@ public class TestTicTacToe {
 
 		Map<UUID, Set<UUID>> contestIds = randomGamer.joinOncePerContestAndPlayer(
 				GameSearchParameters.byGameId(game.getGameMetadata().getGameId()),
-				new RandomPlayersVsThemselves(),
-				game.getGameMetadata().getMinPlayers());
+				new RandomPlayersVsThemselves());
 		Assertions.assertThat(contestIds).hasSize(1);
 		UUID contestId = contestIds.keySet().iterator().next();
 		Set<UUID> playerIds = contestIds.get(contestId);

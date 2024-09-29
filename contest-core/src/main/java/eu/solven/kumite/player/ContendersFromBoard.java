@@ -1,9 +1,10 @@
 package eu.solven.kumite.player;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import eu.solven.kumite.board.BoardsRegistry;
+import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.persistence.IBoardRepository;
 import lombok.AllArgsConstructor;
@@ -17,11 +18,11 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class ContendersFromBoard implements IContendersRepository {
 	final IAccountPlayersRegistry accountPlayersRegistry;
-	final IBoardRepository boardRepository;
+	final BoardsRegistry boardsRegistry;
+	// final EventBus eventBus;
 
 	private IKumiteBoard requireBoard(UUID contestId) {
-		return boardRepository.getBoard(contestId)
-				.orElseThrow(() -> new IllegalArgumentException("No board for contestId=" + contestId));
+		return boardsRegistry.makeDynamicBoardHolder(contestId).get();
 	}
 
 	@Override
@@ -31,7 +32,7 @@ public class ContendersFromBoard implements IContendersRepository {
 		board.registerContender(playerId);
 
 		// Persist the board (e.g. for concurrent changes)
-		boardRepository.updateBoard(contestId, board);
+		boardsRegistry.updateBoard(contestId, board);
 
 		return true;
 	}
@@ -43,10 +44,9 @@ public class ContendersFromBoard implements IContendersRepository {
 
 	@Override
 	public IHasPlayers makeDynamicHasPlayers(UUID contestId) {
-		if (!boardRepository.hasContest(contestId)) {
-			throw new IllegalArgumentException("Unknown contestId=" + contestId);
-		}
-		return () -> requireBoard(contestId).snapshotPlayers().stream().map(playerId -> {
+		IHasBoard hasBoard = boardsRegistry.makeDynamicBoardHolder(contestId);
+
+		return () -> hasBoard.get().snapshotPlayers().stream().map(playerId -> {
 			UUID accountId = accountPlayersRegistry.getAccountId(playerId);
 			return KumitePlayer.builder().playerId(playerId).accountId(accountId).build();
 		}).collect(Collectors.toList());
@@ -54,11 +54,16 @@ public class ContendersFromBoard implements IContendersRepository {
 
 	@Override
 	public void gameover(UUID contestId) {
-		Optional<IKumiteBoard> board = boardRepository.getBoard(contestId);
-		if (board.isPresent()) {
-			// TODO Checkif the board is actually over
-			// board.get().
-		}
+		IKumiteBoard board = requireBoard(contestId);
+		// if (board.isPresent()) {
+		// TODO Checkif the board is actually over
+		// board.get().
+		// }
+	}
+
+	@Override
+	public long getContestIds(UUID playerId) {
+		return boardsRegistry.getContestIds(playerId);
 	}
 
 }

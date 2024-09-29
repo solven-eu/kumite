@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.session.ReactiveMapSessionRepository;
 import org.springframework.session.ReactiveSessionRepository;
 
+import eu.solven.kumite.app.persistence.RedisKumiteConfiguration;
 import eu.solven.kumite.app.webflux.KumiteWebFluxConfiguration;
 import eu.solven.kumite.security.KumiteSecurity;
 import eu.solven.kumite.tools.GitPropertySourceConfig;
@@ -22,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 		KumiteServerComponentsConfiguration.class,
 		KumiteSecurity.class,
 		GitPropertySourceConfig.class,
+
+		RedisKumiteConfiguration.class,
 
 })
 @Slf4j

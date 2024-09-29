@@ -8,11 +8,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.greenrobot.eventbus.EventBus;
+
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest.ContestBuilder;
 import eu.solven.kumite.contest.persistence.IContestsRepository;
+import eu.solven.kumite.events.ContestIsCreated;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.player.ContestPlayersRegistry;
@@ -38,7 +41,10 @@ public class ContestsRegistry {
 	@NonNull
 	final IUuidGenerator uuidGenerator;
 
+	@NonNull
 	final IContestsRepository contestsRepository;
+
+	final EventBus eventBus;
 
 	protected Optional<ContestCreationMetadata> registerContest(UUID contestId, ContestCreationMetadata contest) {
 		if (contestId == null) {
@@ -64,6 +70,8 @@ public class ContestsRegistry {
 			// (e.g. if the game has a very small timeout)
 			throw new IllegalArgumentException("When registered, a contest has not to be over");
 		}
+
+		eventBus.post(ContestIsCreated.builder().contestId(contest.getContestId()).build());
 
 		return contest;
 	}

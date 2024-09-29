@@ -9,7 +9,7 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
-public class PlayerMoveRaw {
+public class PlayerMoveRaw implements IHasPlayerId {
 	UUID playerId;
 	// UUID contestId;
 	IKumiteMove move;

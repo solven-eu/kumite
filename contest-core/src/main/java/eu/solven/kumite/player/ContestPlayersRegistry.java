@@ -59,38 +59,41 @@ public class ContestPlayersRegistry {
 
 		KumitePlayer player = makePlayer(playerId);
 
+		IKumiteBoard updatedBoard;
+
 		// No need to synchronize as BoardLifecycleManager ensure single-threaded per contest
-		{
-			if (game.canAcceptPlayer(contest, player)) {
-				boolean registeredInBoard = contestPlayersRepository.registerContender(contestId, playerId);
-				if (registeredInBoard) {
-					log.debug(
-							"Skip `board.registerContender` as already managed by `contestPlayersRepository.registerContender`");
-				} else {
-					IKumiteBoard board = contest.getBoard().get();
-					try {
-						board.registerContender(playerId);
-					} catch (Throwable t) {
-						// What should we do about contestPlayersRegistry? Remove the player? Force gameOver? Drop
-						// contestPlayersRegistry and rely only on the board?
-						throw new IllegalStateException(
-								"Issue after registering a player, but before registering it on the board",
-								t);
-					}
-				}
+		if (game.canAcceptPlayer(contest, player)) {
+			boolean registeredInBoard = contestPlayersRepository.registerContender(contestId, playerId);
+			if (registeredInBoard) {
+				log.debug(
+						"Skip `board.registerContender` as already managed by `contestPlayersRepository.registerContender`");
 			} else {
-				throw new IllegalArgumentException(
-						"player=" + playerId + " can not be registered on contestId=" + contestId);
+				updatedBoard = contest.getBoard().get();
+				try {
+					updatedBoard.registerContender(playerId);
+				} catch (Throwable t) {
+					// What should we do about contestPlayersRegistry? Remove the player? Force gameOver? Drop
+					// contestPlayersRegistry and rely only on the board?
+					throw new IllegalStateException(
+							"Issue after registering a player, but before registering it on the board",
+							t);
+				}
+
+				throw new IllegalStateException("Unclear how we should persist the new board");
 			}
+		} else {
+			throw new IllegalArgumentException(
+					"player=" + playerId + " can not be registered on contestId=" + contestId);
 		}
 
 		// We may want to prevent a player to register into too many contests
-		long nbPlayingGames = -1;
-		// contestToPlayingPlayers.values().stream().filter(players -> players.contains(playerId)).count();
-		log.info("playerId={} has registered into contestId={}. Now playing {} contests",
+		long nbPlayingGames = contestPlayersRepository.getContestIds(playerId);
+		log.info("playerId={} has joined as contender into contestId={}. (Now playing {} contests)",
 				playerId,
 				contestId,
 				nbPlayingGames);
+
+		// return updatedBoard;
 	}
 
 	private KumitePlayer makePlayer(UUID playerId) {

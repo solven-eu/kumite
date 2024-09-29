@@ -113,12 +113,6 @@ export default {
 			boardCanvas.value.appendChild(renderer.domElement);
 			renderer.setSize(width, height);
 
-			board.cities.forEach((city) => {
-				// `city.x` and `city.y` ranges in [0;1]
-				const circle = new Circle(width * city.x, height * city.y, 1);
-				renderer.scene.add(circle);
-			});
-
 			console.log("Rendering board", board);
 			renderer.render();
 

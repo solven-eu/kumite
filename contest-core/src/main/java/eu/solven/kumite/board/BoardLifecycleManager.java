@@ -8,7 +8,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import org.greenrobot.eventbus.EventBus;
+
 import eu.solven.kumite.contest.Contest;
+import eu.solven.kumite.events.PlayerJoinedBoard;
+import eu.solven.kumite.events.PlayerMoved;
 import eu.solven.kumite.move.PlayerMoveRaw;
 import eu.solven.kumite.player.ContestPlayersRegistry;
 import eu.solven.kumite.player.PlayerJoinRaw;
@@ -24,6 +28,8 @@ public class BoardLifecycleManager {
 
 	// This guarantees each change to a board in single-threaded
 	final Executor boardEvolutionExecutor;
+
+	final EventBus eventBus;
 
 	/**
 	 * When this returns, the caller is guaranteed its change has been executed
@@ -94,6 +100,13 @@ public class BoardLifecycleManager {
 			// The registry takes in charge the registration in the board
 			contestPlayersRegistry.registerPlayer(contest, playerRegistrationRaw);
 		});
+
+		// We submit the event out of threadPool.
+		// Hence we are guaranteed the event is fully processed.
+		// The event subscriber can process it synchronously (through beware of deep-stack in case of long event-chains)
+		// Hence we do not guarantee other events interleaved when the event is processed
+		eventBus.post(
+				PlayerJoinedBoard.builder().contestId(contestId).playerId(playerRegistrationRaw.getPlayerId()).build());
 	}
 
 	public IKumiteBoardView onPlayerMove(Contest contest, PlayerMoveRaw playerMove) {
@@ -135,7 +148,7 @@ public class BoardLifecycleManager {
 			boardRegistry.updateBoard(contestId, currentBoard);
 
 			refBoardView.set(currentBoard.asView(playerId));
-			
+
 		});
 
 		IKumiteBoardView boardViewPostMove = refBoardView.get();
@@ -143,6 +156,8 @@ public class BoardLifecycleManager {
 		if (boardViewPostMove == null) {
 			throw new IllegalStateException("Should have failed, or have produced a view");
 		}
+
+		eventBus.post(PlayerMoved.builder().contestId(contestId).playerId(playerMove.getPlayerId()).build());
 
 		return boardViewPostMove;
 	}

@@ -26,4 +26,6 @@ public interface IContendersRepository {
 
 	void gameover(UUID contestId);
 
+	long getContestIds(UUID playerId);
+
 }

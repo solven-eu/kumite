@@ -39,7 +39,7 @@ public class ContestSearchParameters {
 
 	// `null` means no filter
 	@Default
-	Boolean gameOver = false;
+	Boolean gameOver = null;
 
 	public static ContestSearchParameters searchContestId(UUID contestId) {
 		return ContestSearchParameters.builder()

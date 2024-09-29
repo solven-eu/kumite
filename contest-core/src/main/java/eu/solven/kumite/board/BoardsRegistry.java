@@ -6,7 +6,6 @@ import java.util.UUID;
 import org.greenrobot.eventbus.EventBus;
 
 import eu.solven.kumite.board.persistence.IBoardRepository;
-import eu.solven.kumite.events.BoardIsUpdated;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,12 +35,17 @@ public class BoardsRegistry {
 	public void updateBoard(UUID contestId, IKumiteBoard currentBoard) {
 		boardRepository.updateBoard(contestId, currentBoard);
 
-		eventBus.post(BoardIsUpdated.builder().contestId(contestId).build());
+		// eventBus.post(BoardIsUpdated.builder().contestId(contestId).build());
 	}
 
 	public void forceGameover(UUID contestId) {
 		// currentBoard.
 		// TODO Auto-generated method stub
 
+	}
+
+	public long getContestIds(UUID playerId) {
+		// TODO: Scan through live boards?
+		return -1;
 	}
 }

@@ -12,8 +12,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
+@Slf4j
 public class GamesRegistry {
 	// One day, we could register externalized games, interacting by API. It will be a way not to concentrate all Games
 	// in this project.
@@ -30,6 +32,7 @@ public class GamesRegistry {
 		if (alreadyIn != null) {
 			throw new IllegalArgumentException("gameId already registered: " + game);
 		}
+		log.info("Registering gameId={} title={}", gameId, game.getGameMetadata().getTitle());
 	}
 
 	public IGame getGame(UUID gameId) {

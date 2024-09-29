@@ -95,7 +95,7 @@ public class TicTacToe implements IGame {
 			}
 			UUID otherPlayerId = signedUpPlayers.iterator().next();
 			WaitForPlayersMove waitForPlayerMove = WaitForPlayersMove.builder().waitedPlayer(otherPlayerId).build();
-			return Collections.singletonMap("Wait for sign-ups", waitForPlayerMove);
+			return Collections.singletonMap("Wait for player `%s`".formatted(nextPlayerSymbol), waitForPlayerMove);
 		}
 
 		char[] positions = board.getPositions();
@@ -127,7 +127,7 @@ public class TicTacToe implements IGame {
 	@Override
 	public Leaderboard makeLeaderboard(IKumiteBoard rawBoard) {
 		TicTacToeBoard board = (TicTacToeBoard) rawBoard;
-		
+
 		return board.makeLeaderboard();
 	}
 }

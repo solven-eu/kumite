@@ -15,6 +15,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerComponentsConfiguration;
+import eu.solven.kumite.app.persistence.RedisKumiteConfiguration;
 import eu.solven.kumite.contest.ActiveContestGenerator;
 import eu.solven.kumite.contest.persistence.IContestsRepository;
 import eu.solven.kumite.game.GamesRegistry;
@@ -30,9 +31,12 @@ import lombok.extern.slf4j.Slf4j;
 		"spring.data.redis.port" + "=6380",
 		IKumiteOAuth2Constants.KEY_OAUTH2_ISSUER + "=https://unit.test.kumite",
 		IKumiteOAuth2Constants.KEY_JWT_SIGNINGKEY + "=GENERATE" })
-@Import({ RedisTestConfiguration.class,
+@Import({
+
+		RedisTestConfiguration.class,
 
 		KumiteServerComponentsConfiguration.class,
+		RedisKumiteConfiguration.class,
 		RedisAutoConfiguration.class,
 
 })
