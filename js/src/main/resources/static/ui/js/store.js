@@ -91,6 +91,9 @@ export const useKumiteStore = defineStore("kumite", {
 				console.error("An Error is not being rethrown", error);
 			}
 		},
+        newNetworkError(msg, url, response) {
+            return new NetworkError("Rejected request for games url" + url, url, response);
+        },
 
 		async loadMetadata() {
 			const store = this;
@@ -122,7 +125,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 			const json = await response.json();
 			const csrfHeader = json.header;
-			console.log("csrf header", csrfHeader);
+			console.debug("csrf header", csrfHeader);
 
 			const freshCrsfToken = response.headers.get(csrfHeader);
 			if (!freshCrsfToken) {

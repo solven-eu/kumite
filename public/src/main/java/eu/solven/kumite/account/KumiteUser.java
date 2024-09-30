@@ -35,13 +35,8 @@ public class KumiteUser {
 	@NonNull
 	UUID playerId;
 
-	// https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
-	String countryCode;
-
-	String school;
-	String company;
-
 	public KumitePlayer mainPlayer() {
 		return KumitePlayer.builder().accountId(accountId).playerId(playerId).build();
 	}
+
 }

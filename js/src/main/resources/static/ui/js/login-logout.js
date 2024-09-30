@@ -72,7 +72,7 @@ export default {
 	},
 	template: /* HTML */ `
         <span v-if="isLoggedIn">
-            <button class="btn btn-danger" @click="doLogout">Logout</button>
+            <button class="btn btn-outline-warning" @click="doLogout">Logout</button>
         </span>
     `,
 };

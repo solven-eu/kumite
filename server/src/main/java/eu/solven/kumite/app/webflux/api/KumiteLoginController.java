@@ -28,12 +28,14 @@ import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
 import eu.solven.kumite.account.KumiteUser;
+import eu.solven.kumite.account.KumiteUserRaw;
 import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
@@ -165,6 +167,28 @@ public class KumiteLoginController {
 	@GetMapping("/user")
 	public Mono<KumiteUser> user() {
 		return userMayEmpty().switchIfEmpty(Mono.error(() -> new LoginRouteButNotAuthenticatedException("No user")));
+	}
+
+	@PostMapping("/user")
+	public Mono<KumiteUser> user(ServerWebExchange exchange, @RequestBody KumiteUserUpdate rawUpdates) {
+		return user().flatMap(user -> {
+			KumiteUser updatedUser = user;
+
+			if (rawUpdates.getCountryCode().isPresent()) {
+				String countryCode = rawUpdates.getCountryCode().get();
+
+				KumiteUserRaw updatedRaw = user.getRaw().setCountryCode(countryCode);
+				updatedUser = usersRegistry.registerOrUpdate(updatedRaw);
+
+				log.info("accountId={} has countryCode updated {} -> {}",
+						user.getAccountId(),
+						user.getRaw().getCountryCode(),
+						countryCode);
+			}
+
+			// return the updated user
+			return Mono.just(updatedUser);
+		});
 	}
 
 	private KumiteUser userFromUsername(UsernamePasswordAuthenticationToken usernameToken) {

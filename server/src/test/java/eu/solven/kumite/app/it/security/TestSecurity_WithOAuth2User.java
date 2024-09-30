@@ -162,11 +162,32 @@ public class TestSecurity_WithOAuth2User {
 
 				.expectStatus()
 				.isOk()
-				.expectBody(Map.class)
-				.value(greeting -> {
-					Assertions.assertThat(greeting)
-							.containsKeys("accountId", "raw", "company", "countryCode")
-							.hasSize(7);
+				.expectBody(KumiteUser.class)
+				.value(user -> {
+					Assertions.assertThat(user.getRaw()).isNotNull();
+				});
+	}
+
+	@Test
+	public void testLoginUser_update() {
+		log.debug("About {}", KumiteLoginController.class);
+
+		getWebTestClient()
+
+				// https://www.baeldung.com/spring-security-csrf
+				.mutateWith(SecurityMockServerConfigurers.csrf())
+
+				.post()
+				.uri("/api/login/v1/user")
+				.accept(MediaType.APPLICATION_JSON)
+				.bodyValue(Map.of("countryCode", "someCountryCode"))
+				.exchange()
+
+				.expectStatus()
+				.isOk()
+				.expectBody(KumiteUser.class)
+				.value(user -> {
+					Assertions.assertThat(user.getRaw().getCountryCode()).isEqualTo("someCountryCode");
 				});
 	}
 

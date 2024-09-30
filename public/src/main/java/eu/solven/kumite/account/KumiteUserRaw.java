@@ -28,4 +28,26 @@ public class KumiteUserRaw {
 	String email;
 
 	URI picture;
+
+	// https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
+	String countryCode;
+
+	String school;
+	String company;
+
+	private KumiteUserRawBuilder preloadBuilder() {
+		return KumiteUserRaw.builder()
+				.rawRaw(rawRaw)
+				.username(username)
+				.name(name)
+				.email(email)
+				.picture(picture)
+				.countryCode(countryCode)
+				.school(school)
+				.company(company);
+	}
+
+	public KumiteUserRaw setCountryCode(String countryCode) {
+		return preloadBuilder().countryCode(countryCode).build();
+	}
 }
