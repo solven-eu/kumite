@@ -3,7 +3,13 @@ import {} from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
+import Flag from "./flag.js";
+
 export default {
+    components: {
+        Flag,
+        
+    },
 	props: {
 		accountId: {
 			type: String,
@@ -28,13 +34,8 @@ export default {
 	template: /* HTML */ `
         <RouterLink :to="{path:'/html/me'}">
             <i class="bi bi-person"></i>accountId: {{ accountId }}<span v-if="account.accountId === accountId"> (You)</span>
-            <img
-                v-if="account.countryCode"
-                :src="'https://flagcdn.com/' + account.countryCode.toLowerCase() + '.svg'"
-                :alt="account.countryCode"
-                width="48"
-                height="36"
-            />
+            
+            <Flag :country="account.raw.countryCode" v-if="account.raw.countryCode" />
         </RouterLink>
     `,
 };

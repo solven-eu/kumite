@@ -10,12 +10,14 @@ import KumiteAccountRef from "./kumite-account-ref.js";
 import KumitePlayerRef from "./kumite-player-ref.js";
 
 import KumiteMeRefreshToken from "./kumite-me-refresh_token.js";
+import Flag from "./flag.js";
 
 export default {
 	components: {
 		KumiteAccountRef,
 		KumitePlayerRef,
 		KumiteMeRefreshToken,
+        Flag,
 	},
 	computed: {
 		...mapState(useKumiteStore, ["nbAccountFetching", "account", "isLoggedIn"]),
@@ -59,26 +61,29 @@ export default {
 				headers[csrfToken.header] = csrfToken.token;
 				headers["Content-Type"] = "application/json";
 
-				try {
-					const fetchOptions = {
-						method: "POST",
-						headers: headers,
-						body: JSON.stringify(userUpdates),
-					};
-					const response = fetch("/api/login/v1/user", fetchOptions);
-					if (!response.ok) {
-						throw store.newNetworkError("POST for userUpdate has failed ", "/api/login/v1/user", response);
-					}
+				const fetchOptions = {
+					method: "POST",
+					headers: headers,
+					body: JSON.stringify(userUpdates),
+				};
+				fetch("/api/login/v1/user", fetchOptions).then(response => {
+                    if (!response.ok) {
+                        throw store.newNetworkError("POST for userUpdate has failed ", "/api/login/v1/user", response);
+                    }
 
-					const updatedUser = response.json();
+                    return response.json();
+                })
+                .then(updatedUser => {
 
-					// The submitted move may have impacted the user
-					store.$patch((state) => {
-						state.account = updatedUser;
-					});
-				} catch (e) {
-					store.onSwallowedError(e);
-				}
+                    // The submitted move may have impacted the user
+                    store.$patch((state) => {
+                        state.account = updatedUser;
+                    });                        
+                })
+                .catch(e => {
+                    store.onSwallowedError(e);  
+                })
+                ;
 			});
 		};
 
@@ -128,13 +133,7 @@ export default {
                     <span class="btn-group ">
                         <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                             Current country: {{countries[countryCode] || countryCode}}
-                            <img
-                                v-if="countryCode != 'unknown'"
-                                :src="'https://flagcdn.com/' + countryCode.toLowerCase() + '.svg'"
-                                :alt="countryCode"
-                                width="48"
-                                height="36"
-                            />
+                            <Flag :country="countryCode" />
                         </button>
                         <ul class="dropdown-menu">
                             <li>
@@ -144,12 +143,7 @@ export default {
                                     :data-testid="'country_' + countryIndex"
                                     v-for="(countryName, countryCode, countryIndex) in countries"
                                 >
-                                    <img
-                                        :src="'https://flagcdn.com/' + countryCode.toLowerCase() + '.svg'"
-                                        :alt="countryCode"
-                                        width="48"
-                                        height="36"
-                                    />{{countryName}}
+                                <Flag :country="countryCode" />{{countryName}}
                                 </a>
                             </li>
                         </ul>
