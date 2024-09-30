@@ -39,4 +39,8 @@ public class KumiteUser {
 		return KumitePlayer.builder().accountId(accountId).playerId(playerId).build();
 	}
 
+	public KumiteUser editRaw(KumiteUserRaw raw) {
+		return KumiteUser.builder().accountId(accountId).raw(raw).enabled(enabled).playerId(playerId).build();
+	}
+
 }

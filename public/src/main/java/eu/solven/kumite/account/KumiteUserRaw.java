@@ -50,4 +50,12 @@ public class KumiteUserRaw {
 	public KumiteUserRaw setCountryCode(String countryCode) {
 		return preloadBuilder().countryCode(countryCode).build();
 	}
+
+	public KumiteUserRaw setCompany(String company) {
+		return preloadBuilder().company(company).build();
+	}
+
+	public KumiteUserRaw setSchool(String school) {
+		return preloadBuilder().school(school).build();
+	}
 }

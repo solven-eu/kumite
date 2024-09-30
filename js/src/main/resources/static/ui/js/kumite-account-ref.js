@@ -28,11 +28,13 @@ export default {
 	template: /* HTML */ `
         <RouterLink :to="{path:'/html/me'}">
             <i class="bi bi-person"></i>accountId: {{ accountId }}<span v-if="account.accountId === accountId"> (You)</span>
-            <img v-if="account.countryCode"
-                                            :src="'https://flagcdn.com/' + account.countryCode.toLowerCase() + '.svg'"
-                                            :alt="account.countryCode"
-                                            width="48"
-                                            height="36"/>
+            <img
+                v-if="account.countryCode"
+                :src="'https://flagcdn.com/' + account.countryCode.toLowerCase() + '.svg'"
+                :alt="account.countryCode"
+                width="48"
+                height="36"
+            />
         </RouterLink>
     `,
 };

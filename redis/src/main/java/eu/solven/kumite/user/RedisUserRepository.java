@@ -76,6 +76,11 @@ public class RedisUserRepository implements IKumiteUserRawRawRepository, IKumite
 		log.info("rawRaw={} user={} putIfAbsent={}", userRawRaw, kumiteUser, result);
 	}
 
+	void putIfPresent(KumiteUserRawRaw userRawRaw, KumiteUser kumiteUser) {
+		Boolean result = valueOpRawRaw(userRawRaw).setIfPresent(kumiteUser);
+		log.info("rawRaw={} user={} putIfAbsent={}", userRawRaw, kumiteUser, result);
+	}
+
 	@Override
 	public Optional<KumiteUser> getUser(KumiteUserRawRaw userRawRaw) {
 		KumiteUser kumiteUser = (KumiteUser) valueOpRawRaw(userRawRaw).get();
@@ -98,6 +103,21 @@ public class RedisUserRepository implements IKumiteUserRawRawRepository, IKumite
 			putIfAbsent(rawRaw, kumiteUser);
 
 			playersRegistry.registerPlayer(KumitePlayer.builder().playerId(playerId).accountId(accountId).build());
+		} else {
+			// Merge the raw, especially as it may be fed from different sources (username from OAuth2, countryCode from
+			// browser)
+
+			if (kumiteUserRaw.getCountryCode() == null) {
+				kumiteUserRaw = kumiteUserRaw.setCountryCode(user.get().getRaw().getCountryCode());
+			}
+			if (kumiteUserRaw.getCompany() == null) {
+				kumiteUserRaw = kumiteUserRaw.setCompany(user.get().getRaw().getCompany());
+			}
+			if (kumiteUserRaw.getSchool() == null) {
+				kumiteUserRaw = kumiteUserRaw.setSchool(user.get().getRaw().getSchool());
+			}
+
+			putIfPresent(rawRaw, user.get().editRaw(kumiteUserRaw));
 		}
 
 		return getUser(rawRaw).orElseThrow(() -> new IllegalStateException("No user through we just registered one"));
