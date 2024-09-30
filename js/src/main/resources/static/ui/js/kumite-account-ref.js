@@ -2,14 +2,14 @@ import {} from "vue";
 
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
+import { useUserStore } from "./store-user.js";
 
 import Flag from "./flag.js";
 
 export default {
-    components: {
-        Flag,
-        
-    },
+	components: {
+		Flag,
+	},
 	props: {
 		accountId: {
 			type: String,
@@ -17,7 +17,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, ["account"]),
+		...mapState(useUserStore, ["account"]),
 		...mapState(useKumiteStore, {
 			player(store) {
 				return store.players[this.playerId] || { error: "not_loaded" };
@@ -25,16 +25,16 @@ export default {
 		}),
 	},
 	setup(props) {
-		const store = useKumiteStore();
+		const userStore = useUserStore();
 
-		store.loadUser();
+		userStore.loadUser();
 
 		return {};
 	},
 	template: /* HTML */ `
         <RouterLink :to="{path:'/html/me'}">
             <i class="bi bi-person"></i>accountId: {{ accountId }}<span v-if="account.accountId === accountId"> (You)</span>
-            
+
             <Flag :country="account.raw.countryCode" v-if="account.raw.countryCode" />
         </RouterLink>
     `,

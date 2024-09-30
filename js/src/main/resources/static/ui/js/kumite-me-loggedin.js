@@ -2,6 +2,7 @@ import { ref, computed } from "vue";
 
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
+import { useUserStore } from "./store-user.js";
 
 // https://stackoverflow.com/questions/69053972/adding-bootstrap-5-tooltip-to-vue-3
 import { Tooltip } from "bootstrap";
@@ -17,10 +18,10 @@ export default {
 		KumiteAccountRef,
 		KumitePlayerRef,
 		KumiteMeRefreshToken,
-        Flag,
+		Flag,
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbAccountFetching", "account", "isLoggedIn"]),
+		...mapState(useUserStore, ["nbAccountFetching", "account", "isLoggedIn"]),
 		...mapState(useKumiteStore, {
 			players(store) {
 				return Object.values(store.players).filter((p) => p.accountId == this.account.accountId);
@@ -28,9 +29,9 @@ export default {
 		}),
 	},
 	setup(props) {
-		const store = useKumiteStore();
+		const userStore = useUserStore();
 
-		store.loadCurrentAccountPlayers();
+		userStore.loadCurrentAccountPlayers();
 
 		const countries = ref({});
 		// https://flagpedia.net/download/api
@@ -45,18 +46,18 @@ export default {
 				countries.value = json;
 			});
 
-		const countryCode = computed(() => store.account.raw.countryCode || "unknown");
+		const countryCode = computed(() => userStore.account.raw.countryCode || "unknown");
 
 		const updateCountry = function (newCountryCode) {
 			console.log("Update accouht country", newCountryCode);
 
 			// Update the store asap
-			store.account.raw.countryCode = newCountryCode;
+			userStore.account.raw.countryCode = newCountryCode;
 
 			const userUpdates = {};
 			userUpdates.countryCode = newCountryCode;
 
-			store.fetchCsrfToken().then((csrfToken) => {
+			userStore.fetchCsrfToken().then((csrfToken) => {
 				const headers = {};
 				headers[csrfToken.header] = csrfToken.token;
 				headers["Content-Type"] = "application/json";
@@ -66,24 +67,23 @@ export default {
 					headers: headers,
 					body: JSON.stringify(userUpdates),
 				};
-				fetch("/api/login/v1/user", fetchOptions).then(response => {
-                    if (!response.ok) {
-                        throw store.newNetworkError("POST for userUpdate has failed ", "/api/login/v1/user", response);
-                    }
+				fetch("/api/login/v1/user", fetchOptions)
+					.then((response) => {
+						if (!response.ok) {
+							throw userStore.newNetworkError("POST for userUpdate has failed ", "/api/login/v1/user", response);
+						}
 
-                    return response.json();
-                })
-                .then(updatedUser => {
-
-                    // The submitted move may have impacted the user
-                    store.$patch((state) => {
-                        state.account = updatedUser;
-                    });                        
-                })
-                .catch(e => {
-                    store.onSwallowedError(e);  
-                })
-                ;
+						return response.json();
+					})
+					.then((updatedUser) => {
+						// The submitted move may have impacted the user
+						userStore.$patch((state) => {
+							state.account = updatedUser;
+						});
+					})
+					.catch((e) => {
+						userStore.onSwallowedError(e);
+					});
 			});
 		};
 
@@ -143,7 +143,7 @@ export default {
                                     :data-testid="'country_' + countryIndex"
                                     v-for="(countryName, countryCode, countryIndex) in countries"
                                 >
-                                <Flag :country="countryCode" />{{countryName}}
+                                    <Flag :country="countryCode" />{{countryName}}
                                 </a>
                             </li>
                         </ul>

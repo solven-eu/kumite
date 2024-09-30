@@ -1,6 +1,8 @@
 import { ref } from "vue";
+
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
+import { useUserStore } from "./store-user.js";
 
 import { useRouter } from "vue-router";
 
@@ -41,7 +43,8 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "nbBoardFetching", "playingPlayerId"]),
+		...mapState(useUserStore, ["playingPlayerId"]),
+		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "nbBoardFetching"]),
 		...mapState(useKumiteStore, {
 			game(store) {
 				return store.games[this.gameId] || { error: "not_loaded" };
@@ -57,19 +60,17 @@ export default {
 				);
 			},
 		}),
-		curlPostBoard() {
-			return "curl " + window.location.protocol + "//" + window.location.host + "/api/v1" + "/board?contest_id=" + this.contestId;
-		},
 	},
 	setup(props) {
 		const store = useKumiteStore();
+		const userStore = useUserStore();
 		const router = useRouter();
 
 		function loadExampleMoves() {
 			console.debug("Loading example moves");
 			async function fetchFromUrl(url) {
 				try {
-					const response = await store.authenticatedFetch(url);
+					const response = await userStore.authenticatedFetch(url);
 					if (!response.ok) {
 						throw new Error("Rejected request for games url" + url);
 					}
@@ -103,7 +104,7 @@ export default {
 
 			// const viewingPlayerId = "00000000-0000-0000-0000-000000000000";
 			// const playerId = viewingPlayerId;
-			const playerId = store.playingPlayerId;
+			const playerId = userStore.playingPlayerId;
 			fetchFromUrl(`/board/moves?contest_id=${props.contestId}&player_id=${playerId}`);
 		}
 		function fillMove(json) {
@@ -132,7 +133,7 @@ export default {
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify(move),
 					};
-					const response = await store.authenticatedFetch(url, fetchOptions);
+					const response = await userStore.authenticatedFetch(url, fetchOptions);
 					if (!response.ok) {
 						throw new NetworkError("POST has failed (" + response.statusText + " - " + response.status + ")", url, response);
 					}
@@ -155,14 +156,12 @@ export default {
 				}
 			}
 
-			const playerId = store.playingPlayerId;
+			const playerId = userStore.playingPlayerId;
 			return postFromUrl(`/board/move?contest_id=${contestId}&player_id=${playerId}`);
 		}
 
 		// We load current accountPlayers to enable player registration
-		store.loadCurrentAccountPlayers();
-
-		store.loadBoard(props.gameId, props.contestId);
+		userStore.loadCurrentAccountPlayers();
 
 		const exampleMoves = ref({});
 		const exampleMovesMetadata = ref({ loaded: false });

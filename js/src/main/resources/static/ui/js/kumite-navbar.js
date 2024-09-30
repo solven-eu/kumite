@@ -1,5 +1,5 @@
 import { mapState } from "pinia";
-import { useKumiteStore } from "./store.js";
+import { useUserStore } from "./store-user.js";
 
 import Logout from "./login-logout.js";
 
@@ -8,12 +8,12 @@ export default {
 		Logout,
 	},
 	computed: {
-		...mapState(useKumiteStore, ["isLoggedIn", "account", "tokens", "nbAccountFetching", "playingPlayerId"]),
+		...mapState(useUserStore, ["isLoggedIn", "account", "tokens", "nbAccountFetching", "playingPlayerId"]),
 	},
 	setup() {
-		const store = useKumiteStore();
+		const userStore = useUserStore();
 
-		store.loadUser();
+		userStore.loadUser();
 
 		return {};
 	},

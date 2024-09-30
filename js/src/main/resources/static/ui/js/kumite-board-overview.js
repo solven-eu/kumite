@@ -1,5 +1,6 @@
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
+import { useUserStore } from "./store-user.js";
 
 import KumiteGameHeader from "./kumite-game-header.js";
 import KumiteContestHeader from "./kumite-contest-header.js";
@@ -24,7 +25,8 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "nbBoardFetching", "playingPlayerId"]),
+		...mapState(useUserStore, ["playingPlayerId"]),
+		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "nbBoardFetching"]),
 		...mapState(useKumiteStore, {
 			game(store) {
 				return store.games[this.gameId] || { error: "not_loaded" };
@@ -39,12 +41,13 @@ export default {
 	},
 	setup(props) {
 		const store = useKumiteStore();
+		const userStore = useUserStore();
 
 		// We load current accountPlayers to enable playingPlayerId
-		store
+		userStore
 			.loadCurrentAccountPlayers()
 			.then(() => {
-				return store.loadBoard(props.gameId, props.contestId, store.playingPlayerId);
+				return store.loadBoard(props.gameId, props.contestId, userStore.playingPlayerId);
 			})
 			.then((board) => {
 				console.log("We loaded board", board);

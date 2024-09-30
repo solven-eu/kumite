@@ -3,6 +3,7 @@ import { watch } from "vue";
 import { defineStore } from "pinia";
 
 import { useKumiteStore } from "./store.js";
+import { useUserStore } from "./store-user.js";
 
 export const usePlayersStore = defineStore("players", {
 	state: () => ({
@@ -46,11 +47,12 @@ export const usePlayersStore = defineStore("players", {
 
 		async joinAsPlayer(playerId, contestId) {
 			const store = useKumiteStore();
+			const userStore = useUserStore();
 			const playersStore = this;
 
 			async function fetchFromUrl(url) {
 				try {
-					const response = await store.authenticatedFetch(url, {
+					const response = await userStore.authenticatedFetch(url, {
 						method: "POST",
 					});
 					if (!response.ok) {

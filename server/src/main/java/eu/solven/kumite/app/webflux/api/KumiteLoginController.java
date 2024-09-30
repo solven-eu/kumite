@@ -212,8 +212,8 @@ public class KumiteLoginController {
 				log.info("Generating an refresh_token for accountId={} playerIds={}", user.getAccountId(), playerIds);
 				return kumiteTokenService.wrapInJwtRefreshToken(user, playerIds);
 			} else {
-				UUID playerId =
-						KumiteHandlerHelper.optUuid(Optional.ofNullable(rawPlayerId)).orElse(user.getPlayerId());
+				UUID playerId = KumiteHandlerHelper.optUuid(Optional.ofNullable(rawPlayerId), "player_id")
+						.orElse(user.getPlayerId());
 				checkValidPlayerId(user, playerId);
 				log.info("Generating an access_token for accountId={} playerId={}", user.getAccountId(), playerId);
 				return kumiteTokenService.wrapInJwtAccessToken(user, playerId);

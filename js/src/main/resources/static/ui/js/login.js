@@ -1,7 +1,7 @@
 import { ref, watch } from "vue";
 
 import { mapState } from "pinia";
-import { useKumiteStore } from "./store.js";
+import { useUserStore } from "./store-user.js";
 
 import { useRouter } from "vue-router";
 
@@ -23,17 +23,17 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbAccountFetching", "account", "isLoggedIn", "isLoggedOut"]),
-		...mapState(useKumiteStore, {
+		...mapState(useUserStore, ["nbAccountFetching", "account", "isLoggedIn", "isLoggedOut"]),
+		...mapState(useUserStore, {
 			user(store) {
 				return store.account;
 			},
 		}),
 	},
 	setup(props) {
-		const store = useKumiteStore();
+		const userStore = useUserStore();
 
-		store.loadUser();
+		userStore.loadUser();
 
 		return {};
 	},

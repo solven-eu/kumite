@@ -18,33 +18,26 @@ import reactor.core.publisher.Mono;
  */
 public class KumiteHandlerHelper {
 
-	public static UUID uuid(String rawUuid) {
+	public static UUID uuid(String rawUuid, String idKey) {
 		if ("undefined".equals(rawUuid)) {
-			throw new IllegalArgumentException("`undefined` is an invalid id");
+			throw new IllegalArgumentException("`undefined` is an invalid `%s`".formatted(idKey));
 		}
 		return UUID.fromString(rawUuid);
 	}
 
-	public static UUID uuid(Optional<String> optRawId) {
-		if (optRawId.isEmpty()) {
-			throw new IllegalArgumentException("Lack required id");
-		}
-		return uuid(optRawId.get());
-	}
-
 	public static UUID uuid(ServerRequest request, String idKey) {
 		Optional<String> optPlayerId = request.queryParam(idKey);
-		return uuid(optPlayerId.orElseThrow(() -> new IllegalArgumentException("Lack `%s`".formatted(idKey))));
+		return uuid(optPlayerId.orElseThrow(() -> new IllegalArgumentException("Lack `%s`".formatted(idKey))), idKey);
 	}
 
 	public static Optional<UUID> optUuid(ServerRequest request, String idKey) {
 		Optional<String> optUuid = request.queryParam(idKey);
 
-		return optUuid.map(rawUuid -> uuid(rawUuid));
+		return optUuid.map(rawUuid -> uuid(rawUuid, idKey));
 	}
 
-	public static Optional<UUID> optUuid(Optional<String> optRaw) {
-		return optRaw.map(raw -> uuid(raw));
+	public static Optional<UUID> optUuid(Optional<String> optRaw, String idKey) {
+		return optRaw.map(raw -> uuid(raw, idKey));
 	}
 
 	public static Optional<Boolean> optBoolean(ServerRequest request, String idKey) {

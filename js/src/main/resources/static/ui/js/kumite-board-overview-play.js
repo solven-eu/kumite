@@ -2,6 +2,7 @@ import { ref, watch, computed } from "vue";
 
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
+import { useUserStore } from "./store-user.js";
 import { usePlayersStore } from "./store-players.js";
 
 import KumiteContestFormRef from "./kumite-contest-form-ref.js";
@@ -48,10 +49,11 @@ export default {
 	},
 	setup(props) {
 		const store = useKumiteStore();
+		const userStore = useUserStore();
 		const playersStore = usePlayersStore();
 
 		function joinAsPlayer() {
-			const playerId = store.playingPlayerId;
+			const playerId = userStore.playingPlayerId;
 			const contestId = props.contestId;
 
 			return playersStore.joinAsPlayer(playerId, contestId);

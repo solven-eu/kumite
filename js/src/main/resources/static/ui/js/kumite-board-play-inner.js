@@ -2,6 +2,7 @@ import { ref } from "vue";
 
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
+import { useUserStore } from "./store-user.js";
 import { usePlayersStore } from "./store-players.js";
 
 import KumiteBoardPlayInnerJoined from "./kumite-board-play-inner-joined.js";
@@ -21,7 +22,8 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "nbBoardFetching", "playingPlayerId"]),
+		...mapState(useUserStore, ["playingPlayerId"]),
+		...mapState(useKumiteStore, ["nbGameFetching", "nbContestFetching", "nbBoardFetching"]),
 		...mapState(useKumiteStore, {
 			game(store) {
 				return store.games[this.gameId] || { error: "not_loaded" };
@@ -54,13 +56,14 @@ export default {
 	},
 	setup(props) {
 		const store = useKumiteStore();
+		const userStore = useUserStore();
 		const playersStore = usePlayersStore();
 
 		// We load current accountPlayers to enable player registration
-		store.loadCurrentAccountPlayers();
+		userStore.loadCurrentAccountPlayers();
 
 		function joinAsPlayer() {
-			const playerId = store.playingPlayerId;
+			const playerId = userStore.playingPlayerId;
 			const contestId = props.contestId;
 
 			return playersStore.joinAsPlayer(playerId, contestId);

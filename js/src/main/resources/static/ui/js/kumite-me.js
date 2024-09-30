@@ -1,5 +1,5 @@
 import { mapState } from "pinia";
-import { useKumiteStore } from "./store.js";
+import { useUserStore } from "./store-user.js";
 
 import KumiteMeLoggedIn from "./kumite-me-loggedin.js";
 
@@ -8,7 +8,7 @@ export default {
 		KumiteMeLoggedIn,
 	},
 	computed: {
-		...mapState(useKumiteStore, ["isLoggedIn"]),
+		...mapState(useUserStore, ["isLoggedIn"]),
 	},
 	setup() {
 		return {};

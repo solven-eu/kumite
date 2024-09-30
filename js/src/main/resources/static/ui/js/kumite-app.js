@@ -2,6 +2,7 @@ import { watch } from "vue";
 
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
+import { useUserStore } from "./store-user.js";
 
 import KumiteNavbar from "./kumite-navbar.js";
 
@@ -18,16 +19,17 @@ export default {
 		KumitePlayerRef,
 	},
 	computed: {
-		...mapState(useKumiteStore, ["account", "tokens", "nbAccountFetching", "playingPlayerId"]),
+		...mapState(useUserStore, ["account", "tokens", "nbAccountFetching", "playingPlayerId"]),
 	},
 	setup() {
 		const store = useKumiteStore();
+		const userStore = useUserStore();
 
 		// https://pinia.vuejs.org/core-concepts/state.html
 		// Bottom of the page: there is a snippet for automatic persistence in localStorage
 		// We still need to reload from localStorage on boot
 		watch(
-			store.$state,
+			userStore.$state,
 			(state) => {
 				// persist the whole state to the local storage whenever it changes
 				localStorage.setItem("kumiteState", JSON.stringify(state));
@@ -35,17 +37,17 @@ export default {
 			{ deep: true },
 		);
 
-		store
-			.loadMetadata()
+		// Load the metadata once and for all
+		store.loadMetadata();
+
+		// We may not be logged-in
+		userStore
+			.loadUser()
 			.then(() => {
-				// We may not be logged-in
-				return store.loadUser();
-			})
-			.then(() => {
-				return store.loadUserTokens();
+				return userStore.loadUserTokens();
 			})
 			.catch((error) => {
-				store.onSwallowedError(error);
+				userStore.onSwallowedError(error);
 			});
 
 		return {};

@@ -2,6 +2,7 @@ import {} from "vue";
 
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
+import { useUserStore } from "./store-user.js";
 
 export default {
 	props: {
@@ -11,7 +12,7 @@ export default {
 		},
 	},
 	computed: {
-		...mapState(useKumiteStore, ["nbAccountFetching", "account"]),
+		...mapState(useUserStore, ["nbAccountFetching", "account"]),
 		...mapState(useKumiteStore, {
 			player(store) {
 				return store.players[this.playerId] || { error: "not_loaded" };
@@ -20,8 +21,9 @@ export default {
 	},
 	setup(props) {
 		const store = useKumiteStore();
+		const userStore = useUserStore();
 
-		store.loadCurrentAccountPlayers().then(() => {
+		userStore.loadCurrentAccountPlayers().then(() => {
 			store.loadPlayer(props.playerId);
 		});
 
