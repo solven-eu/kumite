@@ -56,4 +56,10 @@ public class KumiteHandlerHelper {
 		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(body));
 	}
 
+	// public static Mono<ServerResponse> resourceGone(Map<String, ?> body) {
+	// return ServerResponse.status(HttpStatus.NOT_FOUND)
+	// .contentType(MediaType.APPLICATION_JSON)
+	// .body(BodyInserters.fromValue(body));
+	// }
+
 }

@@ -58,7 +58,7 @@ export default {
 
 			const nextInterval = setInterval(() => {
 				console.log("Intervalled shortPollContestDynamic");
-				store.loadContest(props.gameId, props.contestId);
+				store.loadContest(props.contestId, props.gameId);
 			}, intervalPeriodMs);
 			shortPollContestDynamicInterval.value = nextInterval;
 
@@ -73,7 +73,7 @@ export default {
 			clearShortPollContestDynamic();
 		});
 
-		store.loadContestIfMissing(props.gameId, props.contestId);
+		store.loadContestIfMissing(props.contestId, props.gameId);
 
 		return {};
 	},

@@ -1,6 +1,7 @@
 package eu.solven.kumite.player.persistence;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,12 +48,13 @@ public final class InMemoryAccountPlayersRegistry implements IAccountPlayersRegi
 	}
 
 	@Override
+	public Optional<UUID> optAccountId(UUID playerId) {
+		return Optional.ofNullable(playerIdToAccountId.get(playerId));
+	}
+
+	@Override
 	public UUID getAccountId(UUID playerId) {
-		UUID accountId = playerIdToAccountId.get(playerId);
-		if (accountId == null) {
-			throw new IllegalArgumentException("Unknown playerId: " + playerId);
-		}
-		return accountId;
+		return optAccountId(playerId).orElseThrow(() -> new IllegalArgumentException("Unknown playerId: " + playerId));
 	}
 
 	@Override

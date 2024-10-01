@@ -28,7 +28,7 @@ export default {
 	setup(props) {
 		const store = useKumiteStore();
 
-		store.loadContestIfMissing(props.gameId, props.contestId);
+		store.loadContestIfMissing(props.contestId, props.gameId);
 
 		return {};
 	},

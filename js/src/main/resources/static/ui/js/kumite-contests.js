@@ -1,10 +1,13 @@
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
+
+import LoginRef from "./login-ref.js";
 import KumiteContest from "./kumite-contest.js";
 
 export default {
 	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
+		LoginRef,
 		KumiteContest,
 	},
 	// https://vuejs.org/guide/components/props.html
@@ -56,8 +59,8 @@ export default {
 	},
 
 	template: /* HTML */ `
-        <div v-if="!isLoggedIn">You need to login</div>
-        <div v-if="Object.values(contests).length == 0 && nbContestFetching > 0">Loading contests</div>
+        <div v-if="!isLoggedIn"><LoginRef /></div>
+        <div v-else-if="Object.values(contests).length == 0 && nbContestFetching > 0">Loading contests</div>
         <div v-else class="container">
             <div class="row border" v-for="contest in contests">
                 <KumiteContest

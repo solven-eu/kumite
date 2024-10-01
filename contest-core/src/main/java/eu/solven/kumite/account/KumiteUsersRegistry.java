@@ -1,5 +1,6 @@
 package eu.solven.kumite.account;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import eu.solven.kumite.player.KumitePlayer;
@@ -16,11 +17,12 @@ public final class KumiteUsersRegistry {
 	// This maps to the latest/main one
 	final IKumiteUserRawRawRepository userRawRawRepository;
 
-	public KumiteUser getUser(UUID accountId) {
-		KumiteUserRawRaw rawUser = userRawRawRepository.getUser(accountId)
-				.orElseThrow(() -> new IllegalArgumentException("No accountId=" + accountId));
+	public Optional<KumiteUser> optUser(UUID accountId) {
+		return userRawRawRepository.getUser(accountId).map(this::getUser);
+	}
 
-		return getUser(rawUser);
+	public KumiteUser getUser(UUID accountId) {
+		return optUser(accountId).orElseThrow(() -> new IllegalArgumentException("No accountId=" + accountId));
 	}
 
 	public KumiteUser getUser(KumiteUserRawRaw rawUser) {

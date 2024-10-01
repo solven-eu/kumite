@@ -1,5 +1,6 @@
 package eu.solven.kumite.player;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -11,6 +12,14 @@ import java.util.UUID;
 public interface IAccountPlayersRegistry {
 
 	void registerPlayer(KumitePlayer player);
+
+	/**
+	 * This is useful for search
+	 * 
+	 * @param playerId
+	 * @return
+	 */
+	Optional<UUID> optAccountId(UUID playerId);
 
 	UUID getAccountId(UUID playerId);
 

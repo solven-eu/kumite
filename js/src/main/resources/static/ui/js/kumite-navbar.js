@@ -43,9 +43,11 @@ export default {
                         <li class="nav-item">
                             <RouterLink class="nav-link" to="/html/about"><i class="bi bi-info-lg" />About</RouterLink>
                         </li>
-
                         <li class="nav-item" v-if="isLoggedIn">
                             <RouterLink class="nav-link" to="/html/me"><i class="bi bi-person" />Account Settings</RouterLink>
+                        </li>
+                        <li class="nav-item">
+                            <RouterLink class="nav-link" to="/html/search"><i class="bi bi-search" />Search</RouterLink>
                         </li>
                     </ul>
                     <span v-if="isLoggedIn">

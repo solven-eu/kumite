@@ -3,6 +3,7 @@ package eu.solven.kumite.player.persistence;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import eu.solven.kumite.account.fake_player.FakePlayer;
@@ -98,5 +99,10 @@ public final class BijectiveAccountPlayersRegistry implements IAccountPlayersReg
 
 	public static UUID accountIdGivenPlayerId(UUID playerId) {
 		return playerIdGivenAccountId(playerId);
+	}
+
+	@Override
+	public Optional<UUID> optAccountId(UUID playerId) {
+		return Optional.of(getAccountId(playerId));
 	}
 }

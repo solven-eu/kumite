@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.app.webflux.PlayerVerifierFilterFunction;
 import eu.solven.kumite.board.BoardHandler;
 import eu.solven.kumite.contest.ContestHandler;
@@ -63,6 +64,7 @@ public class KumiteApiRouter {
 			LeaderboardHandler leaderboardHandler,
 			WebhooksHandler webhooksHandler) {
 
+		Builder accountId = parameterBuilder().name("account_id").description("Search for a specific accountId");
 		Builder gameId = parameterBuilder().name("game_id").description("Search for a specific contestId");
 		Builder playerId = parameterBuilder().name("player_id").description("Search for a specific playerId");
 		Builder contestId = parameterBuilder().name("contest_id").description("Search for a specific contestId");
@@ -84,8 +86,17 @@ public class KumiteApiRouter {
 				.GET(json("/players"),
 						playersSearchHandler::listPlayers,
 						ops -> ops.operationId("searchPlayers")
+								.parameter(playerId)
+								.parameter(contestId)
+								.parameter(accountId)
 								.response(
 										responseBuilder().responseCode("200").implementationArray(KumitePlayer.class)))
+
+				.GET(json("/accounts"),
+						playersSearchHandler::listPlayers,
+						ops -> ops.operationId("searchAccounts")
+								.parameter(accountId)
+								.response(responseBuilder().responseCode("200").implementationArray(KumiteUser.class)))
 
 				.GET(json("/contests"),
 						contestSearchHandler::listContests,

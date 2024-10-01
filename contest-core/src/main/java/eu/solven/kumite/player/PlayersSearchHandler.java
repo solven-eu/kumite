@@ -1,5 +1,6 @@
 package eu.solven.kumite.player;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,12 +40,22 @@ public class PlayersSearchHandler {
 			players = accountPlayersRegistry.makeDynamicHasPlayers(search.getAccountId().get()).getPlayers();
 		} else if (optPlayerId.isPresent()) {
 			UUID playerId = search.getPlayerId().get();
-			UUID accountId = accountPlayersRegistry.getAccountId(playerId);
-			players = accountPlayersRegistry.makeDynamicHasPlayers(accountId)
-					.getPlayers()
-					.stream()
-					.filter(p -> p.getPlayerId().equals(playerId))
-					.collect(Collectors.toList());
+			Optional<UUID> optAccountIdFromPlayer = accountPlayersRegistry.optAccountId(playerId);
+
+			if (optAccountIdFromPlayer.isEmpty()) {
+				players = Collections.emptyList();
+			} else {
+				UUID accountIdFromPlayer = optAccountIdFromPlayer.get();
+				if (search.getAccountId().isPresent() && !search.getAccountId().get().equals(accountIdFromPlayer)) {
+					players = Collections.emptyList();
+				} else {
+					players = accountPlayersRegistry.makeDynamicHasPlayers(accountIdFromPlayer)
+							.getPlayers()
+							.stream()
+							.filter(p -> p.getPlayerId().equals(playerId))
+							.collect(Collectors.toList());
+				}
+			}
 		} else {
 			throw new IllegalArgumentException("Need at least one filtering clause");
 		}

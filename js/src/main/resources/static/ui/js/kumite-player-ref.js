@@ -29,5 +29,9 @@ export default {
 
 		return {};
 	},
-	template: /* HTML */ ` <RouterLink :to="{path:'/html/players/' + playerId}"> <i class="bi bi-android"></i>playerId: {{ playerId }} </RouterLink> `,
+	template: /* HTML */ `
+        <RouterLink :to="{path:'/html/players/' + playerId}">
+            <i class="bi bi-android"></i>playerId: {{ playerId }} <span v-if="account.accountId === player.accountId"> (You)</span></RouterLink
+        >
+    `,
 };

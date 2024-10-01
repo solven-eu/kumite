@@ -296,6 +296,8 @@ export const useUserStore = defineStore("user", {
 
 					if (response.status == 401) {
 						this.tokens.access_token_expired = true;
+					} else if (!response.ok) {
+						console.trace("StackTrace for !ok on", url);
 					}
 
 					return response;

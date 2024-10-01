@@ -28,6 +28,7 @@ export const useKumiteStore = defineStore("kumite", {
 		nbContestFetching: 0,
 		nbBoardFetching: 0,
 
+		accounts: {},
 		// We loads information about various players (e.g. current account, through contests and leaderboards)
 		// Playing players are stores in contests
 		players: {},
@@ -40,6 +41,18 @@ export const useKumiteStore = defineStore("kumite", {
 		// Relates to POST
 		nbBoardOperating: 0,
 	}),
+	getters: {
+		// isLoggedIn is often used when manipulating contests
+		isLoggedIn: (store) => {
+			const userStore = useUserStore();
+			return userStore.isLoggedIn;
+		},
+		// account is often used when manipulating contests
+		account: (store) => {
+			const userStore = useUserStore();
+			return userStore.account;
+		},
+	},
 	actions: {
 		// Typically useful when an error is wrapped in the store
 		onSwallowedError(error) {
@@ -51,6 +64,12 @@ export const useKumiteStore = defineStore("kumite", {
 		},
 		newNetworkError(msg, url, response) {
 			return new NetworkError("Rejected request for games url" + url, url, response);
+		},
+
+		async authenticatedFetch(url) {
+			const userStore = useUserStore();
+
+			return userStore.authenticatedFetch(url);
 		},
 
 		async loadMetadata() {
@@ -71,14 +90,54 @@ export const useKumiteStore = defineStore("kumite", {
 			return fetchFromUrl(prefix + "/public/metadata");
 		},
 
-		async loadPlayer(playerId) {
+		async loadAccount(accountId) {
 			const store = this;
-			const userStore = useUserStore();
 
 			async function fetchFromUrl(url) {
 				store.nbPlayersLoading++;
 				try {
-					const response = await userStore.authenticatedFetch(url);
+					const response = await store.authenticatedFetch(url);
+					if (!response.ok) {
+						throw new Error("Rejected request for accountId=" + accountId);
+					}
+
+					const responseJson = await response.json();
+					const accounts = responseJson;
+
+					accounts.forEach((account) => {
+						console.log("Storing accountId", account.accountId);
+						store.$patch({
+							accounts: { ...store.accounts, [account.accountId]: account },
+						});
+
+						store.loadAccountIfMissing(account.playerId);
+					});
+				} catch (e) {
+					store.onSwallowedError(e);
+				} finally {
+					store.nbPlayersLoading--;
+				}
+			}
+
+			return fetchFromUrl(`/accounts?account_id=${accountId}`);
+		},
+
+		async loadAccountIfMissing(accountId) {
+			if (this.accounts[accountId]) {
+				console.debug("Skip loading accountId=", accountId);
+				return Promise.resolve(this.accounts[accountId]);
+			} else {
+				return this.loadAccount(accountId);
+			}
+		},
+
+		async loadPlayer(playerId) {
+			const store = this;
+
+			async function fetchFromUrl(url) {
+				store.nbPlayersLoading++;
+				try {
+					const response = await store.authenticatedFetch(url);
 					if (!response.ok) {
 						throw new Error("Rejected request for players of playerId=" + playerId);
 					}
@@ -91,6 +150,8 @@ export const useKumiteStore = defineStore("kumite", {
 						store.$patch({
 							players: { ...store.players, [player.playerId]: player },
 						});
+
+						store.loadAccountIfMissing(player.accountId);
 					});
 				} catch (e) {
 					store.onSwallowedError(e);
@@ -102,14 +163,22 @@ export const useKumiteStore = defineStore("kumite", {
 			return fetchFromUrl(`/players?player_id=${playerId}`);
 		},
 
+		async loadPlayerIfMissing(playerId) {
+			if (this.players[playerId]) {
+				console.debug("Skip loading playerId=", playerId);
+				return Promise.resolve(this.players[playerId]);
+			} else {
+				return this.loadPlayer(playerId);
+			}
+		},
+
 		async loadContestPlayers(contestId) {
 			const store = this;
-			const userStore = useUserStore();
 
 			async function fetchFromUrl(url) {
 				store.nbPlayersLoading++;
 				try {
-					const response = await userStore.authenticatedFetch(url);
+					const response = await store.authenticatedFetch(url);
 					if (!response.ok) {
 						throw new Error("Rejected request for players of contest=" + contestId);
 					}
@@ -147,13 +216,12 @@ export const useKumiteStore = defineStore("kumite", {
 
 		async loadGames() {
 			const store = this;
-			const userStore = useUserStore();
 
 			async function fetchFromUrl(url) {
 				store.nbGameFetching++;
 
 				try {
-					const response = await userStore.authenticatedFetch(url);
+					const response = await store.authenticatedFetch(url);
 					if (!response.ok) {
 						throw new Error("Rejected request for games url" + url);
 					}
@@ -174,67 +242,74 @@ export const useKumiteStore = defineStore("kumite", {
 
 			return fetchFromUrl("/games");
 		},
+
+		async loadGame(gameId) {
+			console.log("About to load gameId", gameId);
+
+			const store = this;
+
+			async function fetchFromUrl(url) {
+				store.nbGameFetching++;
+				try {
+					const response = await store.authenticatedFetch(url);
+					if (!response.ok) {
+						throw new Error("Rejected request for gameId=" + gameId);
+					}
+
+					const responseJson = await response.json();
+
+					let game;
+					if (responseJson.length === 0) {
+						// the gameId does not exist
+						game = { error: "unknown" };
+					} else if (responseJson.length !== 1) {
+						throw new NetworkError("We expected a single game", url, response);
+					} else {
+						game = responseJson[0];
+					}
+
+					// https://github.com/vuejs/pinia/discussions/440
+					console.log("Registering gameId", gameId);
+					store.$patch({
+						games: { ...store.games, [gameId]: game },
+					});
+
+					return game;
+				} catch (e) {
+					store.onSwallowedError(e);
+
+					const game = {
+						gameId: gameId,
+						error: e,
+					};
+					store.$patch({
+						games: { ...store.games, [gameId]: game },
+					});
+
+					return game;
+				} finally {
+					store.nbGameFetching--;
+				}
+			}
+			return fetchFromUrl(`/games?game_id=${gameId}`);
+		},
+
 		async loadGameIfMissing(gameId) {
 			if (this.games[gameId]) {
-				console.debug("Already stored gameId=", gameId);
-
+				console.debug("Skip loading gameId=", gameId);
 				return Promise.resolve(this.games[gameId]);
 			} else {
-				console.log("About to load gameId", gameId);
-
-				const store = this;
-				const userStore = useUserStore();
-
-				async function fetchFromUrl(url) {
-					store.nbGameFetching++;
-					try {
-						const response = await userStore.authenticatedFetch(url);
-						if (!response.ok) {
-							throw new Error("Rejected request for gameId=" + gameId);
-						}
-
-						const responseJson = await response.json();
-
-						if (responseJson.length !== 1) {
-							console.error("We expected a single game", responseJson);
-						}
-
-						const game = responseJson[0];
-
-						// https://github.com/vuejs/pinia/discussions/440
-						console.log("Registering gameId", gameId);
-						store.$patch({
-							games: { ...store.games, [gameId]: game },
-						});
-
-						return game;
-					} catch (e) {
-						store.onSwallowedError(e);
-
-						const game = {
-							gameId: gameId,
-							error: e,
-						};
-						store.$patch({
-							games: { ...store.games, [gameId]: game },
-						});
-
-						return game;
-					} finally {
-						store.nbGameFetching--;
-					}
-				}
-				return fetchFromUrl("/games?game_id=" + gameId);
+				return this.loadGame(gameId);
 			}
 		},
 
 		async loadContests(gameId) {
 			const store = this;
-			const userStore = useUserStore();
+
 			async function fetchFromUrl(url) {
 				store.nbContestFetching++;
 				try {
-					const response = await userStore.authenticatedFetch(url);
+					const response = await store.authenticatedFetch(url);
 					const responseJson = await response.json();
 
 					console.debug("responseJson", responseJson);
@@ -286,17 +361,23 @@ export const useKumiteStore = defineStore("kumite", {
 			return mergedContest;
 		},
 
-		async loadContest(gameId, contestId) {
-			return this.loadGameIfMissing(gameId).then(() => {
+		async loadContest(contestId, gameId) {
+			let gamePromise;
+			if (gameId) {
+				gamePromise = this.loadGameIfMissing(gameId);
+			} else {
+				gamePromise = Promise.resolve();
+			}
+
+			return gamePromise.then(() => {
 				console.log("About to load/refresh contestId", contestId);
 
 				const store = this;
-				const userStore = useUserStore();
 
 				async function fetchFromUrl(url) {
 					store.nbContestFetching++;
 					try {
-						const response = await userStore.authenticatedFetch(url);
+						const response = await store.authenticatedFetch(url);
 						if (!response.ok) {
 							throw new NetworkError("Rejected request for contest: " + contestId, url, response);
 						}
@@ -327,7 +408,7 @@ export const useKumiteStore = defineStore("kumite", {
 						store.nbContestFetching--;
 					}
 				}
-				return fetchFromUrl(`/contests?game_id=${gameId}&contest_id=${contestId}`).then((contest) => {
+				return fetchFromUrl(`/contests?contest_id=${contestId}`).then((contest) => {
 					return this.mergeContest(contest);
 				});
 			});
@@ -354,7 +435,6 @@ export const useKumiteStore = defineStore("kumite", {
 			}
 
 			const store = this;
-			const userStore = useUserStore();
 
 			return this.loadContestIfMissing(gameId, contestId).then((contest) => {
 				if (contest.error === "unknown") {
@@ -364,7 +444,7 @@ export const useKumiteStore = defineStore("kumite", {
 				async function fetchFromUrl(url) {
 					store.nbBoardFetching++;
 					try {
-						const response = await userStore.authenticatedFetch(url);
+						const response = await store.authenticatedFetch(url);
 						if (!response.ok) {
 							throw new NetworkError("Rejected request for board: " + contestId, url, response);
 						}
@@ -393,12 +473,10 @@ export const useKumiteStore = defineStore("kumite", {
 
 		async loadLeaderboard(gameId, contestId) {
 			const store = this;
-			const userStore = useUserStore();
 
 			async function fetchFromUrl(url) {
-				store.nbLeaderboardFetching++;
 				try {
-					const response = await userStore.authenticatedFetch(url);
+					const response = await store.authenticatedFetch(url);
 					if (!response.ok) {
 						throw new NetworkError("Rejected request for leaderboard: " + contestId, url, response);
 					}
@@ -436,12 +514,15 @@ export const useKumiteStore = defineStore("kumite", {
 						},
 					});
 					return leaderboard;
-				} finally {
-					store.nbLeaderboardFetching--;
 				}
 			}
 
-			return this.loadContestIfMissing(gameId, contestId).then(() => fetchFromUrl("/leaderboards?contest_id=" + contestId));
+			store.nbLeaderboardFetching++;
+			return this.loadContestIfMissing(gameId, contestId)
+				.then(() => fetchFromUrl("/leaderboards?contest_id=" + contestId))
+				.finally(() => {
+					store.nbLeaderboardFetching--;
+				});
 		},
 	},
 });
