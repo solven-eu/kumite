@@ -3,6 +3,8 @@ package eu.solven.kumite.account;
 import java.util.Optional;
 import java.util.UUID;
 
+import eu.solven.kumite.account.internal.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUserPreRegister;
 import eu.solven.kumite.player.KumitePlayer;
 import lombok.RequiredArgsConstructor;
 
@@ -35,8 +37,8 @@ public final class KumiteUsersRegistry {
 	 * @return a {@link KumiteUser}. This may be a new account if this was not known. If this was already known, we
 	 *         update the oauth2 details and return an existing accountId
 	 */
-	public KumiteUser registerOrUpdate(KumiteUserRaw kumiteUserRaw) {
-		KumiteUser kumiteUser = userRepository.registerOrUpdate(kumiteUserRaw);
+	public KumiteUser registerOrUpdate(KumiteUserPreRegister userPreRegister) {
+		KumiteUser kumiteUser = userRepository.registerOrUpdate( userPreRegister);
 
 		return kumiteUser;
 	}

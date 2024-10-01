@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 
-import eu.solven.kumite.account.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUser;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.contest.ActiveContestGenerator;
 import eu.solven.kumite.eventbus.EventSubscriber;

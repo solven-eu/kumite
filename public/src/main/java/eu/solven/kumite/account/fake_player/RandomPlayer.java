@@ -3,9 +3,6 @@ package eu.solven.kumite.account.fake_player;
 import java.util.Set;
 import java.util.UUID;
 
-import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.account.KumiteUserRaw;
-import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.player.KumitePlayer;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,17 +36,6 @@ public class RandomPlayer {
 		} else {
 			return false;
 		}
-	}
-
-	public static KumiteUser user() {
-		KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId("kumite").sub("randomSub").build();
-		KumiteUserRaw raw = KumiteUserRaw.builder()
-				.rawRaw(rawRaw)
-				.username("randomUsername")
-				.email("random@random")
-				.name("Random User")
-				.build();
-		return KumiteUser.builder().accountId(ACCOUNT_ID).playerId(PLAYERID_1).raw(raw).build();
 	}
 
 	public static KumitePlayer player() {

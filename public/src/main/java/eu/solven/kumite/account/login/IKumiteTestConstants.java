@@ -2,8 +2,9 @@ package eu.solven.kumite.account.login;
 
 import java.util.UUID;
 
-import eu.solven.kumite.account.KumiteUserRaw;
+import eu.solven.kumite.account.KumiteUserDetails;
 import eu.solven.kumite.account.KumiteUserRawRaw;
+import eu.solven.kumite.account.internal.KumiteUserPreRegister;
 
 public interface IKumiteTestConstants {
 	String PROVIDERID_TEST = "test";
@@ -12,8 +13,15 @@ public interface IKumiteTestConstants {
 	UUID somePlayerId = UUID.randomUUID();
 	UUID someContestId = UUID.randomUUID();
 
-	static KumiteUserRaw userRaw() {
-		KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId(PROVIDERID_TEST).sub("test").build();
-		return KumiteUserRaw.builder().rawRaw(rawRaw).email("test@test").username("fakeUsername").build();
+	static KumiteUserRawRaw userRawRaw() {
+		return KumiteUserRawRaw.builder().providerId(PROVIDERID_TEST).sub("test").build();
+	}
+
+	static KumiteUserDetails userDetails() {
+		return KumiteUserDetails.builder().username("fakeUsername").build();
+	}
+
+	static KumiteUserPreRegister userPreRegister() {
+		return KumiteUserPreRegister.builder().rawRaw(userRawRaw()).details(userDetails()).build();
 	}
 }

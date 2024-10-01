@@ -18,10 +18,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.account.KumiteUserRaw;
+import eu.solven.kumite.account.KumiteUserDetails;
 import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.account.KumiteUsersRegistry;
+import eu.solven.kumite.account.internal.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUserPreRegister;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteJackson;
 import eu.solven.kumite.app.KumiteServerComponentsConfiguration;
@@ -86,15 +87,19 @@ public class TestSpringAutonomyRedis implements IKumiteSpringProfiles {
 
 		KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId("test").sub("test").build();
 
-		KumiteUserRaw rawInitial =
-				KumiteUserRaw.builder().rawRaw(rawRaw).username("testUsername").company("someCompany").build();
+		KumiteUserPreRegister rawInitial = KumiteUserPreRegister.builder()
+				.rawRaw(rawRaw)
+				.details(KumiteUserDetails.builder().username("testUsername").company("someCompany").build())
+				.build();
 		usersRegistry.registerOrUpdate(rawInitial);
 
-		KumiteUserRaw rawLater =
-				KumiteUserRaw.builder().rawRaw(rawRaw).username("testUsername").countryCode("someCountryCode").build();
+		KumiteUserPreRegister rawLater = KumiteUserPreRegister.builder()
+				.rawRaw(rawRaw)
+				.details(KumiteUserDetails.builder().username("testUsername").countryCode("someCountryCode").build())
+				.build();
 		KumiteUser finalUser = usersRegistry.registerOrUpdate(rawLater);
 
-		Assertions.assertThat(finalUser.getRaw().getCompany()).isEqualTo("someCompany");
-		Assertions.assertThat(finalUser.getRaw().getCountryCode()).isEqualTo("someCountryCode");
+		Assertions.assertThat(finalUser.getDetails().getCompany()).isEqualTo("someCompany");
+		Assertions.assertThat(finalUser.getDetails().getCountryCode()).isEqualTo("someCountryCode");
 	}
 }

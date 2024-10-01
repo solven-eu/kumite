@@ -34,10 +34,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 
-import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.account.KumiteUserRaw;
+import eu.solven.kumite.account.KumiteUserDetails;
 import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.account.KumiteUsersRegistry;
+import eu.solven.kumite.account.internal.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUserPreRegister;
+import eu.solven.kumite.account.internal.KumiteUserRaw;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
@@ -164,30 +166,37 @@ public class KumiteLoginController {
 		});
 	}
 
-	@GetMapping("/user")
-	public Mono<KumiteUser> user() {
+	private Mono<KumiteUser> userOrThrow() {
 		return userMayEmpty().switchIfEmpty(Mono.error(() -> new LoginRouteButNotAuthenticatedException("No user")));
 	}
 
+	@GetMapping("/user")
+	public Mono<KumiteUserRaw> user() {
+		return userOrThrow().map(KumiteUser::raw);
+	}
+
 	@PostMapping("/user")
-	public Mono<KumiteUser> user(ServerWebExchange exchange, @RequestBody KumiteUserUpdate rawUpdates) {
-		return user().flatMap(user -> {
+	public Mono<KumiteUserRaw> user(ServerWebExchange exchange, @RequestBody KumiteUserUpdate rawUpdates) {
+		return userOrThrow().flatMap(user -> {
 			KumiteUser updatedUser = user;
 
 			if (rawUpdates.getCountryCode().isPresent()) {
 				String countryCode = rawUpdates.getCountryCode().get();
 
-				KumiteUserRaw updatedRaw = user.getRaw().setCountryCode(countryCode);
-				updatedUser = usersRegistry.registerOrUpdate(updatedRaw);
+				KumiteUserDetails updatedDetails = user.getDetails().setCountryCode(countryCode);
+				KumiteUserPreRegister preRegister =
+						KumiteUserPreRegister.builder().rawRaw(user.getRawRaw()).details(updatedDetails).build();
+
+				updatedUser = usersRegistry.registerOrUpdate(preRegister);
 
 				log.info("accountId={} has countryCode updated {} -> {}",
 						user.getAccountId(),
-						user.getRaw().getCountryCode(),
+						user.getDetails().getCountryCode(),
 						countryCode);
 			}
 
 			// return the updated user
-			return Mono.just(updatedUser);
+			return Mono.just(KumiteUser.raw(updatedUser));
 		});
 	}
 
@@ -200,7 +209,7 @@ public class KumiteLoginController {
 	@GetMapping("/oauth2/token")
 	public Mono<?> token(@RequestParam(name = "player_id", required = false) String rawPlayerId,
 			@RequestParam(name = "refresh_token", defaultValue = "false") boolean requestRefreshToken) {
-		return user().map(user -> {
+		return userOrThrow().map(user -> {
 			if (requestRefreshToken) {
 				// TODO Restrict if `rawPlayerId` is provided.
 				if (!StringUtils.isEmpty(rawPlayerId)) {
@@ -210,13 +219,13 @@ public class KumiteLoginController {
 				// Beware this would not allow playerIds generated after the refresh_token creation
 				Set<UUID> playerIds = players.stream().map(KumitePlayer::getPlayerId).collect(Collectors.toSet());
 				log.info("Generating an refresh_token for accountId={} playerIds={}", user.getAccountId(), playerIds);
-				return kumiteTokenService.wrapInJwtRefreshToken(user, playerIds);
+				return kumiteTokenService.wrapInJwtRefreshToken(KumiteUser.raw(user), playerIds);
 			} else {
 				UUID playerId = KumiteHandlerHelper.optUuid(Optional.ofNullable(rawPlayerId), "player_id")
 						.orElse(user.getPlayerId());
 				checkValidPlayerId(user, playerId);
 				log.info("Generating an access_token for accountId={} playerId={}", user.getAccountId(), playerId);
-				return kumiteTokenService.wrapInJwtAccessToken(user, playerId);
+				return kumiteTokenService.wrapInJwtAccessToken(KumiteUser.raw(user), playerId);
 			}
 		});
 	}

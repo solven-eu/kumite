@@ -5,10 +5,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.account.fake_player.FakePlayer;
+import eu.solven.kumite.account.fake_player.FakeUser;
 import eu.solven.kumite.account.fake_player.RandomPlayer;
+import eu.solven.kumite.account.fake_player.RandomUser;
+import eu.solven.kumite.account.internal.KumiteUser;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +25,7 @@ public class InjectKumiteAccountsConfig {
 			IAccountPlayersRegistry accountPlayersRegistry) {
 		log.info("Registering the {} account and players", IKumiteSpringProfiles.P_FAKEUSER);
 
-		KumiteUser user = usersRegistry.registerOrUpdate(FakePlayer.user().getRaw());
+		KumiteUser user = usersRegistry.registerOrUpdate(FakeUser.pre());
 		// Register an additional player
 		accountPlayersRegistry.registerPlayer(FakePlayer.player(1));
 
@@ -36,7 +38,7 @@ public class InjectKumiteAccountsConfig {
 			IAccountPlayersRegistry accountPlayersRegistry) {
 		log.info("Registering the random account and players");
 
-		KumiteUser user = usersRegistry.registerOrUpdate(RandomPlayer.user().getRaw());
+		KumiteUser user = usersRegistry.registerOrUpdate(RandomUser.pre());
 		// Register an additional player
 		accountPlayersRegistry.registerPlayer(RandomPlayer.player(1));
 

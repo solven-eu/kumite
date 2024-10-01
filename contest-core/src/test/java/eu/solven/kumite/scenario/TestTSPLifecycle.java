@@ -15,8 +15,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUsersRegistry;
+import eu.solven.kumite.account.internal.KumiteUser;
 import eu.solven.kumite.account.login.IKumiteTestConstants;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerComponentsConfiguration;
@@ -74,7 +74,7 @@ public class TestTSPLifecycle {
 
 	@Test
 	public void testSinglePlayer() {
-		KumiteUser account = usersRegistry.registerOrUpdate(IKumiteTestConstants.userRaw());
+		KumiteUser account = usersRegistry.registerOrUpdate(IKumiteTestConstants.userPreRegister());
 		UUID accountId = account.getAccountId();
 
 		List<GameMetadata> games =

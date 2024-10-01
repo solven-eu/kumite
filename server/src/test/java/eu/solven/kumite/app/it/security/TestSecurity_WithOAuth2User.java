@@ -18,8 +18,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.account.KumiteUserRaw;
+import eu.solven.kumite.account.internal.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUserPreRegister;
+import eu.solven.kumite.account.internal.KumiteUserRaw;
 import eu.solven.kumite.account.login.IKumiteTestConstants;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteJackson;
@@ -66,12 +67,12 @@ public class TestSecurity_WithOAuth2User {
 		// login
 		OAuth2LoginMutator oauth2Login;
 		{
-			KumiteUserRaw userRaw = IKumiteTestConstants.userRaw();
+			KumiteUserPreRegister userPreRegister = IKumiteTestConstants.userPreRegister();
 			oauth2Login = SecurityMockServerConfigurers.mockOAuth2Login().attributes(attributes -> {
-				attributes.put("id", userRaw.getRawRaw().getSub());
-				attributes.put("providerId", userRaw.getRawRaw().getProviderId());
+				attributes.put("id", userPreRegister.getRawRaw().getSub());
+				attributes.put("providerId", userPreRegister.getRawRaw().getProviderId());
 			});
-			oauth2UserService.onKumiteUserRaw(userRaw);
+			oauth2UserService.onKumiteUserRaw(userPreRegister);
 		}
 		return oauth2Login;
 	}
@@ -162,9 +163,9 @@ public class TestSecurity_WithOAuth2User {
 
 				.expectStatus()
 				.isOk()
-				.expectBody(KumiteUser.class)
+				.expectBody(KumiteUserRaw.class)
 				.value(user -> {
-					Assertions.assertThat(user.getRaw()).isNotNull();
+					Assertions.assertThat(user.getDetails()).isNotNull();
 				});
 	}
 
@@ -185,9 +186,9 @@ public class TestSecurity_WithOAuth2User {
 
 				.expectStatus()
 				.isOk()
-				.expectBody(KumiteUser.class)
+				.expectBody(KumiteUserRaw.class)
 				.value(user -> {
-					Assertions.assertThat(user.getRaw().getCountryCode()).isEqualTo("someCountryCode");
+					Assertions.assertThat(user.getDetails().getCountryCode()).isEqualTo("someCountryCode");
 				});
 	}
 
@@ -260,12 +261,12 @@ public class TestSecurity_WithOAuth2User {
 		// login
 		OAuth2LoginMutator oauth2Login;
 		{
-			KumiteUserRaw userRaw = IKumiteTestConstants.userRaw();
+			KumiteUserPreRegister userPreRegister = IKumiteTestConstants.userPreRegister();
 			oauth2Login = SecurityMockServerConfigurers.mockOAuth2Login().attributes(attributes -> {
-				attributes.put("id", userRaw.getRawRaw().getSub());
-				attributes.put("providerId", userRaw.getRawRaw().getProviderId());
+				attributes.put("id", userPreRegister.getRawRaw().getSub());
+				attributes.put("providerId", userPreRegister.getRawRaw().getProviderId());
 			});
-			kumiteUser = oauth2UserService.onKumiteUserRaw(userRaw);
+			kumiteUser = oauth2UserService.onKumiteUserRaw(userPreRegister);
 		}
 
 		webTestClient

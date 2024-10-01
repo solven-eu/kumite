@@ -11,9 +11,10 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.account.KumiteUserRaw;
-import eu.solven.kumite.account.KumiteUserRaw.KumiteUserRawBuilder;
+import eu.solven.kumite.account.KumiteUserDetails;
+import eu.solven.kumite.account.KumiteUserDetails.KumiteUserDetailsBuilder;
+import eu.solven.kumite.account.internal.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUserPreRegister;
 import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.account.login.IKumiteTestConstants;
@@ -55,8 +56,8 @@ public class KumiteOAuth2UserService extends DefaultReactiveOAuth2UserService {
 	}
 
 	@VisibleForTesting
-	public KumiteUser onKumiteUserRaw(KumiteUserRaw rawUser) {
-		KumiteUser user = usersRegistry.registerOrUpdate(rawUser);
+	public KumiteUser onKumiteUserRaw(KumiteUserPreRegister userPreRegister) {
+		KumiteUser user = usersRegistry.registerOrUpdate(userPreRegister);
 		return user;
 	}
 
@@ -81,8 +82,8 @@ public class KumiteOAuth2UserService extends DefaultReactiveOAuth2UserService {
 			default:
 				throw new IllegalArgumentException("Unexpected value: " + registrationId);
 			};
-			KumiteUserRawBuilder kumiteUserBuilder = KumiteUserRaw.builder()
-					.rawRaw(rawRaw)
+			KumiteUserDetailsBuilder kumiteUserBuilder = KumiteUserDetails.builder()
+					// .rawRaw(rawRaw)
 					.username(userFromProvider.getAttributes().get("name").toString())
 					.name(userFromProvider.getAttributes().get("name").toString())
 					.email(userFromProvider.getAttributes().get("email").toString());
@@ -91,9 +92,12 @@ public class KumiteOAuth2UserService extends DefaultReactiveOAuth2UserService {
 			if (rawPicture != null) {
 				kumiteUserBuilder = kumiteUserBuilder.picture(URI.create(rawPicture.toString()));
 			}
-			KumiteUserRaw rawUser = kumiteUserBuilder.build();
+			KumiteUserDetails rawUser = kumiteUserBuilder.build();
 
-			KumiteUser user = onKumiteUserRaw(rawUser);
+			KumiteUserPreRegister userPreRegister =
+					KumiteUserPreRegister.builder().rawRaw(rawRaw).details(rawUser).build();
+
+			KumiteUser user = onKumiteUserRaw(userPreRegister);
 
 			log.trace("User info is {}", user);
 			return userFromProvider;

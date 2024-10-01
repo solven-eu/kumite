@@ -3,6 +3,9 @@ package eu.solven.kumite.account;
 import java.util.Map;
 import java.util.Optional;
 
+import eu.solven.kumite.account.internal.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUserPreRegister;
+
 /**
  * This is kind-of a {@link Map} from {@link KumiteUserRawRaw} to {@link KumiteUser}.
  * 
@@ -12,5 +15,5 @@ import java.util.Optional;
 public interface IKumiteUserRepository {
 	Optional<KumiteUser> getUser(KumiteUserRawRaw accountId);
 
-	KumiteUser registerOrUpdate(KumiteUserRaw kumiteUserRaw);
+	KumiteUser registerOrUpdate(KumiteUserPreRegister kumiteUserPreRegister);
 }

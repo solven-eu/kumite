@@ -16,8 +16,8 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import com.nimbusds.jwt.SignedJWT;
 
-import eu.solven.kumite.account.KumiteUser;
 import eu.solven.kumite.account.KumiteUsersRegistry;
+import eu.solven.kumite.account.internal.KumiteUser;
 import eu.solven.kumite.login.AccessTokenWrapper;
 import eu.solven.kumite.oauth2.authorizationserver.ActiveRefreshTokens;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
@@ -45,7 +45,8 @@ public class AccessTokenHandler {
 
 			Entry<Jwt, KumiteUser> user = userFromRefreshTokenJwt(authentication);
 
-			AccessTokenWrapper tokenWrapper = kumiteTokenService.wrapInJwtAccessToken(user.getValue(), queryPlayerId);
+			AccessTokenWrapper tokenWrapper =
+					kumiteTokenService.wrapInJwtAccessToken(KumiteUser.raw(user.getValue()), queryPlayerId);
 
 			String accessTokenJti = getJti(tokenWrapper);
 

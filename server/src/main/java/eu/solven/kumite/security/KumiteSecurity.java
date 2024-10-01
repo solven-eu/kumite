@@ -12,7 +12,7 @@ import org.springframework.core.env.Profiles;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.solven.kumite.account.JwtUserContextHolder;
-import eu.solven.kumite.account.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUser;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
 import eu.solven.kumite.app.webflux.api.KumiteLoginController;
@@ -87,7 +87,7 @@ public class KumiteSecurity {
 		UUID accountId = user.getAccountId();
 
 		Set<UUID> playerIds = accountPlayersRegistry.makeDynamicHasPlayers(accountId).getPlayerIds();
-		RefreshTokenWrapper refreshToken = tokenService.wrapInJwtRefreshToken(user, playerIds);
+		RefreshTokenWrapper refreshToken = tokenService.wrapInJwtRefreshToken(KumiteUser.raw(user), playerIds);
 
 		log.info("refresh_token for accountId={}: {}", user.getAccountId(), refreshToken);
 

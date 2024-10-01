@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.account.KumiteUserRaw;
 import eu.solven.kumite.account.KumiteUsersRegistry;
+import eu.solven.kumite.account.internal.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUserPreRegister;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.persistence.InMemoryKumiteConfiguration;
 import eu.solven.kumite.tools.JdkUuidGenerator;
@@ -39,7 +39,7 @@ public class TestKumiteUsersRegistry implements IKumiteTestConstants {
 
 	@Test
 	public void testRegisterUser() {
-		KumiteUserRaw raw = IKumiteTestConstants.userRaw();
+		KumiteUserPreRegister raw = IKumiteTestConstants.userPreRegister();
 		KumiteUser registered = usersRegistry.registerOrUpdate(raw);
 
 		Assertions.assertThat(usersRegistry.getUser(registered.getAccountId())).isEqualTo(registered);

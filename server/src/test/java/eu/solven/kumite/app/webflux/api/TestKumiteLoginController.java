@@ -10,7 +10,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
 import eu.solven.kumite.account.InMemoryUserRepository;
 import eu.solven.kumite.account.KumiteUsersRegistry;
-import eu.solven.kumite.account.fake_player.FakePlayer;
+import eu.solven.kumite.account.fake_player.FakeUser;
 import eu.solven.kumite.oauth2.IKumiteOAuth2Constants;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
@@ -54,7 +54,7 @@ public class TestKumiteLoginController {
 	public void testPlayer_invalid() {
 		Assertions
 				.assertThatThrownBy(
-						() -> controller.checkValidPlayerId(FakePlayer.user(), uuidGenerator.randomUUID()))
+						() -> controller.checkValidPlayerId(FakeUser.user(), uuidGenerator.randomUUID()))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 }

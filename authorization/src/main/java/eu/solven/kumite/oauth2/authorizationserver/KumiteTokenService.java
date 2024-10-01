@@ -22,7 +22,7 @@ import com.nimbusds.jose.jwk.gen.OctetSequenceKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-import eu.solven.kumite.account.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUserRaw;
 import eu.solven.kumite.login.AccessTokenWrapper;
 import eu.solven.kumite.login.RefreshTokenWrapper;
 import eu.solven.kumite.oauth2.IKumiteOAuth2Constants;
@@ -76,7 +76,7 @@ public class KumiteTokenService {
 		return jwk;
 	}
 
-	public String generateAccessToken(KumiteUser user,
+	public String generateAccessToken(KumiteUserRaw user,
 			Set<UUID> playerIds,
 			Duration accessTokenValidity,
 			boolean isRefreshToken) {
@@ -143,7 +143,7 @@ public class KumiteTokenService {
 	 * @return The generated JWT access token.
 	 * @throws IllegalStateException
 	 */
-	public AccessTokenWrapper wrapInJwtAccessToken(KumiteUser user, UUID playerId) {
+	public AccessTokenWrapper wrapInJwtAccessToken(KumiteUserRaw user, UUID playerId) {
 		// access_token are short-lived
 		Duration accessTokenValidity = Duration.parse("PT1H");
 
@@ -161,7 +161,7 @@ public class KumiteTokenService {
 
 	// https://stackoverflow.com/questions/38986005/what-is-the-purpose-of-a-refresh-token
 	// https://stackoverflow.com/questions/40555855/does-the-refresh-token-expire-and-if-so-when
-	public RefreshTokenWrapper wrapInJwtRefreshToken(KumiteUser user, Set<UUID> playerIds) {
+	public RefreshTokenWrapper wrapInJwtRefreshToken(KumiteUserRaw user, Set<UUID> playerIds) {
 		// refresh_token are long-lived
 		Duration refreshTokenValidity = Duration.parse("P365D");
 

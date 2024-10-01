@@ -7,30 +7,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import eu.solven.kumite.account.internal.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUserRaw;
 import eu.solven.kumite.account.login.IKumiteTestConstants;
 import eu.solven.kumite.app.KumiteJackson;
 
-public class TestKumiteUser implements IKumiteTestConstants {
+public class TestKumiteUserRaw implements IKumiteTestConstants {
 	final ObjectMapper objectMapper = KumiteJackson.objectMapper();
 
 	@Test
 	public void testJackson() throws JsonMappingException, JsonProcessingException {
-		KumiteUser initial = KumiteUser.builder()
-				.accountId(someAccountId)
-				.rawRaw(IKumiteTestConstants.userRawRaw())
-				.details(IKumiteTestConstants.userDetails())
-				.playerId(somePlayerId)
-				.build();
+		KumiteUserDetails userRaw = IKumiteTestConstants.userDetails();
+		KumiteUserRaw initial =
+				KumiteUserRaw.builder().accountId(someAccountId).playerId(somePlayerId).details(userRaw).build();
 
 		String asString = objectMapper.writeValueAsString(initial);
 
-		// Assertions.assertThat(asString).isEqualTo("");
-
-		// Assertions.assertThatThrownBy(() -> objectMapper.readValue(asString, KumiteUser.class))
-		// .isInstanceOf(InvalidDefinitionException.class);
-
-		KumiteUser fromString = objectMapper.readValue(asString, KumiteUser.class);
+		KumiteUserRaw fromString = objectMapper.readValue(asString, KumiteUserRaw.class);
 
 		Assertions.assertThat(fromString).isEqualTo(initial);
 	}

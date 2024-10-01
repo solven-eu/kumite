@@ -9,9 +9,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import eu.solven.kumite.account.IKumiteUserRawRawRepository;
 import eu.solven.kumite.account.IKumiteUserRepository;
 import eu.solven.kumite.account.InMemoryUserRepository;
-import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.account.KumiteUserRaw;
+import eu.solven.kumite.account.KumiteUserDetails;
 import eu.solven.kumite.account.KumiteUserRawRaw;
+import eu.solven.kumite.account.internal.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUserPreRegister;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.redis.RepositoryKey;
@@ -88,16 +89,21 @@ public class RedisUserRepository implements IKumiteUserRawRawRepository, IKumite
 	}
 
 	@Override
-	public KumiteUser registerOrUpdate(KumiteUserRaw kumiteUserRaw) {
-		KumiteUserRawRaw rawRaw = kumiteUserRaw.getRawRaw();
+	public KumiteUser registerOrUpdate(KumiteUserPreRegister kumiteUserPreRegister) {
+		KumiteUserRawRaw rawRaw = kumiteUserPreRegister.getRawRaw();
+		KumiteUserDetails userDetails = kumiteUserPreRegister.getDetails();
 		Optional<KumiteUser> user = getUser(rawRaw);
 
 		if (user.isEmpty()) {
-			UUID accountId = generateAccountId(kumiteUserRaw.getRawRaw());
+			UUID accountId = generateAccountId(rawRaw);
 			UUID playerId = playersRegistry.generateMainPlayerId(accountId);
 
-			KumiteUser kumiteUser =
-					KumiteUser.builder().accountId(accountId).playerId(playerId).raw(kumiteUserRaw).build();
+			KumiteUser kumiteUser = KumiteUser.builder()
+					.accountId(accountId)
+					.playerId(playerId)
+					.rawRaw(rawRaw)
+					.details(userDetails)
+					.build();
 			log.info("Registered user={}", user);
 			putIfAbsent(accountId, rawRaw);
 			putIfAbsent(rawRaw, kumiteUser);
@@ -107,17 +113,19 @@ public class RedisUserRepository implements IKumiteUserRawRawRepository, IKumite
 			// Merge the raw, especially as it may be fed from different sources (username from OAuth2, countryCode from
 			// browser)
 
-			if (kumiteUserRaw.getCountryCode() == null) {
-				kumiteUserRaw = kumiteUserRaw.setCountryCode(user.get().getRaw().getCountryCode());
+			KumiteUserDetails previousDetails = user.get().getDetails();
+
+			if (userDetails.getCountryCode() == null) {
+				userDetails = userDetails.setCountryCode(previousDetails.getCountryCode());
 			}
-			if (kumiteUserRaw.getCompany() == null) {
-				kumiteUserRaw = kumiteUserRaw.setCompany(user.get().getRaw().getCompany());
+			if (userDetails.getCompany() == null) {
+				userDetails = userDetails.setCompany(previousDetails.getCompany());
 			}
-			if (kumiteUserRaw.getSchool() == null) {
-				kumiteUserRaw = kumiteUserRaw.setSchool(user.get().getRaw().getSchool());
+			if (userDetails.getSchool() == null) {
+				userDetails = userDetails.setSchool(previousDetails.getSchool());
 			}
 
-			putIfPresent(rawRaw, user.get().editRaw(kumiteUserRaw));
+			putIfPresent(rawRaw, user.get().editDetails(userDetails));
 		}
 
 		return getUser(rawRaw).orElseThrow(() -> new IllegalStateException("No user through we just registered one"));

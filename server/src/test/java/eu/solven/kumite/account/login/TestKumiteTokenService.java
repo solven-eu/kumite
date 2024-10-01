@@ -22,7 +22,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jwt.SignedJWT;
 
-import eu.solven.kumite.account.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUser;
 import eu.solven.kumite.oauth2.IKumiteOAuth2Constants;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
@@ -43,10 +43,11 @@ public class TestKumiteTokenService {
 		KumiteUser user = KumiteUser.builder()
 				.accountId(accountId)
 				.playerId(playerId)
-				.raw(IKumiteTestConstants.userRaw())
+				.rawRaw(IKumiteTestConstants.userRawRaw())
+				.details(IKumiteTestConstants.userDetails())
 				.build();
-		String accessToken =
-				tokenService.get().generateAccessToken(user, Set.of(playerId), Duration.ofMinutes(1), false);
+		String accessToken = tokenService.get()
+				.generateAccessToken(KumiteUser.raw(user), Set.of(playerId), Duration.ofMinutes(1), false);
 
 		{
 			JWSVerifier verifier = new MACVerifier((OctetSequenceKey) signatureSecret);

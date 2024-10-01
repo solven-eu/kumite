@@ -14,7 +14,7 @@ import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import eu.solven.kumite.account.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUser;
 import eu.solven.kumite.app.webflux.PlayerVerifierFilterFunction;
 import eu.solven.kumite.board.BoardHandler;
 import eu.solven.kumite.contest.ContestHandler;

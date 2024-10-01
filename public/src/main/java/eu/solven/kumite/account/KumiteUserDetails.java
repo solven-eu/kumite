@@ -2,6 +2,7 @@ package eu.solven.kumite.account;
 
 import java.net.URI;
 
+import eu.solven.kumite.account.internal.KumiteUser;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -16,9 +17,9 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @Builder
 @Jacksonized
-public class KumiteUserRaw {
-	@NonNull
-	KumiteUserRawRaw rawRaw;
+public class KumiteUserDetails {
+	// @NonNull
+	// KumiteUserRawRaw rawRaw;
 
 	@NonNull
 	String username;
@@ -35,9 +36,9 @@ public class KumiteUserRaw {
 	String school;
 	String company;
 
-	private KumiteUserRawBuilder preloadBuilder() {
-		return KumiteUserRaw.builder()
-				.rawRaw(rawRaw)
+	private KumiteUserDetailsBuilder preloadBuilder() {
+		return KumiteUserDetails.builder()
+				// .rawRaw(rawRaw)
 				.username(username)
 				.name(name)
 				.email(email)
@@ -47,15 +48,15 @@ public class KumiteUserRaw {
 				.company(company);
 	}
 
-	public KumiteUserRaw setCountryCode(String countryCode) {
+	public KumiteUserDetails setCountryCode(String countryCode) {
 		return preloadBuilder().countryCode(countryCode).build();
 	}
 
-	public KumiteUserRaw setCompany(String company) {
+	public KumiteUserDetails setCompany(String company) {
 		return preloadBuilder().company(company).build();
 	}
 
-	public KumiteUserRaw setSchool(String school) {
+	public KumiteUserDetails setSchool(String school) {
 		return preloadBuilder().school(school).build();
 	}
 }

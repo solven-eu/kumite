@@ -6,7 +6,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import eu.solven.kumite.account.fake_player.FakePlayer;
+import eu.solven.kumite.account.fake_player.FakeUser;
 import eu.solven.kumite.account.fake_player.RandomPlayer;
+import eu.solven.kumite.account.fake_player.RandomUser;
+import eu.solven.kumite.account.internal.KumiteUser;
+import eu.solven.kumite.account.internal.KumiteUserPreRegister;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.tools.IUuidGenerator;
@@ -39,18 +43,24 @@ public class InMemoryUserRepository implements IKumiteUserRepository, IKumiteUse
 	}
 
 	@Override
-	public KumiteUser registerOrUpdate(KumiteUserRaw kumiteUserRaw) {
-		KumiteUserRawRaw rawRaw = kumiteUserRaw.getRawRaw();
+	public KumiteUser registerOrUpdate(KumiteUserPreRegister kumiteUserPreRegister) {
+		KumiteUserRawRaw rawRaw = kumiteUserPreRegister.getRawRaw();
 
 		return accountIdToUser.compute(rawRaw, (k, alreadyIn) -> {
-			KumiteUser.KumiteUserBuilder kumiteUserBuilder = KumiteUser.builder().raw(kumiteUserRaw);
+			KumiteUser.KumiteUserBuilder kumiteUserBuilder = KumiteUser.builder()
+					.rawRaw(rawRaw)
+					// TODO We should merge with pre-existing details
+					.details(kumiteUserPreRegister.getDetails());
 			if (alreadyIn == null) {
 				UUID accountId = generateAccountId(rawRaw);
 
 				KumitePlayer player = register(rawRaw, accountId);
 
 				UUID playerId = player.getPlayerId();
-				log.info("Registering as new user accountId={} playerId={} raw={}", accountId, playerId, kumiteUserRaw);
+				log.info("Registering as new user accountId={} playerId={} raw={}",
+						accountId,
+						playerId,
+						kumiteUserPreRegister);
 
 				kumiteUserBuilder.accountId(accountId).playerId(playerId);
 			} else {
@@ -66,9 +76,9 @@ public class InMemoryUserRepository implements IKumiteUserRepository, IKumiteUse
 	}
 
 	public static UUID generateAccountId(IUuidGenerator uuidGenerator, KumiteUserRawRaw rawRaw) {
-		if (rawRaw.equals(FakePlayer.user().getRaw().getRawRaw())) {
+		if (rawRaw.equals(FakeUser.rawRaw())) {
 			return FakePlayer.ACCOUNT_ID;
-		} else if (rawRaw.equals(RandomPlayer.user().getRaw().getRawRaw())) {
+		} else if (rawRaw.equals(RandomUser.rawRaw())) {
 			return RandomPlayer.ACCOUNT_ID;
 		}
 		return uuidGenerator.randomUUID();

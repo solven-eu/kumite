@@ -1,5 +1,6 @@
 package eu.solven.kumite.account;
 
+import eu.solven.kumite.account.internal.KumiteUser;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;

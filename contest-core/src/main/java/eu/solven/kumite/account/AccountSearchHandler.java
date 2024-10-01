@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import eu.solven.kumite.account.internal.KumiteUser;
 import eu.solven.kumite.app.webflux.api.KumiteHandlerHelper;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;

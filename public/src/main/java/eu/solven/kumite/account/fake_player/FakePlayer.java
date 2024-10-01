@@ -3,9 +3,6 @@ package eu.solven.kumite.account.fake_player;
 import java.util.Set;
 import java.util.UUID;
 
-import eu.solven.kumite.account.KumiteUser;
-import eu.solven.kumite.account.KumiteUserRaw;
-import eu.solven.kumite.account.KumiteUserRawRaw;
 import eu.solven.kumite.player.KumitePlayer;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,17 +37,6 @@ public class FakePlayer {
 		} else {
 			return false;
 		}
-	}
-
-	public static KumiteUser user() {
-		KumiteUserRawRaw rawRaw = KumiteUserRawRaw.builder().providerId("kumite").sub("fakeSub").build();
-		KumiteUserRaw raw = KumiteUserRaw.builder()
-				.rawRaw(rawRaw)
-				.username("fakeUsername")
-				.email("fake@fake")
-				.name("Fake User")
-				.build();
-		return KumiteUser.builder().accountId(ACCOUNT_ID).playerId(PLAYER_ID1).raw(raw).build();
 	}
 
 	public static KumitePlayer fakePlayer() {
