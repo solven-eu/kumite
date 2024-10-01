@@ -414,13 +414,19 @@ export const useKumiteStore = defineStore("kumite", {
 			});
 		},
 
-		async loadContestIfMissing(gameId, contestId) {
-			return this.loadGameIfMissing(gameId).then(() => {
+		async loadContestIfMissing(contestId, gameId) {
+            let gamePromise;
+            if (gameId) {
+                gamePromise = this.loadGameIfMissing(gameId);
+            } else {
+                gamePromise = Promise.resolve();
+            }
+			return gamePromise.then(() => {
 				if (this.contests[contestId]) {
 					console.debug("Skip loading contestId=", contestId);
 					return Promise.resolve(this.contests[contestId]);
 				} else {
-					return this.loadContest(gameId, contestId);
+					return this.loadContest(contestId, gameId);
 				}
 			});
 		},
@@ -436,7 +442,7 @@ export const useKumiteStore = defineStore("kumite", {
 
 			const store = this;
 
-			return this.loadContestIfMissing(gameId, contestId).then((contest) => {
+			return this.loadContestIfMissing(contestId, gameId).then((contest) => {
 				if (contest.error === "unknown") {
 					return contest;
 				}
@@ -518,7 +524,7 @@ export const useKumiteStore = defineStore("kumite", {
 			}
 
 			store.nbLeaderboardFetching++;
-			return this.loadContestIfMissing(gameId, contestId)
+			return this.loadContestIfMissing(contestId, gameId)
 				.then(() => fetchFromUrl("/leaderboards?contest_id=" + contestId))
 				.finally(() => {
 					store.nbLeaderboardFetching--;

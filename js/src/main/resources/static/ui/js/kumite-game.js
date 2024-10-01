@@ -37,16 +37,7 @@ export default {
 		}),
 	},
 	setup(props) {
-		// const error = ref({});
-		// const isLoading = ref(true);
-
 		const store = useKumiteStore();
-
-		//store.loadMetadata();
-		// const gameRef = ref(store.game);
-
-		// console.log("gameId", props.gameId);
-		// console.log("game", props.game);
 
 		const nbContests = ref("...");
 

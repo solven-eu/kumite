@@ -32,19 +32,10 @@ export default {
 		return {};
 	},
 	template: /* HTML */ `
-    <span v-if="account.accountId === accountId">
         <RouterLink :to="{path:'/html/me'}">
-            <i class="bi bi-person"></i>accountId: {{ accountId }}<span > (You)</span>
-    
+            <i class="bi bi-person"></i>accountId: {{ accountId }}<span v-if="account.accountId === accountId"> (You)</span>
+
             <Flag :country="account.raw.countryCode" v-if="account.raw.countryCode" />
         </RouterLink>
-    </span>
-    <span v-else>
-        <RouterLink :to="{path:'/html/accounts/' + accountId}">
-            <i class="bi bi-person"></i>accountId: {{ accountId }}
-    
-            <Flag :country="account.raw.countryCode" v-if="account.raw.countryCode" />
-        </RouterLink>
-    </span>
     `,
 };

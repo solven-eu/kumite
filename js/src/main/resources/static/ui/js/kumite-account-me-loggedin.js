@@ -10,7 +10,7 @@ import { Tooltip } from "bootstrap";
 import KumiteAccountRef from "./kumite-account-ref.js";
 import KumitePlayerRef from "./kumite-player-ref.js";
 
-import KumiteMeRefreshToken from "./kumite-me-refresh_token.js";
+import KumiteMeRefreshToken from "./kumite-account-me-refresh_token.js";
 import Flag from "./flag.js";
 
 export default {

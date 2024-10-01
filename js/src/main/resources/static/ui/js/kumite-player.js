@@ -2,6 +2,7 @@ import {} from "vue";
 
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
+import { useUserStore } from "./store-user.js";
 
 import KumiteAccountRef from "./kumite-account-ref.js";
 import KumitePlayerRef from "./kumite-player-ref.js";
@@ -26,11 +27,13 @@ export default {
 		}),
 	},
 	setup(props) {
-		const store = useKumiteStore();
+    const store = useKumiteStore();
+        const userStore = useUserStore();
 
-		store.loadCurrentAccountPlayers().then(() => {
-			store.loadPlayer(props.playerId);
-		});
+        store.loadPlayer(props.playerId);
+        
+        // Why do we need to load current account players?
+		userStore.loadCurrentAccountPlayers();
 
 		return {};
 	},

@@ -3,11 +3,13 @@ import { ref, onMounted, onUnmounted } from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
+import KumiteContestRef from "./kumite-contest-ref.js";
 import KumiteAccountRef from "./kumite-account-ref.js";
 import KumiteContestDelete from "./kumite-contest-delete.js";
 
 export default {
 	components: {
+        KumiteContestRef,
 		KumiteAccountRef,
 		KumiteContestDelete,
 	},
@@ -86,9 +88,7 @@ export default {
         <div v-else-if="game.error || contest.error">{{game.error || contest.error}}</div>
         <span v-else>
             <h2>
-                <RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + contestId}"
-                    ><i class="bi bi-trophy"></i> {{contest.constantMetadata.name}}</RouterLink
-                >
+                <KumiteContestRef :contestId="contestId"/>
                 <RouterLink :to="{path:'/html/games/' + gameId}"><i class="bi bi-arrow-90deg-left"></i></RouterLink>
             </h2>
 

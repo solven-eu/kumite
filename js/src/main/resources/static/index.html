@@ -44,7 +44,8 @@
 
             import KumiteApp from "./ui/js/kumite-app.js";
             import HelloView from "./ui/js/hello.js";
-            import KumiteMe from "./ui/js/kumite-me.js";
+            import KumiteAccount from "./ui/js/kumite-account.js";
+            import KumiteMe from "./ui/js/kumite-account-me.js";
             import KumitePlayer from "./ui/js/kumite-player.js";
             import KumiteGames from "./ui/js/kumite-games.js";
             import KumiteGame from "./ui/js/kumite-game.js";
@@ -66,6 +67,11 @@
                 {
                     path: "/html/me",
                     component: KumiteMe,
+                    props: true,
+                },
+                {
+                    path: "/html/accounts/:accountId",
+                    component: KumiteAccount,
                     props: true,
                 },
                 {

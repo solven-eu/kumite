@@ -1,10 +1,12 @@
 import { mapState } from "pinia";
 import { useUserStore } from "./store-user.js";
 
-import KumiteMeLoggedIn from "./kumite-me-loggedin.js";
+import LoginRef from "./login-ref.js";
+import KumiteMeLoggedIn from "./kumite-account-me-loggedin.js";
 
 export default {
 	components: {
+        LoginRef,
 		KumiteMeLoggedIn,
 	},
 	computed: {
@@ -14,7 +16,7 @@ export default {
 		return {};
 	},
 	template: /* HTML */ `
-        <div v-if="!isLoggedIn">You need to login</div>
+        <div v-if="!isLoggedIn"><LoginRef /></div>
         <div v-else>
             <KumiteMeLoggedIn />
         </div>
