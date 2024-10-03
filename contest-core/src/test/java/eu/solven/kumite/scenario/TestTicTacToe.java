@@ -26,12 +26,15 @@ import eu.solven.kumite.game.GameSearchParameters;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToe;
 import eu.solven.kumite.leaderboard.Leaderboard;
+import eu.solven.kumite.randomgamer.GamerLogicHelper;
 import eu.solven.kumite.randomgamer.RandomGamer;
 import eu.solven.kumite.randomgamer.RandomPlayersVsThemselves;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(
-		classes = { KumiteServerComponentsConfiguration.class, ActiveContestGenerator.class, RandomGamer.class })
+@ContextConfiguration(classes = { KumiteServerComponentsConfiguration.class,
+		ActiveContestGenerator.class,
+		RandomGamer.class,
+		GamerLogicHelper.class, })
 @ActiveProfiles({ IKumiteSpringProfiles.P_INMEMORY })
 public class TestTicTacToe {
 

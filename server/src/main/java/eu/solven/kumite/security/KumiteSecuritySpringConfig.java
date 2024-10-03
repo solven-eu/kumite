@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 
 import eu.solven.kumite.account.JwtUserContextHolder;
 import eu.solven.kumite.account.internal.KumiteUser;
@@ -25,10 +25,11 @@ import eu.solven.kumite.player.IAccountPlayersRegistry;
 import lombok.extern.slf4j.Slf4j;
 
 // https://docs.spring.io/spring-security/reference/reactive/oauth2/login/advanced.html#webflux-oauth2-login-advanced-userinfo-endpoint
-@RestController
+@EnableWebFluxSecurity
 @Import({
 
 		SocialWebFluxSecurity.class,
+		JwtWebFluxSecurity.class,
 
 		KumitePublicController.class,
 		KumiteLoginController.class,
@@ -43,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 
 })
 @Slf4j
-public class KumiteSecurity {
+public class KumiteSecuritySpringConfig {
 
 	@Profile(IKumiteSpringProfiles.P_PRDMODE)
 	@Bean
@@ -87,7 +88,7 @@ public class KumiteSecurity {
 		UUID accountId = user.getAccountId();
 
 		Set<UUID> playerIds = accountPlayersRegistry.makeDynamicHasPlayers(accountId).getPlayerIds();
-		RefreshTokenWrapper refreshToken = tokenService.wrapInJwtRefreshToken(KumiteUser.raw(user), playerIds);
+		RefreshTokenWrapper refreshToken = tokenService.wrapInJwtRefreshToken(accountId, playerIds);
 
 		log.info("refresh_token for accountId={}: {}", user.getAccountId(), refreshToken);
 

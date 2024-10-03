@@ -2,6 +2,7 @@ package eu.solven.kumite.app;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.random.RandomGenerator;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Logger;
@@ -58,12 +59,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class KumiteServerComponentsConfiguration {
 	@Bean
-	public BoardLifecycleManager boardLifecycleManager(BoardsRegistry boardRegistry,
+	public BoardLifecycleManager boardLifecycleManager(ContestsRegistry contestsRegistry,
+			BoardsRegistry boardRegistry,
 			ContestPlayersRegistry contestPlayersRegistry,
-			EventBus eventBus) {
+			EventBus eventBus,
+			RandomGenerator randomGenerator) {
 		final Executor boardEvolutionExecutor = Executors.newFixedThreadPool(4);
 
-		return new BoardLifecycleManager(boardRegistry, contestPlayersRegistry, boardEvolutionExecutor, eventBus);
+		return new BoardLifecycleManager(contestsRegistry,
+				boardRegistry,
+				contestPlayersRegistry,
+				boardEvolutionExecutor,
+				eventBus,
+				randomGenerator);
 	}
 
 	@Bean

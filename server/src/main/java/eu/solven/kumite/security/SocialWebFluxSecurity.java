@@ -22,9 +22,6 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcReactiveOAut
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
@@ -33,11 +30,8 @@ import org.springframework.security.web.server.context.WebSessionServerSecurityC
 import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
-import com.nimbusds.jwt.JWT;
-
 import eu.solven.kumite.account.fake_player.FakePlayer;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
-import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
 import eu.solven.kumite.security.oauth2.KumiteOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -101,7 +95,14 @@ public class SocialWebFluxSecurity {
 
 						"/swagger-ui.html",
 						"/swagger-ui/**",
-						"/webjars/**"))
+						"/webjars/**"
+//						,
+
+						// WebSocket is this relevant given the URL starts with "ws://"
+//						"/gs-guide-websocket",
+//						"/gs-guide-websocket/**",
+//						"/ws/**"
+						))
 
 				.csrf(csrf -> {
 					csrf
@@ -114,6 +115,10 @@ public class SocialWebFluxSecurity {
 				})
 
 				.authorizeExchange(auth -> auth
+
+						// WebSocket: the authentication is done manually on the CONNECT frame
+//						.pathMatchers("/gs-guide-websocket", "/gs-guide-websocket/**", "/ws/**")
+//						.permitAll()
 
 						// Login does not requires being loggged-in yet
 						.pathMatchers("/login/oauth2/code/**")
@@ -204,75 +209,6 @@ public class SocialWebFluxSecurity {
 		UserDetailsRepositoryReactiveAuthenticationManager ram =
 				new UserDetailsRepositoryReactiveAuthenticationManager(new MapReactiveUserDetailsService(userDetails));
 		basic.authenticationManager(ram).securityContextRepository(new WebSessionServerSecurityContextRepository());
-	}
-
-	/**
-	 * 
-	 * @param http
-	 * @param env
-	 * @param jwtDecoder
-	 *            Knows how to check a {@link JWT}, and convert it into a {@link Jwt}. Typically provided from
-	 *            {@link KumiteResourceServerConfiguration}
-	 * @return
-	 */
-	@Order(Ordered.LOWEST_PRECEDENCE)
-	@Bean
-	public SecurityWebFilterChain configureApi(Environment env,
-			ReactiveJwtDecoder jwtDecoder,
-			ServerHttpSecurity http) {
-
-		boolean isFakeUser = env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_FAKEUSER));
-		if (isFakeUser) {
-			log.warn("{}=true", IKumiteSpringProfiles.P_FAKEUSER);
-		} else {
-			log.info("{}=false", IKumiteSpringProfiles.P_FAKEUSER);
-		}
-
-		// We can disable CSRF as these routes are stateless, does not rely on any cookie/session, but on some JWT
-		return http
-
-				// https://www.baeldung.com/spring-security-csrf
-				.csrf(csrf -> {
-					log.info("CSRF is disbled in API as API has stateless auth");
-					csrf.disable();
-				})
-				.cors(cors -> {
-					log.info("CORS is disbled in API as API has stateless auth");
-					cors.disable();
-				})
-
-				.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtDecoder(jwtDecoder)))
-
-				.authorizeExchange(auth -> auth
-						// Actuator is partly public
-						.pathMatchers("/actuator/health/readiness", "/actuator/health/liveness")
-						.permitAll()
-						// Swagger/OpenAPI is public
-						.pathMatchers("/v3/api-docs/**")
-						.permitAll()
-						// public API is public
-						.pathMatchers("/api/v1/public/**")
-						.permitAll()
-
-						// If fakeUser==true, we allow the reset route (for integration tests)
-						.pathMatchers(isFakeUser ? "/api/v1/clear" : "nonono")
-						.permitAll()
-
-						// The rest needs to be authenticated
-						.anyExchange()
-						.authenticated())
-
-				// Default OAuth2 behavior is to redirect to login pages
-				// If not loged-in, we want to receive 401 and not 302 (which are good for UX)
-				.exceptionHandling(e -> {
-					BearerTokenServerAuthenticationEntryPoint authenticationEntryPoint =
-							new BearerTokenServerAuthenticationEntryPoint();
-					authenticationEntryPoint.setRealmName("Kumite Realm");
-					e.authenticationEntryPoint(authenticationEntryPoint);
-				})
-
-				// .anonymous(a -> a.principal("AnonymousKarateka"))
-				.build();
 	}
 
 }

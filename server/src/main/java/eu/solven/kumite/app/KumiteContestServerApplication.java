@@ -12,7 +12,7 @@ import org.springframework.session.ReactiveSessionRepository;
 
 import eu.solven.kumite.app.persistence.RedisKumiteConfiguration;
 import eu.solven.kumite.app.webflux.KumiteWebFluxConfiguration;
-import eu.solven.kumite.security.KumiteSecurity;
+import eu.solven.kumite.security.KumiteSecuritySpringConfig;
 import eu.solven.kumite.tools.GitPropertySourceConfig;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 
 		KumiteWebFluxConfiguration.class,
 		KumiteServerComponentsConfiguration.class,
-		KumiteSecurity.class,
+		KumiteSecuritySpringConfig.class,
 		GitPropertySourceConfig.class,
 
 		RedisKumiteConfiguration.class,

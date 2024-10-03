@@ -29,8 +29,10 @@
         <module>authorization</module>
         <!-- The contest domain-specific code-->
         <module>contest-core</module>
-		<!-- Host the contests, and serves the API -->
-		<module>server</module>
+        <!-- Host the contests, and serves the API -->
+        <module>server</module>
+        <!-- Enables boards updates through WebSocket -->
+        <module>websocket</module>
 		<!-- Demonstrate how to list and play contest -->
 		<module>player</module>
 		<!-- Starts a server and a player in the same JVM -->

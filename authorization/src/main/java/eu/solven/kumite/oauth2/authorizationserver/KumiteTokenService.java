@@ -22,7 +22,6 @@ import com.nimbusds.jose.jwk.gen.OctetSequenceKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-import eu.solven.kumite.account.internal.KumiteUserRaw;
 import eu.solven.kumite.login.AccessTokenWrapper;
 import eu.solven.kumite.login.RefreshTokenWrapper;
 import eu.solven.kumite.oauth2.IKumiteOAuth2Constants;
@@ -76,7 +75,7 @@ public class KumiteTokenService {
 		return jwk;
 	}
 
-	public String generateAccessToken(KumiteUserRaw user,
+	public String generateAccessToken(UUID accountId,
 			Set<UUID> playerIds,
 			Duration accessTokenValidity,
 			boolean isRefreshToken) {
@@ -95,7 +94,7 @@ public class KumiteTokenService {
 		Instant now = Instant.now();
 
 		String issuer = getIssuer();
-		JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder().subject(user.getAccountId().toString())
+		JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder().subject(accountId.toString())
 				.audience("Kumite-Server")
 				// https://connect2id.com/products/server/docs/api/token#url
 				.issuer(issuer)
@@ -143,11 +142,11 @@ public class KumiteTokenService {
 	 * @return The generated JWT access token.
 	 * @throws IllegalStateException
 	 */
-	public AccessTokenWrapper wrapInJwtAccessToken(KumiteUserRaw user, UUID playerId) {
+	public AccessTokenWrapper wrapInJwtAccessToken(UUID accountId, UUID playerId) {
 		// access_token are short-lived
 		Duration accessTokenValidity = Duration.parse("PT1H");
 
-		String accessToken = generateAccessToken(user, Set.of(playerId), accessTokenValidity, false);
+		String accessToken = generateAccessToken(accountId, Set.of(playerId), accessTokenValidity, false);
 
 		// https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
 		return AccessTokenWrapper.builder()
@@ -161,11 +160,11 @@ public class KumiteTokenService {
 
 	// https://stackoverflow.com/questions/38986005/what-is-the-purpose-of-a-refresh-token
 	// https://stackoverflow.com/questions/40555855/does-the-refresh-token-expire-and-if-so-when
-	public RefreshTokenWrapper wrapInJwtRefreshToken(KumiteUserRaw user, Set<UUID> playerIds) {
+	public RefreshTokenWrapper wrapInJwtRefreshToken(UUID accountId, Set<UUID> playerIds) {
 		// refresh_token are long-lived
 		Duration refreshTokenValidity = Duration.parse("P365D");
 
-		String accessToken = generateAccessToken(user, playerIds, refreshTokenValidity, true);
+		String accessToken = generateAccessToken(accountId, playerIds, refreshTokenValidity, true);
 
 		// https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
 		return RefreshTokenWrapper.builder()

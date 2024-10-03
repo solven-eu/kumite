@@ -15,7 +15,7 @@ import lombok.Value;
  */
 @Value
 @Builder
-public class PlayerJoinedBoard {
+public class PlayerJoinedBoard implements IKumiteContestEvent {
 	@NonNull
 	UUID contestId;
 

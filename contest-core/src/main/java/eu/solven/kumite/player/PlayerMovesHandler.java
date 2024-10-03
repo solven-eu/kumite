@@ -46,7 +46,8 @@ public class PlayerMovesHandler {
 		Contest contest = contestsRegistry.getContest(contestId);
 
 		PlayerJoinRaw playerJoinRaw = parameters.build();
-		boardLifecycleManager.registerPlayer(contest, playerJoinRaw);
+		IKumiteBoardView view = boardLifecycleManager.registerPlayer(contest, playerJoinRaw);
+		log.debug("Should we return the sync view={} on playerRegistration?", view);
 
 		boolean isViewer = playerJoinRaw.isViewer();
 		PlayerContestStatus playingPlayer = PlayerContestStatus.builder()

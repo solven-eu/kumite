@@ -4,10 +4,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 
 import eu.solven.kumite.account.fake_player.FakePlayer;
-import eu.solven.kumite.account.fake_player.FakeUser;
 import eu.solven.kumite.account.fake_player.RandomPlayer;
-import eu.solven.kumite.account.fake_player.RandomUser;
-import eu.solven.kumite.account.internal.KumiteUser;
 import eu.solven.kumite.login.RefreshTokenWrapper;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.tools.IUuidGenerator;
@@ -42,15 +39,15 @@ public class KumiteWebclientServerProperties {
 			}
 			KumiteTokenService kumiteTokenService = new KumiteTokenService(env, uuidGenerator);
 			RefreshTokenWrapper wrappedRefreshToken =
-					kumiteTokenService.wrapInJwtRefreshToken(KumiteUser.raw(FakeUser.user()), FakePlayer.fakePlayers());
+					kumiteTokenService.wrapInJwtRefreshToken(FakePlayer.ACCOUNT_ID, FakePlayer.playersIds());
 			refreshToken = wrappedRefreshToken.getRefreshToken();
 		} else if (KumiteWebclientServerProperties.PLACEHOLDER_GENERATERANDOMPLAYER.equals(refreshToken)) {
 			{
 				log.info("Generating on-the-fly a fakeUser refreshToken");
 			}
 			KumiteTokenService kumiteTokenService = new KumiteTokenService(env, uuidGenerator);
-			RefreshTokenWrapper wrappedRefreshToken = kumiteTokenService
-					.wrapInJwtRefreshToken(KumiteUser.raw(RandomUser.user()), RandomPlayer.playerIds());
+			RefreshTokenWrapper wrappedRefreshToken =
+					kumiteTokenService.wrapInJwtRefreshToken(RandomPlayer.ACCOUNT_ID, RandomPlayer.playerIds());
 			refreshToken = wrappedRefreshToken.getRefreshToken();
 		}
 		return refreshToken;

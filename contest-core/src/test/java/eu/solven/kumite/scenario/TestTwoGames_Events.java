@@ -49,7 +49,6 @@ import eu.solven.kumite.randomgamer.RandomPlaysVs1Config.RandomPlayerEventSubscr
 		// Contest generation is not done automatically, else it would trigger the whole gamePlay by RandomPlayer while
 		// bootstrapping the unitTest class
 		ActiveContestGenerator.class,
-// RandomGamer.class,
 
 })
 @ActiveProfiles({ IKumiteSpringProfiles.P_INMEMORY, IKumiteSpringProfiles.P_RANDOM_PLAYS_VSTHEMSELVES })

@@ -47,7 +47,7 @@ public class TestKumiteTokenService {
 				.details(IKumiteTestConstants.userDetails())
 				.build();
 		String accessToken = tokenService.get()
-				.generateAccessToken(KumiteUser.raw(user), Set.of(playerId), Duration.ofMinutes(1), false);
+				.generateAccessToken(user.getAccountId(), Set.of(playerId), Duration.ofMinutes(1), false);
 
 		{
 			JWSVerifier verifier = new MACVerifier((OctetSequenceKey) signatureSecret);

@@ -47,25 +47,31 @@ public class ActiveContestGenerator {
 						activeAndJoinableContests.size(),
 						gameMetadata.getTitle());
 			} else {
-				IGame game = gamesRegistry.getGame(gameId);
-				IKumiteBoard initialBoard = game.generateInitialBoard(randomGenerator);
-
-				// We suffix with a relatively small number, to easily remember them (as human)
-				String contestName = "Auto-generated " + randomGenerator.nextInt(128);
-				ContestCreationMetadata constantMetadata = ContestCreationMetadata.fromGame(gameMetadata)
-						.name(contestName)
-						.author(RandomPlayer.ACCOUNT_ID)
-						.build();
-				Contest contest = contestsRegistry.registerContest(game, constantMetadata, initialBoard);
+				openContestForGame(gameId);
 				nbCreated.incrementAndGet();
-
-				log.info("{} generated contestId={} for gameId={}",
-						IKumiteSpringProfiles.P_INJECT_DEFAULT_GAMES,
-						contest.getContestId(),
-						gameId);
 			}
 		});
 
 		return nbCreated.get();
+	}
+
+	public Contest openContestForGame(UUID gameId) {
+		IGame game = gamesRegistry.getGame(gameId);
+		IKumiteBoard initialBoard = game.generateInitialBoard(randomGenerator);
+
+		// We suffix with a relatively small number, to easily remember them (as human)
+		String contestName = "Auto-generated " + randomGenerator.nextInt(128);
+		ContestCreationMetadata constantMetadata = ContestCreationMetadata.fromGame(game.getGameMetadata())
+				.name(contestName)
+				.author(RandomPlayer.ACCOUNT_ID)
+				.build();
+		Contest contest = contestsRegistry.registerContest(game, constantMetadata, initialBoard);
+
+		log.info("{} generated contestId={} for gameId={}",
+				IKumiteSpringProfiles.P_INJECT_DEFAULT_GAMES,
+				contest.getContestId(),
+				gameId);
+
+		return contest;
 	}
 }

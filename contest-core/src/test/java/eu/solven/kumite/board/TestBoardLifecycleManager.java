@@ -1,4 +1,4 @@
-package eu.solven.kumite.scenario;
+package eu.solven.kumite.board;
 
 import java.util.Map;
 import java.util.UUID;
@@ -17,9 +17,6 @@ import eu.solven.kumite.account.fake_player.RandomPlayer;
 import eu.solven.kumite.account.login.IKumiteTestConstants;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerComponentsConfiguration;
-import eu.solven.kumite.board.BoardLifecycleManager;
-import eu.solven.kumite.board.BoardsRegistry;
-import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestCreationMetadata;
 import eu.solven.kumite.contest.ContestsRegistry;

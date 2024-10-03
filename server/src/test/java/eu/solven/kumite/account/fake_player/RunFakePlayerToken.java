@@ -11,7 +11,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
-import eu.solven.kumite.account.internal.KumiteUser;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
@@ -49,7 +48,7 @@ public class RunFakePlayerToken {
 
 	@Bean
 	public Void generateFakePlayerToken(KumiteTokenService tokenService) {
-		String accessToken = tokenService.generateAccessToken(KumiteUser.raw(FakeUser.user()),
+		String accessToken = tokenService.generateAccessToken(FakePlayer.ACCOUNT_ID,
 				Set.of(FakePlayer.PLAYER_ID1, FakePlayer.PLAYER_ID2),
 				Duration.ofDays(365),
 				false);

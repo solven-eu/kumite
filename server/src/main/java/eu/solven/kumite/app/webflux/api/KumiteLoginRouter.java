@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import eu.solven.kumite.app.webflux.PlayerVerifierFilterFunction;
+import eu.solven.kumite.greeting.Greeting;
 import eu.solven.kumite.login.AccessTokenWrapper;
 import lombok.extern.slf4j.Slf4j;
 

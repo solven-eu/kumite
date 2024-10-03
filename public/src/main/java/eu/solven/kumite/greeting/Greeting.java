@@ -1,9 +1,15 @@
-package eu.solven.kumite.app.webflux.api;
+package eu.solven.kumite.greeting;
 
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
+/**
+ * Used to check API availability
+ * 
+ * @author Benoit Lacelle
+ *
+ */
 @Value
 @Builder
 @Jacksonized

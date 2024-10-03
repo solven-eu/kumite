@@ -21,8 +21,6 @@ import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import eu.solven.kumite.account.fake_player.RandomPlayer;
-import eu.solven.kumite.account.fake_player.RandomUser;
-import eu.solven.kumite.account.internal.KumiteUser;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.webflux.KumiteWebExceptionHandler;
 import eu.solven.kumite.app.webflux.api.AccessTokenHandler;
@@ -57,14 +55,14 @@ public class TestSecurity_WithJwtUser {
 	KumiteTokenService tokenService;
 
 	protected String generateAccessToken() {
-		return tokenService.generateAccessToken(KumiteUser.raw(RandomUser.user()),
+		return tokenService.generateAccessToken(RandomPlayer.ACCOUNT_ID,
 				Set.of(RandomPlayer.PLAYERID_1),
 				Duration.ofMinutes(1),
 				false);
 	}
 
 	protected String generateRefreshToken() {
-		return tokenService.generateAccessToken(KumiteUser.raw(RandomUser.user()),
+		return tokenService.generateAccessToken(RandomPlayer.ACCOUNT_ID,
 				Set.of(RandomPlayer.PLAYERID_1),
 				Duration.ofMinutes(1),
 				true);

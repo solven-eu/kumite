@@ -1,6 +1,7 @@
 package eu.solven.kumite.oauth2.resourceserver;
 
 import java.text.ParseException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.crypto.SecretKey;
 
@@ -26,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 public class KumiteResourceServerConfiguration {
 
 	public static final MacAlgorithm MAC_ALGORITHM = MacAlgorithm.HS256;
+
+	private static final AtomicReference<String> GENERATED_SIGNINGKEY = new AtomicReference<>();
 
 	// https://stackoverflow.com/questions/64758305/how-to-configure-a-reactive-resource-server-to-use-a-jwt-with-a-symmetric-key
 	// https://docs.spring.io/spring-security/reference/reactive/oauth2/resource-server/jwt.html
@@ -55,8 +58,15 @@ public class KumiteResourceServerConfiguration {
 			if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_PRDMODE))) {
 				throw new IllegalStateException("Can not GENERATE oauth2 signingKey in `prodmode`");
 			}
-			log.warn("We generate a random signingKey");
-			secretKeySpec = KumiteTokenService.generateSignatureSecret(uuidGenerator).toJSONString();
+			synchronized (secretKeySpec) {
+				if (GENERATED_SIGNINGKEY.get() == null) {
+					log.warn("We generate a random signingKey");
+					secretKeySpec = KumiteTokenService.generateSignatureSecret(uuidGenerator).toJSONString();
+					GENERATED_SIGNINGKEY.set(secretKeySpec);
+				} else {
+					secretKeySpec = GENERATED_SIGNINGKEY.get();
+				}
+			}
 		}
 
 		OctetSequenceKey octetSequenceKey = OctetSequenceKey.parse(secretKeySpec);

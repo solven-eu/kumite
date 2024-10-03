@@ -210,22 +210,24 @@ public class KumiteLoginController {
 	public Mono<?> token(@RequestParam(name = "player_id", required = false) String rawPlayerId,
 			@RequestParam(name = "refresh_token", defaultValue = "false") boolean requestRefreshToken) {
 		return userOrThrow().map(user -> {
+			UUID accountId = user.getAccountId();
+
 			if (requestRefreshToken) {
 				// TODO Restrict if `rawPlayerId` is provided.
 				if (!StringUtils.isEmpty(rawPlayerId)) {
 					throw new IllegalArgumentException("`player_id` is not hanlded yet for `refresh_token=true`");
 				}
-				List<KumitePlayer> players = playersRegistry.makeDynamicHasPlayers(user.getAccountId()).getPlayers();
+				List<KumitePlayer> players = playersRegistry.makeDynamicHasPlayers(accountId).getPlayers();
 				// Beware this would not allow playerIds generated after the refresh_token creation
 				Set<UUID> playerIds = players.stream().map(KumitePlayer::getPlayerId).collect(Collectors.toSet());
-				log.info("Generating an refresh_token for accountId={} playerIds={}", user.getAccountId(), playerIds);
-				return kumiteTokenService.wrapInJwtRefreshToken(KumiteUser.raw(user), playerIds);
+				log.info("Generating an refresh_token for accountId={} playerIds={}", accountId, playerIds);
+				return kumiteTokenService.wrapInJwtRefreshToken(accountId, playerIds);
 			} else {
 				UUID playerId = KumiteHandlerHelper.optUuid(Optional.ofNullable(rawPlayerId), "player_id")
 						.orElse(user.getPlayerId());
 				checkValidPlayerId(user, playerId);
 				log.info("Generating an access_token for accountId={} playerId={}", user.getAccountId(), playerId);
-				return kumiteTokenService.wrapInJwtAccessToken(KumiteUser.raw(user), playerId);
+				return kumiteTokenService.wrapInJwtAccessToken(accountId, playerId);
 			}
 		});
 	}

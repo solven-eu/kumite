@@ -14,7 +14,10 @@ import lombok.Value;
  */
 @Value
 @Builder
-public class PlayerCanMove {
+public class PlayerCanMove implements IKumiteContestEvent {
 	@NonNull
 	UUID contestId;
+
+	@NonNull
+	UUID playerId;
 }

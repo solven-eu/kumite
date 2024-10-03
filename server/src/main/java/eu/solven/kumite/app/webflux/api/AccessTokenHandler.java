@@ -46,7 +46,7 @@ public class AccessTokenHandler {
 			Entry<Jwt, KumiteUser> user = userFromRefreshTokenJwt(authentication);
 
 			AccessTokenWrapper tokenWrapper =
-					kumiteTokenService.wrapInJwtAccessToken(KumiteUser.raw(user.getValue()), queryPlayerId);
+					kumiteTokenService.wrapInJwtAccessToken(user.getValue().getAccountId(), queryPlayerId);
 
 			String accessTokenJti = getJti(tokenWrapper);
 

@@ -36,6 +36,7 @@ import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToe;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.leaderboard.Leaderboard;
+import eu.solven.kumite.randomgamer.GamerLogicHelper;
 import eu.solven.kumite.randomgamer.RandomGamer;
 import eu.solven.kumite.randomgamer.RandomPlayersVsThemselves;
 
@@ -53,6 +54,7 @@ import eu.solven.kumite.randomgamer.RandomPlayersVsThemselves;
 		KumiteServerComponentsConfiguration.class,
 		ActiveContestGenerator.class,
 		RandomGamer.class,
+		GamerLogicHelper.class,
 
 		RandomPlayersVsThemselves.class,
 

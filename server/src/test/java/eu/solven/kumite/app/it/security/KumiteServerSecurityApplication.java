@@ -19,13 +19,13 @@ import eu.solven.kumite.app.webflux.api.KumiteLoginRouter;
 import eu.solven.kumite.app.webflux.api.KumiteSpaRouter;
 import eu.solven.kumite.oauth2.authorizationserver.ActiveRefreshTokens;
 import eu.solven.kumite.player.persistence.BijectiveAccountPlayersRegistry;
-import eu.solven.kumite.security.KumiteSecurity;
+import eu.solven.kumite.security.KumiteSecuritySpringConfig;
 import eu.solven.kumite.tools.KumiteRandomConfiguration;
 
 @SpringBootApplication(scanBasePackages = "none")
 @Import({ KumiteRandomConfiguration.class,
 
-		KumiteSecurity.class,
+		KumiteSecuritySpringConfig.class,
 
 		KumiteUsersRegistry.class,
 		InMemoryUserRepository.class,

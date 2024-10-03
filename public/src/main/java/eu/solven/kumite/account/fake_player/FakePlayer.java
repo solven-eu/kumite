@@ -47,7 +47,7 @@ public class FakePlayer {
 		return KumitePlayer.builder().playerId(fakePlayerId(i)).accountId(ACCOUNT_ID).build();
 	}
 
-	public static Set<UUID> fakePlayers() {
+	public static Set<UUID> playersIds() {
 		return Set.of(FakePlayer.PLAYER_ID1, FakePlayer.PLAYER_ID2);
 	}
 
