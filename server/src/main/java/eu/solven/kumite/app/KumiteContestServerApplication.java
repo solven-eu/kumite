@@ -14,6 +14,7 @@ import eu.solven.kumite.app.persistence.RedisKumiteConfiguration;
 import eu.solven.kumite.app.webflux.KumiteWebFluxConfiguration;
 import eu.solven.kumite.security.KumiteSecuritySpringConfig;
 import eu.solven.kumite.tools.GitPropertySourceConfig;
+import eu.solven.kumite.websocket.KumiteWebSocketSpringConfig;
 import lombok.extern.slf4j.Slf4j;
 
 @SpringBootApplication(scanBasePackages = "none")
@@ -25,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 		GitPropertySourceConfig.class,
 
 		RedisKumiteConfiguration.class,
+		KumiteWebSocketSpringConfig.class,
 
 })
 @Slf4j

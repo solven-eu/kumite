@@ -6,7 +6,7 @@ import KumiteMeLoggedIn from "./kumite-account-me-loggedin.js";
 
 export default {
 	components: {
-        LoginRef,
+		LoginRef,
 		KumiteMeLoggedIn,
 	},
 	computed: {

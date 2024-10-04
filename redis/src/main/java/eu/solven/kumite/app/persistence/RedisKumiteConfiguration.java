@@ -12,7 +12,7 @@ import eu.solven.kumite.redis.KumiteRawRedisConfiguration;
 import eu.solven.kumite.user.RedisUserRepository;
 
 /**
- * Enables relying on Redis to persiste data.
+ * Enables relying on Redis to persist data.
  * 
  * @author Benoit Lacelle
  *

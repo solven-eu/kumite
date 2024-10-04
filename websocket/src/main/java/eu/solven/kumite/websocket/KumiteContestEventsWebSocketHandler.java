@@ -3,6 +3,7 @@ package eu.solven.kumite.websocket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
@@ -12,6 +13,7 @@ import org.springframework.web.reactive.socket.WebSocketSession;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.solven.kumite.app.webflux.api.KumiteHandlerHelper;
 import eu.solven.kumite.events.IKumiteContestEvent;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -47,6 +49,8 @@ public class KumiteContestEventsWebSocketHandler implements WebSocketHandler {
 
 	@Override
 	public Mono<Void> handle(WebSocketSession wsSession) {
+		AtomicReference<UUID> playerId = new AtomicReference<>();
+
 		Flux<WebSocketMessage> messageFlux = sharedFlux.map(event -> {
 			try {
 				UUID contestId = event.getContestId();
@@ -63,11 +67,25 @@ public class KumiteContestEventsWebSocketHandler implements WebSocketHandler {
 		});
 
 		Mono<Void> out = wsSession.send(messageFlux);
-		Flux<String> in = wsSession.receive().map(WebSocketMessage::getPayloadAsText).map(messageAsString -> {
+		Flux<?> in = wsSession.receive().map(WebSocketMessage::getPayloadAsText).map(messageAsString -> {
 			log.info("<-- Receiving {} from {}", messageAsString, wsSession.getId());
 			return messageAsString;
+		}).map(msgAsString -> {
+			try {
+				return objectMapper.readValue(msgAsString, Map.class);
+			} catch (JsonProcessingException e) {
+				throw new IllegalArgumentException("Invalid json: `%s`".formatted(msgAsString), e);
+			}
+		}).doOnNext(asMap -> {
+			if (asMap.containsKey("playerId")) {
+				UUID receivedPlayerId = KumiteHandlerHelper.uuid((String) asMap.get(out), "playerId");
+				log.info("wsId={} has registered playerId={}", wsSession.getId(), receivedPlayerId);
+				playerId.set(receivedPlayerId);
+			}
 		});
-		return Flux.zip(in, out.flux()).then();
+		return Flux.zip(in.then(), out.flux()).then().doOnError(t -> {
+			log.warn("Arg in wsId={}", wsSession.getId(), t);
+		});
 	}
 
 }

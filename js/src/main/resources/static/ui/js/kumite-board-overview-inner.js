@@ -7,6 +7,7 @@ import KumiteBoardOverviewPlay from "./kumite-board-overview-play.js";
 
 import KumiteBoardOverviewCurl from "./kumite-board-overview-curl.js";
 import KumiteLeaderboard from "./kumite-leaderboard.js";
+import KumiteContestWebsocket from "./kumite-contest-websocket.js";
 
 import KumiteJsonBoardState from "./board-renderers/kumite-json-board-state.js";
 import KumiteTSPBoardState from "./board-renderers/kumite-tsp-board-state.js";
@@ -17,6 +18,7 @@ export default {
 		KumiteBoardOverviewPlay,
 		KumiteBoardOverviewCurl,
 		KumiteLeaderboard,
+		KumiteContestWebsocket,
 
 		KumiteJsonBoardState,
 		KumiteTSPBoardState,
@@ -72,6 +74,7 @@ export default {
         </div>
         <div v-else-if="game.error || contest.error || board.error">{{game.error || contest.error || board.error}}</div>
         <div v-else>
+            <KumiteContestWebsocket :gameId="gameId" :contestId="contestId" />
             <div class="border position-relative">
                 <i class="bi bi-motherboard">Board</i>
                 <!-- https://stackoverflow.com/questions/43658481/passing-props-dynamically-to-dynamic-component-in-vuejs -->

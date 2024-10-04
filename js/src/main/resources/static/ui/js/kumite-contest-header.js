@@ -9,7 +9,7 @@ import KumiteContestDelete from "./kumite-contest-delete.js";
 
 export default {
 	components: {
-        KumiteContestRef,
+		KumiteContestRef,
 		KumiteAccountRef,
 		KumiteContestDelete,
 	},
@@ -88,7 +88,7 @@ export default {
         <div v-else-if="game.error || contest.error">{{game.error || contest.error}}</div>
         <span v-else>
             <h2>
-                <KumiteContestRef :contestId="contestId"/>
+                <KumiteContestRef :contestId="contestId" />
                 <RouterLink :to="{path:'/html/games/' + gameId}"><i class="bi bi-arrow-90deg-left"></i></RouterLink>
             </h2>
 

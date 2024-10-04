@@ -30,6 +30,9 @@ export const useUserStore = defineStore("user", {
 		// (May check some Cookie or localStorage, or some API preferably returning 2XX even if logged-in)
 		needsToCheckLogin: true,
 
+		// Typically turned to true by an `authenticatedFetch` while loggedOut
+		expectedToBeLoggedIn: false,
+
 		// We loads information about various players (e.g. current account, through contests and leaderboards)
 		// Playing players are stores in contests
 		nbAccountLoading: 0,
@@ -156,9 +159,12 @@ export const useUserStore = defineStore("user", {
 
 				if (loginHttpStatus === 200) {
 					// We are logged-in
+					// BEWARE: Current login mechanism does not handle the period while fetching user details
+					// `needsToCheckLogin` is false and `account.details.username` is empty, hence we are considered loggedOut
 
 					return fetchFromUrl("/api/login/v1/user")
 						.then((user) => {
+							// `isLoggedIn` is computed from this value
 							store.$patch({ account: user });
 
 							return user;
@@ -183,26 +189,27 @@ export const useUserStore = defineStore("user", {
 			});
 		},
 
-		// @throws UserNeedsToLoginError if not logged-in
-		async ensureUser() {
+		async loadUserIfMissing() {
 			if (this.isLoggedIn) {
 				// We have loaded a user: we assume it does not need to login
 				return Promise.resolve(this.account);
-			} else if (this.isLoggedOut) {
-				// We are not logged-in
-				throw new UserNeedsToLoginError("User needs to login");
+			} else if (!this.isLoggedOut) {
+				// We are not logged-out
+				return this.loadUser();
 			} else {
-				// We need first to load current user
-				// It will enbale checking we are actually logged-in
-				return this.loadUser().then((user) => {
-					if (this.isLoggedIn) {
-						return user;
-					} else {
-						// We are still not logged-in (e.g. session expired)
-						throw new Error("The user needs to login");
-					}
-				});
+				// return Promise.reject(new UserNeedsToLoginError("User needs to login"));
+				return Promise.resolve({ error: "UserNeedsToLogin" });
 			}
+		},
+
+		// @throws UserNeedsToLoginError if not logged-in
+		async ensureUser() {
+			return loadUserIfMissing().then((user) => {
+				if (user.error) {
+					// We are not logged-in
+					throw new UserNeedsToLoginError("User needs to login");
+				}
+			});
 		},
 
 		async loadUserTokens() {
@@ -274,6 +281,7 @@ export const useUserStore = defineStore("user", {
 			await this.loadIfMissingUserTokens();
 
 			if (this.isLoggedOut) {
+				this.expectedToBeLoggedIn = true;
 				throw new UserNeedsToLoginError("User needs to login");
 			}
 
@@ -295,6 +303,7 @@ export const useUserStore = defineStore("user", {
 					console.debug("<-", mergedFetchOptions.method, url, mergedFetchOptions, response);
 
 					if (response.status == 401) {
+						console.log("The access_token is expired as we received a 401");
 						this.tokens.access_token_expired = true;
 					} else if (!response.ok) {
 						console.trace("StackTrace for !ok on", url);
@@ -309,11 +318,6 @@ export const useUserStore = defineStore("user", {
 
 		async loadCurrentAccountPlayers() {
 			const store = this;
-
-			if (!store.account.accountId) {
-				// TODO What if `loadUser` was ongoing?
-				return this.loadUser();
-			}
 
 			async function fetchFromUrl(url) {
 				store.nbAccountLoading++;
@@ -342,7 +346,14 @@ export const useUserStore = defineStore("user", {
 				}
 			}
 
-			return fetchFromUrl(`/players?account_id=${store.account.accountId}`);
+			return store.loadUserIfMissing().then(() => {
+				if (store.isLoggedIn) {
+					return fetchFromUrl(`/players?account_id=${store.account.accountId}`);
+				} else {
+					console.log("Can not load account players as not logged-in");
+					this.expectedToBeLoggedIn = true;
+				}
+			});
 		},
 	},
 });

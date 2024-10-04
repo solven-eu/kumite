@@ -29,44 +29,44 @@ export default {
 		const store = useKumiteStore();
 
 		store.loadContestIfMissing(props.contestId, props.gameId);
-        
-        const doGameover = function() {
-            console.log("DELETE contest", contestId);
 
-            async function deleteFromUrl(url) {
-                try {
-                    const fetchOptions = {
-                        method: "DELETE",
-                        headers: { "Content-Type": "application/json" },
-                    };
-                    const response = await store.authenticatedFetch(url, fetchOptions);
-                    if (!response.ok) {
-                        throw store.newNetworkError("Rejected DELETE for move for contestId=" + contestId, url, response);
-                    }
+		const doGameover = function () {
+			console.log("DELETE contest", contestId);
 
-                    const contest = await response.json();
-                    console.log("Created contest", contest);
+			async function deleteFromUrl(url) {
+				try {
+					const fetchOptions = {
+						method: "DELETE",
+						headers: { "Content-Type": "application/json" },
+					};
+					const response = await store.authenticatedFetch(url, fetchOptions);
+					if (!response.ok) {
+						throw store.newNetworkError("Rejected DELETE for move for contestId=" + contestId, url, response);
+					}
 
-                    {
-                        console.log("Registering contestId", contest.contestId);
-                        store.$patch({
-                            contests: {
-                                ...store.contests,
-                                [contest.contestId]: contest,
-                            },
-                        });
-                    }
+					const contest = await response.json();
+					console.log("Created contest", contest);
 
-                    createdContest.value = contest;
-                } catch (e) {
-                    console.error("Issue on Network:", e);
-                }
-            }
+					{
+						console.log("Registering contestId", contest.contestId);
+						store.$patch({
+							contests: {
+								...store.contests,
+								[contest.contestId]: contest,
+							},
+						});
+					}
 
-            return deleteFromUrl(`/contests?contest_id=${props.contestId}`);
-        };
+					createdContest.value = contest;
+				} catch (e) {
+					console.error("Issue on Network:", e);
+				}
+			}
 
-		return {doGameover};
+			return deleteFromUrl(`/contests?contest_id=${props.contestId}`);
+		};
+
+		return { doGameover };
 	},
 	template: /* HTML */ ` <button class="btn btn-danger" @click="doGameover">Archive this contest (force gameOver)</button> `,
 };

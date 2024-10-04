@@ -11,10 +11,13 @@ import LoginRef from "./login-ref.js";
 import KumiteAccountRef from "./kumite-account-ref.js";
 import KumitePlayerRef from "./kumite-player-ref.js";
 
+import LoginModal from "./login-modal.js";
+
 export default {
 	components: {
 		KumiteNavbar,
 		LoginRef,
+		LoginModal,
 		KumiteAccountRef,
 		KumitePlayerRef,
 	},
@@ -60,6 +63,7 @@ export default {
                 <RouterView />
             </main>
 
+            <LoginModal />
             <span v-if="$route.fullPath !== '/html/login'">
                 <!--LoginRef /-->
             </span>

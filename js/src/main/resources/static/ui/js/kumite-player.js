@@ -27,12 +27,12 @@ export default {
 		}),
 	},
 	setup(props) {
-    const store = useKumiteStore();
-        const userStore = useUserStore();
+		const store = useKumiteStore();
+		const userStore = useUserStore();
 
-        store.loadPlayer(props.playerId);
-        
-        // Why do we need to load current account players?
+		store.loadPlayer(props.playerId);
+
+		// Why do we need to load current account players?
 		userStore.loadCurrentAccountPlayers();
 
 		return {};

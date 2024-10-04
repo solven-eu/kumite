@@ -4,8 +4,7 @@ import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
 export default {
-	components: {
-	},
+	components: {},
 	props: {
 		gameId: {
 			type: String,
@@ -26,7 +25,5 @@ export default {
 
 		return {};
 	},
-	template: /* HTML */ `
-        <RouterLink :to="{path:'/html/games/' + game.gameId}"><i class="bi bi-puzzle"></i> {{game.title}}</RouterLink>
-    `,
+	template: /* HTML */ ` <RouterLink :to="{path:'/html/games/' + game.gameId}"><i class="bi bi-puzzle"></i> {{game.title}}</RouterLink> `,
 };

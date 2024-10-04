@@ -9,7 +9,7 @@ import KumiteGameHeader from "./kumite-game-header.js";
 
 export default {
 	components: {
-        KumiteContestRef,
+		KumiteContestRef,
 		KumiteGameHeader,
 	},
 	props: {
@@ -34,7 +34,7 @@ export default {
 	setup(props) {
 		const store = useKumiteStore();
 
-        store.loadGameIfMissing(props.gameId);
+		store.loadGameIfMissing(props.gameId);
 
 		const contestName = ref("");
 		const createdContest = ref({});
@@ -92,9 +92,9 @@ export default {
             <div v-else>{{ game.error }}</div>
         </div>
 
-                        <div v-if="createdContest.contestId">
+        <div v-if="createdContest.contestId">
             <KumiteContestRef :gameId="gameId" :contestId="createdContest.contestId" />
-                        </div>
+        </div>
         <div v-else>
             <KumiteGameHeader :gameId="gameId" v-if="showGame" />
 

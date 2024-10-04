@@ -1,12 +1,12 @@
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
-import KumiteGameRef from "./kumite-game-ref.js"
+import KumiteGameRef from "./kumite-game-ref.js";
 
 export default {
-    components: {
-        KumiteGameRef,  
-    },
+	components: {
+		KumiteGameRef,
+	},
 	props: {
 		gameId: {
 			type: String,

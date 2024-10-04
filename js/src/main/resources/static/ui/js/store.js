@@ -415,12 +415,12 @@ export const useKumiteStore = defineStore("kumite", {
 		},
 
 		async loadContestIfMissing(contestId, gameId) {
-            let gamePromise;
-            if (gameId) {
-                gamePromise = this.loadGameIfMissing(gameId);
-            } else {
-                gamePromise = Promise.resolve();
-            }
+			let gamePromise;
+			if (gameId) {
+				gamePromise = this.loadGameIfMissing(gameId);
+			} else {
+				gamePromise = Promise.resolve();
+			}
 			return gamePromise.then(() => {
 				if (this.contests[contestId]) {
 					console.debug("Skip loading contestId=", contestId);

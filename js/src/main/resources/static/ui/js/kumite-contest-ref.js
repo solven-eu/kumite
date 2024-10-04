@@ -4,8 +4,7 @@ import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
 export default {
-	components: {
-	},
+	components: {},
 	props: {
 		contestId: {
 			type: String,
@@ -27,11 +26,8 @@ export default {
 		return {};
 	},
 	template: /* HTML */ `
-
-    <RouterLink :to="{path:'/html/games/' + contest.constantMetadata.gameId + '/contest/' + contestId}"
-        >
-        <i class="bi bi-trophy"></i> {{contest.constantMetadata.name}}
-        </RouterLink
-    >
+        <RouterLink :to="{path:'/html/games/' + contest.constantMetadata.gameId + '/contest/' + contestId}">
+            <i class="bi bi-trophy"></i> {{contest.constantMetadata.name}}
+        </RouterLink>
     `,
 };
