@@ -51,13 +51,13 @@ export default {
                         </li>
                     </ul>
                     <span v-if="isLoggedIn">
-                        {{account.raw.name}}<img
-                            :src="account.raw.picture"
+                        {{account.details.name}}<img
+                            :src="account.details.picture"
                             class="img-thumbnail"
                             alt="You're looking nice"
                             width="64"
                             height="64"
-                            v-if="account.raw.picture"
+                            v-if="account.details.picture"
                         />
                         <Logout />
                     </span>

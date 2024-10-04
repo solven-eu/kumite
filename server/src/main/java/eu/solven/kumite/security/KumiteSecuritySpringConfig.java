@@ -20,6 +20,7 @@ import eu.solven.kumite.app.webflux.api.KumitePublicController;
 import eu.solven.kumite.app.webflux.api.MetadataController;
 import eu.solven.kumite.login.RefreshTokenWrapper;
 import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
+import eu.solven.kumite.oauth2.resourceserver.JwtWebFluxSecurity;
 import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import lombok.extern.slf4j.Slf4j;

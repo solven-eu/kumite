@@ -24,7 +24,7 @@ const prefix = "/api/v1";
 export const useUserStore = defineStore("user", {
 	state: () => ({
 		// Currently connected account
-		account: { raw: {} },
+		account: { details: {} },
 		tokens: {},
 		// Some very first check to know if we are potentially logged-in
 		// (May check some Cookie or localStorage, or some API preferably returning 2XX even if logged-in)
@@ -37,7 +37,7 @@ export const useUserStore = defineStore("user", {
 	getters: {
 		// If true, we have an account details. Hence we can logout.
 		// If false, we need to check `needsToCheckLogin`
-		isLoggedIn: (store) => Object.keys(store.account.raw).length > 0,
+		isLoggedIn: (store) => store.account.details.username,
 		isLoggedOut: (store) => {
 			if (store.isLoggedIn) {
 				// No need to login as we have an account (hence presumably relevant Cookies/tokens)

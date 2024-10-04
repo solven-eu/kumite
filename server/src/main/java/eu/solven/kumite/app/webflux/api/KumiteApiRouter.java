@@ -104,7 +104,9 @@ public class KumiteApiRouter {
 								.parameter(gameId)
 								.response(responseBuilder().responseCode("200")
 										.implementationArray(ContestMetadataRaw.class)))
-				.POST(json("/contests"), contestSearchHandler::openContest, ops -> ops.operationId("publishContest"))
+				.POST(json("/contests"),
+						contestSearchHandler::openContest,
+						ops -> ops.operationId("publishContest").parameter(gameId))
 				.DELETE(json("/contests"),
 						contestSearchHandler::openContest,
 						ops -> ops.operationId("forceGameover").parameter(contestId))

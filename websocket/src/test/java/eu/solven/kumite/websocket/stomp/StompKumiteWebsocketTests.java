@@ -39,7 +39,6 @@ import eu.solven.kumite.contest.ActiveContestGenerator;
 import eu.solven.kumite.events.ContestIsCreated;
 import eu.solven.kumite.greeting.Greeting;
 import eu.solven.kumite.leaderboard.rating.PlayerInContest;
-import eu.solven.kumite.security.SocialWebFluxSecurity;
 import eu.solven.kumite.websocket.KumiteContestEventsWebSocketHandler;
 import eu.solven.kumite.websocket.KumiteWebsocketHandlerMapping;
 import eu.solven.kumite.websocket.WebSocketSecurityConfig;
@@ -53,7 +52,7 @@ import eu.solven.kumite.websocket.WebSocketSecurityConfig;
 
 		KumiteServerComponentsConfiguration.class,
 
-		SocialWebFluxSecurity.class,
+		// SocialWebFluxSecurity.class,
 
 		// Contest generation is not done automatically, else it would trigger the whole gamePlay by RandomPlayer while
 		// bootstrapping the unitTest class

@@ -36,14 +36,14 @@ export default {
         <RouterLink :to="{path:'/html/me'}">
             <i class="bi bi-person"></i>accountId: {{ accountId }}<span > (You)</span>
     
-            <Flag :country="account.raw.countryCode" v-if="account.raw.countryCode" />
+            <Flag :country="account.details.countryCode" v-if="account.details.countryCode" />
         </RouterLink>
     </span>
     <span v-else>
         <RouterLink :to="{path:'/html/accounts/' + accountId}">
             <i class="bi bi-person"></i>accountId: {{ accountId }}
     
-            <Flag :country="account.raw.countryCode" v-if="account.raw.countryCode" />
+            <Flag :country="account.details.countryCode" v-if="account.details.countryCode" />
         </RouterLink>
     </span>
     `,

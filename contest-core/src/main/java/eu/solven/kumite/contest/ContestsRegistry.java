@@ -54,6 +54,8 @@ public class ContestsRegistry {
 		Optional<ContestCreationMetadata> optAlreadyIn = contestsRepository.putIfAbsent(contestId, contest);
 		if (optAlreadyIn.isPresent()) {
 			log.warn("Trying to initialize multiple times board for contestId={}", contestId);
+		} else {
+			log.info("Registered contestId={} for gameid={}", contestId, contest.getGameId());
 		}
 		return optAlreadyIn;
 	}
@@ -64,12 +66,6 @@ public class ContestsRegistry {
 		boardsRegistry.registerBoard(contestId, board);
 
 		Contest contest = getContest(contestId);
-
-		if (contest.isGameOver()) {
-			// There is a small chance of the game turning before between `registerBoard` and now
-			// (e.g. if the game has a very small timeout)
-			throw new IllegalArgumentException("When registered, a contest has not to be over");
-		}
 
 		eventBus.post(ContestIsCreated.builder().contestId(contest.getContestId()).build());
 
@@ -95,7 +91,7 @@ public class ContestsRegistry {
 				.constantMetadata(contestConstantMetadata)
 				.board(hasBoard)
 				.players(hasPlayers)
-				.gameover(game.makeDynamicGameover(hasBoard));
+				.gameover(boardsRegistry.hasGameover(game, contestId));
 
 		return contestBuilder.build();
 	}
@@ -145,6 +141,6 @@ public class ContestsRegistry {
 	public void deleteContest(UUID contestId) {
 		boardsRegistry.forceGameover(contestId);
 		contestPlayersRegistry.forceGameover(contestId);
-		contestsRepository.archive(contestId);
+		// contestsRepository.archive(contestId);
 	}
 }

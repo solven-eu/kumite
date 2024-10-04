@@ -46,13 +46,13 @@ export default {
 				countries.value = json;
 			});
 
-		const countryCode = computed(() => userStore.account.raw.countryCode || "unknown");
+		const countryCode = computed(() => userStore.account.details.countryCode || "unknown");
 
 		const updateCountry = function (newCountryCode) {
 			console.log("Update accouht country", newCountryCode);
 
 			// Update the store asap
-			userStore.account.raw.countryCode = newCountryCode;
+			userStore.account.details.countryCode = newCountryCode;
 
 			const userUpdates = {};
 			userUpdates.countryCode = newCountryCode;
@@ -121,11 +121,10 @@ export default {
 	template: /* HTML */ `
         <span>
             <KumiteAccountRef :accountId="account.accountId" /><br />
-            <span v-if="account.raw">
-                raw.raw={{account.raw.rawRaw}}<br />
-                username={{account.raw.username}}<br />
-                name={{account.raw.name}}<br />
-                email={{account.raw.email}}<br />
+            <span v-if="account.details">
+                username={{account.details.username}}<br />
+                name={{account.details.name}}<br />
+                email={{account.details.email}}<br />
             </span>
 
             <div>

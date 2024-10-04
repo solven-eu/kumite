@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.solven.kumite.account.IKumiteUserContextHolder;
 import eu.solven.kumite.app.KumiteJackson;
 import eu.solven.kumite.app.webflux.api.KumiteHandlerHelper;
+import eu.solven.kumite.board.BoardLifecycleManager;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.ContestSearchParameters.ContestSearchParametersBuilder;
 import eu.solven.kumite.game.GameMetadata;
@@ -40,6 +41,9 @@ public class ContestHandler {
 
 	@NonNull
 	final ContestsRegistry contestsRegistry;
+
+	@NonNull
+	final BoardLifecycleManager boardLifecycleManager;
 
 	@NonNull
 	final RandomGenerator randomGenerator;
@@ -142,20 +146,25 @@ public class ContestHandler {
 	public Mono<ServerResponse> deleteContest(ServerRequest request) {
 		UUID contestId = KumiteHandlerHelper.uuid(request, "contest_id");
 
-		return kumiteUser.authenticatedAccountId().flatMap(authorAccountId -> {
-			ContestCreationMetadata contest = contestsRegistry.contestsRepository.getById(contestId)
-					.orElseThrow(() -> new IllegalArgumentException("There is no contest for contestId=" + contestId));
+		return kumiteUser.authenticatedAccountId().flatMap(authAccountId -> {
+			Contest contest = contestsRegistry.getContest(contestId);
 
-			if (!contest.getAuthor().equals(authorAccountId)) {
-				throw new IllegalArgumentException("Can not DELETE contestId=%s as its author is not you (but %s)"
-						.formatted(contestId, contest.getAuthor()));
+			{
+				ContestCreationMetadata contestMetadata = contest.getConstantMetadata();
+
+				UUID author = contestMetadata.getAuthor();
+				if (!author.equals(authAccountId)) {
+					throw new IllegalArgumentException("Can not DELETE contestId=%s as its author is not you (but %s)"
+							.formatted(contestId, author));
+				}
 			}
 
-			contestsRegistry.deleteContest(contestId);
+			// contestsRegistry.deleteContest(contestId);
+			boardLifecycleManager.forceGameOver(contest);
 
 			return ServerResponse.ok()
 					.contentType(MediaType.APPLICATION_JSON)
-					.body(BodyInserters.fromValue(Map.of("contestId", contestId, "author", authorAccountId)));
+					.body(BodyInserters.fromValue(Map.of("contestId", contestId, "author", authAccountId)));
 		});
 
 	}

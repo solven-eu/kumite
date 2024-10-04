@@ -54,10 +54,12 @@ public class KumiteResourceServerConfiguration {
 			throw new IllegalStateException("Lack proper `" + IKumiteOAuth2Constants.KEY_JWT_SIGNINGKEY
 					+ "` or spring.profiles.active="
 					+ IKumiteSpringProfiles.P_UNSAFE_SERVER);
-		} else if ("GENERATE".equals(secretKeySpec)) {
+		} else if (IKumiteOAuth2Constants.GENERATE.equals(secretKeySpec)) {
 			if (env.acceptsProfiles(Profiles.of(IKumiteSpringProfiles.P_PRDMODE))) {
 				throw new IllegalStateException("Can not GENERATE oauth2 signingKey in `prodmode`");
 			}
+			// Ensure we generate a signingKey only once, so that the key in IJwtDecoder and the token in Bearer token
+			// are based on the same signingKey
 			synchronized (secretKeySpec) {
 				if (GENERATED_SIGNINGKEY.get() == null) {
 					log.warn("We generate a random signingKey");

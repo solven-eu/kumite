@@ -37,8 +37,8 @@ public class InMemoryContestRepository implements IContestsRepository {
 		uuidToContests.clear();
 	}
 
-	@Override
-	public void archive(UUID contestId) {
-		// TODO Should we remove the contest?
-	}
+//	@Override
+//	public void archive(UUID contestId) {
+//		// TODO Should we remove the contest?
+//	}
 }

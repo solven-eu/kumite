@@ -1,4 +1,4 @@
-package eu.solven.kumite.security;
+package eu.solven.kumite.oauth2.resourceserver;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
@@ -15,7 +15,6 @@ import org.springframework.security.web.server.savedrequest.NoOpServerRequestCac
 import com.nimbusds.jwt.JWT;
 
 import eu.solven.kumite.app.IKumiteSpringProfiles;
-import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -95,7 +94,6 @@ public class JwtWebFluxSecurity {
 					e.authenticationEntryPoint(authenticationEntryPoint);
 				})
 
-				// .anonymous(a -> a.principal("AnonymousKarateka"))
 				.build();
 	}
 

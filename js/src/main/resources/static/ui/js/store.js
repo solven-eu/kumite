@@ -66,10 +66,10 @@ export const useKumiteStore = defineStore("kumite", {
 			return new NetworkError("Rejected request for games url" + url, url, response);
 		},
 
-		async authenticatedFetch(url) {
+		async authenticatedFetch(url, fetchOptions) {
 			const userStore = useUserStore();
 
-			return userStore.authenticatedFetch(url);
+			return userStore.authenticatedFetch(url, fetchOptions);
 		},
 
 		async loadMetadata() {

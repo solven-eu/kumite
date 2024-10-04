@@ -78,8 +78,8 @@ public class RedisContestRepository implements IContestsRepository {
 				.filter(e -> !e.getValue().getGameId().equals(IGameMetadataConstants.EMPTY));
 	}
 
-	@Override
-	public void archive(UUID contestId) {
-		// Do not remove, as TTL will do its job in due-time
-	}
+	// @Override
+	// public void archive(UUID contestId) {
+	// // Do not remove, as TTL will do its job in due-time
+	// }
 }

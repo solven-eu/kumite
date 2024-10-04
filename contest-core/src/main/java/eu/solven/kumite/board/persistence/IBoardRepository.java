@@ -10,15 +10,15 @@ public interface IBoardRepository {
 	/**
 	 * 
 	 * @param contestId
-	 * @param initialBoard
+	 * @param board
 	 * @return if alreadyIn, the already present value
 	 */
-	Optional<IKumiteBoard> putIfAbsent(UUID contestId, IKumiteBoard initialBoard);
+	Optional<IKumiteBoard> putIfAbsent(UUID contestId, IKumiteBoard board);
 
 	boolean hasContest(UUID contestId);
 
 	Optional<IKumiteBoard> getBoard(UUID contestId);
 
-	void updateBoard(UUID contestId, IKumiteBoard currentBoard);
+	void updateBoard(UUID contestId, IKumiteBoard board);
 
 }

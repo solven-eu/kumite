@@ -39,7 +39,7 @@ export default {
 	},
 	template: /* HTML */ `
         <div v-if="isLoggedIn">
-            Welcome {{user.raw.name}}. <Logout />
+            Welcome {{user.details.name}}. <Logout />
 
             <Whatnow />
         </div>

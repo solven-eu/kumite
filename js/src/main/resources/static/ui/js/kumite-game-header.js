@@ -38,7 +38,7 @@ export default {
                 <span class="visually-hidden">Loading gameId={{gameId}}</span>
             </div>
         </div>
-        <div v-else-if="game.error">{{game.error}}</div>
+        <div v-else-if="game.error">game.error={{game.error}}</div>
         <div v-else>
             <span>
                 <span v-if="withDescription">

@@ -4,14 +4,14 @@ import { ref } from "vue";
 import { mapState } from "pinia";
 import { useKumiteStore } from "./store.js";
 
+import KumiteContestRef from "./kumite-contest-ref.js";
 import KumiteGameHeader from "./kumite-game-header.js";
 
 export default {
-	// https://vuejs.org/guide/components/registration#local-registration
 	components: {
+        KumiteContestRef,
 		KumiteGameHeader,
 	},
-	// https://vuejs.org/guide/components/props.html
 	props: {
 		gameId: {
 			type: String,
@@ -33,6 +33,8 @@ export default {
 	method: {},
 	setup(props) {
 		const store = useKumiteStore();
+
+        store.loadGameIfMissing(props.gameId);
 
 		const contestName = ref("");
 		const createdContest = ref({});
@@ -89,6 +91,10 @@ export default {
             </div>
             <div v-else>{{ game.error }}</div>
         </div>
+
+                        <div v-if="createdContest.contestId">
+            <KumiteContestRef :gameId="gameId" :contestId="createdContest.contestId" />
+                        </div>
         <div v-else>
             <KumiteGameHeader :gameId="gameId" v-if="showGame" />
 
@@ -100,12 +106,6 @@ export default {
                 </div>
                 <button type="button" @click="submitContestForm" class="btn btn-primary">Submit</button>
             </form>
-
-            <div v-if="createdContest.contestId">
-                <RouterLink :to="{path:'/html/games/' + gameId + '/contest/' + createdContest.contestId}"
-                    ><i class="bi bi-trophy"></i> {{createdContest.constantMetadata.name}}</RouterLink
-                >
-            </div>
         </div>
     `,
 };

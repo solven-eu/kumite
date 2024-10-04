@@ -29,8 +29,44 @@ export default {
 		const store = useKumiteStore();
 
 		store.loadContestIfMissing(props.contestId, props.gameId);
+        
+        const doGameover = function() {
+            console.log("DELETE contest", contestId);
 
-		return {};
+            async function deleteFromUrl(url) {
+                try {
+                    const fetchOptions = {
+                        method: "DELETE",
+                        headers: { "Content-Type": "application/json" },
+                    };
+                    const response = await store.authenticatedFetch(url, fetchOptions);
+                    if (!response.ok) {
+                        throw store.newNetworkError("Rejected DELETE for move for contestId=" + contestId, url, response);
+                    }
+
+                    const contest = await response.json();
+                    console.log("Created contest", contest);
+
+                    {
+                        console.log("Registering contestId", contest.contestId);
+                        store.$patch({
+                            contests: {
+                                ...store.contests,
+                                [contest.contestId]: contest,
+                            },
+                        });
+                    }
+
+                    createdContest.value = contest;
+                } catch (e) {
+                    console.error("Issue on Network:", e);
+                }
+            }
+
+            return deleteFromUrl(`/contests?contest_id=${props.contestId}`);
+        };
+
+		return {doGameover};
 	},
-	template: /* HTML */ ` <button class="btn btn-danger">Archive this contest (force gameOver)</button> `,
+	template: /* HTML */ ` <button class="btn btn-danger" @click="doGameover">Archive this contest (force gameOver)</button> `,
 };

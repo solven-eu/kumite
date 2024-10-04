@@ -5,9 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
 
-import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
-import eu.solven.kumite.contest.IHasGameover;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
@@ -55,8 +53,7 @@ public class Chess implements IGame {
 	}
 
 	@Override
-	public IHasGameover makeDynamicGameover(IHasBoard rawBoard) {
-		// TODO Implement a timeout logic
-		return () -> false;
+	public boolean isGameover(IKumiteBoard board) {
+		return true;
 	}
 }

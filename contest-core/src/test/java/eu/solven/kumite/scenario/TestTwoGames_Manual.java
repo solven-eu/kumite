@@ -114,12 +114,14 @@ public class TestTwoGames_Manual {
 			List<Contest> contests = contestsRegistry.searchContests(
 					ContestSearchParameters.builder().gameId(Optional.of(game.getGameMetadata().getGameId())).build());
 			Assertions.assertThat(contests).hasSize(1);
-			IHasBoard hasBoard = contests.get(0).getBoard();
+			Contest contest = contests.get(0);
+			IHasBoard hasBoard = contest.getBoard();
 
-			IHasGameover hasGameover = game.makeDynamicGameover(hasBoard);
+			IHasGameover hasGameover = boardsRegistry.hasGameover(game, contest.getContestId());
 
 			if (game.getGameMetadata().getTags().contains(IGameMetadataConstants.TAG_OPTIMIZATION)) {
 				// Optimization games can be played indefinitely
+				Assertions.assertThat(hasGameover.isGameOver()).isFalse();
 
 				Leaderboard leaderboard = game.makeLeaderboard(hasBoard.get());
 				Assertions.assertThat(leaderboard.getPlayerIdToPlayerScore()).hasSize(1);

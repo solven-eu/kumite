@@ -88,7 +88,7 @@ public class TestTicTacToe {
 
 		IHasBoard hasBoard = boardsRegistry.makeDynamicBoardHolder(contestId);
 
-		IHasGameover hasGameover = game.makeDynamicGameover(hasBoard);
+		IHasGameover hasGameover = boardsRegistry.hasGameover(game, contestId);
 
 		// There must be a winner after having played at most 5 pair of moves
 		Assertions.assertThat(hasGameover.isGameOver()).isTrue();

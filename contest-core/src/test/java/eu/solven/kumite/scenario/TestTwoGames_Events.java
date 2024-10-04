@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import eu.solven.kumite.account.fake_player.RandomPlayer;
 import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.app.KumiteServerComponentsConfiguration;
+import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.contest.ActiveContestGenerator;
 import eu.solven.kumite.contest.Contest;
@@ -61,6 +62,9 @@ public class TestTwoGames_Events {
 	ContestsRegistry contestsRegistry;
 
 	@Autowired
+	BoardsRegistry boardsRegistry;
+
+	@Autowired
 	ActiveContestGenerator activeContestGenerator;
 
 	TicTacToe game1 = new TicTacToe();
@@ -78,6 +82,7 @@ public class TestTwoGames_Events {
 		// `IKumiteSpringProfiles.P_RANDOM_PLAYS_VSTHEMSELVES`
 
 		// When
+		// This will trigger a flow of events until gameOver
 		Assertions.assertThat(activeContestGenerator.makeContestsIfNoneJoinable()).isEqualTo(2);
 
 		// Then
@@ -85,12 +90,14 @@ public class TestTwoGames_Events {
 			List<Contest> contests = contestsRegistry.searchContests(
 					ContestSearchParameters.builder().gameId(Optional.of(game.getGameMetadata().getGameId())).build());
 			Assertions.assertThat(contests).hasSize(1);
-			IHasBoard hasBoard = contests.get(0).getBoard();
+			Contest contest = contests.get(0);
+			IHasBoard hasBoard = contest.getBoard();
 
-			IHasGameover hasGameover = game.makeDynamicGameover(hasBoard);
+			IHasGameover hasGameover = boardsRegistry.hasGameover(game, contest.getContestId());
 
 			if (game.getGameMetadata().getTags().contains(IGameMetadataConstants.TAG_OPTIMIZATION)) {
 				// Optimization games can be played indefinitely
+				Assertions.assertThat(hasGameover.isGameOver()).isFalse();
 
 				Leaderboard leaderboard = game.makeLeaderboard(hasBoard.get());
 				Assertions.assertThat(leaderboard.getPlayerIdToPlayerScore()).hasSize(1);

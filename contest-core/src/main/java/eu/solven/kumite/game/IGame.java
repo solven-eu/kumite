@@ -6,11 +6,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
 
-import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.contest.Contest;
-import eu.solven.kumite.contest.IHasGameover;
 import eu.solven.kumite.leaderboard.Leaderboard;
 import eu.solven.kumite.move.IKumiteMove;
 import eu.solven.kumite.player.KumitePlayer;
@@ -67,6 +65,7 @@ public interface IGame {
 		return Collections.emptyMap();
 	}
 
-	IHasGameover makeDynamicGameover(IHasBoard hasBoard);
+	// IHasGameover hasGameover(IHasBoard hasBoard);
+	boolean isGameover(IKumiteBoard board);
 
 }

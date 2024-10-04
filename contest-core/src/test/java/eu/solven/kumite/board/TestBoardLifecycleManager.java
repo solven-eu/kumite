@@ -54,7 +54,7 @@ public class TestBoardLifecycleManager implements IKumiteTestConstants {
 	@Test
 	public void testAsync_Exception() {
 		Assertions.assertThatThrownBy(() -> {
-			boardLifecycleManager.executeBoardChange(someContestId, () -> {
+			boardLifecycleManager.executeBoardChange(someContestId, board -> {
 				throw new Error("Any error");
 			});
 		}).isInstanceOf(IllegalArgumentException.class);
@@ -113,6 +113,8 @@ public class TestBoardLifecycleManager implements IKumiteTestConstants {
 
 		PlayerMoveRaw playerMove = makeValidMove();
 		boardLifecycleManager.onPlayerMove(contest, playerMove);
+
+		Assertions.assertThat(boardsRegistry.hasGameover(game, contestId).isGameOver()).isFalse();
 	}
 
 	@Test
@@ -127,5 +129,14 @@ public class TestBoardLifecycleManager implements IKumiteTestConstants {
 		Assertions.assertThatThrownBy(() -> {
 			boardLifecycleManager.onPlayerMove(contest, playerMove);
 		}).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void testForceGameover() {
+		Assertions.assertThat(boardsRegistry.hasGameover(game, contestId).isGameOver()).isFalse();
+
+		boardLifecycleManager.forceGameOver(contest);
+
+		Assertions.assertThat(boardsRegistry.hasGameover(game, contestId).isGameOver()).isTrue();
 	}
 }

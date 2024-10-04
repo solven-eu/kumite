@@ -7,8 +7,8 @@ package eu.solven.kumite.app;
  *
  */
 public interface IKumiteSpringProfiles {
-	//
-	String P_SERVER = "server";
+	// Default logging configuration
+	String P_LOGGING = "logging";
 
 	// The default profile, activated when no other profile is defined. Typically useful for local runs.
 	String P_DEFAULT = "default";

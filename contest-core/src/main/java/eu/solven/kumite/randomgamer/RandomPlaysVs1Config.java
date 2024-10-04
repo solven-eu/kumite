@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 		ActiveContestGenerator.class,
 
 		RandomGamer.class,
+		GamerLogicHelper.class,
 
 })
 @Slf4j

@@ -1,4 +1,4 @@
-package eu.solven.kumite.account.login;
+package eu.solven.kumite.oauth2.authorizationserver;
 
 import java.text.ParseException;
 import java.time.Duration;
@@ -23,8 +23,8 @@ import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jwt.SignedJWT;
 
 import eu.solven.kumite.account.internal.KumiteUser;
+import eu.solven.kumite.account.login.IKumiteTestConstants;
 import eu.solven.kumite.oauth2.IKumiteOAuth2Constants;
-import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
 import eu.solven.kumite.tools.JdkUuidGenerator;
 

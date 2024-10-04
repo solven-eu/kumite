@@ -9,6 +9,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 
@@ -48,20 +49,22 @@ public class BoardLifecycleManager {
 	 * 
 	 * @param contestId
 	 * @param runnable
+	 * @return
 	 */
-	protected void executeBoardChange(UUID contestId, Runnable runnable) {
+	protected BoardSnapshotPostEvent executeBoardChange(UUID contestId, Consumer<IKumiteBoard> runnable) {
 		if (isDirect(boardEvolutionExecutor)) {
-			boardEvolutionExecutor.execute(runnable);
+			return executeBoardMutation(contestId, runnable);
 		} else {
 			CountDownLatch cdl = new CountDownLatch(1);
 			AtomicReference<Throwable> refT = new AtomicReference<>();
+			AtomicReference<BoardSnapshotPostEvent> refBoard = new AtomicReference<>();
 
 			log.trace("Submitting task for contestId={}", contestId);
 			getExecutor(contestId).execute(() -> {
 				try {
-					log.trace("Runnning task for contestId={}", contestId);
-					runnable.run();
-					log.trace("Runnned task for contestId={}", contestId);
+					BoardSnapshotPostEvent snapshot = executeBoardMutation(contestId, runnable);
+
+					refBoard.set(snapshot);
 				} catch (Throwable t) {
 					refT.compareAndSet(null, t);
 				} finally {
@@ -90,7 +93,31 @@ public class BoardLifecycleManager {
 				// BEWARE WHAT DOES IT MEAN? THE BOARD IS CORRUPTED?
 				throw new IllegalStateException("One move has been too slow to be processed");
 			}
+
+			return refBoard.get();
 		}
+	}
+
+	private BoardSnapshotPostEvent executeBoardMutation(UUID contestId, Consumer<IKumiteBoard> runnable) {
+		IHasBoard hasBoard = boardRegistry.makeDynamicBoardHolder(contestId);
+		IKumiteBoard board = hasBoard.get();
+		Set<UUID> playerCanMoveBefore = playersCanMove(contestId, board);
+
+		log.trace("Runnning task for contestId={}", contestId);
+		runnable.accept(board);
+
+		Set<UUID> enabledPlayersIds = new HashSet<>();
+		{
+			Set<UUID> playerCanMoveAfter = playersCanMove(contestId, board);
+
+			// This does an intersection: players turned movable can now move, through they could not move
+			// before
+			enabledPlayersIds.addAll(playerCanMoveAfter);
+			enabledPlayersIds.removeAll(playerCanMoveBefore);
+		}
+
+		log.trace("Runnned task for contestId={}", contestId);
+		return BoardSnapshotPostEvent.builder().board(board).enabledPlayerIds(enabledPlayersIds).build();
 	}
 
 	/**
@@ -118,25 +145,11 @@ public class BoardLifecycleManager {
 
 		AtomicReference<IKumiteBoardView> refBoardView = new AtomicReference<>();
 
-		Set<UUID> enabledPlayersIds = new HashSet<>();
-
-		executeBoardChange(contestId, () -> {
-			IKumiteBoard boardBefore = boardRegistry.makeDynamicBoardHolder(contestId).get();
-
-			Set<UUID> playerCanMoveBefore = playersCanMove(contestId, boardBefore);
-
-			// The registry takes in charge the registration in the board
+		BoardSnapshotPostEvent boardSnapshot = executeBoardChange(contestId, board -> {
+			// contestPlayersRegistry takes in charge the registration in the board
 			contestPlayersRegistry.registerPlayer(contest, playerRegistrationRaw);
 
-			IKumiteBoard boardAfter = boardRegistry.makeDynamicBoardHolder(contestId).get();
-
-			Set<UUID> playerCanMoveAfter = playersCanMove(contestId, boardBefore);
-
-			// This does an intersection: players turned movable can now move, through they could not move before
-			enabledPlayersIds.addAll(playerCanMoveAfter);
-			enabledPlayersIds.removeAll(playerCanMoveBefore);
-
-			refBoardView.set(boardAfter.asView(playerId));
+			refBoardView.set(board.asView(playerId));
 		});
 
 		IKumiteBoardView boardViewPostMove = refBoardView.get();
@@ -151,9 +164,13 @@ public class BoardLifecycleManager {
 		// Hence we do not guarantee other events interleaved when the event is processed
 		eventBus.post(PlayerJoinedBoard.builder().contestId(contestId).playerId(playerId).build());
 
-		enabledPlayersIds.forEach(enabledPlayerId -> {
+		boardSnapshot.getEnabledPlayerIds().forEach(enabledPlayerId -> {
 			eventBus.post(PlayerCanMove.builder().contestId(contestId).playerId(playerId).build());
 		});
+
+		if (boardRegistry.hasGameover(contest.getGame(), contestId).isGameOver()) {
+			eventBus.post(ContestIsGameover.builder().contestId(contestId).build());
+		}
 
 		return boardViewPostMove;
 	}
@@ -178,11 +195,7 @@ public class BoardLifecycleManager {
 		UUID contestId = contest.getContestId();
 		UUID playerId = playerMove.getPlayerId();
 
-		AtomicReference<IKumiteBoard> refBoard = new AtomicReference<>();
-
-		Set<UUID> enabledPlayersIds = new HashSet<>();
-
-		executeBoardChange(contestId, () -> {
+		BoardSnapshotPostEvent boardSnapshot = executeBoardChange(contestId, currentBoard -> {
 			if (!contestPlayersRegistry.isRegisteredPlayer(contestId, playerId)) {
 				List<UUID> contestPlayers = contestPlayersRegistry.makeDynamicHasPlayers(contestId)
 						.getPlayers()
@@ -196,15 +209,11 @@ public class BoardLifecycleManager {
 						+ contestPlayers);
 			}
 
-			IKumiteBoard currentBoard = boardRegistry.makeDynamicBoardHolder(contestId).get();
-
-			Set<UUID> playerCanMoveBefore = playersCanMove(contestId, currentBoard);
-
 			// First `.checkMove`: these are generic checks (e.g. is the gamerOver?)
 			try {
 				contest.checkValidMove(playerMove);
 			} catch (IllegalArgumentException e) {
-				throw new IllegalArgumentException("Issue on contest=" + contest, e);
+				throw new IllegalArgumentException("Issue on contest=" + contest + " for move=" + playerMove, e);
 			}
 
 			log.info("Registering move for contestId={} by playerId={}", contestId, playerId);
@@ -212,20 +221,16 @@ public class BoardLifecycleManager {
 			// This may still fail (e.g. the move is illegal given game rules)
 			currentBoard.registerMove(playerMove);
 
-			Set<UUID> playerCanMoveAfter = playersCanMove(contestId, currentBoard);
-
-			// This does an intersection: players turned movable can now move, through they could not move before
-			enabledPlayersIds.addAll(playerCanMoveAfter);
-			enabledPlayersIds.removeAll(playerCanMoveBefore);
-
 			// Persist the board (e.g. for concurrent changes)
 			boardRegistry.updateBoard(contestId, currentBoard);
 
-			refBoard.set(currentBoard);
-
+			if (boardRegistry.hasGameover(contest.getGame(), contestId).isGameOver()) {
+				log.info("playerMove led to gameOver for contestId={}", contestId);
+				doGameOver(contestId);
+			}
 		});
 
-		IKumiteBoard boardAfter = refBoard.get();
+		IKumiteBoard boardAfter = boardSnapshot.getBoard();
 		IKumiteBoardView boardViewPostMove = boardAfter.asView(playerId);
 
 		if (boardViewPostMove == null) {
@@ -234,14 +239,38 @@ public class BoardLifecycleManager {
 
 		eventBus.post(PlayerMoved.builder().contestId(contestId).playerId(playerId).build());
 
-		enabledPlayersIds.forEach(enabledPlayerId -> {
+		boardSnapshot.getEnabledPlayerIds().forEach(enabledPlayerId -> {
 			eventBus.post(PlayerCanMove.builder().contestId(contestId).playerId(playerId).build());
 		});
 
-		if (contest.getGame().makeDynamicGameover(() -> boardAfter).isGameOver()) {
+		if (boardRegistry.hasGameover(contest.getGame(), contestId).isGameOver()) {
 			eventBus.post(ContestIsGameover.builder().contestId(contestId).build());
 		}
 
 		return boardViewPostMove;
+	}
+
+	public void forceGameOver(Contest contest) {
+		UUID contestId = contest.getContestId();
+
+		if (boardRegistry.hasGameover(contest.getGame(), contestId).isGameOver()) {
+			log.info("contestId={} is already gameOver", contestId);
+		}
+
+		executeBoardChange(contestId, board -> {
+			log.info("Registering forcedGameOver for contestId={}", contestId);
+
+			doGameOver(contestId);
+		});
+
+		if (boardRegistry.hasGameover(contest.getGame(), contestId).isGameOver()) {
+			eventBus.post(ContestIsGameover.builder().contestId(contestId).build());
+		}
+	}
+
+	private void doGameOver(UUID contestId) {
+		boardRegistry.forceGameover(contestId);
+		contestsRegistry.deleteContest(contestId);
+		contestPlayersRegistry.forceGameover(contestId);
 	}
 }
