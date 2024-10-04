@@ -1,4 +1,4 @@
-package eu.solven.kumite.websocket;
+package eu.solven.kumite.websocket.stomp;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

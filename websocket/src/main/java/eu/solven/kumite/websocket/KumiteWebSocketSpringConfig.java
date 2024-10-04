@@ -9,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @Import({
 
-		WebSocketSecurityConfig.class,
-
 		KumiteContestEventsWebSocketHandler.class,
 		KumiteWebsocketHandlerMapping.class,
 

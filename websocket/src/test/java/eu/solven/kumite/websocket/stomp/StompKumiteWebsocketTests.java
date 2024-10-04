@@ -41,7 +41,6 @@ import eu.solven.kumite.greeting.Greeting;
 import eu.solven.kumite.leaderboard.rating.PlayerInContest;
 import eu.solven.kumite.websocket.KumiteContestEventsWebSocketHandler;
 import eu.solven.kumite.websocket.KumiteWebsocketHandlerMapping;
-import eu.solven.kumite.websocket.WebSocketSecurityConfig;
 
 @Disabled("Stomp is not (natively) compatible with Spring Reactive")
 @ExtendWith(SpringExtension.class)

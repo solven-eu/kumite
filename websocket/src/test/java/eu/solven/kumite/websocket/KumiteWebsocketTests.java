@@ -58,7 +58,8 @@ import reactor.core.publisher.Mono;
 		JwtWebFluxSecurity.class,
 		KumiteTokenService.class,
 
-		KumiteWebSocketManualAuthSpringConfig.class,
+		// KumiteWebSocketManualAuthSpringConfig.class,
+		KumiteWebSocketSpringConfig.class,
 
 		GamerLogicHelper.class,
 		FakeGamer.class,
