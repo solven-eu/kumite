@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class EvenBusLogger implements Logger {
+public class EventBusLogger implements Logger {
 
 	@Override
 	public void log(Level level, String msg) {

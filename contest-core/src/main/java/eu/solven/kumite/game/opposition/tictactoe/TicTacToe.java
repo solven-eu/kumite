@@ -2,6 +2,7 @@ package eu.solven.kumite.game.opposition.tictactoe;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -16,6 +17,7 @@ import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.leaderboard.Leaderboard;
 import eu.solven.kumite.move.IKumiteMove;
+import eu.solven.kumite.move.PlayerMoveRaw;
 import eu.solven.kumite.move.WaitForPlayersMove;
 import eu.solven.kumite.move.WaitForSignups;
 
@@ -41,6 +43,28 @@ public class TicTacToe implements IGame {
 	@Override
 	public IKumiteBoard generateInitialBoard(RandomGenerator random) {
 		return TicTacToeBoard.builder().build();
+	}
+
+	@Override
+	public List<String> invalidMoveReasons(IKumiteBoardView rawBoardView, PlayerMoveRaw playerMove) {
+		TicTacToeBoard board = (TicTacToeBoard) rawBoardView;
+
+		char nextPlayerSymbol = board.getNextPlayerSymbol();
+
+		char playerMoveSymbol = board.getPlayerSymbol(playerMove.getPlayerId());
+		if (Character.compare(nextPlayerSymbol, playerMoveSymbol) != 0) {
+			return Collections.singletonList("playerId=" + playerMove.getPlayerId() + " can not play for now");
+		}
+
+		TicTacToeMove move = (TicTacToeMove) playerMove.getMove();
+		int position = move.getPosition();
+
+		char positionCurrentSymbol = board.getPositions()[position - 1];
+		if (positionCurrentSymbol != '_') {
+			return Collections.singletonList("position=" + position + " is not empty (" + positionCurrentSymbol + ")");
+		}
+
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -112,7 +136,7 @@ public class TicTacToe implements IGame {
 
 		return moves;
 	}
-	
+
 	@Override
 	public boolean isGameover(IKumiteBoard rawBoard) {
 		TicTacToeBoard board = (TicTacToeBoard) rawBoard;

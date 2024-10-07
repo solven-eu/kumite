@@ -1,12 +1,17 @@
-package eu.solven.kumite.randomgamer;
+package eu.solven.kumite.randomgamer.turnbased;
 
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import eu.solven.kumite.account.fake_player.RandomPlayer;
+import eu.solven.kumite.board.BoardLifecycleManager;
+import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.move.IKumiteMove;
+import eu.solven.kumite.randomgamer.GamerLogicHelper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -16,10 +21,11 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class RandomGamer extends AGamerLogic {
+public class RandomTurnBasedGamer extends ATurnBasedGamerLogic {
 
-	public RandomGamer(GamerLogicHelper gamerLogicHelper) {
-		super(gamerLogicHelper);
+	public RandomTurnBasedGamer(GamerLogicHelper gamerLogicHelper,
+			@Qualifier(IGameMetadataConstants.TAG_TURNBASED) BoardLifecycleManager boardLifecycleManager) {
+		super(gamerLogicHelper, boardLifecycleManager);
 	}
 
 	@Override

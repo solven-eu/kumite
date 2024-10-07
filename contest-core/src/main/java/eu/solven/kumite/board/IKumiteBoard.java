@@ -17,11 +17,21 @@ public interface IKumiteBoard {
 	// Some games may need to register some player parameters
 	void registerContender(UUID playerId);
 
-	List<String> isValidMove(PlayerMoveRaw playerMove);
 
+	/**
+	 * Mutate current board with given player move
+	 * 
+	 * @param playerMove
+	 */
 	void registerMove(PlayerMoveRaw playerMove);
 
+	/**
+	 * 
+	 * @param playerId
+	 * @return a {@link IKumiteBoardView} of current board for given playerId. This is especially relevant for games
+	 *         with imperfect information.
+	 */
 	IKumiteBoardView asView(UUID playerId);
 
-	List<UUID> snapshotPlayers();
+	List<UUID> snapshotContenders();
 }

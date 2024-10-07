@@ -1,10 +1,12 @@
 package eu.solven.kumite.contest;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.Singular;
 import lombok.Value;
 
 /**
@@ -40,6 +42,11 @@ public class ContestSearchParameters {
 	// `null` means no filter
 	@Default
 	Boolean gameOver = null;
+
+	// This is an AND conditions on the tags
+	// Each String may be a list of coma-separated tags, which would express and OR
+	@Singular
+	Set<String> requiredTags;
 
 	public static ContestSearchParameters searchContestId(UUID contestId) {
 		return ContestSearchParameters.builder()

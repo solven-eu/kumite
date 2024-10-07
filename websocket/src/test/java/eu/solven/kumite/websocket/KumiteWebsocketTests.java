@@ -40,8 +40,8 @@ import eu.solven.kumite.oauth2.authorizationserver.KumiteTokenService;
 import eu.solven.kumite.oauth2.resourceserver.JwtWebFluxSecurity;
 import eu.solven.kumite.oauth2.resourceserver.KumiteResourceServerConfiguration;
 import eu.solven.kumite.player.PlayerJoinRaw;
-import eu.solven.kumite.randomgamer.FakeGamer;
 import eu.solven.kumite.randomgamer.GamerLogicHelper;
+import eu.solven.kumite.randomgamer.turnbased.FakeTurnBasedGamer;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -62,7 +62,7 @@ import reactor.core.publisher.Mono;
 		KumiteWebSocketSpringConfig.class,
 
 		GamerLogicHelper.class,
-		FakeGamer.class,
+		FakeTurnBasedGamer.class,
 
 })
 // Fake player plays with the WebSocket, against random players
@@ -92,7 +92,7 @@ public class KumiteWebsocketTests {
 	@Autowired
 	BoardLifecycleManager boardLifecycleManager;
 	@Autowired
-	FakeGamer fakeGamer;
+	FakeTurnBasedGamer fakeGamer;
 	@Autowired
 	KumiteTokenService kumiteTokenService;
 

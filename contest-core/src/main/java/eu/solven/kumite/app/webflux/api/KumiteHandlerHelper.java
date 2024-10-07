@@ -21,6 +21,8 @@ public class KumiteHandlerHelper {
 	public static UUID uuid(String rawUuid, String idKey) {
 		if ("undefined".equals(rawUuid)) {
 			throw new IllegalArgumentException("`undefined` is an invalid `%s`".formatted(idKey));
+		} else if (rawUuid == null) {
+			throw new IllegalArgumentException("`null` is an invalid `%s`".formatted(idKey));
 		}
 		return UUID.fromString(rawUuid);
 	}

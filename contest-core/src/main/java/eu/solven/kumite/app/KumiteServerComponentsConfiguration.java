@@ -2,10 +2,10 @@ package eu.solven.kumite.app;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.random.RandomGenerator;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -14,12 +14,15 @@ import eu.solven.kumite.account.KumiteUsersRegistry;
 import eu.solven.kumite.app.automated.KumiteAutomatedSpringConfig;
 import eu.solven.kumite.app.persistence.InMemoryKumiteConfiguration;
 import eu.solven.kumite.board.BoardLifecycleManager;
+import eu.solven.kumite.board.BoardLifecycleManagerHelper;
 import eu.solven.kumite.board.BoardsRegistry;
+import eu.solven.kumite.board.realtime.RealTimeBoardManager;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.eventbus.ActivityLogger;
-import eu.solven.kumite.eventbus.EvenBusLogger;
+import eu.solven.kumite.eventbus.EventBusLogger;
 import eu.solven.kumite.eventbus.EventSubscriber;
 import eu.solven.kumite.game.GamesRegistry;
+import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.leaderboard.LeaderboardRegistry;
 import eu.solven.kumite.player.ContendersFromBoard;
 import eu.solven.kumite.player.ContestPlayersRegistry;
@@ -55,23 +58,37 @@ import lombok.extern.slf4j.Slf4j;
 
 		KumiteAutomatedSpringConfig.class,
 
+		BoardLifecycleManagerHelper.class,
+
 })
 @Slf4j
 public class KumiteServerComponentsConfiguration {
-	@Bean
-	public BoardLifecycleManager boardLifecycleManager(ContestsRegistry contestsRegistry,
-			BoardsRegistry boardRegistry,
-			ContestPlayersRegistry contestPlayersRegistry,
-			EventBus eventBus,
-			RandomGenerator randomGenerator) {
-		final Executor boardEvolutionExecutor = Executors.newFixedThreadPool(4);
 
-		return new BoardLifecycleManager(contestsRegistry,
-				boardRegistry,
-				contestPlayersRegistry,
-				boardEvolutionExecutor,
-				eventBus,
-				randomGenerator);
+	@Bean
+	@Qualifier(IGameMetadataConstants.TAG_TURNBASED)
+	public BoardLifecycleManager tbBoardLifecycleManager(BoardLifecycleManagerHelper helper) {
+		final Executor boardEvolutionExecutor = Executors.newFixedThreadPool(4);
+		boardEvolutionExecutor
+				.execute(() -> log.info("This flags the tbThreadPool threadName={}", Thread.currentThread().getName()));
+
+		return new BoardLifecycleManager(helper, boardEvolutionExecutor);
+	}
+
+	// We can have multiple BoardLifecycleManager/boardEvolutionExecutor as long as a given contest is guaranteed to be
+	// processed by a single executor
+	@Bean
+	@Qualifier(IGameMetadataConstants.TAG_REALTIME)
+	public RealTimeBoardManager rtBoardLifecycleManager(BoardLifecycleManagerHelper helper) {
+		final Executor boardEvolutionExecutor = Executors.newFixedThreadPool(4);
+		boardEvolutionExecutor
+				.execute(() -> log.info("This flags the rtThreadPool threadName={}", Thread.currentThread().getName()));
+
+		return new RealTimeBoardManager(helper, boardEvolutionExecutor);
+	}
+
+	@Bean
+	public EventSubscriber registerRtBoardManagerInEventBus(RealTimeBoardManager rtBoardManager, EventBus eventBus) {
+		return new EventSubscriber(eventBus, rtBoardManager);
 	}
 
 	@Bean
@@ -82,7 +99,7 @@ public class KumiteServerComponentsConfiguration {
 				.logger(makeLogger())
 				.build();
 
-		eventBus.register(new EvenBusLogger());
+		eventBus.register(new EventBusLogger());
 
 		return eventBus;
 	}
@@ -93,6 +110,6 @@ public class KumiteServerComponentsConfiguration {
 	}
 
 	private Logger makeLogger() {
-		return new EvenBusLogger();
+		return new EventBusLogger();
 	}
 }

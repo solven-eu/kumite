@@ -36,6 +36,9 @@ public class BoardHandler {
 	@NonNull
 	final BoardsRegistry boardsRegistry;
 
+	@NonNull
+	final BoardLifecycleManager boardLifecycleManager;
+
 	public Mono<ServerResponse> getBoard(ServerRequest request) {
 		UUID playerId = KumiteHandlerHelper.uuid(request, "player_id");
 		UUID contestId = KumiteHandlerHelper.uuid(request, "contest_id");
@@ -53,8 +56,8 @@ public class BoardHandler {
 		Contest contestMetadata = contest.get(0);
 
 		PlayerContestStatus playingPlayer = contestPlayersRegistry.getPlayingPlayer(playerId, contestMetadata);
-
-		IKumiteBoard board = boardsRegistry.makeDynamicBoardHolder(contestId).get();
+		
+		IKumiteBoard board = boardsRegistry.hasBoard(contestId).get();
 
 		ContestView contestView = makeContestView(contestMetadata, playingPlayer, board);
 		log.debug("Serving board for contestId={}", contestView.getContestId());

@@ -1,7 +1,8 @@
-package eu.solven.kumite.randomgamer;
+package eu.solven.kumite.randomgamer.turnbased;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,7 +11,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import eu.solven.kumite.board.BoardLifecycleManager;
 import eu.solven.kumite.board.IKumiteBoardView;
+import eu.solven.kumite.board.IKumiteBoardViewWrapper;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.game.GameSearchParameters;
@@ -20,7 +23,10 @@ import eu.solven.kumite.move.PlayerMoveRaw;
 import eu.solven.kumite.player.KumitePlayer;
 import eu.solven.kumite.player.PlayerContestStatus;
 import eu.solven.kumite.player.PlayerJoinRaw;
+import eu.solven.kumite.randomgamer.GamerLogicHelper;
+import eu.solven.kumite.randomgamer.IContestJoiningStrategy;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -31,11 +37,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @AllArgsConstructor
 @Slf4j
-public abstract class AGamerLogic {
+public abstract class ATurnBasedGamerLogic {
 	// Limit the number of contenders as some game can accept any number of players (e.g. optimization games)
 	// private int nbPlayers = 16;
 
+	@Getter
 	final GamerLogicHelper gamerLogicHelper;
+	final BoardLifecycleManager boardLifecycleManager;
 
 	protected boolean isPlayableMove(IKumiteMove value) {
 		if (value instanceof INoOpKumiteMove) {
@@ -103,7 +111,7 @@ public abstract class AGamerLogic {
 				log.debug("playerId={} is joining contestId={}", playerId, contest.getContestId());
 				PlayerJoinRaw playerRegistrationRaw =
 						PlayerJoinRaw.builder().contestId(contest.getContestId()).playerId(playerId).build();
-				gamerLogicHelper.getBoardLifecycleManager().registerPlayer(contest, playerRegistrationRaw);
+				boardLifecycleManager.registerPlayer(contest, playerRegistrationRaw);
 
 				joinedContestToPlayerIds.computeIfAbsent(contest.getContestId(), k -> new ConcurrentSkipListSet<>())
 						.add(playerId);
@@ -132,7 +140,7 @@ public abstract class AGamerLogic {
 					.filter(p -> isPlayerCandidate(p.getPlayerId()))
 					.filter(p -> acceptPlayer.test(p))
 					.forEach(player -> {
-						if (playOnce(contest.getContestId(), player.getPlayerId())) {
+						if (playOnce(contest.getContestId(), player.getPlayerId()).isPresent()) {
 							nbMoves.incrementAndGet();
 						}
 					});
@@ -141,11 +149,17 @@ public abstract class AGamerLogic {
 		return nbMoves.get();
 	}
 
-	public boolean playOnce(UUID contestId, UUID playerId) {
+	/**
+	 * 
+	 * @param contestId
+	 * @param playerId
+	 * @return
+	 */
+	public Optional<UUID> playOnce(UUID contestId, UUID playerId) {
 		Contest contest = gamerLogicHelper.getContestsRegistry().getContest(contestId);
 
 		IKumiteBoardView boardView = gamerLogicHelper.getBoardsRegistry()
-				.makeDynamicBoardHolder(contest.getContestId())
+				.hasBoard(contest.getContestId())
 				.get()
 				.asView(playerId);
 		Map<String, IKumiteMove> moves =
@@ -156,16 +170,16 @@ public abstract class AGamerLogic {
 
 		if (playableMoves.isEmpty()) {
 			log.debug("Not a single playable move");
-			return false;
+			return Optional.empty();
 		}
 
 		Map.Entry<String, IKumiteMove> chosenMove = pickMove(playableMoves);
 		log.debug("playerId={} for contestId={} is playing {}", playerId, contest.getContestId(), chosenMove.getKey());
 
-		gamerLogicHelper.getBoardLifecycleManager()
-				.onPlayerMove(contest, PlayerMoveRaw.builder().playerId(playerId).move(chosenMove.getValue()).build());
+		IKumiteBoardViewWrapper wrapper = boardLifecycleManager.onPlayerMove(contest,
+				PlayerMoveRaw.builder().playerId(playerId).move(chosenMove.getValue()).build());
 
-		return true;
+		return Optional.of(wrapper.getBoardStateId());
 	}
 
 	protected Map.Entry<String, IKumiteMove> pickMove(List<Map.Entry<String, IKumiteMove>> playableMoves) {

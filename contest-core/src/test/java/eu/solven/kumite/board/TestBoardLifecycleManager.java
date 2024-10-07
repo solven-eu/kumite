@@ -5,10 +5,12 @@ import java.util.UUID;
 import java.util.random.RandomGenerator;
 
 import org.assertj.core.api.Assertions;
+import org.greenrobot.eventbus.EventBus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -20,8 +22,12 @@ import eu.solven.kumite.app.KumiteServerComponentsConfiguration;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestCreationMetadata;
 import eu.solven.kumite.contest.ContestsRegistry;
+import eu.solven.kumite.events.BoardIsUpdated;
+import eu.solven.kumite.events.ContestIsGameover;
+import eu.solven.kumite.exception.UnknownContestException;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
+import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.move.IKumiteMove;
 import eu.solven.kumite.move.PlayerMoveRaw;
@@ -39,6 +45,7 @@ public class TestBoardLifecycleManager implements IKumiteTestConstants {
 	RandomGenerator randomGenerator;
 
 	@Autowired
+	@Qualifier(IGameMetadataConstants.TAG_TURNBASED)
 	BoardLifecycleManager boardLifecycleManager;
 	@Autowired
 	IAccountPlayersRegistry accountPlayers;
@@ -50,6 +57,8 @@ public class TestBoardLifecycleManager implements IKumiteTestConstants {
 	ContestsRegistry contestsRegistry;
 	@Autowired
 	BoardsRegistry boardsRegistry;
+	@Autowired
+	EventBus eventBus;
 
 	@Test
 	public void testAsync_Exception() {
@@ -57,7 +66,7 @@ public class TestBoardLifecycleManager implements IKumiteTestConstants {
 			boardLifecycleManager.executeBoardChange(someContestId, board -> {
 				throw new Error("Any error");
 			});
-		}).isInstanceOf(IllegalArgumentException.class);
+		}).isInstanceOf(UnknownContestException.class);
 	}
 
 	IGame game = new TravellingSalesmanProblem();
@@ -137,6 +146,30 @@ public class TestBoardLifecycleManager implements IKumiteTestConstants {
 
 		boardLifecycleManager.forceGameOver(contest);
 
+		Assertions.assertThat(boardsRegistry.hasGameover(game, contestId).isGameOver()).isTrue();
+	}
+
+	@Test
+	public void testOnException() {
+		Assertions.assertThat(boardsRegistry.hasGameover(game, contestId).isGameOver()).isFalse();
+
+		EventSink eventSink = EventSink.makeEventSink(eventBus);
+
+		Assertions.assertThatThrownBy(() -> boardLifecycleManager.executeBoardChange(contestId, board -> {
+			throw new IllegalArgumentException("Something went wrong");
+		})).isInstanceOf(IllegalStateException.class);
+
+		Assertions.assertThat(eventSink.getEvents())
+				.contains(ContestIsGameover.builder().contestId(contestId).build())
+				.anyMatch(e -> {
+					if (e instanceof BoardIsUpdated isUpdated) {
+						return isUpdated.getContestId().equals(contestId);
+					} else {
+						return false;
+					}
+
+				})
+				.hasSize(2);
 		Assertions.assertThat(boardsRegistry.hasGameover(game, contestId).isGameOver()).isTrue();
 	}
 }

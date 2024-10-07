@@ -2,10 +2,9 @@ package eu.solven.kumite.scenario;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
 import org.greenrobot.eventbus.EventBus;
@@ -27,18 +26,19 @@ import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.contest.ActiveContestGenerator;
 import eu.solven.kumite.contest.Contest;
-import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.contest.IHasGameover;
+import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchParameters;
 import eu.solven.kumite.game.GamesRegistry;
+import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToe;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.leaderboard.Leaderboard;
 import eu.solven.kumite.randomgamer.GamerLogicHelper;
-import eu.solven.kumite.randomgamer.RandomGamer;
 import eu.solven.kumite.randomgamer.RandomPlayersVsThemselves;
+import eu.solven.kumite.randomgamer.turnbased.RandomTurnBasedGamer;
 
 /**
  * This is useful the {@link RandomPlayer} does not trying to play one game move to another game contest.
@@ -53,7 +53,7 @@ import eu.solven.kumite.randomgamer.RandomPlayersVsThemselves;
 
 		KumiteServerComponentsConfiguration.class,
 		ActiveContestGenerator.class,
-		RandomGamer.class,
+		RandomTurnBasedGamer.class,
 		GamerLogicHelper.class,
 
 		RandomPlayersVsThemselves.class,
@@ -75,7 +75,7 @@ public class TestTwoGames_Manual {
 	ActiveContestGenerator activeContestGenerator;
 
 	@Autowired
-	RandomGamer randomGamer;
+	RandomTurnBasedGamer randomGamer;
 
 	TicTacToe game1 = new TicTacToe();
 	TravellingSalesmanProblem game2 = new TravellingSalesmanProblem();
@@ -89,12 +89,13 @@ public class TestTwoGames_Manual {
 	@Test
 	public void testGame() throws JsonMappingException, JsonProcessingException {
 		int nbGames = 2;
-		Assertions.assertThat(gamesRegistry.searchGames(GameSearchParameters.builder().build())).hasSize(nbGames);
+		List<GameMetadata> games = gamesRegistry.searchGames(GameSearchParameters.builder().build());
+		Assertions.assertThat(games).hasSize(nbGames);
 
 		// Create playable contests:
 		Assertions.assertThat(activeContestGenerator.makeContestsIfNoneJoinable()).isEqualTo(nbGames);
 
-		int nbPlayers = Math.max(game1.getGameMetadata().getMinPlayers(), game2.getGameMetadata().getMinPlayers());
+		int nbPlayers = games.stream().mapToInt(g -> g.getMinPlayers()).max().getAsInt();
 		Map<UUID, Set<UUID>> contestIds = randomGamer
 				.joinOncePerContestAndPlayer(GameSearchParameters.builder().build(), new RandomPlayersVsThemselves());
 		Assertions.assertThat(contestIds).hasSize(nbGames);
@@ -105,16 +106,17 @@ public class TestTwoGames_Manual {
 			Assertions.assertThat(playerIds).hasSizeBetween(1, nbPlayers);
 		}
 
-		// Optimization games can be played indefinitely: we stop after given number of moves
-		for (int i = 0; i < 16; i++) {
+		List<Contest> contests = contestIds.keySet()
+				.stream()
+				.map(contestId -> contestsRegistry.getContest(contestId))
+				.collect(Collectors.toList());
+
+		while (!TestRealTimeSoloGame_Manual.areContestsPlayed(contests)) {
 			randomGamer.playOncePerContestAndPlayer();
 		}
 
-		Stream.of(game1, game2).forEach(game -> {
-			List<Contest> contests = contestsRegistry.searchContests(
-					ContestSearchParameters.builder().gameId(Optional.of(game.getGameMetadata().getGameId())).build());
-			Assertions.assertThat(contests).hasSize(1);
-			Contest contest = contests.get(0);
+		contests.forEach(contest -> {
+			IGame game = contest.getGame();
 			IHasBoard hasBoard = contest.getBoard();
 
 			IHasGameover hasGameover = boardsRegistry.hasGameover(game, contest.getContestId());
@@ -130,8 +132,6 @@ public class TestTwoGames_Manual {
 
 				Leaderboard leaderboard = game.makeLeaderboard(hasBoard.get());
 				Assertions.assertThat(leaderboard.getPlayerIdToPlayerScore()).hasSize(2);
-				// Assertions.assertThat(leaderboard.getPlayerIdToPlayerScore().keySet())
-				// .containsExactlyInAnyOrder(playerId1, playerId2);
 			}
 		});
 	}

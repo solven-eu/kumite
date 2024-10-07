@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 
 import eu.solven.kumite.board.BoardLifecycleManager;
 import eu.solven.kumite.board.IKumiteBoardView;
+import eu.solven.kumite.board.IKumiteBoardViewWrapper;
 import eu.solven.kumite.board.persistence.IBoardRepository;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestsRegistry;
@@ -51,11 +52,11 @@ public class BoardWebsocketController {
 
 	@MessageMapping("/api/v1" + "/board/{contestId}/player/{playerId}/join")
 	@SendTo("/api/v1" + "/board")
-	public IKumiteBoardView playerJoin(@DestinationVariable("contestId") UUID contestId,
+	public IKumiteBoardViewWrapper playerJoin(@DestinationVariable("contestId") UUID contestId,
 			@DestinationVariable("playerId") UUID playerId) {
 		Contest contest = contestsRegistry.getContest(contestId);
 
-		IKumiteBoardView view = boardLifecycle.registerPlayer(contest,
+		IKumiteBoardViewWrapper view = boardLifecycle.registerPlayer(contest,
 				PlayerJoinRaw.builder().contestId(contestId).playerId(contestId).build());
 
 		return view;
@@ -77,7 +78,7 @@ public class BoardWebsocketController {
 
 	@MessageMapping("/api/v1" + "/board/{contestId}/player/{playerId}/move")
 	@SendTo("/api/v1" + "/board")
-	public IKumiteBoardView playMove(@DestinationVariable("contestId") UUID contestId,
+	public IKumiteBoardViewWrapper playMove(@DestinationVariable("contestId") UUID contestId,
 			@DestinationVariable("playerId") UUID playerId,
 			Map<String, ?> rawMove) {
 		Contest contest = contestsRegistry.getContest(contestId);

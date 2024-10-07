@@ -1,4 +1,4 @@
-package eu.solven.kumite.game.tsp;
+package eu.solven.kumite.game.move;
 
 import java.util.UUID;
 
@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import eu.solven.kumite.move.GameOver;
 import eu.solven.kumite.move.WaitForPlayersMove;
 import eu.solven.kumite.move.WaitForSignups;
 
@@ -35,6 +36,18 @@ public class TestWaitMovesJackson {
 		Assertions.assertThat(asString).contains("\"wait\":true");
 
 		WaitForSignups fromString = objectMapper.readValue(asString, WaitForSignups.class);
+
+		Assertions.assertThat(fromString).isEqualTo(p);
+	}
+
+	@Test
+	public void testJacksonGameOver() throws JsonMappingException, JsonProcessingException {
+		GameOver p = GameOver.builder().build();
+
+		String asString = objectMapper.writeValueAsString(p);
+		Assertions.assertThat(asString).contains("\"gameOver\":true");
+
+		GameOver fromString = objectMapper.readValue(asString, GameOver.class);
 
 		Assertions.assertThat(fromString).isEqualTo(p);
 	}

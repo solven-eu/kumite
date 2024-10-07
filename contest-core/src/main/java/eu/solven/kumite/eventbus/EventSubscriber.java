@@ -12,10 +12,6 @@ public class EventSubscriber implements IEventSubscriber, InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (subscriber instanceof InitializingBean) {
-			((InitializingBean) subscriber).afterPropertiesSet();
-		}
-
 		eventBus.register(subscriber);
 	}
 

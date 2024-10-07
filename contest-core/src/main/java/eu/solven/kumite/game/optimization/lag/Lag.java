@@ -1,6 +1,8 @@
 package eu.solven.kumite.game.optimization.lag;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -13,12 +15,21 @@ import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
+import eu.solven.kumite.game.snake.Snake;
 import eu.solven.kumite.leaderboard.IPlayerScore;
 import eu.solven.kumite.leaderboard.Leaderboard;
 import eu.solven.kumite.leaderboard.PlayerLongScore;
 import eu.solven.kumite.move.IKumiteMove;
+import eu.solven.kumite.move.PlayerMoveRaw;
 import lombok.Value;
 
+/**
+ * {@link Lag} is the simplest real-time game. It has no losing condition. See {@link Snake} for a simple realtime game
+ * with a losing condition.
+ * 
+ * @author Benoit Lacelle
+ *
+ */
 @Value
 public class Lag implements IGame {
 	GameMetadata gameMetadata = GameMetadata.builder()
@@ -33,23 +44,23 @@ public class Lag implements IGame {
 			.build();
 
 	@Override
-	public boolean isValidMove(IKumiteMove move) {
-		return true;
-	}
-
-	@Override
 	public LagBoard generateInitialBoard(RandomGenerator random) {
 		return LagBoard.builder().build();
 	}
 
 	@Override
-	public LagServerTimestamp parseRawMove(Map<String, ?> rawMove) {
-		return new ObjectMapper().convertValue(rawMove, LagServerTimestamp.class);
+	public IKumiteBoard parseRawBoard(Map<String, ?> rawBoard) {
+		return new ObjectMapper().convertValue(rawBoard, LagBoard.class);
 	}
 
 	@Override
-	public IKumiteBoard parseRawBoard(Map<String, ?> rawBoard) {
-		return new ObjectMapper().convertValue(rawBoard, LagBoard.class);
+	public List<String> invalidMoveReasons(IKumiteBoardView rawBoardView, PlayerMoveRaw playerMove) {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public LagServerTimestamp parseRawMove(Map<String, ?> rawMove) {
+		return new ObjectMapper().convertValue(rawMove, LagServerTimestamp.class);
 	}
 
 	@Override
@@ -77,4 +88,5 @@ public class Lag implements IGame {
 	public boolean isGameover(IKumiteBoard board) {
 		return false;
 	}
+
 }

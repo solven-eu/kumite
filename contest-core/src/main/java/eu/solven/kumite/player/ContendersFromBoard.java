@@ -8,6 +8,7 @@ import eu.solven.kumite.board.IHasBoard;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.persistence.IBoardRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This {@link IContendersRepository} fallback on {@link IBoardRepository} to list contenders.
@@ -16,37 +17,50 @@ import lombok.AllArgsConstructor;
  *
  */
 @AllArgsConstructor
+@Slf4j
 public class ContendersFromBoard implements IContendersRepository {
 	final IAccountPlayersRegistry accountPlayersRegistry;
 	final BoardsRegistry boardsRegistry;
-	// final EventBus eventBus;
 
 	private IKumiteBoard requireBoard(UUID contestId) {
-		return boardsRegistry.makeDynamicBoardHolder(contestId).get();
+		return boardsRegistry.hasBoard(contestId).get();
 	}
 
+	// This has to be called from within boardEvolutionThread
 	@Override
-	public boolean registerContender(UUID contestId, UUID playerId) {
+	public UUID registerContender(UUID contestId, UUID playerId) {
 		IKumiteBoard board = requireBoard(contestId);
+
+		if (boardHasContender(playerId, board)) {
+			throw new IllegalArgumentException(
+					"playerId=%s is already a contender of contestId=%s".formatted(playerId, contestId));
+		}
 
 		board.registerContender(playerId);
 
-		// Persist the board (e.g. for concurrent changes)
-		boardsRegistry.updateBoard(contestId, board);
+		if (!boardHasContender(playerId, board)) {
+			throw new IllegalStateException(
+					"playerId=%s has not been registered as contender of contestId=%s".formatted(playerId, contestId));
+		}
 
-		return true;
+		// Persist the board (e.g. for concurrent changes)
+		return boardsRegistry.updateBoard(contestId, board);
+	}
+
+	private boolean boardHasContender(UUID playerId, IKumiteBoard board) {
+		return board.snapshotContenders().contains(playerId);
 	}
 
 	@Override
 	public boolean isContender(UUID contestId, UUID playerId) {
-		return requireBoard(contestId).snapshotPlayers().stream().anyMatch(p -> p.equals(playerId));
+		return requireBoard(contestId).snapshotContenders().stream().anyMatch(p -> p.equals(playerId));
 	}
 
 	@Override
-	public IHasPlayers makeDynamicHasPlayers(UUID contestId) {
-		IHasBoard hasBoard = boardsRegistry.makeDynamicBoardHolder(contestId);
+	public IHasPlayers hasPlayers(UUID contestId) {
+		IHasBoard hasBoard = boardsRegistry.hasBoard(contestId);
 
-		return () -> hasBoard.get().snapshotPlayers().stream().map(playerId -> {
+		return () -> hasBoard.get().snapshotContenders().stream().map(playerId -> {
 			UUID accountId = accountPlayersRegistry.getAccountId(playerId);
 			return KumitePlayer.builder().playerId(playerId).accountId(accountId).build();
 		}).collect(Collectors.toList());
@@ -54,11 +68,8 @@ public class ContendersFromBoard implements IContendersRepository {
 
 	@Override
 	public void gameover(UUID contestId) {
-		IKumiteBoard board = requireBoard(contestId);
-		// if (board.isPresent()) {
-		// TODO Checkif the board is actually over
-		// board.get().
-		// }
+		// IContendersRepository is not responsible of propagating gameOver to BoardsRegistry
+		log.debug("Nothing to do");
 	}
 
 	@Override

@@ -25,4 +25,9 @@ public class InMemoryViewingAccountsRepository implements IViewingAccountsReposi
 	public boolean isViewing(UUID contestId, UUID accountId) {
 		return contestToViewingAccounts.getOrDefault(contestId, Collections.emptySet()).contains(accountId);
 	}
+
+	@Override
+	public void gameover(UUID contestId) {
+		contestToViewingAccounts.remove(contestId);
+	}
 }

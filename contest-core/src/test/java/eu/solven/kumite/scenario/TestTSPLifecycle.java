@@ -10,6 +10,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -27,6 +28,7 @@ import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.GameSearchParameters;
 import eu.solven.kumite.game.GamesRegistry;
+import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.game.optimization.tsp.TSPBoard;
 import eu.solven.kumite.game.optimization.tsp.TSPSolution;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
@@ -66,11 +68,11 @@ public class TestTSPLifecycle {
 	LeaderboardRegistry leaderboardRegistry;
 
 	@Autowired
+	@Qualifier(IGameMetadataConstants.TAG_TURNBASED)
 	BoardLifecycleManager boardLifecycleManager;
 
 	@Autowired
 	RandomGenerator randomGenerator;
-
 
 	@Test
 	public void testSinglePlayer() {
@@ -116,16 +118,7 @@ public class TestTSPLifecycle {
 				// lexicographical
 				.anySatisfy(ps -> {
 					Assertions.assertThat(ps.getPlayerId()).isEqualTo(player.getPlayerId());
-
 					Assertions.assertThat(ps.getScore().doubleValue()).isBetween(65.79, 65.80);
-				})
-		// greedy
-		// .anySatisfy(ps -> {
-		// Assertions.assertThat(ps.getPlayerId()).isEqualTo(player.getPlayerId());
-		//
-		// PlayerDoubleScore pds = (PlayerDoubleScore) ps;
-		// Assertions.assertThat(pds.getScore()).isBetween(10.50, 10.51);
-		// })
-		;
+				});
 	}
 }

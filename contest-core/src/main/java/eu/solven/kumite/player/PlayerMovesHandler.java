@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import eu.solven.kumite.app.webflux.api.KumiteHandlerHelper;
 import eu.solven.kumite.board.BoardLifecycleManager;
 import eu.solven.kumite.board.IKumiteBoardView;
+import eu.solven.kumite.board.IKumiteBoardViewWrapper;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestView;
 import eu.solven.kumite.contest.ContestsRegistry;
@@ -46,8 +47,7 @@ public class PlayerMovesHandler {
 		Contest contest = contestsRegistry.getContest(contestId);
 
 		PlayerJoinRaw playerJoinRaw = parameters.build();
-		IKumiteBoardView view = boardLifecycleManager.registerPlayer(contest, playerJoinRaw);
-		log.debug("Should we return the sync view={} on playerRegistration?", view);
+		IKumiteBoardViewWrapper view = boardLifecycleManager.registerPlayer(contest, playerJoinRaw);
 
 		boolean isViewer = playerJoinRaw.isViewer();
 		PlayerContestStatus playingPlayer = PlayerContestStatus.builder()
@@ -58,6 +58,7 @@ public class PlayerMovesHandler {
 				.accountIsViewing(isViewer)
 				.build();
 
+		log.debug("Should we return the sync view={} on playerRegistration?", view);
 		return KumiteHandlerHelper.okAsJson(playingPlayer);
 	}
 
@@ -90,9 +91,10 @@ public class PlayerMovesHandler {
 			IKumiteMove move = game.parseRawMove(rawMove);
 
 			PlayerMoveRaw playerMove = PlayerMoveRaw.builder().playerId(playerId).move(move).build();
-			IKumiteBoardView boardViewPostMove = boardLifecycleManager.onPlayerMove(contestPreMove, playerMove);
+			IKumiteBoardViewWrapper boardViewPostMove = boardLifecycleManager.onPlayerMove(contestPreMove, playerMove);
 
-			ContestView view = ContestView.fromView(boardViewPostMove)
+			ContestView view = ContestView.fromView(boardViewPostMove.getView())
+					.boardStateId(boardViewPostMove.getBoardStateId())
 					.contestId(contestId)
 					.playerStatus(PlayerContestStatus.contender(playerId))
 					.dynamicMetadata(Contest.snapshot(contestPreMove).getDynamicMetadata())

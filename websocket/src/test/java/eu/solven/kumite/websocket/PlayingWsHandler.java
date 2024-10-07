@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.events.ContestIsGameover;
 import eu.solven.kumite.events.PlayerCanMove;
-import eu.solven.kumite.randomgamer.FakeGamer;
+import eu.solven.kumite.randomgamer.turnbased.FakeTurnBasedGamer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -31,7 +31,7 @@ public class PlayingWsHandler implements WebSocketHandler {
 	final ObjectMapper objectMapper;
 	final Contest contest;
 	final UUID playerId;
-	final FakeGamer fakeGamer;
+	final FakeTurnBasedGamer fakeGamer;
 
 	@Override
 	public Mono<Void> handle(WebSocketSession session) {

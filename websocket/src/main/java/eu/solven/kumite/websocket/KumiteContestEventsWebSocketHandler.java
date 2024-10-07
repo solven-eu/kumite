@@ -74,11 +74,13 @@ public class KumiteContestEventsWebSocketHandler implements WebSocketHandler {
 			try {
 				return objectMapper.readValue(msgAsString, Map.class);
 			} catch (JsonProcessingException e) {
+				// TODO SHould we send it back as out?
 				throw new IllegalArgumentException("Invalid json: `%s`".formatted(msgAsString), e);
 			}
 		}).doOnNext(asMap -> {
-			if (asMap.containsKey("playerId")) {
-				UUID receivedPlayerId = KumiteHandlerHelper.uuid((String) asMap.get(out), "playerId");
+			String keyPlayerId = "playerId";
+			if (asMap.containsKey(keyPlayerId)) {
+				UUID receivedPlayerId = KumiteHandlerHelper.uuid((String) asMap.get(keyPlayerId), keyPlayerId);
 				log.info("wsId={} has registered playerId={}", wsSession.getId(), receivedPlayerId);
 				playerId.set(receivedPlayerId);
 			}

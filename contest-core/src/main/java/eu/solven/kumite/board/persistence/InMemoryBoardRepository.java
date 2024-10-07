@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import eu.solven.kumite.app.KumiteJackson;
 import eu.solven.kumite.board.IKumiteBoard;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +16,8 @@ public class InMemoryBoardRepository implements IBoardRepository {
 	final Map<UUID, IKumiteBoard> contestIdToBoard = new ConcurrentHashMap<>();
 
 	@Override
-	public Optional<IKumiteBoard> putIfAbsent(UUID contestId, IKumiteBoard initialBoard) {
-		IKumiteBoard alreadyIn = contestIdToBoard.putIfAbsent(contestId, initialBoard);
+	public Optional<IKumiteBoard> putIfAbsent(UUID contestId, IKumiteBoard board) {
+		IKumiteBoard alreadyIn = contestIdToBoard.putIfAbsent(contestId, KumiteJackson.clone(board));
 		return Optional.ofNullable(alreadyIn);
 	}
 
@@ -32,10 +33,10 @@ public class InMemoryBoardRepository implements IBoardRepository {
 	}
 
 	@Override
-	public void updateBoard(UUID contestId, IKumiteBoard currentBoard) {
-		IKumiteBoard previousBoard = contestIdToBoard.put(contestId, currentBoard);
+	public void updateBoard(UUID contestId, IKumiteBoard board) {
+		IKumiteBoard previousBoard = contestIdToBoard.put(contestId, KumiteJackson.clone(board));
 		if (previousBoard == null) {
-			throw new IllegalStateException("The board was not already present");
+			throw new IllegalStateException("The board was not already present for contestId=" + contestId);
 		}
 	}
 

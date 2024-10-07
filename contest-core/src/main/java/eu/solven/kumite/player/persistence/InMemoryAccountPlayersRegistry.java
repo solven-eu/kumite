@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import eu.solven.kumite.account.fake_player.FakePlayer;
 import eu.solven.kumite.account.fake_player.RandomPlayer;
+import eu.solven.kumite.exception.UnknownPlayerException;
 import eu.solven.kumite.player.IAccountPlayersRegistry;
 import eu.solven.kumite.player.IHasPlayers;
 import eu.solven.kumite.player.KumitePlayer;
@@ -54,7 +55,7 @@ public final class InMemoryAccountPlayersRegistry implements IAccountPlayersRegi
 
 	@Override
 	public UUID getAccountId(UUID playerId) {
-		return optAccountId(playerId).orElseThrow(() -> new IllegalArgumentException("Unknown playerId: " + playerId));
+		return optAccountId(playerId).orElseThrow(() -> new UnknownPlayerException(playerId));
 	}
 
 	@Override

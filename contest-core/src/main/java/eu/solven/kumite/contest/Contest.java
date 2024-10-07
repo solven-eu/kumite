@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import eu.solven.kumite.board.IHasBoard;
+import eu.solven.kumite.board.IHasBoardMetadata;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.move.IKumiteMove;
@@ -34,6 +35,9 @@ public class Contest implements IContest {
 
 	@NonNull
 	IHasBoard board;
+
+	@NonNull
+	IHasBoardMetadata boardMetadata;
 
 	@NonNull
 	IHasGameover gameover;
@@ -88,11 +92,9 @@ public class Contest implements IContest {
 
 		if (!hasPlayerId(playerId)) {
 			throw new IllegalArgumentException("playerId=" + playerId + " is not registered");
-		} else if (!game.isValidMove(move)) {
-			throw new IllegalArgumentException("move=" + move + " is invalid");
 		}
 
-		List<String> invalidMoveReasons = board.get().isValidMove(playerMove);
+		List<String> invalidMoveReasons = game.invalidMoveReasons(board.get().asView(playerId), playerMove);
 		if (!invalidMoveReasons.isEmpty()) {
 			throw new IllegalArgumentException(
 					"move=" + move + " by playerId=" + playerId + " is invalid: " + invalidMoveReasons);

@@ -11,23 +11,15 @@ import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.leaderboard.Leaderboard;
 import eu.solven.kumite.move.IKumiteMove;
+import eu.solven.kumite.move.PlayerMoveRaw;
 import eu.solven.kumite.player.KumitePlayer;
 
 public interface IGame {
 	GameMetadata getGameMetadata();
 
-	/**
-	 * Default implementation returns true as many games may have only board-dependant rules
-	 * 
-	 * @param move
-	 * @return true if this move is valid independently of the board state.
-	 */
-	// This should not return true by default, as no game would accept any IKumiteMove
-	default boolean isValidMove(IKumiteMove move) {
-		return true;
-	}
-
 	IKumiteBoard generateInitialBoard(RandomGenerator random);
+
+	IKumiteBoard parseRawBoard(Map<String, ?> rawBoard);
 
 	/**
 	 * 
@@ -45,9 +37,9 @@ public interface IGame {
 		return true;
 	}
 
-	IKumiteMove parseRawMove(Map<String, ?> rawMove);
+	List<String> invalidMoveReasons(IKumiteBoardView rawBoardView, PlayerMoveRaw playerMove);
 
-	IKumiteBoard parseRawBoard(Map<String, ?> rawBoard);
+	IKumiteMove parseRawMove(Map<String, ?> rawMove);
 
 	default Leaderboard makeLeaderboard(IKumiteBoard board) {
 		return Leaderboard.empty();
@@ -65,7 +57,6 @@ public interface IGame {
 		return Collections.emptyMap();
 	}
 
-	// IHasGameover hasGameover(IHasBoard hasBoard);
-	boolean isGameover(IKumiteBoard board);
+	boolean isGameover(IKumiteBoard rawBoard);
 
 }

@@ -1,8 +1,5 @@
 package eu.solven.kumite.board;
 
-import java.util.List;
-
-import eu.solven.kumite.move.PlayerMoveRaw;
 import eu.solven.kumite.player.KumitePlayer;
 
 /**
@@ -24,7 +21,5 @@ public interface IKumiteBoardView {
 	default String getMoveSvg() {
 		return "KumiteJsonBoardMove";
 	}
-
-	List<String> isValidMove(PlayerMoveRaw playerMove);
 
 }

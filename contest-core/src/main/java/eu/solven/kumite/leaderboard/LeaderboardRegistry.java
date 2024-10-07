@@ -25,7 +25,7 @@ public class LeaderboardRegistry {
 
 	public LeaderboardRaw searchLeaderboard(LeaderboardSearchParameters search) {
 		UUID contestId = search.getContestId();
-		IKumiteBoard board = boardRegistry.makeDynamicBoardHolder(contestId).get();
+		IKumiteBoard board = boardRegistry.hasBoard(contestId).get();
 
 		Contest contest = contestsRegistry.getContest(contestId);
 		IGame game = gamesRegistry.getGame(contest.getGame().getGameMetadata().getGameId());

@@ -13,6 +13,7 @@ import eu.solven.kumite.app.IKumiteSpringProfiles;
 import eu.solven.kumite.contest.ActiveContestGenerator;
 import eu.solven.kumite.eventbus.EventSubscriber;
 import eu.solven.kumite.eventbus.IEventSubscriber;
+import eu.solven.kumite.randomgamer.turnbased.RandomTurnBasedGamer;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
@@ -21,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 
 		ActiveContestGenerator.class,
 
-		RandomGamer.class,
+		RandomTurnBasedGamer.class,
 		GamerLogicHelper.class,
 
 })
@@ -29,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RandomPlaysVsThemselvesConfig {
 
 	@Bean
-	public IEventSubscriber playsRandomly(RandomGamer randomGamer, EventBus eventBus, List<KumiteUser> players) {
+	public IEventSubscriber playsRandomly(RandomTurnBasedGamer randomGamer, EventBus eventBus, List<KumiteUser> players) {
 		log.debug("Now {} are registered, we can generate events", players);
 
 		IContestJoiningStrategy strategy = new RandomPlayersVsThemselves();

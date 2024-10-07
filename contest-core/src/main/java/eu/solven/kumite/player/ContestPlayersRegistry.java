@@ -1,8 +1,8 @@
 package eu.solven.kumite.player;
 
+import java.util.Optional;
 import java.util.UUID;
 
-import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
@@ -15,7 +15,7 @@ public class ContestPlayersRegistry {
 	final GamesRegistry gamesRegistry;
 	final IAccountPlayersRegistry accountPlayersRegistry;
 
-	final IContendersRepository contestPlayersRepository;
+	final IContendersRepository contendersRepository;
 
 	final IViewingAccountsRepository viewingAccountsRepository;
 
@@ -29,17 +29,24 @@ public class ContestPlayersRegistry {
 		viewingAccountsRepository.registerViewer(contest.getContestId(), accountId);
 	}
 
-	public void registerPlayer(Contest contest, PlayerJoinRaw playerRegistrationRaw) {
+	/**
+	 * 
+	 * @param contest
+	 * @param playerRegistrationRaw
+	 * @return the boardStateId if this registered a contender. Empty if this is a viewer.
+	 */
+	public Optional<UUID> registerPlayer(Contest contest, PlayerJoinRaw playerRegistrationRaw) {
 		UUID playerId = playerRegistrationRaw.getPlayerId();
 
 		if (playerRegistrationRaw.isViewer()) {
 			registerViewingPlayer(contest, playerId);
+			return Optional.empty();
 		} else {
-			registerContender(contest, playerId);
+			return Optional.of(registerContender(contest, playerId));
 		}
 	}
 
-	private void registerContender(Contest contest, UUID playerId) {
+	private UUID registerContender(Contest contest, UUID playerId) {
 		if (KumitePlayer.AUDIENCE_PLAYER_ID.equals(playerId) || KumitePlayer.PREVIEW_PLAYER_ID.equals(playerId)) {
 			// This should have been handled before, while verifying authenticated account can play given playerId
 			throw new IllegalArgumentException("Public player is not allowed to play");
@@ -59,41 +66,24 @@ public class ContestPlayersRegistry {
 
 		KumitePlayer player = makePlayer(playerId);
 
-		IKumiteBoard updatedBoard;
+		UUID boardStateId;
 
 		// No need to synchronize as BoardLifecycleManager ensure single-threaded per contest
 		if (game.canAcceptPlayer(contest, player)) {
-			boolean registeredInBoard = contestPlayersRepository.registerContender(contestId, playerId);
-			if (registeredInBoard) {
-				log.debug(
-						"Skip `board.registerContender` as already managed by `contestPlayersRepository.registerContender`");
-			} else {
-				updatedBoard = contest.getBoard().get();
-				try {
-					updatedBoard.registerContender(playerId);
-				} catch (Throwable t) {
-					// What should we do about contestPlayersRegistry? Remove the player? Force gameOver? Drop
-					// contestPlayersRegistry and rely only on the board?
-					throw new IllegalStateException(
-							"Issue after registering a player, but before registering it on the board",
-							t);
-				}
-
-				throw new IllegalStateException("Unclear how we should persist the new board");
-			}
+			boardStateId = contendersRepository.registerContender(contestId, playerId);
 		} else {
 			throw new IllegalArgumentException(
 					"player=" + playerId + " can not be registered on contestId=" + contestId);
 		}
 
 		// We may want to prevent a player to register into too many contests
-		long nbPlayingGames = contestPlayersRepository.getContestIds(playerId);
+		long nbPlayingGames = contendersRepository.getContestIds(playerId);
 		log.info("playerId={} has joined as contender into contestId={}. (Now playing {} contests)",
 				playerId,
 				contestId,
 				nbPlayingGames);
 
-		// return updatedBoard;
+		return boardStateId;
 	}
 
 	private KumitePlayer makePlayer(UUID playerId) {
@@ -103,7 +93,7 @@ public class ContestPlayersRegistry {
 	}
 
 	public IHasPlayers makeDynamicHasPlayers(UUID contestId) {
-		return contestPlayersRepository.makeDynamicHasPlayers(contestId);
+		return contendersRepository.hasPlayers(contestId);
 	}
 
 	/**
@@ -119,7 +109,7 @@ public class ContestPlayersRegistry {
 	}
 
 	public boolean isRegisteredPlayer(UUID contestId, UUID playerId) {
-		return contestPlayersRepository.isContender(contestId, playerId);
+		return contendersRepository.isContender(contestId, playerId);
 	}
 
 	public PlayerContestStatus getPlayingPlayer(UUID playerId, Contest contestMetadata) {
@@ -161,8 +151,8 @@ public class ContestPlayersRegistry {
 
 	}
 
-	public void forceGameover(UUID contestId) {
-		// viewingAccountsRepository.remove(contestId);
-		contestPlayersRepository.gameover(contestId);
+	public void gameover(UUID contestId) {
+		viewingAccountsRepository.gameover(contestId);
+		contendersRepository.gameover(contestId);
 	}
 }

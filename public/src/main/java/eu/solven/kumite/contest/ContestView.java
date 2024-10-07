@@ -31,6 +31,9 @@ public class ContestView {
 	@NonNull
 	ContestDynamicMetadata dynamicMetadata;
 
+	@NonNull
+	UUID boardStateId;
+
 	// Could be turned into a IKumiteBoardView by an IGame
 	@NonNull
 	Map<String, ?> board;

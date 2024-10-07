@@ -22,11 +22,27 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 public class BoardDynamicMetadata {
+	// This is helps knowing (from player-side) if a board has been played or not
+	@Default
+	UUID boardStateId = UUID.randomUUID();
 
 	@Default
 	Map<UUID, OffsetDateTime> playerIdToLastMove = new TreeMap<>();
 
 	OffsetDateTime gameOverTs;
+
+	private BoardDynamicMetadataBuilder prepareMutation() {
+		return BoardDynamicMetadata.builder().playerIdToLastMove(playerIdToLastMove).gameOverTs(gameOverTs);
+	}
+
+	public BoardDynamicMetadata touch() {
+		if (gameOverTs != null) {
+			// We are already gameOver: do not update its value
+			return this;
+		}
+
+		return prepareMutation().build();
+	}
 
 	public BoardDynamicMetadata setGameOver() {
 		if (gameOverTs != null) {
@@ -34,10 +50,18 @@ public class BoardDynamicMetadata {
 			return this;
 		}
 
-		return BoardDynamicMetadata.builder()
-				.playerIdToLastMove(playerIdToLastMove)
-				.gameOverTs(OffsetDateTime.now().atZoneSameInstant(ZoneOffset.UTC).toOffsetDateTime())
-				.build();
+		return prepareMutation().gameOverTs(now()).build();
 	}
 
+	public BoardDynamicMetadata playerMoved(UUID playerId) {
+		Map<UUID, OffsetDateTime> updatedPlayerIdToLastMove = new TreeMap<>(playerIdToLastMove);
+
+		updatedPlayerIdToLastMove.put(playerId, now());
+
+		return prepareMutation().playerIdToLastMove(updatedPlayerIdToLastMove).build();
+	}
+
+	public static OffsetDateTime now() {
+		return OffsetDateTime.now().atZoneSameInstant(ZoneOffset.UTC).toOffsetDateTime();
+	}
 }

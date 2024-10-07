@@ -8,7 +8,7 @@ import lombok.NonNull;
 import lombok.Value;
 
 /**
- * A {@link Contest} board has been updated. Typically, as player joined or moved.
+ * A {@link Contest} board has been updated. Typically, as player joined or moved, or the contest gameOver.
  * 
  * @author Benoit Lacelle
  *
@@ -18,4 +18,7 @@ import lombok.Value;
 public class BoardIsUpdated implements IKumiteContestEvent {
 	@NonNull
 	UUID contestId;
+
+	@NonNull
+	UUID boardStateId;
 }

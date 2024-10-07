@@ -19,11 +19,6 @@ public class ChessBoard implements IKumiteBoard, IKumiteBoardView {
 	String pgn;
 
 	@Override
-	public List<String> isValidMove(PlayerMoveRaw playerMove) {
-		return Collections.singletonList("TODO");
-	}
-
-	@Override
 	public void registerMove(PlayerMoveRaw playerMove) {
 		throw new IllegalArgumentException("TODO");
 	}
@@ -40,7 +35,7 @@ public class ChessBoard implements IKumiteBoard, IKumiteBoardView {
 	}
 
 	@Override
-	public List<UUID> snapshotPlayers() {
+	public List<UUID> snapshotContenders() {
 		return Collections.emptyList();
 	}
 }

@@ -10,4 +10,6 @@ public interface IViewingAccountsRepository {
 
 	boolean isViewing(UUID contestId, UUID accountId);
 
+	void gameover(UUID contestId);
+
 }

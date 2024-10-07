@@ -1,15 +1,19 @@
 package eu.solven.kumite.game.opposition.chess;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
 
 import eu.solven.kumite.board.IKumiteBoard;
+import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.move.IKumiteMove;
+import eu.solven.kumite.move.PlayerMoveRaw;
 
 // https://peterellisjones.com/posts/generating-legal-chess-moves-efficiently/
 // https://github.com/desht/chesspresso
@@ -33,12 +37,17 @@ public class Chess implements IGame {
 	}
 
 	@Override
-	public boolean isValidMove(IKumiteMove move) {
-		return false;
+	public IKumiteBoard generateInitialBoard(RandomGenerator random) {
+		return ChessBoard.builder().build();
 	}
 
 	@Override
-	public IKumiteBoard generateInitialBoard(RandomGenerator random) {
+	public List<String> invalidMoveReasons(IKumiteBoardView rawBoardView, PlayerMoveRaw playerMove) {
+		return Collections.singletonList("TODO");
+	}
+
+	@Override
+	public IKumiteBoard parseRawBoard(Map<String, ?> rawBoard) {
 		return ChessBoard.builder().build();
 	}
 
@@ -48,12 +57,8 @@ public class Chess implements IGame {
 	}
 
 	@Override
-	public IKumiteBoard parseRawBoard(Map<String, ?> rawBoard) {
-		return ChessBoard.builder().build();
-	}
-
-	@Override
 	public boolean isGameover(IKumiteBoard board) {
 		return true;
 	}
+
 }

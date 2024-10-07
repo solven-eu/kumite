@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -12,10 +13,12 @@ import org.greenrobot.eventbus.EventBus;
 
 import eu.solven.kumite.board.BoardsRegistry;
 import eu.solven.kumite.board.IHasBoard;
+import eu.solven.kumite.board.IHasBoardMetadata;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest.ContestBuilder;
 import eu.solven.kumite.contest.persistence.IContestsRepository;
 import eu.solven.kumite.events.ContestIsCreated;
+import eu.solven.kumite.exception.UnknownContestException;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.player.ContestPlayersRegistry;
@@ -44,6 +47,7 @@ public class ContestsRegistry {
 	@NonNull
 	final IContestsRepository contestsRepository;
 
+	@NonNull
 	final EventBus eventBus;
 
 	protected Optional<ContestCreationMetadata> registerContest(UUID contestId, ContestCreationMetadata contest) {
@@ -55,7 +59,7 @@ public class ContestsRegistry {
 		if (optAlreadyIn.isPresent()) {
 			log.warn("Trying to initialize multiple times board for contestId={}", contestId);
 		} else {
-			log.info("Registered contestId={} for gameid={}", contestId, contest.getGameId());
+			log.info("Registered contestId={} for gameId={}", contestId, contest.getGameId());
 		}
 		return optAlreadyIn;
 	}
@@ -67,19 +71,16 @@ public class ContestsRegistry {
 
 		Contest contest = getContest(contestId);
 
-		eventBus.post(ContestIsCreated.builder().contestId(contest.getContestId()).build());
+		eventBus.post(ContestIsCreated.builder().contestId(contestId).build());
 
 		return contest;
 	}
 
-	// public void registerGameOver(UUID contestId) {
-	// liveContestsManager.registerContestOver(contestId);
-	// }
-
 	public Contest getContest(UUID contestId) {
-		ContestCreationMetadata contestConstantMetadata = contestsRepository.getById(contestId)
-				.orElseThrow(() -> new IllegalArgumentException("No contest registered for id=" + contestId));
-		IHasBoard hasBoard = boardsRegistry.makeDynamicBoardHolder(contestId);
+		ContestCreationMetadata contestConstantMetadata =
+				contestsRepository.getById(contestId).orElseThrow(() -> new UnknownContestException(contestId));
+		IHasBoard hasBoard = boardsRegistry.hasBoard(contestId);
+		IHasBoardMetadata hasMetadata = boardsRegistry.getMetadata(contestId);
 		IHasPlayers hasPlayers = contestPlayersRegistry.makeDynamicHasPlayers(contestId);
 
 		UUID gameId = contestConstantMetadata.getGameId();
@@ -90,6 +91,7 @@ public class ContestsRegistry {
 				.game(game)
 				.constantMetadata(contestConstantMetadata)
 				.board(hasBoard)
+				.boardMetadata(hasMetadata)
 				.players(hasPlayers)
 				.gameover(boardsRegistry.hasGameover(game, contestId));
 
@@ -122,6 +124,10 @@ public class ContestsRegistry {
 		if (search.getGameId().isPresent()) {
 			metaStream = metaStream.filter(c -> c.getGameMetadata().getGameId().equals(search.getGameId().get()));
 		}
+		if (!search.getRequiredTags().isEmpty()) {
+			Set<String> requiredTags = search.getRequiredTags();
+			metaStream = metaStream.filter(c -> GamesRegistry.matchTags(requiredTags, c.getGameMetadata()));
+		}
 
 		if (search.getGameOver() != null) {
 			metaStream = metaStream.filter(c -> search.getGameOver().equals(c.isGameOver()));
@@ -136,11 +142,5 @@ public class ContestsRegistry {
 		}
 
 		return metaStream.collect(Collectors.toList());
-	}
-
-	public void deleteContest(UUID contestId) {
-		boardsRegistry.forceGameover(contestId);
-		contestPlayersRegistry.forceGameover(contestId);
-		// contestsRepository.archive(contestId);
 	}
 }

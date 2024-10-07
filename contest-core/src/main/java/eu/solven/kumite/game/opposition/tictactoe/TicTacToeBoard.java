@@ -1,7 +1,6 @@
 package eu.solven.kumite.game.opposition.tictactoe;
 
 import java.nio.CharBuffer;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
@@ -58,26 +57,6 @@ public class TicTacToeBoard implements IKumiteBoard, IKumiteBoardView {
 		}
 
 		return symbol;
-	}
-
-	@Override
-	public List<String> isValidMove(PlayerMoveRaw playerMove) {
-		char nextPlayerSymbol = getNextPlayerSymbol();
-
-		char playerMoveSymbol = getPlayerSymbol(playerMove.getPlayerId());
-		if (Character.compare(nextPlayerSymbol, playerMoveSymbol) != 0) {
-			return Collections.singletonList("playerId=" + playerMove.getPlayerId() + " can not play for now");
-		}
-
-		TicTacToeMove move = (TicTacToeMove) playerMove.getMove();
-		int position = move.getPosition();
-
-		char positionCurrentSymbol = positions[position - 1];
-		if (positionCurrentSymbol != '_') {
-			return Collections.singletonList("position=" + position + " is not empty (" + positionCurrentSymbol + ")");
-		}
-
-		return Collections.emptyList();
 	}
 
 	@Override
@@ -215,7 +194,7 @@ public class TicTacToeBoard implements IKumiteBoard, IKumiteBoardView {
 	}
 
 	@Override
-	public List<UUID> snapshotPlayers() {
+	public List<UUID> snapshotContenders() {
 		return playerIdToSymbol.keySet().stream().collect(Collectors.toList());
 	}
 }

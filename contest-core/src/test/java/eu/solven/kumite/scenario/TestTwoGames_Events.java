@@ -2,7 +2,6 @@ package eu.solven.kumite.scenario;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.assertj.core.api.Assertions;
 import org.greenrobot.eventbus.EventBus;
@@ -27,6 +26,8 @@ import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestSearchParameters;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.contest.IHasGameover;
+import eu.solven.kumite.game.GameMetadata;
+import eu.solven.kumite.game.GameSearchParameters;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToe;
@@ -81,12 +82,16 @@ public class TestTwoGames_Events {
 		// Create playable contests: it will trigger moves automatically given
 		// `IKumiteSpringProfiles.P_RANDOM_PLAYS_VSTHEMSELVES`
 
+		int nbGames = 2;
+		List<GameMetadata> games = gamesRegistry.searchGames(GameSearchParameters.builder().build());
+		Assertions.assertThat(games).hasSize(nbGames);
+
 		// When
 		// This will trigger a flow of events until gameOver
 		Assertions.assertThat(activeContestGenerator.makeContestsIfNoneJoinable()).isEqualTo(2);
 
 		// Then
-		Stream.of(game1, game2).forEach(game -> {
+		games.stream().map(g -> gamesRegistry.getGame(g.getGameId())).forEach(game -> {
 			List<Contest> contests = contestsRegistry.searchContests(
 					ContestSearchParameters.builder().gameId(Optional.of(game.getGameMetadata().getGameId())).build());
 			Assertions.assertThat(contests).hasSize(1);

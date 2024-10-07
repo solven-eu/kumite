@@ -20,6 +20,7 @@ import eu.solven.kumite.events.ContestIsCreated;
 import eu.solven.kumite.events.PlayerJoinedBoard;
 import eu.solven.kumite.events.PlayerMoved;
 import eu.solven.kumite.player.KumitePlayer;
+import eu.solven.kumite.randomgamer.turnbased.RandomTurnBasedGamer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 
 		ActiveContestGenerator.class,
 
-		RandomGamer.class,
+		RandomTurnBasedGamer.class,
 		GamerLogicHelper.class,
 
 })
@@ -38,7 +39,7 @@ public class RandomPlaysVs1Config {
 
 	@AllArgsConstructor
 	public static class RandomPlayerEventSubscriber implements IEventSubscriber {
-		final RandomGamer randomGamer;
+		final RandomTurnBasedGamer randomGamer;
 		final IContestJoiningStrategy strategy;
 
 		@Subscribe
@@ -71,7 +72,7 @@ public class RandomPlaysVs1Config {
 	};
 
 	@Bean
-	public IEventSubscriber playsRandomly(RandomGamer randomGamer, EventBus eventBus, List<KumiteUser> players) {
+	public IEventSubscriber playsRandomly(RandomTurnBasedGamer randomGamer, EventBus eventBus, List<KumiteUser> players) {
 		log.debug("Now {} are registered, we can generate events", players);
 
 		IContestJoiningStrategy strategy = new RandomPlayersVs1();

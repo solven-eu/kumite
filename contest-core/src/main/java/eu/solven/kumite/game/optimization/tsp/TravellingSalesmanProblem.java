@@ -27,6 +27,7 @@ import eu.solven.kumite.leaderboard.IPlayerScore;
 import eu.solven.kumite.leaderboard.Leaderboard;
 import eu.solven.kumite.leaderboard.PlayerDoubleScore;
 import eu.solven.kumite.move.IKumiteMove;
+import eu.solven.kumite.move.PlayerMoveRaw;
 import lombok.Value;
 
 @Value
@@ -107,23 +108,43 @@ public class TravellingSalesmanProblem implements IGame {
 	}
 
 	@Override
-	public boolean isValidMove(IKumiteMove move) {
-		return true;
-	}
-
-	@Override
 	public TSPBoard generateInitialBoard(RandomGenerator random) {
 		return boardGenerator.apply(random);
 	}
 
 	@Override
-	public TSPSolution parseRawMove(Map<String, ?> rawMove) {
-		return new ObjectMapper().convertValue(rawMove, TSPSolution.class);
+	public IKumiteBoard parseRawBoard(Map<String, ?> rawBoard) {
+		return new ObjectMapper().convertValue(rawBoard, TSPBoard.class);
 	}
 
 	@Override
-	public IKumiteBoard parseRawBoard(Map<String, ?> rawBoard) {
-		return new ObjectMapper().convertValue(rawBoard, TSPBoard.class);
+	public List<String> invalidMoveReasons(IKumiteBoardView rawBoardView, PlayerMoveRaw playerMove) {
+		TSPProblem p = (TSPProblem) rawBoardView;
+
+		TSPSolution s = (TSPSolution) playerMove.getMove();
+
+		List<String> invalidReasons = new ArrayList<>();
+
+		if (p.getCities().size() != s.getCities().size()) {
+			invalidReasons.add("Inconsistent number of cities");
+		}
+
+		Map<String, TSPCity> nameToCity = new HashMap<>();
+		p.getCities().forEach(c -> nameToCity.put(c.getName(), c));
+
+		Set<String> visitedCities = new HashSet<>();
+		s.getCities().forEach(c -> visitedCities.add(c));
+
+		if (!nameToCity.keySet().equals(visitedCities)) {
+			invalidReasons.add("Inconsistent set of cities");
+		}
+
+		return invalidReasons;
+	}
+
+	@Override
+	public TSPSolution parseRawMove(Map<String, ?> rawMove) {
+		return new ObjectMapper().convertValue(rawMove, TSPSolution.class);
 	}
 
 	@Override

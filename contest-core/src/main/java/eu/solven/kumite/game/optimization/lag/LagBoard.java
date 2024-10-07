@@ -1,6 +1,5 @@
 package eu.solven.kumite.game.optimization.lag;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,11 +24,6 @@ public class LagBoard implements IKumiteBoard, IKumiteBoardView {
 	Map<UUID, Long> playerToLatestLagMs = new ConcurrentHashMap<>();
 
 	@Override
-	public List<String> isValidMove(PlayerMoveRaw playerMove) {
-		return Collections.emptyList();
-	}
-
-	@Override
 	public void registerMove(PlayerMoveRaw playerMove) {
 		LagServerTimestamp tsmSolution = (LagServerTimestamp) playerMove.getMove();
 
@@ -50,7 +44,7 @@ public class LagBoard implements IKumiteBoard, IKumiteBoardView {
 	}
 
 	@Override
-	public List<UUID> snapshotPlayers() {
+	public List<UUID> snapshotContenders() {
 		return playerToLatestLagMs.keySet().stream().collect(Collectors.toList());
 	}
 }

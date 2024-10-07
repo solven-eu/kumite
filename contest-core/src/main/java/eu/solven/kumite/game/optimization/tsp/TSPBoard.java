@@ -26,11 +26,6 @@ public class TSPBoard implements IKumiteBoard {
 	Map<UUID, TSPSolution> playerToLatestSolution = new ConcurrentHashMap<>();
 
 	@Override
-	public List<String> isValidMove(PlayerMoveRaw playerMove) {
-		return problem.isValidMove(playerMove);
-	}
-
-	@Override
 	public void registerMove(PlayerMoveRaw playerMove) {
 		TSPSolution tsmSolution = (TSPSolution) playerMove.getMove();
 		playerToLatestSolution.put(playerMove.getPlayerId(), tsmSolution);
@@ -48,7 +43,7 @@ public class TSPBoard implements IKumiteBoard {
 	}
 
 	@Override
-	public List<UUID> snapshotPlayers() {
+	public List<UUID> snapshotContenders() {
 		return playerToLatestSolution.keySet().stream().collect(Collectors.toList());
 	}
 }

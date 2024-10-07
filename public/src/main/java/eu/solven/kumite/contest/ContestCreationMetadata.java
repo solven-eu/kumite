@@ -45,6 +45,8 @@ public class ContestCreationMetadata {
 	@Default
 	OffsetDateTime created = OffsetDateTime.now(Clock.systemUTC());
 
+	OffsetDateTime timeout;
+
 	public static ContestCreationMetadataBuilder fromGame(GameMetadata game) {
 		return ContestCreationMetadata.builder()
 				.gameId(game.getGameId())

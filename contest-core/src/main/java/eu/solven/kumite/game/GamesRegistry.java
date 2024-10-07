@@ -50,34 +50,38 @@ public class GamesRegistry {
 			UUID uuid = search.getGameId().get();
 			metaStream = Optional.ofNullable(idToGame.get(uuid)).map(g -> g.getGameMetadata()).stream();
 		} else {
-			metaStream = idToGame.values().stream().map(c -> c.getGameMetadata());
+			metaStream = idToGame.values().stream().map(g -> g.getGameMetadata());
 		}
 
 		if (search.getMinPlayers().isPresent()) {
 			// User wants N minPlayers: he accepts N and N + 1 players
-			metaStream = metaStream.filter(c -> c.getMinPlayers() >= search.getMinPlayers().getAsInt());
+			metaStream = metaStream.filter(g -> g.getMinPlayers() >= search.getMinPlayers().getAsInt());
 		}
 
 		if (search.getMaxPlayers().isPresent()) {
 			// User wants N maxPlayers: he accepts N and N - 1 players
-			metaStream = metaStream.filter(c -> c.getMaxPlayers() <= search.getMaxPlayers().getAsInt());
+			metaStream = metaStream.filter(g -> g.getMaxPlayers() <= search.getMaxPlayers().getAsInt());
 		}
 
 		if (search.getTitleRegex().isPresent()) {
 			Predicate<String> titlePredicate = Pattern.compile(search.getTitleRegex().get()).asMatchPredicate();
-			metaStream = metaStream.filter(c -> titlePredicate.test(c.getTitle()));
+			metaStream = metaStream.filter(g -> titlePredicate.test(g.getTitle()));
 		}
 
 		if (!search.getRequiredTags().isEmpty()) {
 			Set<String> requiredTags = search.getRequiredTags();
 
-			metaStream = metaStream.filter(c -> {
-				// TODO Handle tags with OR conditions (e.g. `tagA,tagB`)
-				return c.getTags().containsAll(requiredTags);
+			metaStream = metaStream.filter(g -> {
+				return matchTags(requiredTags, g);
 			});
 		}
 
 		return metaStream.collect(Collectors.toList());
+	}
+
+	public static boolean matchTags(Set<String> requiredTags, GameMetadata g) {
+		// TODO Handle tags with OR conditions (e.g. `tagA,tagB`)
+		return g.getTags().containsAll(requiredTags);
 	}
 
 	public Stream<IGame> getGames() {

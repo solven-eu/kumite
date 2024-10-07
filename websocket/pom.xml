@@ -29,12 +29,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <!-- Used for @EnableWebSocketSecurity -->
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-config</artifactId>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.springframework/spring-messaging -->
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -52,16 +46,6 @@
                     <artifactId>spring-webmvc</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <!-- ? -->
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-integration</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
         <dependency>
