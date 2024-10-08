@@ -1,6 +1,7 @@
 package eu.solven.kumite.game.snake;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.board.IKumiteBoardView;
 import eu.solven.kumite.leaderboard.Leaderboard;
+import eu.solven.kumite.leaderboard.PlayerLongScore;
 import eu.solven.kumite.move.PlayerMoveRaw;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -24,9 +26,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SnakeBoard implements IKumiteBoard, IKumiteBoardView, ISnakeConstants {
 
+	private static char[] toChars(int[] ints) {
+		char[] chars = new char[ints.length];
+		for (int i = 0; i < ints.length; i++) {
+			chars[i] = (char) ints[i];
+		}
+		return chars;
+	}
+
+	public static char[] makeEmptyPositions() {
+		return toChars(EMPTY.chars().filter(c -> c != '\r' && c != '\n').toArray());
+	}
+
 	// Grid is 8x8
 	@Builder.Default
-	char[] positions = EMPTY.toCharArray();
+	char[] positions = makeEmptyPositions();
 
 	@Default
 	UUID playerId = null;
@@ -42,11 +56,15 @@ public class SnakeBoard implements IKumiteBoard, IKumiteBoardView, ISnakeConstan
 	@Default
 	int life = 0;
 
+	@Default
+	int fruit = 0;
+
 	@Override
 	public void registerMove(PlayerMoveRaw playerMove) {
 		SnakeMove move = (SnakeMove) playerMove.getMove();
 
 		headDirection = move.getDirection();
+		positions[headPosition] = SnakeEvolution.asChar(headDirection);
 	}
 
 	@Override
@@ -80,7 +98,27 @@ public class SnakeBoard implements IKumiteBoard, IKumiteBoardView, ISnakeConstan
 	}
 
 	public Leaderboard makeLeaderboard() {
-		// Should return the length of the snake as score
-		return Leaderboard.empty();
+		if (playerId == null) {
+			return Leaderboard.empty();
+		}
+		PlayerLongScore score = PlayerLongScore.builder().playerId(playerId).score(fruit).build();
+		return Leaderboard.builder().playerIdToPlayerScore(Map.of(playerId, score)).build();
+	}
+
+	@Override
+	public String toString() {
+		// -1 as we do not need a trailing `\n`
+		char[] withEol = new char[W * W + W - 1];
+
+		for (int i = 0; i < W; i++) {
+			for (int j = 0; j < W; j++) {
+				withEol[i * W + j + i] = positions[i * W + j];
+			}
+			if (i < W - 1) {
+				withEol[i * W + W + i] = '\n';
+			}
+		}
+
+		return new String(withEol);
 	}
 }

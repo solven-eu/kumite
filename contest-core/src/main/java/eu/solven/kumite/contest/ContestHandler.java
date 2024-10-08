@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.solven.kumite.account.IKumiteUserContextHolder;
 import eu.solven.kumite.app.KumiteJackson;
 import eu.solven.kumite.app.webflux.api.KumiteHandlerHelper;
-import eu.solven.kumite.board.BoardLifecycleManager;
+import eu.solven.kumite.board.IBoardLifecycleManager;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.ContestSearchParameters.ContestSearchParametersBuilder;
 import eu.solven.kumite.game.GameMetadata;
@@ -43,7 +43,7 @@ public class ContestHandler {
 	final ContestsRegistry contestsRegistry;
 
 	@NonNull
-	final BoardLifecycleManager boardLifecycleManager;
+	final IBoardLifecycleManager boardLifecycleManager;
 
 	@NonNull
 	final RandomGenerator randomGenerator;
@@ -154,17 +154,19 @@ public class ContestHandler {
 
 				UUID author = contestMetadata.getAuthor();
 				if (!author.equals(authAccountId)) {
-					throw new IllegalArgumentException("Can not DELETE contestId=%s as its author is not you (but %s)"
-							.formatted(contestId, author));
+					throw new AccountForbiddenOperation(
+							"Can not DELETE contestId=%s as you (%s) are not its author (%s)"
+									.formatted(contestId, authAccountId, author));
 				}
 			}
 
 			// contestsRegistry.deleteContest(contestId);
-			boardLifecycleManager.forceGameOver(contest);
+			UUID boardStateId = boardLifecycleManager.forceGameOver(contest);
 
 			return ServerResponse.ok()
 					.contentType(MediaType.APPLICATION_JSON)
-					.body(BodyInserters.fromValue(Map.of("contestId", contestId, "author", authAccountId)));
+					.body(BodyInserters.fromValue(
+							Map.of("contestId", contestId, "author", authAccountId, "boardStateId", boardStateId)));
 		});
 
 	}

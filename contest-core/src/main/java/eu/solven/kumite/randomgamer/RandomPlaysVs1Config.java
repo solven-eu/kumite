@@ -72,7 +72,9 @@ public class RandomPlaysVs1Config {
 	};
 
 	@Bean
-	public IEventSubscriber playsRandomly(RandomTurnBasedGamer randomGamer, EventBus eventBus, List<KumiteUser> players) {
+	public IEventSubscriber playsRandomly(RandomTurnBasedGamer randomGamer,
+			EventBus eventBus,
+			List<KumiteUser> players) {
 		log.debug("Now {} are registered, we can generate events", players);
 
 		IContestJoiningStrategy strategy = new RandomPlayersVs1();

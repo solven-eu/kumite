@@ -158,10 +158,8 @@ public abstract class ATurnBasedGamerLogic {
 	public Optional<UUID> playOnce(UUID contestId, UUID playerId) {
 		Contest contest = gamerLogicHelper.getContestsRegistry().getContest(contestId);
 
-		IKumiteBoardView boardView = gamerLogicHelper.getBoardsRegistry()
-				.hasBoard(contest.getContestId())
-				.get()
-				.asView(playerId);
+		IKumiteBoardView boardView =
+				gamerLogicHelper.getBoardsRegistry().hasBoard(contest.getContestId()).get().asView(playerId);
 		Map<String, IKumiteMove> moves =
 				contest.getGame().exampleMoves(gamerLogicHelper.getRandomGenerator(), boardView, playerId);
 

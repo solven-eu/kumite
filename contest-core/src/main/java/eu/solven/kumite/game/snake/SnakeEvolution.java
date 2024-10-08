@@ -1,5 +1,7 @@
 package eu.solven.kumite.game.snake;
 
+import java.util.random.RandomGenerator;
+
 public class SnakeEvolution implements ISnakeConstants {
 
 	/**
@@ -19,7 +21,15 @@ public class SnakeEvolution implements ISnakeConstants {
 		return col + row * W;
 	}
 
-	public SnakeBoard forwardSnake(SnakeBoard board, int nbFrame) {
+	public SnakeBoard forwardSnake(RandomGenerator randomGenerator, SnakeBoard board, int nbFrame) {
+		if (Snake.willHitTheWill(board.headPosition, board.headDirection)) {
+			return Snake.prepareNewBoard(randomGenerator)
+					.fruit(board.fruit)
+					.life(board.life - 1)
+					.playerId(board.playerId)
+					.build();
+		}
+
 		int newHeadPosition = board.headPosition + nbFrame * directionToPositionShift(board.headDirection);
 
 		char[] newPositions = board.positions.clone();
@@ -30,22 +40,58 @@ public class SnakeEvolution implements ISnakeConstants {
 
 		char beforeNewHead = newPositions[newHeadPosition];
 
-		newPositions[newHeadPosition] = asChar(board.headDirection);
+		int fruit = board.fruit;
 
 		int newTailPosition;
 		if (beforeNewHead == F) {
 			// We eat a fruit: the tail does not move forward
 			newTailPosition = board.tailPosition;
-		} else if (beforeNewHead == '_') {
+			fruit++;
+		} else {
 			// The tail moves forward
 			char tailDirectionChar = board.positions[board.tailPosition];
 			int tailDirection = toDirection(tailDirectionChar);
 
 			newTailPosition = board.tailPosition + nbFrame * directionToPositionShift(tailDirection);
-		} else {
-			// TODO The snake eat itself
-			// TODO The snake hits a wall
-			newTailPosition = 0;
+			newPositions[board.tailPosition] = '_';
+		}
+
+		char newHead = newPositions[newHeadPosition];
+		if (newHead == D0 || newHead == D3 || newHead == D6 || newHead == D9) {
+			// The snake is eating itself
+			return Snake.prepareNewBoard(randomGenerator)
+					.fruit(board.fruit)
+					.life(board.life - 1)
+					.playerId(board.playerId)
+					.build();
+		}
+
+		newPositions[newHeadPosition] = asChar(board.headDirection);
+
+		// Generate a new fruit every 8 moves (statistically)
+		if (0 == randomGenerator.nextInt(8)) {
+			int nbFree = 0;
+			for (char c : newPositions) {
+				if (c == '_') {
+					nbFree++;
+				}
+			}
+
+			int positionToFruit = randomGenerator.nextInt(nbFree);
+
+			int indexFree = 0;
+			for (int i = 0; i < newPositions.length; i++) {
+				char c = newPositions[i];
+				if (c == '_') {
+
+					if (indexFree == positionToFruit) {
+						newPositions[indexFree] = 'F';
+						break;
+					}
+
+					indexFree++;
+				}
+			}
 		}
 
 		return SnakeBoard.builder()
@@ -55,10 +101,11 @@ public class SnakeEvolution implements ISnakeConstants {
 				.headPosition(newHeadPosition)
 				.tailPosition(newTailPosition)
 				.positions(newPositions)
+				.fruit(fruit)
 				.build();
 	}
 
-	 static int toDirection(char directionChar) {
+	static int toDirection(char directionChar) {
 		return switch (directionChar) {
 		case D0:
 			yield 0;

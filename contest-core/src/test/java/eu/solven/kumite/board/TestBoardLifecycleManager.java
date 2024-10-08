@@ -9,8 +9,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -27,7 +27,6 @@ import eu.solven.kumite.events.ContestIsGameover;
 import eu.solven.kumite.exception.UnknownContestException;
 import eu.solven.kumite.game.GamesRegistry;
 import eu.solven.kumite.game.IGame;
-import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
 import eu.solven.kumite.move.IKumiteMove;
 import eu.solven.kumite.move.PlayerMoveRaw;
@@ -45,8 +44,9 @@ public class TestBoardLifecycleManager implements IKumiteTestConstants {
 	RandomGenerator randomGenerator;
 
 	@Autowired
-	@Qualifier(IGameMetadataConstants.TAG_TURNBASED)
 	BoardLifecycleManager boardLifecycleManager;
+	@Autowired
+	BoardMutator boardMutator;
 	@Autowired
 	IAccountPlayersRegistry accountPlayers;
 	@Autowired
@@ -62,11 +62,15 @@ public class TestBoardLifecycleManager implements IKumiteTestConstants {
 
 	@Test
 	public void testAsync_Exception() {
+		ICanGameover canGameover = Mockito.mock(ICanGameover.class);
+
 		Assertions.assertThatThrownBy(() -> {
-			boardLifecycleManager.executeBoardChange(someContestId, board -> {
+			boardMutator.executeBoardChange(someContestId, board -> {
 				throw new Error("Any error");
-			});
+			}, canGameover);
 		}).isInstanceOf(UnknownContestException.class);
+
+		Mockito.verify(canGameover, Mockito.never()).doGameover(Mockito.any(UUID.class), Mockito.anyBoolean());
 	}
 
 	IGame game = new TravellingSalesmanProblem();
@@ -155,11 +159,17 @@ public class TestBoardLifecycleManager implements IKumiteTestConstants {
 
 		EventSink eventSink = EventSink.makeEventSink(eventBus);
 
-		Assertions.assertThatThrownBy(() -> boardLifecycleManager.executeBoardChange(contestId, board -> {
+		// ICanGameover canGameover = Mockito.mock(ICanGameover.class);
+		// UUID gameOverBoardStateId = UUID.randomUUID();
+		// Mockito.when(canGameover.doGameover(Mockito.eq(contestId),
+		// Mockito.eq(true))).thenReturn(gameOverBoardStateId);
+
+		Assertions.assertThatThrownBy(() -> boardMutator.executeBoardChange(contestId, board -> {
 			throw new IllegalArgumentException("Something went wrong");
-		})).isInstanceOf(IllegalStateException.class);
+		}, boardLifecycleManager::doGameover)).isInstanceOf(IllegalStateException.class);
 
 		Assertions.assertThat(eventSink.getEvents())
+				// As we mocked ICanGameover, we do not receive the gameOver event
 				.contains(ContestIsGameover.builder().contestId(contestId).build())
 				.anyMatch(e -> {
 					if (e instanceof BoardIsUpdated isUpdated) {
@@ -171,5 +181,7 @@ public class TestBoardLifecycleManager implements IKumiteTestConstants {
 				})
 				.hasSize(2);
 		Assertions.assertThat(boardsRegistry.hasGameover(game, contestId).isGameOver()).isTrue();
+
+		// Mockito.verify(canGameover).doGameover(Mockito.any(UUID.class), Mockito.anyBoolean());
 	}
 }

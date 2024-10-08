@@ -2,6 +2,7 @@ package eu.solven.kumite.board;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import eu.solven.kumite.board.persistence.IBoardMetadataRepository;
 import eu.solven.kumite.board.persistence.IBoardRepository;
@@ -66,6 +67,13 @@ public class BoardsRegistry {
 		return () -> boardMetadataRepository.getBoard(contestId)
 				.orElseThrow(() -> new IllegalStateException(
 						"The board has been removed in the meantime contestId=" + contestId));
+	}
+
+	public Supplier<IHasBoardAndMetadata> getBoardAndMetadata(UUID contestId) {
+		IHasBoard hasBoard = hasBoard(contestId);
+		IHasBoardMetadata hasMetadata = getMetadata(contestId);
+
+		return () -> BoardAndMetadata.builder().board(hasBoard.get()).metadata(hasMetadata.get()).build();
 	}
 
 	public UUID updateBoard(UUID contestId, IKumiteBoard currentBoard) {

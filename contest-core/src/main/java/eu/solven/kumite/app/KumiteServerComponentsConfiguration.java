@@ -1,7 +1,10 @@
 package eu.solven.kumite.app;
 
-import java.util.concurrent.Executor;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Logger;
@@ -15,7 +18,9 @@ import eu.solven.kumite.app.automated.KumiteAutomatedSpringConfig;
 import eu.solven.kumite.app.persistence.InMemoryKumiteConfiguration;
 import eu.solven.kumite.board.BoardLifecycleManager;
 import eu.solven.kumite.board.BoardLifecycleManagerHelper;
+import eu.solven.kumite.board.BoardMutator;
 import eu.solven.kumite.board.BoardsRegistry;
+import eu.solven.kumite.board.EnabledPlayers;
 import eu.solven.kumite.board.realtime.RealTimeBoardManager;
 import eu.solven.kumite.contest.ContestsRegistry;
 import eu.solven.kumite.eventbus.ActivityLogger;
@@ -58,6 +63,7 @@ import lombok.extern.slf4j.Slf4j;
 
 		KumiteAutomatedSpringConfig.class,
 
+		EnabledPlayers.class,
 		BoardLifecycleManagerHelper.class,
 
 })
@@ -65,25 +71,33 @@ import lombok.extern.slf4j.Slf4j;
 public class KumiteServerComponentsConfiguration {
 
 	@Bean
-	@Qualifier(IGameMetadataConstants.TAG_TURNBASED)
-	public BoardLifecycleManager tbBoardLifecycleManager(BoardLifecycleManagerHelper helper) {
-		final Executor boardEvolutionExecutor = Executors.newFixedThreadPool(4);
-		boardEvolutionExecutor
-				.execute(() -> log.info("This flags the tbThreadPool threadName={}", Thread.currentThread().getName()));
+	BoardMutator boardMutator(BoardLifecycleManagerHelper helper, EnabledPlayers enabledPlayer) {
+		int nbThreads = 4;
+		List<ExecutorService> boardMutationExecutors = IntStream.range(0, nbThreads).mapToObj(i -> {
+			ExecutorService es = Executors.newSingleThreadExecutor();
+			es.execute(() -> log.info("This flags the boardMutator threadPool #{} threadName={}",
+					i,
+					Thread.currentThread().getName()));
+			return es;
+		}).collect(Collectors.toList());
 
-		return new BoardLifecycleManager(helper, boardEvolutionExecutor);
+		return new BoardMutator(helper, enabledPlayer, boardMutationExecutors);
+	}
+
+	// Should we keep different BoardLifecycleManager? For now, we rely on a single complex RealTimeBoardManager
+	// @Bean
+	@Qualifier(IGameMetadataConstants.TAG_TURNBASED)
+	public BoardLifecycleManager tbBoardLifecycleManager(BoardLifecycleManagerHelper helper,
+			BoardMutator boardMutator) {
+		return new BoardLifecycleManager(helper, boardMutator);
 	}
 
 	// We can have multiple BoardLifecycleManager/boardEvolutionExecutor as long as a given contest is guaranteed to be
 	// processed by a single executor
 	@Bean
 	@Qualifier(IGameMetadataConstants.TAG_REALTIME)
-	public RealTimeBoardManager rtBoardLifecycleManager(BoardLifecycleManagerHelper helper) {
-		final Executor boardEvolutionExecutor = Executors.newFixedThreadPool(4);
-		boardEvolutionExecutor
-				.execute(() -> log.info("This flags the rtThreadPool threadName={}", Thread.currentThread().getName()));
-
-		return new RealTimeBoardManager(helper, boardEvolutionExecutor);
+	public RealTimeBoardManager rtBoardLifecycleManager(BoardLifecycleManagerHelper helper, BoardMutator boardMutator) {
+		return new RealTimeBoardManager(helper, boardMutator);
 	}
 
 	@Bean

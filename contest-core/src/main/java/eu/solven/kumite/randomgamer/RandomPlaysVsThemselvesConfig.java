@@ -30,7 +30,9 @@ import lombok.extern.slf4j.Slf4j;
 public class RandomPlaysVsThemselvesConfig {
 
 	@Bean
-	public IEventSubscriber playsRandomly(RandomTurnBasedGamer randomGamer, EventBus eventBus, List<KumiteUser> players) {
+	public IEventSubscriber playsRandomly(RandomTurnBasedGamer randomGamer,
+			EventBus eventBus,
+			List<KumiteUser> players) {
 		log.debug("Now {} are registered, we can generate events", players);
 
 		IContestJoiningStrategy strategy = new RandomPlayersVsThemselves();

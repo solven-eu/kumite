@@ -26,4 +26,19 @@ public class JwtUserContextHolder implements IKumiteUserContextHolder {
 		});
 	}
 
+	@Override
+	public Mono<UUID> authenticatedPlayerId() {
+		return ReactiveSecurityContextHolder.getContext().map(securityContext -> {
+			Authentication authentication = securityContext.getAuthentication();
+
+			if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+				UUID accountId = UUID.fromString(jwtAuth.getToken().getClaimAsString("playerId"));
+
+				return accountId;
+			} else {
+				throw new LoginRouteButNotAuthenticatedException("Expecting a JWT token");
+			}
+		});
+	}
+
 }

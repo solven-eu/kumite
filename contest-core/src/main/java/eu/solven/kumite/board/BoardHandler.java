@@ -56,10 +56,10 @@ public class BoardHandler {
 		Contest contestMetadata = contest.get(0);
 
 		PlayerContestStatus playingPlayer = contestPlayersRegistry.getPlayingPlayer(playerId, contestMetadata);
-		
-		IKumiteBoard board = boardsRegistry.hasBoard(contestId).get();
 
-		ContestView contestView = makeContestView(contestMetadata, playingPlayer, board);
+		IHasBoardAndMetadata boardAndMetadata = boardsRegistry.getBoardAndMetadata(contestId).get();
+
+		ContestView contestView = makeContestView(contestMetadata, playingPlayer, boardAndMetadata);
 		log.debug("Serving board for contestId={}", contestView.getContestId());
 
 		return KumiteHandlerHelper.okAsJson(contestView);
@@ -67,7 +67,7 @@ public class BoardHandler {
 
 	private ContestView makeContestView(Contest contestMetadata,
 			PlayerContestStatus playingPlayer,
-			IKumiteBoard board) {
+			IHasBoardAndMetadata boardAndMetadata) {
 		UUID viewPlayerId;
 		if (playingPlayer.isPlayerHasJoined()) {
 			viewPlayerId = playingPlayer.getPlayerId();
@@ -77,11 +77,12 @@ public class BoardHandler {
 			viewPlayerId = KumitePlayer.PREVIEW_PLAYER_ID;
 		}
 
-		IKumiteBoardView boardView = board.asView(viewPlayerId);
+		IKumiteBoardView boardView = boardAndMetadata.getBoard().asView(viewPlayerId);
 
 		ContestDynamicMetadata dynamicMetadata = Contest.snapshot(contestMetadata).getDynamicMetadata();
 		ContestView contestView = ContestView.fromView(boardView)
 				.contestId(contestMetadata.getContestId())
+				.boardStateId(boardAndMetadata.getMetadata().getBoardStateId())
 				.playerStatus(playingPlayer)
 				.dynamicMetadata(dynamicMetadata)
 

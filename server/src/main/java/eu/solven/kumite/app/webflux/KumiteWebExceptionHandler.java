@@ -9,6 +9,7 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.resource.NoResourceFoundException;
 import org.springframework.web.server.ServerWebExchange;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.solven.kumite.app.KumiteJackson;
+import eu.solven.kumite.contest.AccountForbiddenOperation;
 import eu.solven.kumite.security.LoginRouteButNotAuthenticatedException;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -39,7 +41,7 @@ public class KumiteWebExceptionHandler implements WebExceptionHandler {
 	final ObjectMapper objectMapper = KumiteJackson.objectMapper();
 
 	@Override
-	public Mono<Void> handle(ServerWebExchange exchange, Throwable e) {
+	public @NonNull Mono<Void> handle(@NonNull ServerWebExchange exchange, @NonNull Throwable e) {
 		if (e instanceof NoResourceFoundException) {
 			// Let the default WebExceptionHandler manage 404
 			return Mono.error(e);
@@ -50,6 +52,8 @@ public class KumiteWebExceptionHandler implements WebExceptionHandler {
 			httpStatus = HttpStatus.BAD_REQUEST;
 		} else if (e instanceof LoginRouteButNotAuthenticatedException) {
 			httpStatus = HttpStatus.UNAUTHORIZED;
+		} else if (e instanceof AccountForbiddenOperation) {
+			httpStatus = HttpStatus.FORBIDDEN;
 		} else {
 			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 		}

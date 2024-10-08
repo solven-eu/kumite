@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -16,6 +15,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import eu.solven.kumite.board.BoardLifecycleManager;
 import eu.solven.kumite.board.BoardLifecycleManagerHelper;
+import eu.solven.kumite.board.BoardMutator;
 import eu.solven.kumite.board.IKumiteBoard;
 import eu.solven.kumite.contest.Contest;
 import eu.solven.kumite.contest.ContestSearchParameters;
@@ -40,8 +40,8 @@ public class RealTimeBoardManager extends BoardLifecycleManager implements Initi
 	// working
 	final ScheduledExecutorService timeLoopExecutor = Executors.newScheduledThreadPool(16);
 
-	public RealTimeBoardManager(BoardLifecycleManagerHelper helper, Executor boardEvolutionExecutor) {
-		super(helper, boardEvolutionExecutor);
+	public RealTimeBoardManager(BoardLifecycleManagerHelper helper, BoardMutator boardMutator) {
+		super(helper, boardMutator);
 
 		timeLoopExecutor
 				.execute(() -> log.info("This flags the timeLoop. threadName={}", Thread.currentThread().getName()));
@@ -62,7 +62,7 @@ public class RealTimeBoardManager extends BoardLifecycleManager implements Initi
 
 	@Subscribe
 	public void onContestIsCreated(ContestIsCreated event) {
-		Contest contest = helper.getContestsRegistry().getContest(event.getContestId());
+		Contest contest = getHelper().getContestsRegistry().getContest(event.getContestId());
 
 		if (contest.getGame() instanceof IHasRealtimeGame) {
 			startContestRealtimeLoop(contest.getContestId());
@@ -71,7 +71,7 @@ public class RealTimeBoardManager extends BoardLifecycleManager implements Initi
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		helper.getContestsRegistry()
+		getHelper().getContestsRegistry()
 				.searchContests(ContestSearchParameters.builder()
 						.gameOver(false)
 						.requiredTag(IGameMetadataConstants.TAG_REALTIME)
@@ -87,7 +87,7 @@ public class RealTimeBoardManager extends BoardLifecycleManager implements Initi
 	}
 
 	public void startContestRealtimeLoop(UUID contestId) {
-		Contest contest = helper.getContestsRegistry().getContest(contestId);
+		Contest contest = getHelper().getContestsRegistry().getContest(contestId);
 
 		if (contest.getGame() instanceof IHasRealtimeGame realtimeGame) {
 			ScheduledFuture<?> future = scheduleRealtimeLoop(realtimeGame.getRealtimeGame(), contest);
@@ -127,16 +127,16 @@ public class RealTimeBoardManager extends BoardLifecycleManager implements Initi
 	private void runTimeLoop(IRealtimeGame realtimeGame, Contest contest, Duration pace, AtomicLong previousFrame) {
 		UUID contestId = contest.getContestId();
 
-		if (helper.isGameover(contestId)) {
+		if (getHelper().isGameover(contestId)) {
 			// The game is over: stop the scheduled task
 			cancelTimeLoop(contestId);
 
 			// The game is over: as it may be due to time, we need to register gameOver as a gameEvent
-			executeBoardChange(contestId, board -> {
+			getBoardMutator().executeBoardChange(contestId, board -> {
 				// Mark gameOver while inside the loop. It will prevent other interactions
 				log.info("timeFlow led to gameOver for contestId={}", contestId);
 				return doGameover(contestId, false);
-			});
+			}, this::doGameover);
 
 		} else {
 			long nanos = System.nanoTime();
@@ -163,15 +163,16 @@ public class RealTimeBoardManager extends BoardLifecycleManager implements Initi
 				nbFrameForward = 1;
 			}
 
-			executeBoardChange(contestId, board -> {
-				IKumiteBoard forwardedBoard = realtimeGame.forward(board, nbFrameForward);
+			getBoardMutator().executeBoardChange(contestId, board -> {
+				IKumiteBoard forwardedBoard =
+						realtimeGame.forward(getHelper().getRandomGenerator(), board, nbFrameForward);
 
 				saveUpdatedBoard(contestId, forwardedBoard);
 
 				// This boardUpdateId is fake, though it should not be used at any point as this
 				// `executeBoardChange` is scheduled
 				return UUID.randomUUID();
-			});
+			}, this::doGameover);
 		}
 	}
 

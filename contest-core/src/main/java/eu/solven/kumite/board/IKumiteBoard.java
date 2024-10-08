@@ -17,7 +17,6 @@ public interface IKumiteBoard {
 	// Some games may need to register some player parameters
 	void registerContender(UUID playerId);
 
-
 	/**
 	 * Mutate current board with given player move
 	 * 

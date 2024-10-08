@@ -12,4 +12,6 @@ import reactor.core.publisher.Mono;
  */
 public interface IKumiteUserContextHolder {
 	Mono<UUID> authenticatedAccountId();
+
+	Mono<UUID> authenticatedPlayerId();
 }

@@ -23,5 +23,4 @@ public interface IBoardMetadataRepository {
 
 	void putIfPresent(UUID contestId, BoardDynamicMetadata board);
 
-
 }

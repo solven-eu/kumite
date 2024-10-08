@@ -8,6 +8,7 @@ import java.util.random.RandomGenerator;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import eu.solven.kumite.account.IKumiteUserContextHolder;
 import eu.solven.kumite.app.webflux.api.KumiteHandlerHelper;
 import eu.solven.kumite.board.BoardLifecycleManager;
 import eu.solven.kumite.board.IKumiteBoardView;
@@ -33,6 +34,8 @@ public class PlayerMovesHandler {
 	final BoardLifecycleManager boardLifecycleManager;
 	final RandomGenerator randomGenerator;
 
+	final IKumiteUserContextHolder kumiteUser;
+
 	public Mono<ServerResponse> registerPlayer(ServerRequest request) {
 		PlayerJoinRawBuilder parameters = PlayerJoinRaw.builder();
 
@@ -44,22 +47,25 @@ public class PlayerMovesHandler {
 		Optional<Boolean> optViewer = KumiteHandlerHelper.optBoolean(request, "viewer");
 		optViewer.ifPresent(viewer -> parameters.isViewer(viewer));
 
-		Contest contest = contestsRegistry.getContest(contestId);
+		return kumiteUser.authenticatedAccountId().flatMap(accountId -> {
+			Contest contest = contestsRegistry.getContest(contestId);
 
-		PlayerJoinRaw playerJoinRaw = parameters.build();
-		IKumiteBoardViewWrapper view = boardLifecycleManager.registerPlayer(contest, playerJoinRaw);
+			PlayerJoinRaw playerJoinRaw = parameters.build();
+			IKumiteBoardViewWrapper view = boardLifecycleManager.registerPlayer(contest, playerJoinRaw);
 
-		boolean isViewer = playerJoinRaw.isViewer();
-		PlayerContestStatus playingPlayer = PlayerContestStatus.builder()
-				.playerId(playerId)
+			boolean isViewer = playerJoinRaw.isViewer();
+			PlayerContestStatus playingPlayer = PlayerContestStatus.builder()
+					.playerId(playerId)
 
-				.playerHasJoined(!isViewer)
-				.playerCanJoin(false)
-				.accountIsViewing(isViewer)
-				.build();
+					.playerHasJoined(!isViewer)
+					.playerCanJoin(false)
+					.accountIsViewing(isViewer)
+					.build();
 
-		log.debug("Should we return the sync view={} on playerRegistration?", view);
-		return KumiteHandlerHelper.okAsJson(playingPlayer);
+			log.debug("Should we return the sync view={} on playerRegistration?", view);
+			return KumiteHandlerHelper.okAsJson(playingPlayer);
+		});
+
 	}
 
 	// This would return a list of possible moves. The list may not be exhaustive, but indicative.

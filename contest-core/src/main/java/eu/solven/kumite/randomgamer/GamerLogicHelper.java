@@ -26,5 +26,5 @@ public class GamerLogicHelper {
 	final BoardsRegistry boardsRegistry;
 	final RandomGenerator randomGenerator;
 
-//	final BoardLifecycleManager boardLifecycleManager;
+	// final BoardLifecycleManager boardLifecycleManager;
 }

@@ -8,11 +8,9 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 import org.greenrobot.eventbus.EventBus;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import eu.solven.kumite.account.fake_player.RandomPlayer;
 import eu.solven.kumite.board.realtime.RealTimeBoardManager;
-import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.move.IKumiteMove;
 import eu.solven.kumite.randomgamer.GamerLogicHelper;
 import eu.solven.kumite.randomgamer.turnbased.ATurnBasedGamerLogic;
@@ -30,7 +28,7 @@ public class RandomRealTimeGamer extends ATurnBasedGamerLogic {
 	final EventBus eventBus;
 
 	public RandomRealTimeGamer(GamerLogicHelper gamerLogicHelper,
-			@Qualifier(IGameMetadataConstants.TAG_REALTIME) RealTimeBoardManager boardLifecycleManager,
+			RealTimeBoardManager boardLifecycleManager,
 			EventBus eventBus) {
 		super(gamerLogicHelper, boardLifecycleManager);
 

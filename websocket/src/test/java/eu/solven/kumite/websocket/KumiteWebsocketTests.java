@@ -104,7 +104,7 @@ public class KumiteWebsocketTests {
 
 		GameMetadata turnBased1v1 = gamesRegistry.searchGames(GameSearchParameters.builder()
 				.requiredTag(IGameMetadataConstants.TAG_1V1)
-				.requiredTag(IGameMetadataConstants.TAG_1V1)
+				.requiredTag(IGameMetadataConstants.TAG_TURNBASED)
 				.build()).get(0);
 		log.info("We are going to play {}", turnBased1v1);
 

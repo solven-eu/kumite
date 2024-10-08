@@ -79,9 +79,6 @@ public class KumiteTokenService {
 			Set<UUID> playerIds,
 			Duration accessTokenValidity,
 			boolean isRefreshToken) {
-		if (!isRefreshToken && playerIds.size() != 1) {
-			throw new IllegalArgumentException("access_token are generated for a specific single playerId");
-		}
 
 		// Generating a Signed JWT
 		// https://auth0.com/blog/rs256-vs-hs256-whats-the-difference/
@@ -105,8 +102,19 @@ public class KumiteTokenService {
 				.issueTime(Date.from(now))
 				.notBeforeTime(Date.from(now))
 				.expirationTime(Date.from(now.plus(accessTokenValidity)))
-				.claim("refresh_token", isRefreshToken)
-				.claim("playerIds", playerIds);
+				.claim("refresh_token", isRefreshToken);
+
+		if (isRefreshToken) {
+			// A refreshToken may be attached to multiple playerIds
+			claimsSetBuilder.claim("playerIds", playerIds);
+		} else {
+			if (playerIds.size() != 1) {
+				throw new IllegalArgumentException("access_token are generated for a specific single playerId");
+			}
+
+			// Access_token are attached to a single playerId
+			claimsSetBuilder.claim("playerId", playerIds.iterator().next());
+		}
 
 		SignedJWT signedJWT = new SignedJWT(headerBuilder.build(), claimsSetBuilder.build());
 

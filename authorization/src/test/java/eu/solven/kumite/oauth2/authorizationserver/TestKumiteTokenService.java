@@ -33,7 +33,43 @@ public class TestKumiteTokenService {
 	Supplier<KumiteTokenService> tokenService = () -> new KumiteTokenService(env, JdkUuidGenerator.INSTANCE);
 
 	@Test
-	public void testJwt_randomSecret() throws JOSEException, ParseException {
+	public void testJwt_refreshToken() throws JOSEException, ParseException {
+		JWK signatureSecret = KumiteTokenService.generateSignatureSecret(JdkUuidGenerator.INSTANCE);
+		env.setProperty(IKumiteOAuth2Constants.KEY_OAUTH2_ISSUER, "https://some.issuer.domain");
+		env.setProperty(IKumiteOAuth2Constants.KEY_JWT_SIGNINGKEY, signatureSecret.toJSONString());
+
+		UUID accountId = UUID.randomUUID();
+		UUID playerId = UUID.randomUUID();
+		KumiteUser user = KumiteUser.builder()
+				.accountId(accountId)
+				.playerId(playerId)
+				.rawRaw(IKumiteTestConstants.userRawRaw())
+				.details(IKumiteTestConstants.userDetails())
+				.build();
+		String accessToken = tokenService.get()
+				.generateAccessToken(user.getAccountId(), Set.of(playerId), Duration.ofMinutes(1), true);
+
+		{
+			JWSVerifier verifier = new MACVerifier((OctetSequenceKey) signatureSecret);
+
+			SignedJWT signedJWT = SignedJWT.parse(accessToken);
+			Assertions.assertThat(signedJWT.verify(verifier)).isTrue();
+		}
+
+		JwtReactiveAuthenticationManager authManager = new JwtReactiveAuthenticationManager(
+				new KumiteResourceServerConfiguration().jwtDecoder(env, JdkUuidGenerator.INSTANCE));
+
+		Authentication auth = authManager.authenticate(new BearerTokenAuthenticationToken(accessToken)).block();
+
+		Assertions.assertThat(auth.getPrincipal()).isOfAnyClassIn(Jwt.class);
+		Jwt jwt = (Jwt) auth.getPrincipal();
+		Assertions.assertThat(jwt.getSubject()).isEqualTo(accountId.toString());
+		Assertions.assertThat(jwt.getAudience()).containsExactly("Kumite-Server");
+		Assertions.assertThat(jwt.getClaimAsStringList("playerIds")).isEqualTo(List.of(playerId.toString()));
+	}
+
+	@Test
+	public void testJwt_accessToken() throws JOSEException, ParseException {
 		JWK signatureSecret = KumiteTokenService.generateSignatureSecret(JdkUuidGenerator.INSTANCE);
 		env.setProperty(IKumiteOAuth2Constants.KEY_OAUTH2_ISSUER, "https://some.issuer.domain");
 		env.setProperty(IKumiteOAuth2Constants.KEY_JWT_SIGNINGKEY, signatureSecret.toJSONString());
@@ -65,6 +101,6 @@ public class TestKumiteTokenService {
 		Jwt jwt = (Jwt) auth.getPrincipal();
 		Assertions.assertThat(jwt.getSubject()).isEqualTo(accountId.toString());
 		Assertions.assertThat(jwt.getAudience()).containsExactly("Kumite-Server");
-		Assertions.assertThat(jwt.getClaimAsStringList("playerIds")).isEqualTo(List.of(playerId.toString()));
+		Assertions.assertThat(jwt.getClaimAsString("playerId")).isEqualTo(playerId.toString());
 	}
 }

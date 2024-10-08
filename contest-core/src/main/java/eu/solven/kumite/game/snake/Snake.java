@@ -16,6 +16,7 @@ import eu.solven.kumite.game.GameMetadata;
 import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.IGameMetadataConstants;
 import eu.solven.kumite.game.optimization.lag.Lag;
+import eu.solven.kumite.game.snake.SnakeBoard.SnakeBoardBuilder;
 import eu.solven.kumite.leaderboard.Leaderboard;
 import eu.solven.kumite.move.IKumiteMove;
 import eu.solven.kumite.move.PlayerMoveRaw;
@@ -50,12 +51,15 @@ public class Snake implements IGame, IRealtimeGame, ISnakeConstants {
 		return gameMetadata;
 	}
 
-	@Override
-	public SnakeBoard generateInitialBoard(RandomGenerator random) {
+	public static SnakeBoardBuilder prepareNewBoard(RandomGenerator random) {
 		int headPosition = random.nextInt(W * W);
 		int headDirection = random.nextInt(4) * 3;
 
-		char[] positions = EMPTY.toCharArray();
+		return prepareNewBoard(headPosition, headDirection);
+	}
+
+	public static SnakeBoardBuilder prepareNewBoard(int headPosition, int headDirection) {
+		char[] positions = SnakeBoard.makeEmptyPositions();
 		positions[headPosition] = SnakeEvolution.asChar(headDirection);
 
 		// TODO We should pick a direction which is guaranteed not to lose right away
@@ -63,8 +67,12 @@ public class Snake implements IGame, IRealtimeGame, ISnakeConstants {
 				.headPosition(headPosition)
 				.headDirection(headDirection)
 				.tailPosition(headPosition)
-				.positions(positions)
-				.build();
+				.positions(positions);
+	}
+
+	@Override
+	public SnakeBoard generateInitialBoard(RandomGenerator random) {
+		return prepareNewBoard(random).life(1).build();
 	}
 
 	@Override
@@ -83,24 +91,37 @@ public class Snake implements IGame, IRealtimeGame, ISnakeConstants {
 		}
 
 		int headPosition = board.getHeadPosition();
-		if (direction == D0_ && getRow(headPosition) == 0) {
+		boolean willHotTheWall = willHitTheWill(headPosition, direction);
+
+		if (willHotTheWall) {
 			return Collections.singletonList("direction=" + direction + " will hit the wall");
-		} else if (direction == D6_ && getRow(headPosition) == W - 1) {
-			return Collections.singletonList("direction=" + direction + " will hit the wall");
-		} else if (direction == D3_ && getColumn(headPosition) == W - 1) {
-			return Collections.singletonList("direction=" + direction + " will hit the wall");
-		} else if (direction == D9_ && getColumn(headPosition) == 0) {
-			return Collections.singletonList("direction=" + direction + " will hit the wall");
+
 		}
 
 		return Collections.emptyList();
 	}
 
-	private int getRow(int position) {
+	public static boolean willHitTheWill(int headPosition, int direction) {
+		boolean willHotTheWall;
+		if (direction == D0_ && getRow(headPosition) == 0) {
+			willHotTheWall = true;
+		} else if (direction == D6_ && getRow(headPosition) == W - 1) {
+			willHotTheWall = true;
+		} else if (direction == D3_ && getColumn(headPosition) == W - 1) {
+			willHotTheWall = true;
+		} else if (direction == D9_ && getColumn(headPosition) == 0) {
+			willHotTheWall = true;
+		} else {
+			willHotTheWall = false;
+		}
+		return willHotTheWall;
+	}
+
+	private static int getRow(int position) {
 		return position / ISnakeConstants.W;
 	}
 
-	private int getColumn(int position) {
+	private static int getColumn(int position) {
 		return position % ISnakeConstants.W;
 	}
 
@@ -162,13 +183,13 @@ public class Snake implements IGame, IRealtimeGame, ISnakeConstants {
 	}
 
 	@Override
-	public IKumiteBoard forward(IKumiteBoard board, int nbFrameForward) {
+	public IKumiteBoard forward(RandomGenerator randomGenerator, IKumiteBoard board, int nbFrameForward) {
 		if (nbFrameForward != 1) {
 			// The game will just go slower for the user. Snake with torus/unbounded world may accept unlimited
 			// frame-forward
 			log.debug("We stick to 1 frame (instead of {}), else the snake would quickly hit a wall", nbFrameForward);
 		}
-		return getEvolution().forwardSnake((SnakeBoard) board, 1);
+		return getEvolution().forwardSnake(randomGenerator, (SnakeBoard) board, 1);
 	}
 
 	private SnakeEvolution getEvolution() {

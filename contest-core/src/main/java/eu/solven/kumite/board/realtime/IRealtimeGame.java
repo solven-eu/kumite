@@ -1,6 +1,7 @@
 package eu.solven.kumite.board.realtime;
 
 import java.time.Duration;
+import java.util.random.RandomGenerator;
 
 import eu.solven.kumite.board.IKumiteBoard;
 
@@ -13,6 +14,6 @@ public interface IRealtimeGame extends IHasRealtimeGame {
 
 	Duration getPace();
 
-	IKumiteBoard forward(IKumiteBoard board, int nbFrameForward);
+	IKumiteBoard forward(RandomGenerator randomGenerator, IKumiteBoard board, int nbFrameForward);
 
 }
