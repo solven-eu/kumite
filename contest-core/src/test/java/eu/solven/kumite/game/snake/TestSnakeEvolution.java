@@ -18,6 +18,17 @@ public class TestSnakeEvolution implements ISnakeConstants, IKumiteTestConstants
 	RandomGenerator randomGenerator = new Random(0);
 
 	@Test
+	public void testNoPlayer() {
+		// The snake is on second row and second column
+		SnakeBoard board = Snake.prepareNewBoard(snakeEvol.pos(1, 1), D3_).build();
+
+		for (int i = 0; i < 16; i++) {
+			board = snakeEvol.forwardSnake(randomGenerator, board, 1);
+			Assertions.assertThat(board.getLife()).isEqualTo(0);
+		}
+	}
+
+	@Test
 	public void testCanMoveFromMiddle() {
 		// The snake is on second row and second column
 		SnakeBoard board = SnakeBoard.builder()
@@ -58,6 +69,7 @@ public class TestSnakeEvolution implements ISnakeConstants, IKumiteTestConstants
 	@Test
 	public void testMoveForward() {
 		SnakeBoard board = snake.generateInitialBoard(randomGenerator);
+		board.setPlayerId(somePlayerId);
 
 		Assertions.assertThat(board.getPositions()).hasSize(W * W);
 
@@ -75,6 +87,8 @@ public class TestSnakeEvolution implements ISnakeConstants, IKumiteTestConstants
 	@Test
 	public void testMoveOnce() {
 		SnakeBoard initial = snake.generateInitialBoard(randomGenerator);
+		initial.setPlayerId(somePlayerId);
+
 		char initialHeadSymbol = initial.getPositions()[initial.getHeadPosition()];
 
 		SnakeBoard moveOne = snakeEvol.forwardSnake(randomGenerator, initial, 1);
@@ -87,6 +101,8 @@ public class TestSnakeEvolution implements ISnakeConstants, IKumiteTestConstants
 	@Test
 	public void testMoveOnce_toFruit() {
 		SnakeBoard initial = snake.generateInitialBoard(randomGenerator);
+		initial.setPlayerId(somePlayerId);
+
 		char initialHeadSymbol = initial.getPositions()[initial.getHeadPosition()];
 
 		{
@@ -113,6 +129,8 @@ public class TestSnakeEvolution implements ISnakeConstants, IKumiteTestConstants
 	@Test
 	public void testSnakeSize4LoopOnItSelf() {
 		SnakeBoard initial = Snake.prepareNewBoard(snakeEvol.pos(1, 1), D3_).build();
+		initial.setPlayerId(somePlayerId);
+
 		initial.getPositions()[snakeEvol.pos(2, 1)] = F;
 		initial.getPositions()[snakeEvol.pos(2, 2)] = F;
 		initial.getPositions()[snakeEvol.pos(1, 2)] = F;
@@ -148,6 +166,7 @@ public class TestSnakeEvolution implements ISnakeConstants, IKumiteTestConstants
 	@Test
 	public void testSnakeSize9LoopOnItSelf_DieEatingItself() {
 		SnakeBoard initial = Snake.prepareNewBoard(snakeEvol.pos(1, 1), D3_).build();
+		initial.setPlayerId(somePlayerId);
 
 		initial.getPositions()[snakeEvol.pos(2, 1)] = F;
 		initial.getPositions()[snakeEvol.pos(3, 1)] = F;

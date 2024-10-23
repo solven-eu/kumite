@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.greenrobot.eventbus.Subscribe;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import eu.solven.kumite.board.BoardLifecycleManager;
@@ -31,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class RealTimeBoardManager extends BoardLifecycleManager implements InitializingBean {
+public class RealTimeBoardManager extends BoardLifecycleManager implements InitializingBean, DisposableBean {
 
 	final Map<UUID, ScheduledFuture<?>> contestIdToLoop = new ConcurrentHashMap<>();
 
@@ -174,6 +175,11 @@ public class RealTimeBoardManager extends BoardLifecycleManager implements Initi
 				return UUID.randomUUID();
 			}, this::doGameover);
 		}
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		timeLoopExecutor.shutdown();
 	}
 
 }

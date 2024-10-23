@@ -82,15 +82,15 @@ public class SnakeBoard implements IKumiteBoard, IKumiteBoardView, ISnakeConstan
 		}
 	}
 
-	// @Override
-	// public String getBoardSvg() {
-	// return "KumiteTicTacToeBoardState";
-	// }
-	//
-	// @Override
-	// public String getMoveSvg() {
-	// return "KumiteTicTacToeBoardMove";
-	// }
+	@Override
+	public String getBoardSvg() {
+		return "KumiteSnakeBoardState";
+	}
+
+	@Override
+	public String getMoveSvg() {
+		return "KumiteSnakeBoardMove";
+	}
 
 	@Override
 	public List<UUID> snapshotContenders() {

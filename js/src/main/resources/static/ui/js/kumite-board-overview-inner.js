@@ -12,6 +12,7 @@ import KumiteContestWebsocket from "./kumite-contest-websocket.js";
 import KumiteJsonBoardState from "./board-renderers/kumite-json-board-state.js";
 import KumiteTSPBoardState from "./board-renderers/kumite-tsp-board-state.js";
 import KumiteTicTacToeBoardState from "./board-renderers/kumite-tictactoe-board-state.js";
+import KumiteSnakeBoardState from "./board-renderers/kumite-snake-board-state.js";
 
 export default {
 	components: {
@@ -23,6 +24,7 @@ export default {
 		KumiteJsonBoardState,
 		KumiteTSPBoardState,
 		KumiteTicTacToeBoardState,
+        KumiteSnakeBoardState,
 	},
 	props: {
 		contestId: {

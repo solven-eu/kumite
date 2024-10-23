@@ -17,10 +17,10 @@ public interface ISnakeConstants {
 	int D6_ = 6;
 	int D9_ = 9;
 
-	char D0 = '^';
-	char D3 = '>';
-	char D6 = '⌄';
-	char D9 = '<';
+	char D0 = '0';
+	char D3 = '3';
+	char D6 = '6';
+	char D9 = '9';
 
 	// The fruit symbol
 	char F = 'F';

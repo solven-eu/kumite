@@ -9,6 +9,7 @@ import { useRouter } from "vue-router";
 import KumiteJsonBoardMove from "./board-renderers/kumite-json-board-move.js";
 import KumiteTSPBoardMove from "./board-renderers/kumite-tsp-board-move.js";
 import KumiteTicTacToeBoardMove from "./board-renderers/kumite-tictactoe-board-move.js";
+import KumiteSnakeBoardMove from "./board-renderers/kumite-snake-board-move.js";
 
 // Duplicated from store.js
 // TODO How can we share such a class?
@@ -27,6 +28,7 @@ export default {
 		KumiteJsonBoardMove,
 		KumiteTSPBoardMove,
 		KumiteTicTacToeBoardMove,
+        KumiteSnakeBoardMove,
 	},
 	props: {
 		contestId: {

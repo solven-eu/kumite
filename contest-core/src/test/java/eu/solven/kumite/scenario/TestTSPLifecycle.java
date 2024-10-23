@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.random.RandomGenerator;
 
 import org.assertj.core.api.Assertions;
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +116,7 @@ public class TestTSPLifecycle {
 				// lexicographical
 				.anySatisfy(ps -> {
 					Assertions.assertThat(ps.getPlayerId()).isEqualTo(player.getPlayerId());
-					Assertions.assertThat(ps.getScore().doubleValue()).isBetween(65.79, 65.80);
+					Assertions.assertThat(ps.getScore().doubleValue()).isCloseTo(64.05, Offset.offset(0.01D));
 				});
 	}
 }

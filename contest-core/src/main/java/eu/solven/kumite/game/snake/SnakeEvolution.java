@@ -22,8 +22,14 @@ public class SnakeEvolution implements ISnakeConstants {
 	}
 
 	public SnakeBoard forwardSnake(RandomGenerator randomGenerator, SnakeBoard board, int nbFrame) {
+		if (board.getPlayerId() == null) {
+			return board;
+		}
+
 		if (Snake.willHitTheWill(board.headPosition, board.headDirection)) {
 			return Snake.prepareNewBoard(randomGenerator)
+					// Keep the existing position so we see how we lost
+					.positions(board.positions)
 					.fruit(board.fruit)
 					.life(board.life - 1)
 					.playerId(board.playerId)
@@ -60,6 +66,8 @@ public class SnakeEvolution implements ISnakeConstants {
 		if (newHead == D0 || newHead == D3 || newHead == D6 || newHead == D9) {
 			// The snake is eating itself
 			return Snake.prepareNewBoard(randomGenerator)
+					// Keep the existing position so we see how we lost
+					.positions(board.positions)
 					.fruit(board.fruit)
 					.life(board.life - 1)
 					.playerId(board.playerId)
@@ -83,9 +91,8 @@ public class SnakeEvolution implements ISnakeConstants {
 			for (int i = 0; i < newPositions.length; i++) {
 				char c = newPositions[i];
 				if (c == '_') {
-
 					if (indexFree == positionToFruit) {
-						newPositions[indexFree] = 'F';
+						newPositions[i] = 'F';
 						break;
 					}
 

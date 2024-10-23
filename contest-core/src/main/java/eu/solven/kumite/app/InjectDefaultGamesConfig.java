@@ -22,6 +22,7 @@ import eu.solven.kumite.game.IGame;
 import eu.solven.kumite.game.opposition.tictactoe.TicTacToe;
 import eu.solven.kumite.game.optimization.lag.Lag;
 import eu.solven.kumite.game.optimization.tsp.TravellingSalesmanProblem;
+import eu.solven.kumite.game.snake.Snake;
 import eu.solven.kumite.tools.CloseableBean;
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,6 +57,11 @@ public class InjectDefaultGamesConfig {
 	@Bean
 	Lag lag() {
 		return new Lag();
+	}
+
+	@Bean
+	Snake snake() {
+		return new Snake();
 	}
 
 	// Chess is not ready, and is quite complex to implement. It would need to rely on some library (e.g.
