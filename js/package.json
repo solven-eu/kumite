@@ -11,7 +11,7 @@
         "eslint-plugin-prettier": "^5.2.1",
         "eslint-plugin-vue": "^9.28.0",
         "prettier": "3.4.1",
-        "vite": "^5.4.1"
+        "vite": "^6.0.0"
     },
     "name": "kumite",
     "private": true,
